@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Evento extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDEscola',
+        'DTInicio',
+        'DTTermino',
+        'DSEvento',
+    ];
+
+    public function escola()
+    {
+        return $this->belongsTo(Escola::class, 'IDEscola');
+    }
 }

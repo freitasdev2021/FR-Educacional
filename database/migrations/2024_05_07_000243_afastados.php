@@ -4,21 +4,32 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateAfastadosTable extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
-        //
+        Schema::create('afastados', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('IDInativo');
+            $table->string('Justificativa', 250);
+            $table->date('INISuspensao')->nullable();
+            $table->date('TERSuspensao')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
-        //
+        Schema::dropIfExists('afastados');
     }
-};
+}

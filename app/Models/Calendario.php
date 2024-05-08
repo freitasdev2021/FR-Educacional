@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Calendario extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDEscola',
+        'INIAno',
+        'TERAno',
+    ];
+
+    public function escola()
+    {
+        return $this->belongsTo(Escola::class, 'IDEscola');
+    }
 }

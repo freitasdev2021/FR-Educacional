@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Afastado extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDInativo',
+        'Justificativa',
+        'INISuspensao',
+        'TERSuspensao',
+    ];
 }

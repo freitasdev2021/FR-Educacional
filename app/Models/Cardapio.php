@@ -8,4 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Cardapio extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDEscola',
+        'Dia',
+        'Turno',
+        'Descricao',
+        'Foto',
+    ];
+
+    public function escola()
+    {
+        return $this->belongsTo(Escola::class, 'IDEscola');
+    }
 }

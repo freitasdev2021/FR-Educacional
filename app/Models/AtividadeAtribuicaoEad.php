@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class AtividadeAtribuicaoEad extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDAluno',
+        'DTEntrega',
+        'Realizado',
+        'Feedback',
+    ];
+
+    public function aluno()
+    {
+        return $this->belongsTo(Aluno::class, 'IDAluno');
+    }
 }

@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Suspenso extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDAluno',
+        'Justificativa',
+        'INISuspensao',
+        'TERSuspensao',
+    ];
+
+    public function aluno()
+    {
+        return $this->belongsTo(Aluno::class, 'IDAluno');
+    }
 }

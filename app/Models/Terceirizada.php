@@ -8,4 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Terceirizada extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'IDOrg',
+        'Nome',
+        'CEP',
+        'Rua',
+        'Bairro',
+        'Cidade',
+        'Numero',
+        'UF',
+        'Telefone',
+        'Email',
+        'CNPJ',
+        'Ramo',
+    ];
+
+    public function organizacao()
+    {
+        return $this->belongsTo(Organizacao::class, 'IDOrg');
+    }
 }

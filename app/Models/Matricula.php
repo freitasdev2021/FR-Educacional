@@ -8,4 +8,35 @@ use Illuminate\Database\Eloquent\Model;
 class Matricula extends Model
 {
     use HasFactory;
+
+    protected $table = 'matriculas';
+
+    protected $fillable = [
+        'AnexoRG',
+        'IDEscola',
+        'CResidencia',
+        'Historico',
+        'Nome',
+        'CPF',
+        'RG',
+        'CEP',
+        'Rua',
+        'Email',
+        'Celular',
+        'UF',
+        'Cidade',
+        'AnoLetivo',
+        'BolsaFamilia',
+        'Alergia',
+        'Transporte',
+        'NEE',
+        'AMedico',
+        'APsicologico',
+        'Aprovado',
+    ];
+
+    public function escola()
+    {
+        return $this->belongsTo(Escola::class, 'IDEscola');
+    }
 }
