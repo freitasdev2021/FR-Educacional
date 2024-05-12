@@ -14,6 +14,14 @@ class Escola extends Model
         'Nome',
         'CEP',
         'Rua',
+        'Bairro',
+        'Cidade',
+        'Numero',
+        'UF',
+        'Telefone',
+        'Email',
+        'QTVagas',
+        'QTRepetencia',
     ];
 
     public function organizacao()

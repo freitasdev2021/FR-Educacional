@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEscolasTable extends Migration
+class CreateIscolasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -20,6 +20,14 @@ class CreateEscolasTable extends Migration
             $table->string('Nome', 50);
             $table->string('CEP', 8);
             $table->string('Rua', 50);
+            $table->string('Bairro', 50);
+            $table->string('Cidade', 50);
+            $table->integer('Numero');
+            $table->string('UF', 2);
+            $table->string('Telefone', 11);
+            $table->string('Email', 50);
+            $table->integer('QTVagas');
+            $table->integer('QTRepetencia');
             $table->timestamps();
         });
     }

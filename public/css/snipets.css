@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap");
+
+:root {
+    --altura-total: 100%; /* Definindo a altura total */
+    --altura-subtracao: 150px; /* Definindo a altura a ser subtraída */
+}
+  
+body{
+    overflow:hidden;
+}
+
+.central{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    width:100%;
+}
+
+.center-form{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.center-form form{
+    width:90%;
+}
+
+.fr-card{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    height: calc(var(--altura-total) - var(--altura-subtracao)); /* Calculando a altura */
+}
+
+.btn-fr{
+    background:#234D9D;
+    color:white;
+}
+
+.tabela{
+    text-align:center;
+}
+
+.centertext{
+    text-align:center;
+}
+
+.bg-fr{
+    background:#234D9D;
+}
+
+.fr-card-header{
+    font-size:1.2em;
+}
+
+.fr-card-header{
+    padding:0px;
+    background:#234D9D;
+    display:flex;
+    
+}
+
+.nav_logo i{
+    font-size:1.5em;
+}
+
+.fr-card-body{
+    padding:10px;
+    height:850px;
+    border-top:none;
+}
+
+.fr-submodulo{
+    color:white;
+    padding:10px;
+    border:none;
+    font-size:1.0em;
+    font-family:'Nunito', sans-serif;
+}
+
+.active-submodulo{
+    background:white;
+    color:black;
+}
+
+.sair{
+    background-color: transparent; /* Remove o fundo */
+    border: none; /* Remove a borda */
+}

@@ -1,0 +1,52 @@
+body{
+    height:100vh;
+    overflow:hidden;
+}
+.divider:after,
+.divider:before {
+content: "";
+flex: 1;
+height: 1px;
+background: #eee;
+}
+.h-custom {
+height: calc(100% - 73px);
+}
+@media (max-width: 1280px) {
+  .h-custom{
+    height: 100%;
+  }
+  img{
+    width:100%;
+    display:flex;
+    justify-content:center;
+  }
+}
+
+.bt-login{
+    background: #234D9D; 
+    padding-left: 2.5rem; 
+    padding-right: 2.5rem;
+    color:white;
+}
+
+footer{
+    width:100%;
+    padding:20px;
+    background:#e7eaf0;
+    height:50px;
+}
+
+.btcliente{
+    color:#234D9D;
+    display:flex;
+    justify-content:center;
+    font-size:1.5em;
+    text-decoration:none;
+    text-align:center;
+}
+
+.suporte{
+    float:right;
+    color:black;
+}
