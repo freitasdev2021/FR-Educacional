@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Organizacao;
+use App\Models\User;
 use App\Http\Requests\secretariasRequest;
+use App\Http\Requests\AdministradoresRequest;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 class SecretariasController extends Controller
 {
 
@@ -12,6 +16,10 @@ class SecretariasController extends Controller
         "nome" => "Cadastros",
         "endereco" => "index",
         "rota" => "Secretarias/index"
+    ],[
+        "nome" => "Administradores",
+        "endereco" => "Administradores",
+        "rota" => "Secretarias/Administradores"
     ],[
         "nome" => "Relatórios",
         "endereco" => "Relatorios",
@@ -21,11 +29,7 @@ class SecretariasController extends Controller
     public function cadastro($id=null){
 
         $view = [
-            "submodulos" => array([
-                "nome" => "Cadastro",
-                "endereco" => "Novo",
-                "rota" => "Secretarias/Novo"
-            ]),
+            "submodulos" => self::submodulos,
             'id' => ''
         ];
 
@@ -38,6 +42,26 @@ class SecretariasController extends Controller
         }
 
         return view('Secretarias.createSecretaria',$view);
+
+    }
+
+    public function cadastroAdministradores($id=null){
+
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Organizacoes' => Organizacao::all()
+        ];
+
+        if($id){
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Secretarias/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = User::all()->where('id',$id)->first();
+            $view['end'] = json_decode($view['Registro']->Endereco);
+        }
+
+        return view('Secretarias.createAdministrador',$view);
 
     }
 
@@ -72,10 +96,36 @@ class SecretariasController extends Controller
         }
     }
 
+    public function saveAdm(AdministradoresRequest $request){
+        try{
+            $adm = $request->all();
+            $adm['tipo'] = 2;
+            $aid = '';
+            if($request->id){
+                $Organizacao = User::find($request->id);
+                $Organizacao->update($adm);
+                $rout = 'Secretarias/Administradores/Edit';
+                $aid = $request->id;
+            }else{
+                $adm['password'] = Hash::make(rand(100000,999999));
+                User::create($adm);
+                $rout = 'Secretarias/Administradores/Novo';
+            }
+            $status = 'success';
+            $mensagem = 'Salvamento Feito com Sucesso';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = "Erro ao Salvar o Administrador: ".$th;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
     public function index(){
 
         return view('Secretarias.index',[
-            "submodulos" => self::submodulos
+            "submodulos" => self::submodulos,
+            'id'
         ]);
     }
 
@@ -105,11 +155,41 @@ class SecretariasController extends Controller
         echo json_encode($resultados);
     }
 
+    public function getSecretariasAdministradores(){
+        if(User::all()->where('tipo',2)->count() > 0){
+            foreach(User::all()->where('tipo',2) as $u){
+                $item = [];
+                $item[] = $u->name;
+                $item[] = $u->email;
+                $item[] = "<a href='".route('Secretarias/Administradores/Edit',$u->id)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(User::all()->where('tipo',2)->count()),
+            "recordsFiltered" => intval(User::all()->where('tipo',2)->count()),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function administradores(){
+        return view('Secretarias.administradores',[
+            "submodulos" => self::submodulos,
+            'id' => ''
+        ]);
+    }
+
 
     public function relatorios(){
 
         return view('Secretarias.relatorios',[
-            "submodulos" => self::submodulos
+            "submodulos" => self::submodulos,
+            'id' => ''
         ]);
     }
 

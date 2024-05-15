@@ -1,9 +1,8 @@
 <x-educacional-layout>
-    <x-header title="Secretarías"/>
     <div class="fr-card p-0 shadow col-sm-12">
         <div class="fr-card-header">
            @foreach($submodulos as $s)
-            <x-submodulo nome="{{$s['nome']}}" endereco="{{$s['endereco']}}" rota="{{route($s['rota'],$id)}}" icon="bx bx-list-ul"/>
+            <x-submodulo nome="{{$s['nome']}}" endereco="{{$s['endereco']}}" rota="{{route($s['rota'])}}" icon="bx bx-list-ul"/>
            @endforeach
         </div>
         <div class="fr-card-body">
@@ -25,12 +24,14 @@
                     @if(isset($Registro->id))
                     <input type="hidden" name="id" value="{{$Registro->id}}">
                     @endif
-                    <div class="col-sm-12">
-                        <label>Organização</label>
-                        <input type="text" name="Organizacao" class="form-control @error('Organizacao') is-invalid @enderror" maxlength="100" required value="{{isset($Registro->Organizacao) ? $Registro->Organizacao : ''}}">
-                        @error('Organizacao')
-                            <div class="text-danger"><strong>{{$message}}</strong></div>
-                        @enderror
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Organização</label>
+                            <input type="text" name="Organizacao" class="form-control @error('Organizacao') is-invalid @enderror" maxlength="100" required value="{{isset($Registro->Organizacao) ? $Registro->Organizacao : ''}}">
+                            @error('Organizacao')
+                                <div class="text-danger"><strong>{{$message}}</strong></div>
+                            @enderror
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-4">
@@ -71,6 +72,7 @@
                     <br>
                     <div class="col-sm-12 text-left">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
+                        <button class='btn btn-danger' type="button">Encerrar Contrato</button>
                         <a class="btn btn-light" href="{{route('Secretarias/index')}}">Voltar</a>
                     </div>
                 </form>    

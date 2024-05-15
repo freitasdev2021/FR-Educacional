@@ -9,20 +9,17 @@
             <!--CABECALHO-->
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
-                    <a href="{{route('Secretarias/Novo')}}" class="btn btn-fr">Adicionar</a>
+                    <a href="{{route('Secretarias/Administradores/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <hr>
-                <table class="table table-sm tabela" id="secretarias" data-rota="{{route('Secretarias/list')}}">
+                <table class="table table-sm tabela" id="secretariasAdministradores" data-rota="{{route('Secretarias/Administradores/list',$id)}}">
                     <thead>
                       <tr>
-                        <th style="text-align:center;" scope="col">Orgão</th>
+                        <th style="text-align:center;" scope="col">Nome</th>
                         <th style="text-align:center;" scope="col">Email</th>
-                        <th style="text-align:center;" scope="col">Endereço</th>
-                        <th style="text-align:center;" scope="col">UF</th>
-                        <th style="text-align:center;" scope="col">Cidade</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

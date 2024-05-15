@@ -21,3 +21,11 @@ $("#secretarias").dataTable({
     "serverside": true,
     "ajax" : $("#secretarias").attr("data-rota")
 });
+
+$("#secretariasAdministradores").dataTable({
+    "responsive": true,
+    "autoWidth": false,
+    "bDestroy": true,
+    "serverside": true,
+    "ajax" : $("#secretariasAdministradores").attr("data-rota")
+});
