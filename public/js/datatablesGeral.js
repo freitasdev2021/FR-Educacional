@@ -22,6 +22,14 @@ $("#secretarias").dataTable({
     "ajax" : $("#secretarias").attr("data-rota")
 });
 
+$("#escolas").dataTable({
+    "responsive": true,
+    "autoWidth": false,
+    "bDestroy": true,
+    "serverside": true,
+    "ajax" : $("#escolas").attr("data-rota")
+});
+
 $("#secretariasAdministradores").dataTable({
     "responsive": true,
     "autoWidth": false,

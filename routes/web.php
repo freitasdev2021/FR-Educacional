@@ -43,16 +43,19 @@ Route::middleware('auth')->group(function () {
     //
     //Route::middleware(['secretario','diretor','coordenador','pedagogo'])->group(function () {
         //ESCOLAS
+        Route::get('/Escolas/list',[EscolasController::class,'getEscolas'])->name('Escolas/list')->middleware('secretario');
         Route::get('/Escolas',[EscolasController::class,'index'])->name('Escolas/index')->middleware('secretario');
         Route::get('/Escolas/Novo',[EscolasController::class,'cadastro'])->name('Escolas/Novo')->middleware('secretario');
         Route::get('/Escolas/Cadastro/{id}',[EscolasController::class,'cadastro'])->name('Escolas/Edit')->middleware('secretario');
         Route::post('/Escolas/Save',[EscolasController::class,'save'])->name('Escolas/Save')->middleware('secretario');
         //Anos letivos
+        Route::get('/Escolas/Anosletivos/list',[EscolasController::class,'getAnosLetivos'])->name('Escolas/Anosletivos/list')->middleware('secretario');
         Route::get('/Escolas/Anosletivos',[EscolasController::class,'anosLetivos'])->name('Escolas/Anosletivos')->middleware(['secretario','coordenador']);
         Route::get('/Escolas/Anosletivos/Novo',[EscolasController::class,'cadastroAnosLetivos'])->name('Escolas/Anosletivos/Novo')->middleware('secretario');
         Route::get('/Escolas/Anosletivos/Edit/{id}',[EscolasController::class,'cadastroAnosLetivos'])->name('Escolas/Anosletivos/Cadastro')->middleware('secretario');
         Route::post('/Escolas/Anosletivos/Save',[EscolasController::class,'saveAnosLetivos'])->name('Escolas/Anosletivos/Save')->middleware('secretario');
         //Disciplinas
+        Route::get('/Escolas/Disciplinas/list',[EscolasController::class,'getDisciplinas'])->name('Escolas/Disciplinas/list')->middleware('secretario');
         Route::get('/Escolas/Disciplinas',[EscolasController::class,'Disciplinas'])->name('Escolas/Disciplinas')->middleware(['secretario','diretor','coordenador']);
         Route::get('/Escolas/Disciplinas/Novo',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Novo')->middleware(['secretario']);
         Route::get('/Escolas/Disciplinas/Edit/{id}',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Cadastro');

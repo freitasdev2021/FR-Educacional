@@ -69,6 +69,18 @@
     font-size:1.5em;
 }
 
+.checkboxEscolas{
+	width:100%;
+	display:flex;
+	margin-left:5px;
+	flex-direction:row;
+	flex-wrap:wrap;
+}
+
+.escola{
+	margin-right:20px;
+}
+
 .fr-card-body{
     padding:10px;
     height:850px;
@@ -77,6 +89,15 @@
 
 .fr-submodulo{
     color:white;
+    padding:10px;
+    border:none;
+    font-size:1.0em;
+    font-family:'Nunito', sans-serif;
+}
+
+.fr-submodulo:hover{
+	color:black;
+	background:white;
     padding:10px;
     border:none;
     font-size:1.0em;
@@ -193,7 +214,7 @@ a {
 	height: 100vh;
 	background-color: var(--first-color);
 	padding: .5rem 1rem 0 0;
-	/* transition: .5s; */
+	transition: .5s;
 	z-index: var(--z-fixed)
 }
 

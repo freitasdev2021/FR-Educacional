@@ -9,20 +9,17 @@
             <!--CABECALHO-->
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
-                    <a href="{{route('Escolas/Novo')}}" class="btn btn-fr">Adicionar</a>
+                    <a href="{{route('Escolas/Disciplinas/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <hr>
-                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Escolas/list')}}">
+                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Escolas/Disciplinas/list')}}">
                     <thead>
                       <tr>
-                        <th style="text-align:center;" scope="col">Nome</th>
-                        <th style="text-align:center;" scope="col">Endereço</th>
-                        <th style="text-align:center;" scope="col">Email</th>
-                        <th style="text-align:center;" scope="col">Telefone</th>
-                        <th style="text-align:center;" scope="col">Vagas</th>
+                        <th style="text-align:center;" scope="col">Disciplina</th>
+                        <th style="text-align:center;" scope="col">Escolas</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>
