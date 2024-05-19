@@ -23,24 +23,25 @@
                     @endif
                     @if(isset($Registro->id))
                     <input type="hidden" name="id" value="{{$Registro->id}}">
+                    <input type="hidden" name="IDEscola" value="{{$Registro->IDEscola}}">
                     @endif
                     <div class="row">
                         <div class="col-sm-8">
                             <label>Nome da escola</label>
-                            <select name="IDEscola" class="form-control">
+                            <select name="IDEscola" class="form-control" {{isset($Registro->id) ? 'disabled' : 'required'}}>
                                 <option value="">Selecione</option>
                                 @foreach($escolas as $e)
-                                <option value="{{$e->id}}" {{(isset($Registro->id) && $Registro->id == $e->id) ? 'selected' : ''}}>{{$e->Nome}}</option>
+                                <option value="{{$e->id}}" {{(isset($Registro->id) && $Registro->IDEscola == $e->id) ? 'selected' : ''}}>{{$e->Nome}}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-sm-2">
                             <label>Inicio do Ano</label>
-                            <input type="date" name="INIAno" class="form-control" value="{{isset($Registro->INIAno) ? $Registro->INIAno : ''}}">
+                            <input type="date" name="INIAno" class="form-control" value="{{isset($Registro->INIAno) ? $Registro->INIAno : ''}}" required>
                         </div>
                         <div class="col-sm-2">
                             <label>Termino do Ano</label>
-                            <input type="date" name="TERAno" class="form-control" value="{{isset($Registro->TERAno) ? $Registro->TERAno : ''}}">
+                            <input type="date" name="TERAno" class="form-control" value="{{isset($Registro->TERAno) ? $Registro->TERAno : ''}}" required>
                         </div>
                     </div>
                     <br>

@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Escola;
 use App\Models\Calendario;
-use App\Models\Turmas;
+use App\Models\Turma;
 use App\Models\Disciplina;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class EscolasController extends Controller
 {
@@ -103,13 +104,13 @@ class EscolasController extends Controller
             $status = 'error';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
         }finally{
-            return redirect()->route('Escolas/Edit',$aid)->with($status,$mensagem);
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
     }
 
     ////////////////////////////////////////////ANOS LETIVOS
     public function getAnosLetivos(){
-        $anosletivos = DB::select("SELECT c.INIAno,c.TERAno,c.id,e.Nome FROM calendario c INNER JOIN escolas e ON(c.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."'  ");
+        $anosletivos = DB::select("SELECT c.INIAno,c.TERAno,c.id,e.Nome FROM calendario c INNER JOIN escolas e ON(c.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE DATE_FORMAT(INIAno, '%Y') = date('Y') AND DATE_FORMAT(TERAno, '%Y') = date('Y') AND o.id = '".Auth::user()->id_org."'  ");
 
         if(count($anosletivos) > 0){
             foreach($anosletivos as $c){
@@ -163,25 +164,50 @@ class EscolasController extends Controller
     public function saveAnosLetivos(Request $request){
         try{
             $aid = '';
-            $esc = $request->all();
-            $esc['CEP'] = preg_replace('/\D/', '', $request->CEP);
-            $esc['Telefone'] = preg_replace('/\D/', '', $request->Telefone);
-            if($request->id){
-                $Escola = Calendario::find($request->id);
-                $Escola->update($esc);
-                $rout = 'Escolas/Anosletivos/Cadastro';
-                $aid = $request->id;
+            $INI = Carbon::parse($request->INIAno);
+            $TER = Carbon::parse($request->TERAno);
+            $validate = array(
+                "Escola" => (!$request->id) ? DB::select("SELECT IDEscola FROM calendario WHERE IDEscola = $request->IDEscola AND DATE_FORMAT(INIAno,'%Y') = date('Y') ") : [],
+                "Meses" => ($INI->greaterThan($TER)) ? false : true,
+                "Ano" => (Controller::data('Y',$request->INIAno) < date('Y') || Controller::data('Y',$request->TERAno) < date('Y')) ? false : true
+            );
+            if(count($validate['Escola']) > 0 || !$validate['Meses'] || !$validate['Ano']){
+                $mensagem= [];
+                if(count($validate['Escola']) > 0){
+                    $status = 'error';
+                    $mensagem = 'Já Existe uma Escola Cadastrada nesse Ano!';
+                }elseif(!$validate['Meses']){
+                    $status = 'error';
+                    $mensagem = 'Ops! Erro de Digitação, a Data de Início e Superior a data de Término';
+                }elseif(!$validate['Ano']){
+                    $status = 'error';
+                    $mensagem = 'Ops! Estamos em '.date('Y');
+                }
+                //
+                if($request->id){
+                    $rout = 'Escolas/Anosletivos/Cadastro';
+                    $aid = $request->id;
+                }else{
+                    $rout = 'Escolas/Anosletivos/Novo';
+                }
             }else{
-                Calendario::create($esc);
-                $rout = 'Escolas/Anosletivos/Novo';
+                if($request->id){
+                    $Escola = Calendario::find($request->id);
+                    $Escola->update($request->all());
+                    $rout = 'Escolas/Anosletivos/Cadastro';
+                    $aid = $request->id;
+                }else{
+                    Calendario::create($request->all());
+                    $rout = 'Escolas/Anosletivos/Novo';
+                }
+                $status = 'success';
+                $mensagem = 'Salvamento Feito com Sucesso';
             }
-            $status = 'success';
-            $mensagem = 'Salvamento Feito com Sucesso';
         }catch(\Throwable $th){
             $status = 'error';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
         }finally{
-            return redirect()->route('Escolas/Anosletivos/Cadastro',$aid)->with($status,$mensagem);
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
     }
     ///////////////////////////////////////////DISCIPLINAS
@@ -235,8 +261,6 @@ class EscolasController extends Controller
             'id' => '',
             'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org)
         ];
-
-        $idorg = Auth::user()->id_org;
 
         if($id){
             $SQL = <<<SQL
@@ -324,25 +348,27 @@ class EscolasController extends Controller
     }
     ///////////////////////////////////////////TURMAS
     public function getTurmas(){
+
+        $idorg = Auth::user()->id_org;
+
         $SQL = <<<SQL
-        SELECT NMDisciplina, Obrigatoria,d.id, CONCAT('[', 
-                GROUP_CONCAT(
-                '"', e.Nome, '"' 
-            SEPARATOR ','), 
-        ']') as Escolas 
-        FROM disciplinas d 
-        INNER JOIN escolas e ON(d.IDEscola = e.id) 
-        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        GROUP BY NMDisciplina;
+        SELECT t.id as IDTurma, t.Nome as Turma,t.INITurma,.t.TERTurma,e.Nome as Escola,t.Serie 
+        FROM turmas t
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        INNER JOIN organizacoes o on(e.IDOrg = o.id)
+        WHERE o.id = $idorg
         SQL;
 
-        $disciplinas = DB::select($SQL);
-        if(count($disciplinas) > 0){
-            foreach($disciplinas as $d){
+        $turmas = DB::select($SQL);
+        if(count($turmas) > 0){
+            foreach($turmas as $t){
                 $item = [];
-                $item[] = $d->NMDisciplina;
-                $item[] = $d->IDEscola;
-                $item[] = "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = $t->Turma;
+                $item[] = $t->Serie;
+                $item[] = $t->Escola;
+                $item[] = $t->INITurma." - ".$t->TERTurma;
+                $item[] = 0;
+                $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -350,8 +376,8 @@ class EscolasController extends Controller
         }
         
         $resultados = [
-            "recordsTotal" => intval(count($disciplinas)),
-            "recordsFiltered" => intval(count($disciplinas)),
+            "recordsTotal" => intval(count($turmas)),
+            "recordsFiltered" => intval(count($turmas)),
             "data" => $itensJSON 
         ];
         
@@ -369,43 +395,50 @@ class EscolasController extends Controller
 
         $view = [
             "submodulos" => self::submodulos,
-            'id' => ''
+            'id' => '',
+            'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org)
         ];
 
         if($id){
+            $SQL = <<<SQL
+            SELECT t.id as IDTurma,t.Periodo, t.Nome as Turma,t.INITurma,.t.TERTurma,e.id as IDEscola,t.Serie,t.NotaPeriodo,t.MediaPeriodo,t.TotalAno
+            FROM turmas t
+            INNER JOIN escolas e ON(e.id = t.IDEscola)
+            INNER JOIN organizacoes o on(e.IDOrg = o.id)
+            WHERE t.id = $id
+            SQL;
+
+            $turmas = DB::select($SQL);
             $view['submodulos'][0]['endereco'] = "Edit";
-            $view['submodulos'][0]['rota'] = "Escolas/Edit";
+            $view['submodulos'][0]['rota'] = "Escolas/Turmas/Cadastro";
             $view['id'] = $id;
-            $view['Registro'] = Escola::all()->where('id',$id)->first();
-            $view['end'] = json_decode($view['Registro']->Endereco);
+            $view['Registro'] = $turmas[0];
         }
 
-        return view('Escolas.createAnoLetivo',$view);
+        return view('Escolas.createTurmas',$view);
 
     }
 
     public function saveTurmas(Request $request){
         try{
             $aid = '';
-            $esc = $request->all();
-            $esc['CEP'] = preg_replace('/\D/', '', $request->CEP);
-            $esc['Telefone'] = preg_replace('/\D/', '', $request->Telefone);
+            $turma = $request->all();
             if($request->id){
-                $Escola = Disciplina::find($request->id);
-                $Escola->update($esc);
-                $rout = 'Escolas/Anosletivos/Edit';
+                $Turma = Turma::find($request->id);
+                $Turma->update($turma);
+                $rout = 'Escolas/Turmas/Cadastro';
                 $aid = $request->id;
             }else{
-                Disciplina::create($esc);
-                $rout = 'Escolas/Anosletivos/Novo';
+                Turma::create($turma);
+                $rout = 'Escolas/Turmas/Novo';
             }
             $status = 'success';
             $mensagem = 'Salvamento Feito com Sucesso';
         }catch(\Throwable $th){
             $status = 'error';
-            $mensagem = "Erro ao Salvar a Escola: ".$th;
+            $mensagem = "Erro ao Salvar a Turma: ".$th;
         }finally{
-            return redirect()->route('Escolas/Anosletivos/Edit',$aid)->with($status,$mensagem);
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
     }
     /////////////////////////////////////////////

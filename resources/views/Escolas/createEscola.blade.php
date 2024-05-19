@@ -106,5 +106,6 @@
         })
         //
         $("input[name=CEP]").inputmask('99999-999')
+        $("input[name=Telefone]").inputmask('(99) 9 9999-9999')
     </script>
 </x-educacional-layout>
