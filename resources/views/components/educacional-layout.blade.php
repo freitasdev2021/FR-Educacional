@@ -18,17 +18,16 @@
                   <x-modulo nome="Usuários" icon="bx bx-user" rota="Usuarios/indexFornecedor" endereco="Usuarios"/>
                   @elseif(Auth::user()->tipo == 2)
                   <x-modulo nome="Escolas" icon="bx bxs-school" rota="Escolas/index" endereco="Escolas"/>
-                  <x-modulo nome="Coordenadores" icon="bx bxs-briefcase" rota="Coordenadores/index" endereco="Coordenadores"/>
                   <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>
                   <x-modulo nome="Professores" icon="bx bxs-book-reader" rota="Professores/index" endereco="Professores"/>
                   <x-modulo nome="Pedagogos" icon="bx bx-library" rota="Pedagogos/index" endereco="Pedagogos"/>
                   <x-modulo nome="Responsaveis" icon="bx bx-male-female" rota="Responsaveis/index" endereco="Responsaveis"/>
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Auxiliares" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
-                  <x-modulo nome="Apoio" icon="bx bxs-universal-access" rota="Apoio/index" endereco="Apoio"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Acompanhamento" icon="bx bx-calendar-check" rota="Acompanhamento/index" endereco="Acompanhamento"/>
-                  <x-modulo nome="Cardápio" icon="bx bx-fork" rota="Cardapio/index" endereco="Cardapio"/>
+                  <x-modulo nome="Merenda" icon="bx bx-fork" rota="Cardapio/index" endereco="Cardapio"/>
+                  <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Professores/index" endereco="Coordenadores"/>
                   @endif 
                 </div>
              </div>

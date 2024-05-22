@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Alocacao extends Model
 {
     use HasFactory;
-
+    protected $table = 'alocacoes';
     protected $fillable = [
         'IDEscola',
         'IDProfissional',
         'INITurno',
         'TERTurno',
+        'TPProfissional'
     ];
 
     public function escola()

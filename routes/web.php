@@ -84,17 +84,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/Alunos/Matriculas/Novo',[AlunosController::class,'cadastroMatricula'])->name('Alunos/Matriculas/Novo')->middleware(['coordenador','diretor']);
         Route::get('/Alunos/Matriculas/Cadastro/{id}',[AlunosController::class,'cadastroMatricula'])->name('Alunos/Matriculas/Edit')->middleware(['coordenador','diretor','pedagogo']);
         Route::post('/Alunos/Matriculas/Save',[AlunosController::class,'saveMatricula'])->name('Alunos/Matriculas/Save')->middleware(['coordenador','diretor']);
-        //SECRETARIOS
-        Route::get('/Coordenadores',[SecretariosController::class,'index'])->name('Coordenadores/index')->middleware('secretario');
-        Route::get('/Coordenadores/Novo',[SecretariosController::class,'cadastro'])->name('Coordenadores/Novo')->middleware('secretario');
-        Route::get('/Coordenadores/Cadastro/{id}',[SecretariosController::class,'cadastro'])->name('Coordenadores/Edit')->middleware('secretario');
-        Route::post('/Coordenadores/Save',[SecretariosController::class,'save'])->name('Coordenadores/Save')->middleware('secretario');
         //DIRETORES
+        Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list')->middleware('secretario');
         Route::get('/Diretores',[DiretoresController::class,'index'])->name('Diretores/index')->middleware('secretario');
         Route::get('/Diretores/Novo',[DiretoresController::class,'cadastro'])->name('Diretores/Novo')->middleware('secretario');
         Route::get('/Diretores/Cadastro/{id}',[DiretoresController::class,'cadastro'])->name('Diretores/Edit')->middleware('secretario');
         Route::post('/Diretoress/Save',[DiretoresController::class,'save'])->name('Diretores/Save')->middleware('secretario');
         //PROFESSORES
+        Route::get('/Professores/list',[ProfessoresController::class,'getProfessores'])->name('Professores/list')->middleware('secretario');
         Route::get('/Professores',[ProfessoresController::class,'index'])->name('Professores/index')->middleware(['coordenador','diretor','secretario']);
         Route::get('/Professores/Novo',[ProfessoresController::class,'cadastro'])->name('Professores/Novo')->middleware('secretario');
         Route::get('/Professores/Cadastro/{id}',[ProfessoresController::class,'cadastro'])->name('Professores/Edit')->middleware(['coordenador','diretor','secretario']);
@@ -108,6 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/Professores/Planejamentos',[ProfessoresController::class,'planejamentos'])->name('Professores/Planejamentos')->middleware(['coordenador','diretor','secretario']);
         Route::post('/Professores/Turnos/{id}',[ProfessoresController::class,'turnos'])->name('Professores/Turnos')->middleware(['coordenador','diretor','secretario']);
         //PEDAGOGOS
+        Route::get('/Pedagogos/list',[PedagogosController::class,'getPedagogos'])->name('Pedagogos/list')->middleware('secretario');
         Route::get('/Pedagogos',[PedagogosController::class,'index'])->name('Pedagogos/index')->middleware('secretario');
         Route::get('/Pedagogos/Novo',[PedagogosController::class,'cadastro'])->name('Pedagogos/Novo')->middleware('secretario');
         Route::get('/Pedagogos/Cadastro/{id}',[PedagogosController::class,'cadastro'])->name('Pedagogos/Edit')->middleware('secretario');
@@ -117,21 +115,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/Responsaveis/Novo',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Novo')->middleware(['coordenador','diretor']);
         Route::get('/Responsaveis/Cadastro/{id}',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Edit')->middleware(['coordenador','diretor']);
         Route::post('/Responsaveis/Save',[ResponsaveisController::class,'save'])->name('Responsaveis/Save')->middleware(['coordenador','diretor']);
-        //ALUNOS
-        Route::get('/Coordenadores',[SecretariosController::class,'index'])->name('Coordenadores/index')->middleware('secretario');
-        Route::get('/Coordenadores/Novo',[SecretariosController::class,'cadastro'])->name('Coordenadores/Novo')->middleware('secretario');
-        Route::get('/Coordenadores/Cadastro/{id}',[SecretariosController::class,'cadastro'])->name('Coordenadores/Edit')->middleware('secretario');
-        Route::post('/Coordenadores/Save',[SecretariosController::class,'save'])->name('Coordenadores/Save');
         //AUXILIARES
+        Route::get('/Auxiliares/list',[AuxiliaresController::class,'getAuxiliares'])->name('Auxiliares/list')->middleware(['secretario','diretor']);
         Route::get('/Auxiliares',[AuxiliaresController::class,'index'])->name('Auxiliares/index')->middleware(['secretario','diretor']);
         Route::get('/Auxiliares/Novo',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Novo')->middleware(['secretario','diretor']);
         Route::get('/Auxiliares/Cadastro/{id}',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Edit')->middleware(['secretario','diretor']);
         Route::post('/Auxiliares/Save',[AuxiliaresController::class,'save'])->name('Auxiliares/Save')->middleware(['secretario','diretor']);
-        //APOIO
-        Route::get('/Apoio',[ApoioController::class,'index'])->name('Apoio/index')->middleware(['secretario','diretor']);
-        Route::get('/Apoio/Novo',[ApoioController::class,'cadastro'])->name('Apoio/Novo')->middleware(['secretario','diretor']);
-        Route::get('/Apoio/Cadastro/{id}',[ApoioController::class,'cadastro'])->name('Apoio/Edit')->middleware(['secretario','diretor']);
-        Route::post('/Apoio/Save',[ApoioController::class,'save'])->name('Apoio/Save')->middleware(['secretario','diretor']);
         //CALENDARIO
         Route::get('/Calendario',[CalendarioController::class,'index'])->name('Calendario/index')->middleware('secretario');
         Route::get('/Calendario/Novo',[CalendarioController::class,'cadastro'])->name('Calendario/Novo')->middleware('secretario');

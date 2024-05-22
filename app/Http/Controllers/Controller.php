@@ -20,6 +20,38 @@ abstract class Controller
         return $maskared;
     }
 
+    public static function in_associative_array($array, $chave, $valorProcurado) {
+        foreach ($array as $subArray) {
+            if (isset($subArray[$chave]) && $subArray[$chave] === $valorProcurado) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function array_associative_unique($array) {
+        $uniqueArray = [];
+        $uniqueCheck = [];
+    
+        foreach ($array as $element) {
+            // Converter stdClass para array associativo
+            if (is_object($element)) {
+                $element = (array)$element;
+            }
+    
+            // Cria uma chave única para cada elemento
+            $jsonElement = json_encode($element);
+    
+            // Adiciona ao array único se ainda não estiver presente
+            if (!in_array($jsonElement, $uniqueCheck)) {
+                $uniqueCheck[] = $jsonElement;
+                $uniqueArray[] = $element;
+            }
+        }
+    
+        return $uniqueArray;
+    }
+
     //MASCARA PARA TELEFONE
     public static function formataTelefone($numero){
         if(strlen($numero) == 10){

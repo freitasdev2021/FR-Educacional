@@ -3,10 +3,116 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Auxiliar;
+use App\Models\Escola;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuxiliaresController extends Controller
 {
+    public const submodulos = array([
+        "nome" => "Cadastro",
+        "endereco" => "index",
+        "rota" => "Auxiliares/index"
+    ]);
     public function index(){
-        return view('Auxiliares.index');
+        return view('Auxiliares.index',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+
+    public function getAuxiliares(){
+        $Auxiliares = DB::select("SELECT d.id as IDDiretor,e.Nome as Escola,d.Nome as Auxiliar,d.Admissao,d.TerminoContrato,d.CEP,d.Rua,d.UF,d.Cidade,d.Bairro,d.Numero FROM Auxiliares d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' ");
+        if(count($Auxiliares) > 0){
+            foreach($Auxiliares as $d){
+                $item = [];
+                $item[] = $d->Auxiliar;
+                $item[] = Controller::data($d->Admissao,'d/m/Y');
+                $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
+                $item[] = $d->Escola;
+                $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
+                $item[] = "<a href='".route('Auxiliares/Edit',$d->IDDiretor)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($Auxiliares)),
+            "recordsFiltered" => intval(count($Auxiliares)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function cadastro($id=null){
+
+        $Auxiliar = DB::select("SELECT e.Nome as Escola,d.*,e.id as IDEscola FROM Auxiliares d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' AND d.id = '$id' ");
+
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            "Escolas" => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ];
+
+        if($id){
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Auxiliares/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = $Auxiliar[0];
+        }
+
+        return view('Auxiliares.cadastro',$view);
+
+    }
+
+    public function save(Request $request){
+        try{
+            $aid = '';
+            $dir = $request->all();
+            $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
+            $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            if($request->id){
+                $Auxiliar = Auxiliar::find($request->id);
+                $Auxiliar->update($dir);
+                $rout = 'Auxiliares/Edit';
+                $aid = $request->id;
+                if($request->credenciais){
+                    $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
+                    $Usuario = User::where('IDProfissional',$request->id)->where('id_org',Auth::user()->id_org);
+                    $Usuario->update([
+                        'name' => $request->Nome,
+                        'email' => $request->Email,
+                        'tipo' => 6,
+                        'password' => Hash::make(rand(100000,999999))
+                    ]);
+                }else{
+                    $mensagem = 'Salvamento Feito com Sucesso!';
+                }
+            }else{
+                $dirId = Auxiliar::create($dir);
+                User::create([
+                    'name' => $request->Nome,
+                    'email' => $request->Email,
+                    'tipo' => 4,
+                    'password' => Hash::make(rand(100000,999999)),
+                    'IDProfissional' => $dirId->id,
+                    'id_org' => Auth::user()->id_org
+                ]);
+                $rout = 'Auxiliares/Novo';
+                $mensagem = 'Salvamento Feito com Sucesso! as Credenciais de Login foram Enviadas no Email Cadastrado';
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = "Erro ao Salvar a Escola: ".$th;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
     }
 }

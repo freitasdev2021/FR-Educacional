@@ -22,7 +22,8 @@ class User extends Authenticatable
         'password',
         'tipo',
         'id_org',
-        'permissoes'
+        'permissoes',
+        'IDProfissional'
     ];
 
     /**
