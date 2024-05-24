@@ -98,11 +98,7 @@ class PedagogosController extends Controller
             LEFT JOIN pedagogos p ON p.id = a.IDProfissional
             INNER JOIN organizacoes o ON e.IDOrg = o.id  
             WHERE o.id = $orgId
-            AND p.id NOT IN (
-                SELECT IDProfissional 
-                FROM alocacoes 
-                WHERE IDProfissional != $id
-            ) GROUP BY e.Nome ORDER BY e.Nome
+            GROUP BY e.Nome ORDER BY e.Nome
             SQL;
 
            

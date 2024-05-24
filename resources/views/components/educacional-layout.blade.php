@@ -38,10 +38,13 @@
           </nav>
        </div>
        <!--Container Main start-->
-       <div class="height-100" style="margin-top:100px; margin-right:15px;">
+       <div class="bari" style="margin-top:100px; margin-right:15px;">
           {{$slot}}
        </div>
        <!--Container Main end-->
- </body>
+       <script>
+         windowHeight = $(window).height()
+         $(".bari").css("height",windowHeight)
+       </script>
  </body>
 @endsection
