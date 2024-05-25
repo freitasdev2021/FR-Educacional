@@ -12,21 +12,12 @@ class FeriasAlunos extends Model
     protected $fillable = [
         'IDEscola',
         'DTInicio',
+        'DTTermino',
         'IDAluno',
     ];
-
-    public function ferias()
-    {
-        return $this->belongsTo(Ferias::class, 'IDFerias');
-    }
 
     public function escola()
     {
         return $this->belongsTo(Escola::class, 'IDEscola');
-    }
-
-    public function aluno()
-    {
-        return $this->belongsTo(Aluno::class, 'IDAluno');
     }
 }

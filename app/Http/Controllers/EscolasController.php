@@ -163,51 +163,28 @@ class EscolasController extends Controller
 
     public function saveAnosLetivos(Request $request){
         try{
-            $aid = '';
-            $INI = Carbon::parse($request->INIAno);
-            $TER = Carbon::parse($request->TERAno);
-            $validate = array(
-                "Escola" => (!$request->id) ? DB::select("SELECT IDEscola FROM calendario WHERE IDEscola = $request->IDEscola AND DATE_FORMAT(INIAno,'%Y') = date('Y') ") : [],
-                "Meses" => ($INI->greaterThan($TER)) ? false : true,
-                "Ano" => (Controller::data('Y',$request->INIAno) < date('Y') || Controller::data('Y',$request->TERAno) < date('Y')) ? false : true
-            );
-            if(count($validate['Escola']) > 0 || !$validate['Meses'] || !$validate['Ano']){
-                $mensagem= [];
-                if(count($validate['Escola']) > 0){
-                    $status = 'error';
-                    $mensagem = 'Já Existe uma Escola Cadastrada nesse Ano!';
-                }elseif(!$validate['Meses']){
-                    $status = 'error';
-                    $mensagem = 'Ops! Erro de Digitação, a Data de Início e Superior a data de Término';
-                }elseif(!$validate['Ano']){
-                    $status = 'error';
-                    $mensagem = 'Ops! Estamos em '.date('Y');
-                }
-                //
-                if($request->id){
-                    $rout = 'Escolas/Anosletivos/Cadastro';
-                    $aid = $request->id;
-                }else{
-                    $rout = 'Escolas/Anosletivos/Novo';
-                }
+            $rout = 'Calendario/index';
+            if($request->id){
+                $AnoLetivo = Calendario::find($request->id);
+                $AnoLetivo->update([
+                    'INIAno' => $request->INIAno,
+                    'TERAno' => $request->TERAno
+                ]);
+                $aid = $request->id;
             }else{
-                if($request->id){
-                    $Escola = Calendario::find($request->id);
-                    $Escola->update($request->all());
-                    $rout = 'Escolas/Anosletivos/Cadastro';
-                    $aid = $request->id;
-                }else{
-                    Calendario::create($request->all());
-                    $rout = 'Escolas/Anosletivos/Novo';
-                }
-                $status = 'success';
-                $mensagem = 'Salvamento Feito com Sucesso';
+                Calendario::create([
+                    'INIAno' => $request->INIAno,
+                    'TERAno' => $request->TERAno,
+                    "IDOrg" => Auth::user()->id_org
+                ]);
             }
+            $status = 'success';
+            $mensagem = 'Salvamento Feito com Sucesso';
         }catch(\Throwable $th){
             $status = 'error';
-            $mensagem = "Erro ao Salvar a Escola: ".$th;
+            $mensagem = "Erro ao Ano Letivo".$th;
         }finally{
-            return redirect()->route($rout,$aid)->with($status,$mensagem);
+            return redirect()->route($rout)->with($status,$mensagem);
         }
     }
     ///////////////////////////////////////////DISCIPLINAS

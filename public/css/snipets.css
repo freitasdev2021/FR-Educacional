@@ -30,7 +30,8 @@
     width:100%;
     display:flex;
     flex-direction:column;
-    height: calc(var(--altura-total) - var(--altura-subtracao)); /* Calculando a altura */
+    height: calc(var(--altura-total) - var(--altura-subtracao));
+	overflow-x:hidden;
 }
 
 .dashboard{

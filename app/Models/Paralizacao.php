@@ -5,18 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SabadoLetivo extends Model
+class Paralizacao extends Model
 {
     use HasFactory;
-
-    protected $table = 'sabados_letivos';
+    protected $table = 'paralizacoes';
     protected $fillable = [
+        'DSMotivo',
         'IDEscola',
-        'Data',
+        'DTInicio',
+        'DTTermino'
     ];
-
-    public function escola()
-    {
-        return $this->belongsTo(Escola::class, 'IDEscola');
-    }
 }

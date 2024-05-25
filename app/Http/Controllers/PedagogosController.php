@@ -152,12 +152,14 @@ class PedagogosController extends Controller
                 }
                 ////
                 if($request->alocacoes){
+
+                    $Alocacao = Alocacao::where('IDProfissional',$request->id)->where('TPProfissional','PEDA');
+                    $Alocacao->delete();
+
                     $alocacoes = [];
                     $iniTurno = [];
                     $terTurno = [];
                     $escolas = $request->Escola;
-                    $Alocacao = Alocacao::where('IDProfissional',$request->id)->where('TPProfissional','PEDA');
-                    $Alocacao->delete();
 
                     foreach($request->INITur as $it){
                         if(!is_null($it)){
@@ -180,6 +182,8 @@ class PedagogosController extends Controller
                             'TPProfissional' => 'PEDA'
                         ];
                     }
+
+                    //dd($alocacoes);
                     
                     foreach($alocacoes as $al){
                         Alocacao::create($al);

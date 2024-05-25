@@ -10,7 +10,7 @@ class Calendario extends Model
     use HasFactory;
     protected $table = 'calendario';
     protected $fillable = [
-        'IDEscola',
+        'IDOrg',
         'INIAno',
         'TERAno',
     ];

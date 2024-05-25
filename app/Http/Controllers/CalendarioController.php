@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 use App\Models\Escola;
+use App\Models\FeriasAlunos;
+use App\Models\SabadoLetivo;
 use App\Models\participacoesEvento;
 use App\Models\Evento;
+use App\Models\Calendario;
+use App\Models\Paralizacao;
+use App\Models\FeriasProfissionais;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use DatePeriod;
+use DateInterval;
 
 class CalendarioController extends Controller
 {
@@ -31,16 +39,44 @@ class CalendarioController extends Controller
         "endereco" => "Sabados",
         "rota" => "Calendario/Sabados"
     ],[
-        "nome" => "Paralizaçoes/Recessos",
+        "nome" => "Recessos",
         "endereco" => "Paralizacoes",
         "rota" => "Calendario/Paralizacoes"
     ]);
 
+    public function umAnoDepois()
+    {
+        // Data inicial - hoje
+        $startDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->INIAno);
+
+        // Data final - daqui a um ano
+        $endDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
+
+        // Intervalo de 1 dia
+        $interval = new DateInterval('P1D');
+
+        // Cria o período de datas
+        $period = new DatePeriod($startDate, $interval, $endDate);
+
+        // Armazena as datas em um array
+        $dates = [];
+        foreach ($period as $date) {
+            if($date->format('D') == 'Sat' && Carbon::parse($date) > Carbon::now()){
+                $dates[] = $date->format('d/m/Y');
+            }
+        }
+
+        // Exibe as datas (ou retorna como resposta JSON, ou qualquer outro uso que você desejar)
+        return $dates;
+    }
+
     public function index(){
+        $idorg = Auth::user()->id_org;
         return view('Calendario.index',[
             "submodulos" => self::submodulos,
             'id' => '',
-            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get(),
+            "AnoLetivo" => DB::select("SELECT INIAno,TERAno,id as IDAno FROM calendario WHERE IDOrg = $idorg ")
         ]);
     }
 
@@ -241,6 +277,32 @@ class CalendarioController extends Controller
         }
     }
 
+    public function saveSabados(Request $request){
+        try{
+            $status = 'success';
+            $mensagem = 'Ferias Salvas com Sucesso';
+            $dataSabado = Carbon::createFromFormat('d/m/Y',$request->Data);
+            $sabadoLetivo = $request->all();
+            $sabadoLetivo['Data'] = $dataSabado->format('Y-m-d');
+            if($request->id){
+                SabadoLetivo::find($request->id)->update($sabadoLetivo);
+                $aid = $request->id;
+                $rout = 'Calendario/Sabados/Edit';
+            }else{
+                SabadoLetivo::create($sabadoLetivo);
+                $rout = 'Calendario/Sabados';
+                $aid = '';
+            }
+        }catch(\Throwable $th){
+            $status = 'error';
+            $rout = 'Calendario/Sabados/Novo';
+            $mensagem = 'Houve um Erro: '.$th;
+            $aid = '';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
     public function sabadosIndex(){
         return view('Calendario.sabados',[
             "submodulos" => self::submodulos,
@@ -255,6 +317,184 @@ class CalendarioController extends Controller
             'id' => '',
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
         ]);
+    }
+
+    public function getFeriasAlunos(){
+
+        $feriasAlunos = DB::select("SELECT e.Nome as Escola, fa.DTInicio as Inicio, fa.DTTermino as Termino, fa.id as IDFerias FROM ferias_alunos fa INNER JOIN escolas e ON(e.id = fa.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = 1 ");
+
+        if(count($feriasAlunos) > 0){
+            foreach($feriasAlunos as $fa){
+                $item = [];
+                $item[] = $fa->Escola;
+                $item[] = Controller::data($fa->Inicio,'d/m/Y');
+                $item[] = Controller::data($fa->Termino,'d/m/Y');
+                $item[] = "<a href='".route('Calendario/FeriasAlunos/Edit',$fa->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($feriasAlunos)),
+            "recordsFiltered" => intval(count($feriasAlunos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    function saveFeriasAlunos(Request $request){
+        try{
+            $status = 'success';
+            $mensagem = 'Ferias Salvas com Sucesso';
+            if($request->id){
+                FeriasAlunos::find($request->id)->update($request->all());
+                $aid = $request->id;
+                $rout = 'Calendario/FeriasAlunos/Edit';
+            }else{
+                FeriasAlunos::create($request->all());
+                $rout = 'Calendario/FeriasAlunos';
+                $aid = '';
+            }
+        }catch(\Throwable $th){
+            $status = 'error';
+            $rout = 'Calendario/FeriasAlunos/Novo';
+            $mensagem = 'Houve um Erro: '.$th;
+            $aid = '';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function getSabados(){
+        $sabados = DB::select("SELECT e.Nome as Escola, s.Data as Sabado, s.id as IDSabado FROM sabados_letivos s INNER JOIN escolas e ON(e.id = s.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = 1 ");
+
+        if(count($sabados) > 0){
+            foreach($sabados as $s){
+                $item = [];
+                $item[] = $s->Escola;
+                $item[] = Controller::data($s->Sabado,'d/m/Y');
+                $item[] = "<a href='".route('Calendario/Sabados/Edit',$s->IDSabado)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($sabados)),
+            "recordsFiltered" => intval(count($sabados)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function cadastroParalizacao($id=null){
+        $view = [
+            'submodulos' => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ];
+
+        $idorg = Auth::user()->id_org;
+
+        if($id){
+            $view['id'] = $id;
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = 'Calendario/Paralizacoes/Edit';
+            $view['Registro'] = DB::select("SELECT p.id as IDParalizacao, e.Nome as Escola, p.DTInicio as Inicio, p.DTTermino as Termino,p.DSMotivo,e.id as IDEscola FROM paralizacoes p INNER JOIN escolas e ON(e.id = p.IDEscola) INNER JOIN organizacoes o ON(o.id = e.IDOrg) WHERE o.id = $idorg AND p.id = $id")[0];
+        }
+
+        return view('Calendario.cadastroParalizacao',$view);
+    }
+
+    public function getParalizacoes(){
+        $idorg = Auth::user()->id_org;
+        $paralizacao = DB::select("SELECT p.id as IDParalizacao, e.Nome as Escola, p.DTInicio as Inicio, p.DTTermino as Termino,p.DSMotivo FROM paralizacoes p INNER JOIN escolas e ON(e.id = p.IDEscola) INNER JOIN organizacoes o ON(o.id = e.IDOrg) WHERE o.id = $idorg");
+        if(count($paralizacao) > 0){
+            foreach($paralizacao as $p){
+                $item = [];
+                $item[] = $p->Escola;
+                $item[] = $p->DSMotivo;
+                $item[] = Controller::data($p->Inicio,'d/m/Y');
+                $item[] = Controller::data($p->Termino,'d/m/Y');
+                $item[] = "<a href='".route('Calendario/Paralizacoes/Edit',$p->IDParalizacao)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($paralizacao)),
+            "recordsFiltered" => intval(count($paralizacao)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function saveParalizacao(Request $request){
+        try{
+            if($request->id){
+                Paralizacao::find($request->id)->update($request->all());
+                $rout = 'Calendario/Paralizacoes/Edit';
+                $aid = $request->id;
+            }else{
+                Paralizacao::create($request->all());
+                $aid = '';
+                $rout = 'Calendario/Paralizacoes/Novo';
+            }
+            $mensagem = 'Salvamento feito com Sucesso';
+            $status = 'success';
+        }catch(\Throwable $th){
+            $aid = '';
+            $status = 'error';
+            $mensagem = 'Houve um Erro ao Salvar a Paralizacao '.$th;
+            $rout = 'Calendario/Paralizacoes/Novo';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function cadastroFeriasAlunos($id= null){
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ];
+
+        $idorg = Auth::user()->id_org;
+
+        if($id){
+            $feriasAlunos = DB::select("SELECT e.id as IDEscola, fa.DTInicio as Inicio, fa.DTTermino as Termino, fa.id as IDFerias FROM ferias_alunos fa INNER JOIN escolas e ON(e.id = fa.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = 1 AND fa.id = $id ");
+            $view['id'] = $id;
+            $view['Registro']= $feriasAlunos[0];
+        }
+
+        return view('Calendario.cadastroFeriasAluno',$view);
+    }
+
+    public function cadastroSabados($id= null){
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get(),
+            'Sabados' => self::umAnoDepois()
+        ];
+
+        $idorg = Auth::user()->id_org;
+
+        if($id){
+            $sabado = DB::select("SELECT e.id as IDEscola, s.Data as Sabado, s.id as IDSabado FROM sabados_letivos s INNER JOIN escolas e ON(e.id = s.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg AND s.id = $id ");
+            $view['id'] = $id;
+            $view['Registro'] = $sabado[0];
+        }
+
+        return view('Calendario.cadastroSabado',$view);
     }
 
     public function feriasProfissionaisIndex(){

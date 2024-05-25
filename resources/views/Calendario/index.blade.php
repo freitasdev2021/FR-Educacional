@@ -7,19 +7,43 @@
        </div>
        <div class="fr-card-body">
           <!--CABECALHO-->
-          <div class="col-sm-12 p-2 row">
-             <div class="col-auto">
-                <div class="input-group mb-3">
-                   <select class="form-control">
-                      <option>Selecione</option>
-                      @foreach($Escolas as $es)
-                      <option value="{{$es->id}}">{{$es->Nome}}</option>
-                      @endforeach
-                   </select>
-                   <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class='bx bxs-filter-alt' ></i></button>
-                </div>
+          <form class="col-sm-12 p-2 row" action="{{route("Escolas/Anosletivos/Save")}}" method="POST">
+            @csrf
+            @if(session('success'))
+             <div class="col-sm-12 shadow p-2 bg-success text-white">
+                <strong>{{session('success')}}</strong>
              </div>
-          </div>
+             @elseif(session('error'))
+             <div class="col-sm-12 shadow p-2 bg-danger text-white">
+                <strong>{{session('error')}}</strong>
+             </div>
+             <br>
+             @endif
+             <div class="col-auto">
+               <label>Filtre pela Escola</label>
+               <select class="form-control">
+                  <option>Selecione</option>
+                  @foreach($Escolas as $es)
+                  <option value="{{$es->id}}">{{$es->Nome}}</option>
+                  @endforeach
+               </select>
+             </div>
+             @if(isset($AnoLetivo[0]->IDAno))
+             <input type="hidden" name="id" value="{{$AnoLetivo[0]->IDAno}}">
+             @endif
+             <div class="col-sm-2">
+               <label>O Ano vai De</label>
+               <input type="date" name="INIAno" class="form-control" value="{{isset($AnoLetivo[0]->INIAno) ? $AnoLetivo[0]->INIAno : ''}}">
+            </div>
+            <div class="col-sm-2">
+               <label>Até</label>
+               <input type="date" name="TERAno" class="form-control" value="{{isset($AnoLetivo[0]->TERAno) ?$AnoLetivo[0]->TERAno : ''}}">
+            </div>
+            <div class="col-auto">
+               <label style="visibility: hidden">a</label>
+               <input type="submit" class="form-control btn btn-success" value="Salvar Ano Letivo">
+            </div>
+          </form>
           <!--LISTAS-->
           <link rel="stylesheet" href="{{asset('plugins/calendar/css/style.css')}}">
           <div class="col-sm-12 p-2">
