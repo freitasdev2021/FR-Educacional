@@ -20,9 +20,4 @@ class FeriasProfissionais extends Model
     {
         return $this->belongsTo(Escola::class, 'IDEscola');
     }
-
-    public function profissional()
-    {
-        return $this->belongsTo(Profissional::class, 'IDProfissional');
-    }
 }

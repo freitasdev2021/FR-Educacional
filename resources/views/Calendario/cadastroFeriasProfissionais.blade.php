@@ -6,7 +6,7 @@
           @endforeach
        </div>
        <div class="fr-card-body">
-          <form action="{{route('Calendario/Alunos/Ferias/Save')}}" method="POST">
+          <form action="{{route('Calendario/Profissionais/Ferias/Save')}}" method="POST">
              @csrf
              @if(session('success'))
              <div class="col-sm-12 shadow p-2 bg-success text-white">
@@ -22,16 +22,27 @@
              <input type="hidden" value="{{$Registro->IDFerias}}" name="id">
              @endif
              <div class="col-sm-12 p-2">
-                <div class="col-sm-12">
-                   <label>Escola</label>
-                   <select class="form-control" name="IDEscola" required>
-                      <option>Selecione</option>
-                      @foreach($Escolas as $es)
-                      <option value="{{$es->id}}" {{(isset($Registro) && $Registro->IDEscola == $es->id) ? 'selected' : ''}}>{{$es->Nome}}</option>
-                      @endforeach
-                   </select>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>Escola</label>
+                        <select class="form-control" name="IDEscola" required>
+                           <option>Selecione</option>
+                           @foreach($Escolas as $es)
+                           <option value="{{$es->id}}" {{(isset($Registro) && $Registro->IDEscola == $es->id) ? 'selected' : ''}}>{{$es->Nome}}</option>
+                           @endforeach
+                        </select>
+                     </div>
+                     <div class="col-sm-6">
+                         <label>Profissionais</label>
+                         <select class="form-control" name="IDProfissional" required>
+                            <option>Selecione</option>
+                            @foreach($Professores as $p)
+                            <option value="{{$p->IDProfessor}}" {{(isset($Registro) && $Registro->IDEscola == $p->IDProfessor) ? 'selected' : ''}}>{{$p->Professor}}</option>
+                            @endforeach
+                         </select>
+                      </div>
                 </div>
-                <div class="col-sm-12 row">
+                <div class="row">
                    <div class="col-sm-6">
                       <label>De</label>
                       <input type="date" class="form-control" name="DTInicio" value="{{isset($Registro) ? $Registro->Inicio : ''}}" required>
@@ -47,7 +58,7 @@
                       <button class="btn btn-fr">Salvar</button>
                    </div>
                    <div class="col-auto">
-                      <a class="btn btn-light" href="{{route('Calendario/FeriasAlunos')}}">Cancelar</a>
+                      <a class="btn btn-light" href="{{route('Calendario/FeriasProfissionais')}}">Cancelar</a>
                    </div>
                 </div>
              </div>

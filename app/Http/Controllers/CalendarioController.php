@@ -345,6 +345,34 @@ class CalendarioController extends Controller
         echo json_encode($resultados);
     }
 
+    public function getFeriasProfissionais(){
+
+        $idorg = Auth::user()->id_org;
+        $feriasProfissionais = DB::select("SELECT e.Nome as Escola, p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg");
+
+        if(count($feriasProfissionais) > 0){
+            foreach($feriasProfissionais as $fp){
+                $item = [];
+                $item[] = $fp->Escola;
+                $item[] = $fp->Professor;
+                $item[] = Controller::data($fp->Inicio,'d/m/Y');
+                $item[] = Controller::data($fp->Termino,'d/m/Y');
+                $item[] = "<a href='".route('Calendario/FeriasProfissionais/Edit',$fp->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($feriasProfissionais)),
+            "recordsFiltered" => intval(count($feriasProfissionais)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
     function saveFeriasAlunos(Request $request){
         try{
             $status = 'success';
@@ -361,6 +389,29 @@ class CalendarioController extends Controller
         }catch(\Throwable $th){
             $status = 'error';
             $rout = 'Calendario/FeriasAlunos/Novo';
+            $mensagem = 'Houve um Erro: '.$th;
+            $aid = '';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    function saveFeriasProfissionais(Request $request){
+        try{
+            $status = 'success';
+            $mensagem = 'Ferias Salvas com Sucesso';
+            if($request->id){
+                FeriasProfissionais::find($request->id)->update($request->all());
+                $aid = $request->id;
+                $rout = 'Calendario/FeriasProfissionais/Edit';
+            }else{
+                FeriasProfissionais::create($request->all());
+                $rout = 'Calendario/FeriasProfissionais';
+                $aid = '';
+            }
+        }catch(\Throwable $th){
+            $status = 'error';
+            $rout = 'Calendario/FeriasProfissionais/Novo';
             $mensagem = 'Houve um Erro: '.$th;
             $aid = '';
         }finally{
@@ -477,6 +528,27 @@ class CalendarioController extends Controller
 
         return view('Calendario.cadastroFeriasAluno',$view);
     }
+
+    public function cadastroFeriasProfissionais($id=null){
+        $idorg = Auth::user()->id_org;
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get(),
+            'Professores' => DB::select("SELECT p.id as IDProfessor, p.Nome as Professor FROM professores p INNER JOIN alocacoes a ON(p.id = a.IDProfissional) INNER JOIN escolas e ON(a.IDEscola = e.id) INNER JOIN organizacoes o ON(o.id = e.IDOrg) WHERE o.id = $idorg GROUP BY a.IDProfissional ")
+        ];
+
+        $idorg = Auth::user()->id_org;
+
+        if($id){
+            $view['id'] = $id;
+            $view['Registro'] = DB::select("SELECT e.id as IDEscola, p.id as IDProfessor,p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) WHERE fp.id = $id")[0];
+        }
+
+        return view('Calendario.cadastroFeriasProfissionais',$view);
+    }
+
+
 
     public function cadastroSabados($id= null){
         $view = [

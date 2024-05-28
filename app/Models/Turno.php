@@ -12,6 +12,7 @@ class Turno extends Model
     protected $fillable = [
         'IDProfessor',
         'IDDisciplina',
+        'DiaSemana',
         'IDTurma',
         'INITur',
         'TERTur',

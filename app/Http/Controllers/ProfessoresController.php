@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Professor;
-use App\Models\Escola;
+use App\Models\Turno;
 use App\Models\Alocacao;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +47,6 @@ class ProfessoresController extends Controller
         INNER JOIN organizacoes o ON e.IDOrg = o.id
         WHERE o.id = $orgId
         GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
-
         SQL;
 
         $Professores = DB::select($SQL);
@@ -74,6 +73,101 @@ class ProfessoresController extends Controller
         ];
         
         echo json_encode($resultados);
+    }
+
+    public function getTurnosProfessor($idprofessor){
+        $SQL = <<<SQL
+        SELECT tur.id as IDTurno,
+        e.Nome as Escola,
+        t.Nome as Turma,
+        d.NMDisciplina as Disciplina,
+        tur.INITur as Inicio,
+        tur.TERTur as Termino
+        FROM turnos tur 
+        INNER JOIN turmas t ON(t.id = tur.IDTurma)
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        INNER JOIN disciplinas d ON(d.id = tur.IDDisciplina)
+        INNER JOIN professores p ON(p.id = tur.IDProfessor)
+        WHERE p.id = $idprofessor
+        SQL;
+        //
+        $Turnos = DB::select($SQL);
+
+        if(count($Turnos) > 0){
+            foreach($Turnos as $t){
+                $item = [];
+                $item[] = $t->Escola;
+                $item[] = $t->Turma;
+                $item[] = $t->Disciplina;
+                $item[] = Controller::data($t->Inicio,'d/m/Y');
+                $item[] = Controller::data($t->Termino,'d/m/Y');
+                $item[] = "<a href='".route('Professores/Turnos/Edit',['idprofessor' => $idprofessor,'id' => $t->IDTurno])."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($Turnos)),
+            "recordsFiltered" => intval(count($Turnos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+        //
+    }
+
+    public function cadastroTurnoProfessor($idprofessor,$id=null){
+        $idorg = Auth::user()->id_org;
+        $view = array(
+            "submodulos" => array([
+                "nome" => 'Cadastro',
+                "endereco" => "Edit",
+                "rota" => "Professores/Edit"
+            ],[
+                "nome" => "Turnos",
+                "endereco" => "Turnos",
+                "rota" => "Professores/Turnos"
+            ]),
+            'IDProfessor' => $idprofessor,
+            'Escolas' => DB::select("SELECT e.Nome as Escola, e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(e.id = a.IDEscola) INNER JOIN professores p ON(p.id = a.IDProfissional) WHERE p.id = $idprofessor "),
+            'Disciplinas' => DB::select("SELECT 
+                d.NMDisciplina as Disciplina,
+                d.id as IDDisciplina
+            FROM disciplinas d 
+            INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina) 
+            INNER JOIN escolas e ON(e.id = ad.IDDisciplina) 
+            INNER JOIN organizacoes o ON(e.IDorg = o.id) 
+            WHERE o.id = $idorg GROUP BY e.id"),
+            "Turmas" => DB::select("SELECT t.Nome as Turma, t.id as IDTurma FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN professores p ON(p.id = a.IDProfissional) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg GROUP BY t.id ")
+        );
+
+        if($id){
+
+            $SQL = <<<SQL
+            SELECT tur.id as IDTurno,
+                e.Nome as Escola,
+                t.Nome as Turma,
+                d.NMDisciplina as Disciplina,
+                tur.INITur as Inicio,
+                DiaSemana,
+                tur.TERTur as Termino
+                FROM turnos tur 
+                INNER JOIN turmas t ON(t.id = tur.IDTurma)
+                INNER JOIN escolas e ON(e.id = t.IDEscola)
+                INNER JOIN disciplinas d ON(d.id = tur.IDDisciplina)
+                INNER JOIN professores p ON(p.id = tur.IDProfessor)
+            WHERE p.id = $idprofessor AND tur.id = $id
+            SQL;
+
+            $view[1]['nome'] = 'Cadastro Turno';
+            $view[1]['endereco'] = 'Cadastro Turno';
+            $view[1]['rota'] = 'Profesores/Turnos/Edit';
+            $view['Registro'] = DB::select($SQL)[0];
+        }
+
+        return view('Professores.cadastroTurnos',$view);
     }
 
     public function cadastro($id=null){
@@ -118,6 +212,13 @@ class ProfessoresController extends Controller
 
             $view['submodulos'][0]['endereco'] = "Edit";
             $view['submodulos'][0]['rota'] = "Professores/Edit";
+            //
+            array_push($view['submodulos'],[
+                "nome" => "Turnos",
+                "endereco" => "Turnos",
+                "rota" => "Professores/Turnos"
+            ]);
+            //
             $view['id'] = $id;
             $view['Registro'] = $Professor[0];
             $view['EscolasRegistradas'] = $escolasUm;
@@ -125,6 +226,56 @@ class ProfessoresController extends Controller
 
         return view('Professores.cadastro',$view);
 
+    }
+
+    public function Turnos($idprofessor){
+        $view = array(
+            "submodulos" => array([
+                "nome" => 'Cadastro',
+                "endereco" => "Edit",
+                "rota" => "Professores/Edit"
+            ],[
+                "nome" => "Turnos",
+                "endereco" => "Turnos",
+                "rota" => "Professores/Turnos"
+            ]),
+            'IDProfessor' => $idprofessor
+        );
+
+        return view('Professores.turnos',$view);
+    }
+
+    public function saveTurno(Request $request){
+        try{
+            if($request->id){
+                // dd(Turno::find($request->id)->first());
+                Turno::find($request->id)->update($request->all());
+                $aid = array(
+                    'idprofessor' => $request->IDProfessor,
+                    'id' => $request->id
+                );
+                $rout = "Professores/Turnos/Edit";
+            }else{
+                Turno::create($request->all());
+                $aid = array(
+                    'idprofessor' => $request->IDProfessor,
+                    'id' => ''
+                );
+                $rout = "Professores/Turnos/Edit";
+            }
+            $mensagem = "Turno Salvo com Sucesso";
+            $status = "success";
+        }catch(\Throwable $th){
+            $mensagem = "Erro ao Salvar o Turno ".$th;
+            $status = 'error';
+            $aid = array(
+                'idprofessor' => $request->IDProfessor,
+                'id' => ''
+            );
+            $rout = "Professores/Turnos/Novo";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
     }
 
     public function save(Request $request){

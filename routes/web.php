@@ -96,14 +96,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/Professores/Novo',[ProfessoresController::class,'cadastro'])->name('Professores/Novo')->middleware('secretario');
         Route::get('/Professores/Cadastro/{id}',[ProfessoresController::class,'cadastro'])->name('Professores/Edit')->middleware(['coordenador','diretor','secretario']);
         Route::post('/Professores/Save',[ProfessoresController::class,'save'])->name('Professores/Save')->middleware('secretario');
-
-        Route::get('/Acompanhamento',[ProfessoresController::class,'acompanhamento'])->name('Acompanhamento/index');
-        Route::get('/Professores/Calendario/{id}',[ProfessoresController::class,'calendario'])->name('Professores/Calendario')->middleware(['diretor','secretario']);
-        Route::get('/Professores/Diario/{id}',[ProfessoresController::class,'diario'])->name('Professores/Diario');
-        Route::get('/Professores/Ocorrencias/{id}',[ProfessoresController::class,'ocorrencias'])->name('Professores/Ocorrencia');
-        Route::post('/Professores/Planejamento/{id}',[ProfessoresController::class,'planejamento'])->name('Professores/Planejamento');
-        Route::post('/Professores/Planejamentos',[ProfessoresController::class,'planejamentos'])->name('Professores/Planejamentos')->middleware(['coordenador','diretor','secretario']);
-        Route::post('/Professores/Turnos/{id}',[ProfessoresController::class,'turnos'])->name('Professores/Turnos')->middleware(['coordenador','diretor','secretario']);
+        //turnos
+        Route::get('/Professores/Turnos/list/{idprofessor}',[ProfessoresController::class,'getTurnosProfessor'])->name('Professores/Turnos/list')->middleware('secretario');
+        Route::get('/Professores/Turnos/{idprofessor}',[ProfessoresController::class,'Turnos'])->name('Professores/Turnos')->middleware(['coordenador','diretor','secretario']);
+        Route::get('/Professores/{idprofessor}/Turnos/Novo',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Novo')->middleware('secretario');
+        Route::get('/Professores/{idprofessor}/Turnos/Cadastro/{id}',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Edit')->middleware(['coordenador','diretor','secretario']);
+        Route::post('/Professores/Turnos/Save',[ProfessoresController::class,'saveTurno'])->name('Professores/Turnos/Save')->middleware('secretario');
+        //
         //PEDAGOGOS
         Route::get('/Pedagogos/list',[PedagogosController::class,'getPedagogos'])->name('Pedagogos/list')->middleware('secretario');
         Route::get('/Pedagogos',[PedagogosController::class,'index'])->name('Pedagogos/index')->middleware('secretario');
@@ -135,11 +134,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/Calendario/Alunos/Ferias/Cadastro/{id}',[CalendarioController::class,'cadastroFeriasAlunos'])->name('Calendario/FeriasAlunos/Edit')->middleware('secretario');
         Route::post('/Calendario/Alunos/Ferias/Save',[CalendarioController::class,'saveFeriasAlunos'])->name('Calendario/Alunos/Ferias/Save')->middleware('secretario');
         //
-        Route::get('/Calendario/Profissionais/Ferias/list',[CalendarioController::class,'feriasProfissionaisList'])->name('Calendario/FeriasProfissionais/list')->middleware('secretario');
+        Route::get('/Calendario/Profissionais/Ferias/list',[CalendarioController::class,'getFeriasProfissionais'])->name('Calendario/FeriasProfissionais/list')->middleware('secretario');
         Route::get('/Calendario/Profissionais/Ferias',[CalendarioController::class,'feriasProfissionaisIndex'])->name('Calendario/FeriasProfissionais')->middleware('secretario');
-        Route::get('/Calendario/Profissionais/Ferias/Novo',[CalendarioController::class,'feriasProfissionaisCadastro'])->name('Ferias/Profissionais/Novo')->middleware('secretario');
-        Route::get('/Calendario/Profissionais/Ferias/Cadastro/{id}',[CalendarioController::class,'feriasProfissionaisCadastro'])->name('Calendario/Profissionais/Ferias/Edit')->middleware('secretario');
-        Route::post('/Calendario/Profissionais/Ferias/Save',[CalendarioController::class,'feriasProfissionaisSave'])->name('Calendario/Profissionais/Ferias/Save')->middleware('secretario');
+        Route::get('/Calendario/Profissionais/Ferias/Novo',[CalendarioController::class,'cadastroFeriasProfissionais'])->name('Calendario/FeriasProfissionais/Novo')->middleware('secretario');
+        Route::get('/Calendario/Profissionais/Ferias/Cadastro/{id}',[CalendarioController::class,'cadastroFeriasProfissionais'])->name('Calendario/FeriasProfissionais/Edit')->middleware('secretario');
+        Route::post('/Calendario/Profissionais/Ferias/Save',[CalendarioController::class,'saveFeriasProfissionais'])->name('Calendario/Profissionais/Ferias/Save')->middleware('secretario');
         //
         Route::get('/Calendario/Sabados/list',[CalendarioController::class,'getSabados'])->name('Calendario/Sabados/list')->middleware('secretario');
         Route::get('/Calendario/Sabados',[CalendarioController::class,'sabadosIndex'])->name('Calendario/Sabados')->middleware(['diretor','secretario']);

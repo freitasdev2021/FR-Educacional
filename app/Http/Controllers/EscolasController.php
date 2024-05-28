@@ -7,6 +7,7 @@ use App\Models\Escola;
 use App\Models\Calendario;
 use App\Models\Turma;
 use App\Models\Disciplina;
+use App\Models\alocacoesDisciplinas;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -197,8 +198,9 @@ class EscolasController extends Controller
                 '"', e.Nome, '"' 
             SEPARATOR ','), 
         ']') as Escolas 
-        FROM disciplinas d 
-        INNER JOIN escolas e ON(d.IDEscola = e.id)
+        FROM disciplinas d
+        INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina) 
+        INNER JOIN escolas e ON(ad.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg
         GROUP BY NMDisciplina ;
         SQL;
@@ -249,13 +251,15 @@ class EscolasController extends Controller
                 FROM escolas e2 
                 WHERE e2.id IN 
                     (SELECT e3.id 
-                    FROM disciplinas d3 INNER JOIN escolas e3 ON(e3.id = d3.IDEscola) 
+                    FROM disciplinas d3 INNER JOIN alocacoes_disciplinas ad3 ON(d.id = ad.IDDisciplina) INNER JOIN escolas e3 ON(e3.id = ad3.IDEscola) 
                     WHERE d3.NMDisciplina = d.NMDisciplina)
                 ) as Escolas
             FROM 
                 disciplinas d
+            INNER JOIN
+                alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
             INNER JOIN 
-                escolas e ON (d.IDEscola = e.id)
+                escolas e ON (ad.IDEscola = e.id)
             INNER JOIN 
                 organizacoes o ON(e.IDOrg = o.id)
             WHERE d.id = $id
@@ -277,38 +281,26 @@ class EscolasController extends Controller
 
     public function saveDisciplinas(Request $request){
         try{
-            $aid = '';
-            $esc = $request->all();
-            //dd($esc['Escola']); 
+            $aid = ''; 
             if($request->id){
 
-                $SQL = <<<SQL
-                SELECT 
-                    d.NMDisciplina
-                FROM disciplinas d
-                WHERE d.id = $request->id
-                SQL;
+                alocacoesDisciplinas::where('IDDisciplina',$request->id)->delete();
+                Disciplina::find($request->id)->update(['NMDisciplina'=>$request->NMDisciplina,'Obrigatoria' =>$request->Obrigatoria]);
 
-                $disciplinas = DB::select($SQL);
-
-                //dd($disciplinas[0]->NMDisciplina);
-                Disciplina::where('NMDisciplina',$disciplinas[0]->NMDisciplina)->delete();
-
-                foreach($esc['Escola'] as $df){
-                    $crieite = Disciplina::create([
-                        "IDEscola" => $df,
-                        "NMDisciplina" => $esc['NMDisciplina'],
-                        "Obrigatoria" => $esc['Obrigatoria'] 
+                foreach($request->Escola as $df){
+                    alocacoesDisciplinas::create([
+                        "IDDisciplina" => $request->id,
+                        "IDEscola" => $df
                     ]);
                 }
                 $rout = 'Escolas/Disciplinas/Cadastro';
-                $aid = $crieite->id;
+                $aid = $request->id;
             }else{
-                foreach($esc['Escola'] as $e){
-                    Disciplina::create([
-                        "IDEscola" => $e,
-                        "NMDisciplina" => $esc['NMDisciplina'],
-                        "Obrigatoria" => $esc['Obrigatoria'] 
+                $crieite = Disciplina::create(['NMDisciplina'=>$request->NMDisciplina,'Obrigatoria' =>$request->Obrigatoria]);
+                foreach($request->Escola as $e){
+                    alocacoesDisciplinas::create([
+                        "IDDisciplina" => $crieite->id,
+                        "IDEscola" => $e
                     ]);
                 }
                 $rout = 'Escolas/Disciplinas/Novo';
