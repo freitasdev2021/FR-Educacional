@@ -151,11 +151,31 @@ Route::middleware('auth')->group(function () {
         Route::get('/Calendario/Paralizacoes/Novo',[CalendarioController::class,'cadastroParalizacao'])->name('Calendario/Paralizacoes/Novo')->middleware('secretario');
         Route::get('/Calendario/Paralizacoes/Cadastro/{id}',[CalendarioController::class,'cadastroParalizacao'])->name('Calendario/Paralizacoes/Edit')->middleware(['diretor','secretario']);
         Route::post('/Calendario/Paralizacoes/Save',[CalendarioController::class,'saveParalizacao'])->name('Calendario/Paralizacoes/Save')->middleware('secretario');
+        //TRANSPORTE
+        Route::get('/Transporte/list',[CardapioController::class,'getMerenda'])->name('Transporte/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte',[CardapioController::class,'index'])->name('Transporte/index')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Novo',[CardapioController::class,'cadastro'])->name('Transporte/Novo')->middleware('diretor');
+        Route::get('/Transporte/Cadastro/{id}',[CardapioController::class,'cadastro'])->name('Transporte/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Save',[CardapioController::class,'save'])->name('Transporte/Save')->middleware(['diretor','secretario']);
+        //MERENDA
+        Route::get('/Merenda/list',[CardapioController::class,'getMerenda'])->name('Merenda/list')->middleware(['diretor','secretario']);
+        Route::get('/Merenda',[CardapioController::class,'index'])->name('Merenda/index')->middleware(['diretor','secretario']);
+        Route::get('/Merenda/Novo',[CardapioController::class,'cadastro'])->name('Merenda/Novo')->middleware('diretor');
+        Route::get('/Merenda/Cadastro/{id}',[CardapioController::class,'cadastro'])->name('Merenda/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Merenda/Save',[CardapioController::class,'save'])->name('Merenda/Save')->middleware(['diretor','secretario']);
+        //estoque
+        Route::get('/Merenda/Estoque/list',[CardapioController::class,'getEstoque'])->name('Merenda/Estoque/list')->middleware(['diretor','secretario']);
+        Route::get('/Merenda/Estoque',[CardapioController::class,'estoque'])->name('Merenda/Estoque/index')->middleware(['diretor','secretario']);
+        Route::get('/Merenda/Estoque/Novo',[CardapioController::class,'cadastroEstoque'])->name('Merenda/Estoque/Novo')->middleware('diretor');
+        Route::get('/Merenda/Estoque/Cadastro/{id}',[CardapioController::class,'cadastroEstoque'])->name('Merenda/Estoque/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Merenda/Estoque/Save',[CardapioController::class,'saveEstoque'])->name('Merenda/Estoque/Save')->middleware(['diretor','secretario']);
+        //movimentacoes
+        Route::get('/Merenda/Movimentacoes/list',[CardapioController::class,'getMovimentacoes'])->name('Merenda/Movimentacoes/list')->middleware(['diretor','secretario']);
+        Route::get('/Merenda/Movimentacoes',[CardapioController::class,'movimentacao'])->name('Merenda/Movimentacoes/index')->middleware(['diretor','secretario']);
+        Route::get('/Merenda/Movimentacoes/Novo',[CardapioController::class,'cadastroMovimentacoes'])->name('Merenda/Movimentacoes/Novo')->middleware('diretor');
+        Route::get('/Merenda/Movimentacoes/Cadastro/{id}',[CardapioController::class,'cadastroMovimentacoes'])->name('Merenda/Movimentacoes/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Merenda/Movimentacoes/Save',[CardapioController::class,'saveMovimentacoes'])->name('Merenda/Movimentacoes/Save')->middleware(['diretor','secretario']);
         //
-        Route::get('/Cardapio',[CardapioController::class,'index'])->name('Cardapio/index')->middleware(['diretor','secretario']);
-        Route::get('/Cardapio/Novo',[CardapioController::class,'cadastro'])->name('Cardapio/Novo')->middleware('diretor');
-        Route::get('/Cardapio/Cadastro/{id}',[CardapioController::class,'cadastro'])->name('Cardapio/Edit')->middleware(['diretor','secretario']);
-        Route::post('/Cardapio/Save',[CardapioController::class,'save'])->name('Cardapio/Save')->middleware(['diretor','secretario']);
     //});
     //
     

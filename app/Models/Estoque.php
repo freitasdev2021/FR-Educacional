@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Estoque extends Model
 {
     use HasFactory;
-
+    protected $table = "estoque";
     protected $fillable = [
         'IDEscola',
         'Quantidade',
         'TPUnidade',
         'Vencimento',
+        'Item'
     ];
 
     public function escola()

@@ -9,6 +9,7 @@ class Cardapio extends Model
 {
     use HasFactory;
 
+    protected $table = "cardapio";
     protected $fillable = [
         'IDEscola',
         'Dia',

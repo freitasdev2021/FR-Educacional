@@ -13,6 +13,7 @@ class EstoqueMovimentacao extends Model
 
     protected $fillable = [
         'IDEstoque',
+        'Quantidade',
         'TPMovimentacao',
     ];
 
