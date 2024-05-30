@@ -10,21 +10,19 @@
                 <!--CABECALHO-->
                 <div class="col-sm-12 p-2 row">
                     <div class="col-auto">
-                        <a href="{{route('Transporte/Novo')}}" class="btn btn-fr">Adicionar</a>
+                        <a href="{{route('Transporte/Veiculos/Novo')}}" class="btn btn-fr">Adicionar</a>
                     </div>
                 </div>
                 <!--LISTAS-->
                 <div class="col-sm-12 p-2">
                     <hr>
-                    <table class="table table-sm tabela" id="escolas" data-rota="{{route('Transporte/list')}}">
+                    <table class="table table-sm tabela" id="escolas" data-rota="{{route('Transporte/Veiculos/list')}}">
                         <thead>
                           <tr>
-                            <th style="text-align:center;" scope="col">Motorista</th>
-                            <th style="text-align:center;" scope="col">Rota</th>
-                            <th style="text-align:center;" scope="col">Ponto de Partida</th>
-                            <th style="text-align:center;" scope="col">Ponto de chegada</th>
-                            <th style="text-align:center;" scope="col">Paradas</th>
-                            <th style="text-align:center;" scope="col">Turno</th>
+                            <th style="text-align:center;" scope="col">Nome</th>
+                            <th style="text-align:center;" scope="col">Marca</th>
+                            <th style="text-align:center;" scope="col">Placa</th>
+                            <th style="text-align:center;" scope="col">Cor</th>
                             <th style="text-align:center;" scope="col">Opções</th>
                           </tr>
                         </thead>

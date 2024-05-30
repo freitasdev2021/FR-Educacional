@@ -12,6 +12,7 @@ use App\Http\Controllers\PedagogosController;
 use App\Http\Controllers\ResponsaveisController;
 use App\Http\Controllers\AlunosController;
 use App\Http\Controllers\AuxiliaresController;
+use App\Http\Controllers\TransporteController;
 use App\Http\Controllers\ApoioController;
 use App\Http\Controllers\UsuariosController;
 use Illuminate\Support\Facades\Route;
@@ -152,11 +153,35 @@ Route::middleware('auth')->group(function () {
         Route::get('/Calendario/Paralizacoes/Cadastro/{id}',[CalendarioController::class,'cadastroParalizacao'])->name('Calendario/Paralizacoes/Edit')->middleware(['diretor','secretario']);
         Route::post('/Calendario/Paralizacoes/Save',[CalendarioController::class,'saveParalizacao'])->name('Calendario/Paralizacoes/Save')->middleware('secretario');
         //TRANSPORTE
-        Route::get('/Transporte/list',[CardapioController::class,'getMerenda'])->name('Transporte/list')->middleware(['diretor','secretario']);
-        Route::get('/Transporte',[CardapioController::class,'index'])->name('Transporte/index')->middleware(['diretor','secretario']);
-        Route::get('/Transporte/Novo',[CardapioController::class,'cadastro'])->name('Transporte/Novo')->middleware('diretor');
-        Route::get('/Transporte/Cadastro/{id}',[CardapioController::class,'cadastro'])->name('Transporte/Edit')->middleware(['diretor','secretario']);
-        Route::post('/Transporte/Save',[CardapioController::class,'save'])->name('Transporte/Save')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/list',[TransporteController::class,'getRotas'])->name('Transporte/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte',[TransporteController::class,'index'])->name('Transporte/index')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Novo',[TransporteController::class,'cadastro'])->name('Transporte/Novo')->middleware('diretor');
+        Route::get('/Transporte/Cadastro/{id}',[TransporteController::class,'cadastro'])->name('Transporte/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Save',[TransporteController::class,'save'])->name('Transporte/Save')->middleware(['diretor','secretario']);
+        //veiculos
+        Route::get('/Transporte/Veiculos/list',[TransporteController::class,'getVeiculos'])->name('Transporte/Veiculos/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Veiculos',[TransporteController::class,'veiculos'])->name('Transporte/Veiculos/index')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Veiculos/Novo',[TransporteController::class,'cadastroVeiculos'])->name('Transporte/Veiculos/Novo')->middleware('diretor');
+        Route::get('/Transporte/Veiculos/Cadastro/{id}',[TransporteController::class,'cadastroVeiculos'])->name('Transporte/Veiculos/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Veiculos/Save',[TransporteController::class,'saveVeiculos'])->name('Transporte/Veiculos/Save')->middleware(['diretor','secretario']);
+        //motoristas
+        Route::get('/Transporte/Motoristas/list',[TransporteController::class,'getMotoristas'])->name('Transporte/Motoristas/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Motoristas',[TransporteController::class,'motoristas'])->name('Transporte/Motoristas/index')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Motoristas/Novo',[TransporteController::class,'cadastroMotoristas'])->name('Transporte/Motoristas/Novo')->middleware('diretor');
+        Route::get('/Transporte/Motoristas/Cadastro/{id}',[TransporteController::class,'cadastroMotoristas'])->name('Transporte/Motoristas/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Motoristas/Save',[TransporteController::class,'saveMotoristas'])->name('Transporte/Motoristas/Save')->middleware(['diretor','secretario']);
+        //terceirizadas
+        Route::get('/Transporte/Terceirizadas/list',[TransporteController::class,'getTerceirizadas'])->name('Transporte/Terceirizadas/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Terceirizadas',[TransporteController::class,'terceirizadas'])->name('Transporte/Terceirizadas/index')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Terceirizadas/Novo',[TransporteController::class,'cadastroTerceirizadas'])->name('Transporte/Terceirizadas/Novo')->middleware('diretor');
+        Route::get('/Transporte/Terceirizadas/Cadastro/{id}',[TransporteController::class,'cadastroTerceirizadas'])->name('Transporte/Terceirizadas/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Terceirizadas/Save',[TransporteController::class,'saveTerceirizadas'])->name('Transporte/Terceirizadas/Save')->middleware(['diretor','secretario']);
+        //
+        Route::get('/Transporte/Veiculos/list',[TransporteController::class,'getVeiculos'])->name('Transporte/Veiculos/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Veiculos',[TransporteController::class,'veiculos'])->name('Transporte/Veiculos/index')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/Veiculos/Novo',[TransporteController::class,'cadastroVeiculos'])->name('Transporte/Veiculos/Novo')->middleware('diretor');
+        Route::get('/Transporte/Veiculos/Cadastro/{id}',[TransporteController::class,'cadastroVeiculos'])->name('Transporte/Veiculos/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Veiculos/Save',[TransporteController::class,'saveVeiculos'])->name('Transporte/Veiculos/Save')->middleware(['diretor','secretario']);
         //MERENDA
         Route::get('/Merenda/list',[CardapioController::class,'getMerenda'])->name('Merenda/list')->middleware(['diretor','secretario']);
         Route::get('/Merenda',[CardapioController::class,'index'])->name('Merenda/index')->middleware(['diretor','secretario']);

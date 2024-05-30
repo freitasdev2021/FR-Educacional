@@ -27,7 +27,7 @@
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Acompanhamento" icon="bx bx-calendar-check" rota="Professores/index" endereco="Acompanhamento"/>
                   <x-modulo nome="Merenda" icon="bx bx-fork" rota="Merenda/index" endereco="Merenda"/>
-                  <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Transporte/index" endereco="Coordenadores"/>
+                  <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Transporte/index" endereco="Transporte"/>
                   @endif 
                 </div>
              </div>

@@ -9,12 +9,18 @@ class Rota extends Model
 {
     use HasFactory;
 
+    protected $table = "rotas";
     protected $fillable = [
         'IDVeiculo',
         'IDMotorista',
         'Descricao',
         'RotaJSON',
         'Distancia',
+        'Turno',
+        'Partida',
+        'Chegada',
+        'HoraPartida',
+        'HoraChegada'
     ];
 
     public function veiculo()
