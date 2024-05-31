@@ -13,7 +13,6 @@ class Matricula extends Model
 
     protected $fillable = [
         'AnexoRG',
-        'IDEscola',
         'CResidencia',
         'Historico',
         'Nome',
@@ -33,6 +32,7 @@ class Matricula extends Model
         'AMedico',
         'APsicologico',
         'Aprovado',
+        'Nascimento'
     ];
 
     public function escola()

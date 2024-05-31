@@ -25,7 +25,6 @@
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Auxiliares" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
-                  <x-modulo nome="Acompanhamento" icon="bx bx-calendar-check" rota="Professores/index" endereco="Acompanhamento"/>
                   <x-modulo nome="Merenda" icon="bx bx-fork" rota="Merenda/index" endereco="Merenda"/>
                   <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Transporte/index" endereco="Transporte"/>
                   @endif 

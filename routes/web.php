@@ -68,23 +68,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/Escolas/Turmas/Edit/{id}',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Cadastro');
         Route::post('/Escolas/Turmas/Save',[EscolasController::class,'saveTurmas'])->name('Escolas/Turmas/Save')->middleware(['secretario','diretor','coordenador']);
         //ALUNOS
+        Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list')->middleware('secretario');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index')->middleware(['diretor','coordenador','secretario']);
-        Route::get('/Alunos/Desempenho/{id}',[AlunosController::class,'desempenhoIndex'])->name('Alunos/Desempenho/index')->middleware(['coordenador','pedagogo']); //desempenho do aluno em especifico
-        Route::get('/Alunos/Suspensao/{id}',[AlunosController::class,'suspensoesIndex'])->name('Alunos/Suspensao/index'); // suspensões de um aluno em especifico
-        Route::get('/Alunos/Falta/{id}',[AlunosController::class,'faltasIndex'])->name('Alunos/Falta/index'); //faltas de um aluno em especifico
-        Route::get('/Alunos/Situacao/{id}',[AlunosController::class,'situacaoIndex'])->name('Alunos/Situacao/index'); //situação de um aluno em especifico (frequente,evadido,desistente)
-        Route::get('/Alunos/Renovacao/{id}',[AlunosController::class,'renovacaoIndex'])->name('Alunos/Renovacao/index'); //renovação de um aluno em especifico
-        Route::get('/Alunos/Renovacoes',[AlunosController::class,'renovacaoIndex'])->name('Alunos/Renovacoes/index'); //renovação de um aluno em especifico
-        Route::get('/Alunos/Suspensoes/',[AlunosController::class,'suspensoesIndex'])->name('Alunos/Suspensoes/index'); // suspensões em geral
-        Route::get('/Alunos/Faltas/',[AlunosController::class,'faltasIndex'])->name('Alunos/Faltas/index'); //faltas em geral
-        Route::get('/Alunos/Desistentes',[AlunosController::class,'desistentesIndex'])->name('Alunos/Desistentes/index');
-        Route::get('/Alunos/Recuperacao',[AlunosController::class,'recuperacoesIndex'])->name('Alunos/Recuperacao/index');
-        Route::get('/Alunos/Reprovados',[AlunosController::class,'reprovadosIndex'])->name('Alunos/Reprovados/index');
-        Route::get('/Alunos/Evadidos',[AlunosController::class,'evadidosIndex'])->name('Alunos/Evadidos/index');
-        //Matriculas
-        Route::get('/Alunos/Matriculas/Novo',[AlunosController::class,'cadastroMatricula'])->name('Alunos/Matriculas/Novo')->middleware(['coordenador','diretor']);
-        Route::get('/Alunos/Matriculas/Cadastro/{id}',[AlunosController::class,'cadastroMatricula'])->name('Alunos/Matriculas/Edit')->middleware(['coordenador','diretor','pedagogo']);
-        Route::post('/Alunos/Matriculas/Save',[AlunosController::class,'saveMatricula'])->name('Alunos/Matriculas/Save')->middleware(['coordenador','diretor']);
+        Route::get('/Alunos/Novo',[AlunosController::class,'cadastro'])->name('Alunos/Novo')->middleware(['diretor','coordenador','secretario']);
+        Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save')->middleware(['secretario']);
         //DIRETORES
         Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list')->middleware('secretario');
         Route::get('/Diretores',[DiretoresController::class,'index'])->name('Diretores/index')->middleware('secretario');

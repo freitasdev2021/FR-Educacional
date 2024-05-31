@@ -5,6 +5,10 @@
     --altura-subtracao: 150px; /* Definindo a altura a ser subtraída */
 }
 
+body{
+	overflow:hidden;
+}
+
 .central{
     display:flex;
     flex-direction:column;
@@ -31,6 +35,9 @@
     display:flex;
     flex-direction:column;
     height: calc(var(--altura-total) - var(--altura-subtracao));
+}
+
+.fr-card-body{
 	overflow-x:hidden;
 }
 

@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Renovacao extends Model
 {
-    use HasFactory;
+    protected $table = 'renovacoes';
 
     protected $fillable = [
         'IDAluno',
         'Aprovado',
         'ANO',
+        'Vencimento'
     ];
 
     public function aluno()
