@@ -155,7 +155,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/Transporte/Rodagem/list/{idrota}',[TransporteController::class,'getRodagem'])->name('Transporte/Rodagem/list')->middleware(['diretor','secretario']);
         Route::get('/Transporte/{idrota}/Rodagem',[TransporteController::class,'rodagem'])->name('Transporte/Rodagem')->middleware(['diretor','secretario']);
         Route::get('/Transporte/{idrota}/Rodagem/Novo',[TransporteController::class,'cadastroRodagem'])->name('Transporte/Rodagem/Novo')->middleware('diretor');
-        Route::get('/Transporte/{idrota}/Rodagem/Cadastro/{id}',[TransporteController::class,'cadastroRodagem'])->name('Transporte/Rodagem/Edit')->middleware(['diretor','secretario']);
         Route::post('/Transporte/Rodagem/Save',[TransporteController::class,'saveRodagem'])->name('Transporte/Rodagem/Save')->middleware(['diretor','secretario']);
         //veiculos
         Route::get('/Transporte/Veiculos/list',[TransporteController::class,'getVeiculos'])->name('Transporte/Veiculos/list')->middleware(['diretor','secretario']);

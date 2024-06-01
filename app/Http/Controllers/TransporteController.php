@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Terceirizada;
+use App\Models\Paradas;
+use App\Models\Rodagem;
 
 class TransporteController extends Controller
 {
@@ -31,6 +33,20 @@ class TransporteController extends Controller
         "rota" => "Transporte/Terceirizadas/index"
     ]);
     //
+    public const cadastroSubmodulos = array([
+        "nome" => "Cadastro",
+        "endereco" => "index",
+        "rota" => "Transporte/Edit"
+    ],[
+        "nome" => "Paradas",
+        "endereco" => "Paradas",
+        "rota" => "Transporte/Paradas"
+    ],[
+        "nome" => "Rodagem",
+        "endereco" => "Rodagem",
+        "rota" => "Transporte/Rodagem"
+    ]);
+    //
     public function index(){
         return view('Transporte.index',[
             "submodulos" => self::submodulos
@@ -41,22 +57,20 @@ class TransporteController extends Controller
         $view = [
             "IDRota" =>$idrota,
             'id' => '',
-            'submodulos' => array([
-                "nome" => "Cadastro",
-                "endereco" => "index",
-                "rota" => "Transporte/Edit"
-            ],[
-                "nome" => "Paradas",
-                "endereco" => "Paradas",
-                "rota" => "Transporte/Paradas"
-            ],[
-                "nome" => "Rodagem",
-                "endereco" => "Rodagem",
-                "rota" => "Transporte/Rodagem"
-            ])
+            'submodulos' => self::cadastroSubmodulos
         ];
 
         return view('Transporte.paradas',$view);
+    }
+    //
+    public function rodagem($idrota){
+        $view = [
+            "IDRota" =>$idrota,
+            'id' => '',
+            'submodulos' => self::cadastroSubmodulos
+        ];
+
+        return view('Transporte.rodagem',$view);
     }
     //
     public function veiculos(){
@@ -458,9 +472,85 @@ class TransporteController extends Controller
         }
     }
     //
+    public function saveParadas(Request $request){
+        try{
+            $ter = $request->all();
+            $ter['IDRota'] = $request->IDRota;
+            if($request->id){
+                Paradas::find($request->id)->update($ter);
+                $aid = array("id"=> $request->id,"idrota" => $request->IDRota);
+                $rout = "Transporte/Paradas/Edit";
+            }else{
+                $ter['IDOrganizacao'] = Auth::user()->id_org;
+                Paradas::create($ter);
+                $rout = "Transporte/Paradas/Novo";
+                $aid = $request->IDRota;
+            }
+            $mensagem = "Ponto de Parada Cadastrado com Sucesso";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $aid = '';
+            $mensagem = $th->getMessage();
+            $status = 'error'; 
+            $rout = "Transporte/Novo";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
+    public function saveRodagem(Request $request){
+        try{
+            Rodagem::create($request->all());
+            $KMRodados = $request->KMFinal - $request->KMInicial;
+            $aid = $request->IDRota;
+            $status = "success";
+            $mensagem = "Rodagem Cadastrada com Sucesso! o Veículo Rodou ".$KMRodados." Quilometros";
+            $rout = "Transporte/Rodagem/Novo";
+        }catch(\Throwable $th){
+            $aid = $request->IDRota;
+            $mensagem = $th->getMessage();
+            $rout = "Transporte/Rodagem/Novo";
+            $status = "error";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
+    public function getRodagem($id){
+        $idorg = Auth::user()->id_org;
+        $SQL = "SELECT 
+            rod.KMInicial,rod.KMFinal,rod.id as IDRodagem, v.Nome as Veiculo
+        FROM rodagem rod 
+        INNER JOIN veiculos v ON(v.id = rod.IDVeiculo) 
+        INNER JOIN organizacoes o ON(v.IDOrganizacao = o.id) 
+        WHERE o.id = $idorg AND rod.IDRota = $id";
+        
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->Veiculo;
+                $item[] = $r->KMInicial;
+                $item[] = $r->KMInicial;
+                $item[] = $r->KMFinal - $r->KMInicial;
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+    //
     public function getParadas($id){
         $idorg = Auth::user()->id_org;
-        $SQL = "SELECT p.Nome,p.Hora,p.id as IDParada FROM paradas p INNER JOIN rotas r ON(p.IDRota = r.id) INNER JOIN motoristas m ON(r.IDMotorista = m.id) WHERE IDRota = $id AND m.IDOrganizacao = $idorg ";
+        $SQL = "SELECT p.Nome,p.Hora,p.id as IDParada,r.id as IDRota FROM paradas p INNER JOIN rotas r ON(p.IDRota = r.id) INNER JOIN motoristas m ON(r.IDMotorista = m.id) WHERE IDRota = $id AND m.IDOrganizacao = $idorg ";
         $registros = DB::select($SQL);
         if(count($registros) > 0){
             foreach($registros as $r){
@@ -485,28 +575,16 @@ class TransporteController extends Controller
     //
     public function cadastroParadas($idrota,$id=null){
         $view = [
-            "submodulos" => array([
-                "nome" => "Cadastro",
-                "endereco" => "Edit",
-                "rota" => "Transporte/Edit"
-            ],[
-                "nome" => "Paradas",
-                "endereco" => "Paradas",
-                "rota" => "Transporte/Paradas"
-            ],[
-                "nome" => "Rodagem",
-                "endereco" => "Rodagem",
-                "rota" => "Transporte/Rodagem"
-            ]),
-            'id' => '',
+            "submodulos" => self::cadastroSubmodulos,
+            'id' => 0,
             'IDRota' => $idrota
         ];
 
         if($id){
             $idorg = Auth::user()->id_org;
             $SQL = "SELECT p.Nome,p.Hora,p.id as IDParada FROM paradas p INNER JOIN rotas r ON(p.IDRota = r.id) INNER JOIN motoristas m ON(r.IDMotorista = m.id) WHERE IDRota = $id AND m.IDOrganizacao = $idorg AND p.id = $id ";
-            $view['submodulos'][1]['rota'] = 'Transporte/Paradas/Edit';
-            $view['submodulos'][1]['endereco'] = 'Edit';
+            // $view['submodulos'][1]['rota'] = 'Transporte/Paradas/Edit';
+            // $view['submodulos'][1]['endereco'] = 'Edit';
             $view['Registro'] = DB::select($SQL)[0];
             $view['id'] = $id;
         }
@@ -514,5 +592,13 @@ class TransporteController extends Controller
         return view("Transporte.cadastroParadas",$view);
     }
     //
+    public function cadastroRodagem($idrota){
+        return view('Transporte.cadastroRodagem',[
+            'id' => 0,
+            'IDRota' => $idrota,
+            'submodulos' => self::cadastroSubmodulos,
+            'Veiculos' => Veiculo::where('IDOrganizacao',Auth::user()->id_org)->get()
+        ]);
+    }
     // 
 }
