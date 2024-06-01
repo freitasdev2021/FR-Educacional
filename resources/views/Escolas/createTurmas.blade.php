@@ -65,9 +65,13 @@
                                 </optgroup>
                             </select>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-3">
                             <label>Turma</label>
                             <input type="text" name="Nome" class="form-control" value="{{isset($Registro->Turma) ? $Registro->Turma : ''}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Matérias p/Repetência</label>
+                            <input type="text" name="QTRepetencia" class="form-control" value="{{isset($Registro->QTRepetencia) ? $Registro->QTRepetencia : ''}}">
                         </div>
                     </div>
                     <div class="row">

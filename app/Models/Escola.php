@@ -21,7 +21,6 @@ class Escola extends Model
         'Telefone',
         'Email',
         'QTVagas',
-        'QTRepetencia',
     ];
 
     public function organizacao()

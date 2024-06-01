@@ -26,19 +26,15 @@
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-5">
+                        <div class="col-sm-4">
                             <label>Nome da escola</label>
                             <input type="text" name="Nome" class="form-control @error('Organizacao') is-invalid @enderror" maxlength="100" required value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}">
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                             <label>Quantidade de Vagas</label>
                             <input type="text" name="QTVagas" class="form-control" value="{{isset($Registro->QTVagas) ? $Registro->QTVagas : ''}}">
                         </div>
-                        <div class="col-sm-2">
-                            <label>Matérias p/Repetência</label>
-                            <input type="text" name="QTRepetencia" class="form-control" value="{{isset($Registro->QTRepetencia) ? $Registro->QTRepetencia : ''}}">
-                        </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label>Telefone</label>
                             <input type="text" name="Telefone" class="form-control" value="{{isset($Registro->Telefone) ? $Registro->Telefone : ''}}">
                         </div>

@@ -18,11 +18,11 @@
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Escolas/Turmas/list')}}">
                     <thead>
                       <tr>
-                        <th style="text-align:center;" scope="col">Nom</th>
-                        <th style="text-align:center;" scope="col">Endereço</th>
-                        <th style="text-align:center;" scope="col">Email</th>
-                        <th style="text-align:center;" scope="col">Telefone</th>
-                        <th style="text-align:center;" scope="col">Vagas</th>
+                        <th style="text-align:center;" scope="col">Turma</th>
+                        <th style="text-align:center;" scope="col">Serie</th>
+                        <th style="text-align:center;" scope="col">Escola</th>
+                        <th style="text-align:center;" scope="col">Inicio e Término</th>
+                        <th style="text-align:center;" scope="col">Alunos</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

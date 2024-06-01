@@ -20,10 +20,6 @@ class EscolasController extends Controller
         "endereco" => "index",
         "rota" => "Escolas/index"
     ],[
-        "nome" => "Anos Letivos",
-        "endereco" => "Anosletivos",
-        "rota" => "Escolas/Anosletivos"
-    ],[
         "nome" => "Disciplinas",
         "endereco" => "Disciplinas",
         "rota" => "Escolas/Disciplinas"
