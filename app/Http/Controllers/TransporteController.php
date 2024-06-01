@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Motorista;
+use App\Models\Rota;
+use App\Models\Veiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Terceirizada;
 
 class TransporteController extends Controller
 {
     //
     public const submodulos = array([
-        "nome" => "Rotas",
+        "nome" => "Itinerários",
         "endereco" => "index",
         "rota" => "Transporte/index"
     ],[
@@ -31,6 +35,28 @@ class TransporteController extends Controller
         return view('Transporte.index',[
             "submodulos" => self::submodulos
         ]);
+    }
+    //
+    public function paradas($idrota){
+        $view = [
+            "IDRota" =>$idrota,
+            'id' => '',
+            'submodulos' => array([
+                "nome" => "Cadastro",
+                "endereco" => "index",
+                "rota" => "Transporte/Edit"
+            ],[
+                "nome" => "Paradas",
+                "endereco" => "Paradas",
+                "rota" => "Transporte/Paradas"
+            ],[
+                "nome" => "Rodagem",
+                "endereco" => "Rodagem",
+                "rota" => "Transporte/Rodagem"
+            ])
+        ];
+
+        return view('Transporte.paradas',$view);
     }
     //
     public function veiculos(){
@@ -57,9 +83,10 @@ class TransporteController extends Controller
             m.Nome as Motorista,
             r.Descricao,
             r.Partida,
-            .r.Chegada,
+            r.Chegada,
             r.HoraPartida,
             r.HoraChegada,
+            r.Turno,
             r.id as IDRota
         FROM rotas r 
         INNER JOIN motoristas m ON(m.id = r.IDMotorista)
@@ -77,7 +104,7 @@ class TransporteController extends Controller
                 $item[] = $r->Chegada."(".$r->HoraChegada.")";
                 $item[] = "";
                 $item[] = $r->Turno;
-                $item[] = "<a href='".route('Transporte/Cadastro',$r->IDRota)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = "<a href='".route('Transporte/Edit',$r->IDRota)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -95,7 +122,7 @@ class TransporteController extends Controller
     //
     public function getVeiculos(){
         $auth = Auth::user()->id_org;
-        $SQL = "SELECT v.Nome,v.Marca,v.Placa,v.Cor FROM veiculos v INNER JOIN organizacoes o ON(o.id = v.IDOrganizacao) = o.id = $auth";
+        $SQL = "SELECT v.Nome,v.Marca,v.Placa,v.Cor,v.id as IDVeiculo FROM veiculos v INNER JOIN organizacoes o ON(o.id = v.IDOrganizacao) = o.id = $auth";
         $registros = DB::select($SQL);
         if(count($registros) > 0){
             foreach($registros as $r){
@@ -104,7 +131,7 @@ class TransporteController extends Controller
                 $item[] = $r->Marca;
                 $item[] = $r->Placa;
                 $item[] = $r->Cor;
-                $item[] = "<a href='".route('Transporte/Veiculos/Cadastro',$r->IDVeiculo)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = "<a href='".route('Transporte/Veiculos/Edit',$r->IDVeiculo)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -203,30 +230,53 @@ class TransporteController extends Controller
     public function cadastro($id=null){
         $view = [
             "submodulos" => self::submodulos,
-            'id' => ''
+            'id' => '',
+            'IDRota' => '',
+            'Motoristas' => Motorista::where('IDOrganizacao',Auth::user()->id_org)->get()
         ];
 
         $idorg = Auth::user()->id_org;
 
         if($id){
             $SQL = "SELECT 
+                m.id as IDMotorista,
                 m.Nome as Motorista,
                 r.Descricao,
                 r.Partida,
-                .r.Chegada,
+                r.Chegada,
+                r.Distancia,
+                r.Turno,
+                r.DiasJSON,
                 r.HoraPartida,
                 r.HoraChegada,
-                r.RotaJSON,
                 r.id as IDRota
             FROM rotas r 
             INNER JOIN motoristas m ON(m.id = r.IDMotorista)
             INNER JOIN organizacoes o ON(o.id = m.IDOrganizacao)
-            WHERE o.id = $idorg AND m.id = $id";
-            $registro = DB::select($SQL);
+            WHERE o.id = $idorg AND r.id = $id";
+            $registro = DB::select($SQL)[0];
+            $view['submodulos'][0]['nome'] = 'Cadastro';
             $view['submodulos'][0]['endereco'] = "Edit";
-            $view['submodulos'][0]['rota'] = "Transportes/Cadastro";
+            $view['submodulos'][0]['rota'] = "Transporte/Edit";
+            //
+            unset($view['submodulos'][1]);
+            unset($view['submodulos'][2]);
+            unset($view['submodulos'][3]);
+
+            array_push($view['submodulos'],[
+                "nome" => "Paradas",
+                "endereco" => "Paradas",
+                "rota" => "Transporte/Paradas"
+            ]);
+
+            array_push($view['submodulos'],[
+                "nome" => "Rodagem",
+                "endereco" => "Rodagem",
+                "rota" => "Transporte/Rodagem"
+            ]);
             $view['id'] = $id;
-            $view['Registro'] = $registro[0];
+            $view['Registro'] = $registro;
+            $view['Dias'] = json_decode($registro->DiasJSON,true);
         }
 
         return view('Transporte.cadastro',$view);
@@ -241,23 +291,26 @@ class TransporteController extends Controller
         if($id){
             $auth = Auth::user()->id_org;
             $SQL = "SELECT 
-                p.id AS IDProfessor,
+                m.id AS IDMotorista,
                 m.Nome AS Motorista,
-                p.Admissao,
-                p.TerminoContrato,
-                p.CEP,
-                p.Rua,
-                p.UF,
-                p.Cidade,
-                p.Bairro,
-                p.Numero
-            FROM Motoristas m
+                m.Admissao,
+                m.TerminoContrato,
+                m.CEP,
+                m.Rua,
+                m.Celular,
+                m.Email,
+                m.Nascimento,
+                m.UF,
+                m.Cidade,
+                m.Bairro,
+                m.Numero
+            FROM motoristas m
             INNER JOIN organizacoes o ON m.IDOrganizacao = o.id
             WHERE o.id = $auth AND m.id = $id";
 
             $registro = DB::select($SQL);
             $view['submodulos'][0]['endereco'] = "Edit";
-            $view['submodulos'][0]['rota'] = "Transportes/Motorista/Cadastro";
+            $view['submodulos'][0]['rota'] = "Transporte/Motoristas/Edit";
             $view['id'] = $id;
             $view['Registro'] = $registro[0];
         }
@@ -273,11 +326,11 @@ class TransporteController extends Controller
 
         if($id){
             $auth = Auth::user()->id_org;
-            $SQL = "SELECT v.Nome,v.Marca,v.Placa,v.Cor FROM veiculos v INNER JOIN organizacoes o ON(o.id = v.IDOrganizacao) = o.id = $auth AND v.id = $id";
+            $SQL = "SELECT v.Nome,v.Marca,v.Placa,v.KMAquisicao,v.Cor,v.id as IDVeiculo FROM veiculos v INNER JOIN organizacoes o ON(o.id = v.IDOrganizacao) = o.id = $auth AND v.id = $id";
 
             $registro = DB::select($SQL);
             $view['submodulos'][0]['endereco'] = "Edit";
-            $view['submodulos'][0]['rota'] = "Transportes/Veiculos/Cadastro";
+            $view['submodulos'][0]['rota'] = "Transporte/Veiculos/Edit";
             $view['id'] = $id;
             $view['Registro'] = $registro[0];
         }
@@ -301,6 +354,8 @@ class TransporteController extends Controller
                 t.UF,
                 t.Cidade,
                 t.Bairro,
+                t.Telefone,
+                t.Email,
                 t.Numero,
                 t.CNPJ,
                 t.Nome
@@ -310,7 +365,7 @@ class TransporteController extends Controller
 
             $registro = DB::select($SQL);
             $view['submodulos'][0]['endereco'] = "Edit";
-            $view['submodulos'][0]['rota'] = "Transportes/Terceirizadas/Cadastro";
+            $view['submodulos'][0]['rota'] = "Transporte/Terceirizadas/Edit";
             $view['id'] = $id;
             $view['Registro'] = $registro[0];
         }
@@ -318,4 +373,146 @@ class TransporteController extends Controller
         return view('Transporte.cadastroTerceirizadas',$view);
     }
     //
+    public function saveVeiculos(Request $request){
+        try{
+            $ter = $request->all();
+            $ter['Placa'] = preg_replace('/\D/', '', $request->Placa);
+            if($request->id){
+                Veiculo::find($request->id)->update($ter);
+                $aid = $request->id;
+                $rout = "Transporte/Veiculos/Edit";
+            }else{
+                $ter['IDOrganizacao'] = Auth::user()->id_org;
+                Veiculo::create($ter);
+                $rout = "Transporte/Veiculos/Novo";
+                $aid = "";
+            }
+            $mensagem = "Empresa Cadastrada com Sucesso";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $aid = '';
+            $mensagem = $th->getMessage();
+            $status = 'error'; 
+            $rout = "Transporte/Veiculos/Novo";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
+    public function saveMotoristas(Request $request){
+        try{
+            $ter = $request->all();
+            $ter['CEP'] = preg_replace('/\D/', '', $request->CEP);
+            $ter['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            if($request->id){
+                Motorista::find($request->id)->update($ter);
+                $aid = $request->id;
+                $rout = "Transporte/Motoristas/Edit";
+            }else{
+                $ter['IDOrganizacao'] = Auth::user()->id_org;
+                Motorista::create($ter);
+                $rout = "Transporte/Motoristas/Novo";
+                $aid = "";
+            }
+            $mensagem = "Motorista Cadastrado com Sucesso";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $aid = '';
+            $mensagem = $th->getMessage();
+            $status = 'error'; 
+            $rout = "Transporte/Motoristas/Novo";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
+    public function save(Request $request){
+        try{
+            $ter = $request->all();
+            $ter['CEP'] = preg_replace('/\D/', '', $request->CEP);
+            $ter['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            $dias = [];
+            foreach($request->Dia as $d){
+                array_push($dias,$d);
+            }
+            $ter['DiasJSON'] = json_encode($dias,JSON_UNESCAPED_UNICODE);
+            if($request->id){
+                Rota::find($request->id)->update($ter);
+                $aid = $request->id;
+                $rout = "Transporte/Edit";
+            }else{
+                $ter['IDOrganizacao'] = Auth::user()->id_org;
+                Rota::create($ter);
+                $rout = "Transporte/Novo";
+                $aid = "";
+            }
+            $mensagem = "Itinerário Cadastrado com Sucesso";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $aid = '';
+            $mensagem = $th->getMessage();
+            $status = 'error'; 
+            $rout = "Transporte/Novo";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
+    public function getParadas($id){
+        $idorg = Auth::user()->id_org;
+        $SQL = "SELECT p.Nome,p.Hora,p.id as IDParada FROM paradas p INNER JOIN rotas r ON(p.IDRota = r.id) INNER JOIN motoristas m ON(r.IDMotorista = m.id) WHERE IDRota = $id AND m.IDOrganizacao = $idorg ";
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->Nome;
+                $item[] = $r->Hora;
+                $item[] = "<a href='".route('Transporte/Paradas/Edit',['idrota' => $id,'id' => $r->IDRota])."' class='btn btn-primary btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+    //
+    public function cadastroParadas($idrota,$id=null){
+        $view = [
+            "submodulos" => array([
+                "nome" => "Cadastro",
+                "endereco" => "Edit",
+                "rota" => "Transporte/Edit"
+            ],[
+                "nome" => "Paradas",
+                "endereco" => "Paradas",
+                "rota" => "Transporte/Paradas"
+            ],[
+                "nome" => "Rodagem",
+                "endereco" => "Rodagem",
+                "rota" => "Transporte/Rodagem"
+            ]),
+            'id' => '',
+            'IDRota' => $idrota
+        ];
+
+        if($id){
+            $idorg = Auth::user()->id_org;
+            $SQL = "SELECT p.Nome,p.Hora,p.id as IDParada FROM paradas p INNER JOIN rotas r ON(p.IDRota = r.id) INNER JOIN motoristas m ON(r.IDMotorista = m.id) WHERE IDRota = $id AND m.IDOrganizacao = $idorg AND p.id = $id ";
+            $view['submodulos'][1]['rota'] = 'Transporte/Paradas/Edit';
+            $view['submodulos'][1]['endereco'] = 'Edit';
+            $view['Registro'] = DB::select($SQL)[0];
+            $view['id'] = $id;
+        }
+
+        return view("Transporte.cadastroParadas",$view);
+    }
+    //
+    // 
 }

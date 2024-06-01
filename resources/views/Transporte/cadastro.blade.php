@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--LISTAS-->
             <div class="col-sm-12 p-2 center-form">
-                <form action="{{route('Diretores/Save')}}" method="POST">
+                <form action="{{route('Transporte/Save')}}" method="POST">
                     @csrf
                     @method("POST")
                     @if(session('success'))
@@ -21,120 +21,110 @@
                     </div>
                     <br>
                     @endif
-                    @if(isset($Registro->id))
-                    <input type="hidden" name="id" value="{{$Registro->id}}">
+                    @if(isset($Registro->IDRota))
+                    <input type="hidden" name="id" value="{{$Registro->IDRota}}">
                     @endif
-                    <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
+                    <input type="hidden" name="Ramo" value="Transportes">
                     <div class="row">
-                        <div class="col-sm-12">
-                            <label>Escola</label>
-                            <select name="IDEscola" class="form-control">
+                        <div class="col-sm-9">
+                            <label>Motorista</label>
+                            <select name="IDMotorista" class="form-control">
                                 <option>Selecione</option>
-                                @foreach($Escolas as $e)
-                                    <option value="{{$e->id}}" {{(isset($Registro->IDEscola) && $Registro->IDEscola == $e->id) ? 'selected' : ''}}>{{$e->Nome}}</option>
+                                @foreach($Motoristas as $m)
+                                <option value="{{$m['id']}}" {{isset($Registro) && $Registro->IDMotorista == $m['id'] ? 'selected' : ''}}>{{$m['Nome']}}</option>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label>Nome</label>
-                            <input type="text" name="Nome" class="form-control" maxlength="50" required value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}">
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Celular</label>
-                            <input type="text" name="Celular" class="form-control" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}">
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Email</label>
-                            <input type="email" name="Email" class="form-control" maxlength="50" required value="{{isset($Registro->Email) ? $Registro->Email : ''}}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label>Data de Admissão</label>
-                            <input type="date" name="Admissao" class="form-control" required value="{{isset($Registro->Admissao) ? $Registro->Admissao : ''}}">
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Término do Mandato</label>
-                            <input type="date" name="TerminoContrato" class="form-control" required value="{{isset($Registro->TerminoContrato) ? $Registro->TerminoContrato : ''}}">
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Data de Nascimento</label>
-                            <input type="date" name="Nascimento" class="form-control" required value="{{isset($Registro->Nascimento) ? $Registro->Nascimento : ''}}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <label>CEP</label>
-                            <input type="text" name="CEP" class="form-control" required value="{{isset($Registro->Cidade) ? $Registro->CEP : ''}}">
-                        </div>
-                        <div class="col-sm-5">
-                            <label>Rua</label>
-                            <input type="text" name="Rua" class="form-control" maxlength="50" value="{{isset($Registro->Bairro) ? $Registro->Rua : ''}}" required>
-                        </div>
                         <div class="col-sm-3">
-                            <label>Bairro</label>
-                            <input type="text" name="Bairro" class="form-control" maxlength="50" value="{{isset($Registro->UF) ? $Registro->Bairro : ''}}" minlength="2" required>
-                        </div>
-                        <div class="col-sm-1">
-                            <label>UF</label>
-                            <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Registro->Numero) ? $Registro->UF : ''}}" required>
-                        </div>
-                        <div class="col-sm-1">
-                            <label>Numero</label>
-                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}" required>
+                            <label>Distancia Total</label>
+                            <input class="form-control" name="Distancia" type="text" value="{{isset($Registro) ? $Registro->Distancia : ''}}">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-5">
-                            <label>Cidade</label>
-                            <input type="text" name="Cidade" class="form-control" maxlength="50" value="{{isset($Registro->Cidade) ? $Registro->Cidade : ''}}" minlength="3" required>
+                        <div class="col-sm-6">
+                            <label>Partida</label>
+                            <input type="text" name="Partida" class="form-control" maxlength="50" required value="{{isset($Registro) ? $Registro->Partida : ''}}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Hora Partida</label>
+                            <input type="time" name="HoraPartida" class="form-control" value="{{isset($Registro) ? $Registro->HoraPartida : ''}}">
                         </div>
                     </div>
-                    <br>
-                    @if(isset($Registro->id))
-                    <div class="checkboxEscolas">
-                        <div class="form-check escola">
-                            {{-- <input type="hidden" name="Escola[]" value="{{isset($Registro->Escolas) && in_array($e->Nome,json_decode($Registro->Escolas,true)) ? $e->id : ''}}"> --}}
-                            <input class="form-check-input" type="checkbox" value="1" name="credenciais" id="flexCheckDefault">
-                            <label class="form-check-label" for="flexCheckDefault">
-                             Enviar Novas Credenciais de Login
-                            </label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Chegada</label>
+                            <input type="text" name="Chegada" class="form-control" required value="{{isset($Registro) ? $Registro->Chegada : ''}}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Hora Chegada</label>
+                            <input type="time" name="HoraChegada" class="form-control" required value="{{isset($Registro) ? $Registro->HoraChegada : ''}}">
                         </div>
                     </div>
-                    @endif
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Descrição</label>
+                            <input type="text" name="Descricao" class="form-control" maxlength="50" value="{{isset($Registro) ? $Registro->Descricao : ''}}" minlength="3" required>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Turno</label>
+                            <select name="Turno" class="form-control" required>
+                                <option value="">Selecione</option>
+                                <option value="Manhã" {{isset($Registro) && $Registro->Turno == "Manhã" ? 'selected' : ''}}>Manhã</option>
+                                <option value="Tarde" {{isset($Registro) && $Registro->Turno == "Tarde" ? 'selected' : ''}}>Tarde</option>
+                                <option value="Noite" {{isset($Registro) && $Registro->Turno == "Noite" ? 'selected' : ''}}>Noite</option>
+                            </select>
+                        </div>
+                    </div>
+                    <label>Dias</label>
+                    <div class="col-auto row">
+                        <div class="form-check d-flex ">
+                            <div class="col-sm-2">
+                                <input class="form-check-input" type="checkbox" value="Segunda" {{isset($Dias) && in_array("Segunda",$Dias) ? 'checked' : ''}} name="Dia[]" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Segunda
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input class="form-check-input" type="checkbox" value="Terça" {{isset($Dias) && in_array("Terça",$Dias) ? 'checked' : ''}} name="Dia[]" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Terça
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input class="form-check-input" type="checkbox" value="Quarta" {{isset($Dias) && in_array("Quarta",$Dias) ? 'checked' : ''}} name="Dia[]" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Quarta
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input class="form-check-input" type="checkbox" value="Quinta" {{isset($Dias) && in_array("Quinta",$Dias) ? 'checked' : ''}} name="Dia[]"id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Quinta
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input class="form-check-input" type="checkbox" value="Sexta" {{isset($Dias) && in_array("Sexta",$Dias) ? 'checked' : ''}} name="Dia[]" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Sexta
+                                </label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input class="form-check-input" type="checkbox" value="Sabado" {{isset($Dias) && in_array("Sabado",$Dias) ? 'checked' : ''}} name="Dia[]" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Sabado
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <br>
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         &nbsp;
-                        <a class="btn btn-light col-auto" href="{{route('Diretores/index')}}">Voltar</a>
+                        <a class="btn btn-light col-auto" href="{{route('Transporte/index')}}">Voltar</a>
                     </div>
                 </form>    
             </div>
             <!--//-->
         </div>
     </div>
-    <script>
-        $('input[name=CEP]').on("change",function(e){
-            if( $(this).val().length == 9){
-                var cep = $(this).val();
-                var url = "https://viacep.com.br/ws/"+cep+"/json/";
-                $.ajax({
-                    url: url,
-                    type: 'get',
-                    dataType: 'json',
-                    success: function(dados){
-                        $("input[name=UF]").val(dados.uf).change();
-                        $("input[name=Cidade]").val(dados.localidade);
-                        $("input[name=Bairro]").val(dados.bairro);
-                        $("input[name=Rua]").val(dados.logradouro);
-                    }
-                })
-            }            
-        })
-        //
-        $("input[name=CEP]").inputmask('99999-999')
-        $("input[name=Celular]").inputmask('(99) 9 9999-9999')
-    </script>
 </x-educacional-layout>

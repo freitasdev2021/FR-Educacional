@@ -145,6 +145,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/Transporte/Novo',[TransporteController::class,'cadastro'])->name('Transporte/Novo')->middleware('diretor');
         Route::get('/Transporte/Cadastro/{id}',[TransporteController::class,'cadastro'])->name('Transporte/Edit')->middleware(['diretor','secretario']);
         Route::post('/Transporte/Save',[TransporteController::class,'save'])->name('Transporte/Save')->middleware(['diretor','secretario']);
+        //paradas
+        Route::get('/Transporte/Paradas/list/{idrota}',[TransporteController::class,'getParadas'])->name('Transporte/Paradas/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/{idrota}/Paradas',[TransporteController::class,'paradas'])->name('Transporte/Paradas')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/{idrota}/Paradas/Novo',[TransporteController::class,'cadastroParadas'])->name('Transporte/Paradas/Novo')->middleware('diretor');
+        Route::get('/Transporte/{idrota}/Paradas/Cadastro/{id}',[TransporteController::class,'cadastroParadas'])->name('Transporte/Paradas/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Paradas/Save',[TransporteController::class,'saveParadas'])->name('Transporte/Paradas/Save')->middleware(['diretor','secretario']);
+        //rodagem
+        Route::get('/Transporte/Rodagem/list/{idrota}',[TransporteController::class,'getRodagem'])->name('Transporte/Rodagem/list')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/{idrota}/Rodagem',[TransporteController::class,'rodagem'])->name('Transporte/Rodagem')->middleware(['diretor','secretario']);
+        Route::get('/Transporte/{idrota}/Rodagem/Novo',[TransporteController::class,'cadastroRodagem'])->name('Transporte/Rodagem/Novo')->middleware('diretor');
+        Route::get('/Transporte/{idrota}/Rodagem/Cadastro/{id}',[TransporteController::class,'cadastroRodagem'])->name('Transporte/Rodagem/Edit')->middleware(['diretor','secretario']);
+        Route::post('/Transporte/Rodagem/Save',[TransporteController::class,'saveRodagem'])->name('Transporte/Rodagem/Save')->middleware(['diretor','secretario']);
         //veiculos
         Route::get('/Transporte/Veiculos/list',[TransporteController::class,'getVeiculos'])->name('Transporte/Veiculos/list')->middleware(['diretor','secretario']);
         Route::get('/Transporte/Veiculos',[TransporteController::class,'veiculos'])->name('Transporte/Veiculos/index')->middleware(['diretor','secretario']);

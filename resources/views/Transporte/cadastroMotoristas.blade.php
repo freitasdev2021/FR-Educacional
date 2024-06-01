@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--LISTAS-->
             <div class="col-sm-12 p-2 center-form">
-                <form action="{{route('Diretores/Save')}}" method="POST">
+                <form action="{{route('Transporte/Motoristas/Save')}}" method="POST">
                     @csrf
                     @method("POST")
                     @if(session('success'))
@@ -21,79 +21,65 @@
                     </div>
                     <br>
                     @endif
-                    @if(isset($Registro->id))
-                    <input type="hidden" name="id" value="{{$Registro->id}}">
+                    @if(isset($Registro->IDMotorista))
+                    <input type="hidden" name="id" value="{{$Registro->IDMotorista}}">
                     @endif
-                    <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
-
                     <div class="row">
                         <div class="col-sm-4">
                             <label>Nome</label>
-                            <input type="text" name="Nome" class="form-control" maxlength="50" required value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}">
+                            <input type="text" name="Nome" class="form-control" maxlength="50" required value="{{isset($Registro) ? $Registro->Motorista : ''}}">
                         </div>
                         <div class="col-sm-4">
                             <label>Celular</label>
-                            <input type="text" name="Celular" class="form-control" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}">
+                            <input type="text" name="Celular" class="form-control" value="{{isset($Registro) ? $Registro->Celular : ''}}">
                         </div>
                         <div class="col-sm-4">
                             <label>Email</label>
-                            <input type="email" name="Email" class="form-control" maxlength="50" required value="{{isset($Registro->Email) ? $Registro->Email : ''}}">
+                            <input type="email" name="Email" class="form-control" maxlength="50" required value="{{isset($Registro) ? $Registro->Email : ''}}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-4">
                             <label>Data de Admissão</label>
-                            <input type="date" name="Admissao" class="form-control" required value="{{isset($Registro->Admissao) ? $Registro->Admissao : ''}}">
+                            <input type="date" name="Admissao" class="form-control" required value="{{isset($Registro) ? $Registro->Admissao : ''}}">
                         </div>
                         <div class="col-sm-4">
-                            <label>Término do Mandato</label>
-                            <input type="date" name="TerminoContrato" class="form-control" required value="{{isset($Registro->TerminoContrato) ? $Registro->TerminoContrato : ''}}">
+                            <label>Término do Contrato</label>
+                            <input type="date" name="TerminoContrato" class="form-control" required value="{{isset($Registro) ? $Registro->TerminoContrato : ''}}">
                         </div>
                         <div class="col-sm-4">
                             <label>Data de Nascimento</label>
-                            <input type="date" name="Nascimento" class="form-control" required value="{{isset($Registro->Nascimento) ? $Registro->Nascimento : ''}}">
+                            <input type="date" name="Nascimento" class="form-control" required value="{{isset($Registro) ? $Registro->Nascimento : ''}}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-2">
                             <label>CEP</label>
-                            <input type="text" name="CEP" class="form-control" required value="{{isset($Registro->Cidade) ? $Registro->CEP : ''}}">
+                            <input type="text" name="CEP" class="form-control" required value="{{isset($Registro) ? $Registro->CEP : ''}}">
                         </div>
                         <div class="col-sm-5">
                             <label>Rua</label>
-                            <input type="text" name="Rua" class="form-control" maxlength="50" value="{{isset($Registro->Bairro) ? $Registro->Rua : ''}}" required>
+                            <input type="text" name="Rua" class="form-control" maxlength="50" value="{{isset($Registro) ? $Registro->Rua : ''}}" required>
                         </div>
                         <div class="col-sm-3">
                             <label>Bairro</label>
-                            <input type="text" name="Bairro" class="form-control" maxlength="50" value="{{isset($Registro->UF) ? $Registro->Bairro : ''}}" minlength="2" required>
+                            <input type="text" name="Bairro" class="form-control" maxlength="50" value="{{isset($Registro) ? $Registro->Bairro : ''}}" minlength="2" required>
                         </div>
                         <div class="col-sm-1">
                             <label>UF</label>
-                            <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Registro->Numero) ? $Registro->UF : ''}}" required>
+                            <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Registro) ? $Registro->UF : ''}}" required>
                         </div>
                         <div class="col-sm-1">
                             <label>Numero</label>
-                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}" required>
+                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro) ? $Registro->Numero : ''}}" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-5">
                             <label>Cidade</label>
-                            <input type="text" name="Cidade" class="form-control" maxlength="50" value="{{isset($Registro->Cidade) ? $Registro->Cidade : ''}}" minlength="3" required>
+                            <input type="text" name="Cidade" class="form-control" maxlength="50" value="{{isset($Registro) ? $Registro->Cidade : ''}}" minlength="3" required>
                         </div>
                     </div>
-                    <br>
-                    @if(isset($Registro->id))
-                    <div class="checkboxEscolas">
-                        <div class="form-check escola">
-                            {{-- <input type="hidden" name="Escola[]" value="{{isset($Registro->Escolas) && in_array($e->Nome,json_decode($Registro->Escolas,true)) ? $e->id : ''}}"> --}}
-                            <input class="form-check-input" type="checkbox" value="1" name="credenciais" id="flexCheckDefault">
-                            <label class="form-check-label" for="flexCheckDefault">
-                             Enviar Novas Credenciais de Login
-                            </label>
-                        </div>
-                    </div>
-                    @endif
                     <br>
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>

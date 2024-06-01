@@ -14,7 +14,7 @@ class Rota extends Model
         'IDVeiculo',
         'IDMotorista',
         'Descricao',
-        'RotaJSON',
+        'DiasJSON',
         'Distancia',
         'Turno',
         'Partida',

@@ -15,6 +15,7 @@ class Veiculo extends Model
         'Marca',
         'Placa',
         'Cor',
+        'KMAquisicao'
     ];
 
     public function organizacao()

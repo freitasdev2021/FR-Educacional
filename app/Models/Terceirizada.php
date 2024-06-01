@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Terceirizada extends Model
 {
     use HasFactory;
-
+    protected $table = "terceirizadas";
     protected $fillable = [
         'IDOrg',
         'Nome',
@@ -22,6 +22,7 @@ class Terceirizada extends Model
         'Email',
         'CNPJ',
         'Ramo',
+        'TerminoContrato'
     ];
 
     public function organizacao()
