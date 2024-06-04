@@ -11,6 +11,7 @@
                 <div class="col-auto">
                     <a href="{{route('Alunos/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
+                @if((Auth::user()->tipo == 2))
                 <div class="col-auto">
                     <select name="" class="form-control">
                         <option value="">Selecione a Escola</option>
@@ -19,6 +20,7 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
                 <div class="col-auto">
                     <select name="" class="form-control">
                         <option value="">Selecione o Status</option>
@@ -42,7 +44,7 @@
                       <tr>
                         <th style="text-align:center;" scope="col">Nome</th>
                         <th style="text-align:center;" scope="col">Turma</th>
-                        <th style="text-align:center;" scope="col">Escola</th>
+                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escola</th>@endif
                         <th style="text-align:center;" scope="col">Serie</th>
                         <th style="text-align:center;" scope="col">Data de Nascimento</th>
                         <th style="text-align:center;" scope="col">Vencimento da Matrícula</th>

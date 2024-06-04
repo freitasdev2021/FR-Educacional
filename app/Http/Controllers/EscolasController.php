@@ -30,10 +30,14 @@ class EscolasController extends Controller
     ]);
 
     public function index(){
-        return view('Escolas.index',[
+        $view = [
             "submodulos" => self::submodulos,
             'id' => ''
-        ]);
+        ];
+        if(Auth::user()->tipo == 4){
+            $view['Registro'] = Escola::find(self::getEscolaDiretor(Auth::user()->id))->first();
+        }
+        return view('Escolas.index',$view);
     }
 
     public function getEscolas(){
@@ -186,6 +190,15 @@ class EscolasController extends Controller
     }
     ///////////////////////////////////////////DISCIPLINAS
     public function getDisciplinas(){
+
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND ad.IDEscola='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
         $idorg = Auth::user()->id_org;
 
         $SQL = <<<SQL
@@ -197,7 +210,7 @@ class EscolasController extends Controller
         FROM disciplinas d
         INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina) 
         INNER JOIN escolas e ON(ad.IDEscola = e.id)
-        INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND
         GROUP BY NMDisciplina ;
         SQL;
         $disciplinas = DB::select($SQL);
@@ -205,7 +218,7 @@ class EscolasController extends Controller
             foreach($disciplinas as $d){
                 $item = [];
                 $item[] = $d->NMDisciplina;
-                $item[] = implode(",",json_decode($d->Escolas));
+                (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
                 $item[] = "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
@@ -223,6 +236,7 @@ class EscolasController extends Controller
     }
 
     public function disciplinas(){
+
         return view('Escolas.disciplinas',[
             "submodulos" => self::submodulos,
             'id' => ''
@@ -330,7 +344,7 @@ class EscolasController extends Controller
                 $item = [];
                 $item[] = $t->Turma;
                 $item[] = $t->Serie;
-                $item[] = $t->Escola;
+                (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
                 $item[] = $t->INITurma." - ".$t->TERTurma;
                 $item[] = 0;
                 $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>";
@@ -350,6 +364,7 @@ class EscolasController extends Controller
     }
 
     public function turmas(){
+
         return view('Escolas.turmas',[
             "submodulos" => self::submodulos,
             'id' => ''

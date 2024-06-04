@@ -20,7 +20,7 @@
                       <tr>
                         <th style="text-align:center;" scope="col">Turma</th>
                         <th style="text-align:center;" scope="col">Serie</th>
-                        <th style="text-align:center;" scope="col">Escola</th>
+                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escolas</th>@endif
                         <th style="text-align:center;" scope="col">Inicio e Término</th>
                         <th style="text-align:center;" scope="col">Alunos</th>
                         <th style="text-align:center;" scope="col">Opções</th>

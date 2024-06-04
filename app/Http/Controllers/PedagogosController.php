@@ -27,6 +27,14 @@ class PedagogosController extends Controller
 
     public function getPedagogos(){
 
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND a.IDEscola='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+        
         $orgId = Auth::user()->id_org;
         $SQL = <<<SQL
         SELECT 
@@ -45,7 +53,7 @@ class PedagogosController extends Controller
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
-        WHERE o.id = $orgId
+        WHERE o.id = $orgId $AND
         GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
         SQL;
 
@@ -57,7 +65,7 @@ class PedagogosController extends Controller
                 $item[] = $d->Pedagogo;
                 $item[] = Controller::data($d->Admissao,'d/m/Y');
                 $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
-                $item[] = implode(",",json_decode($d->Escolas));
+                (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
                 $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
                 $item[] = "<a href='".route('Pedagogos/Edit',1)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;

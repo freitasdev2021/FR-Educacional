@@ -27,6 +27,14 @@ class ProfessoresController extends Controller
 
     public function getProfessores(){
 
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND a.IDEscola='.$IDEscola;
+            //dd($IDEscola);
+        }else{
+            $AND = '';
+        }
+
         $orgId = Auth::user()->id_org;
         $SQL = <<<SQL
         SELECT 
@@ -45,7 +53,7 @@ class ProfessoresController extends Controller
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
-        WHERE o.id = $orgId
+        WHERE o.id = $orgId $AND
         GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
         SQL;
 
@@ -57,7 +65,7 @@ class ProfessoresController extends Controller
                 $item[] = $d->Professor;
                 $item[] = Controller::data($d->Admissao,'d/m/Y');
                 $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
-                $item[] = implode(",",json_decode($d->Escolas));
+                (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
                 $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
                 $item[] = "<a href='".route('Professores/Edit',$d->IDProfessor)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
@@ -76,19 +84,29 @@ class ProfessoresController extends Controller
     }
 
     public function getTurnosProfessor($idprofessor){
+
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
         $SQL = <<<SQL
-        SELECT tur.id as IDTurno,
-        e.Nome as Escola,
-        t.Nome as Turma,
-        d.NMDisciplina as Disciplina,
-        tur.INITur as Inicio,
-        tur.TERTur as Termino
+        SELECT 
+            tur.id as IDTurno,
+            e.Nome as Escola,
+            t.Nome as Turma,
+            d.NMDisciplina as Disciplina,
+            tur.INITur as Inicio,
+            tur.TERTur as Termino
         FROM turnos tur 
         INNER JOIN turmas t ON(t.id = tur.IDTurma)
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN disciplinas d ON(d.id = tur.IDDisciplina)
         INNER JOIN professores p ON(p.id = tur.IDProfessor)
-        WHERE p.id = $idprofessor
+        WHERE p.id = $idprofessor $AND
         SQL;
         //
         $Turnos = DB::select($SQL);
@@ -96,7 +114,7 @@ class ProfessoresController extends Controller
         if(count($Turnos) > 0){
             foreach($Turnos as $t){
                 $item = [];
-                $item[] = $t->Escola;
+                (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
                 $item[] = $t->Turma;
                 $item[] = $t->Disciplina;
                 $item[] = Controller::data($t->Inicio,'d/m/Y');
@@ -261,7 +279,7 @@ class ProfessoresController extends Controller
                     'idprofessor' => $request->IDProfessor,
                     'id' => ''
                 );
-                $rout = "Professores/Turnos/Edit";
+                $rout = "Professores/Turnos/Novo";
             }
             $mensagem = "Turno Salvo com Sucesso";
             $status = "success";

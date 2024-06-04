@@ -19,7 +19,7 @@
                     <thead>
                       <tr>
                         <th style="text-align:center;" scope="col">Disciplina</th>
-                        <th style="text-align:center;" scope="col">Escolas</th>
+                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escolas</th>@endif
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

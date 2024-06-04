@@ -12,6 +12,7 @@ class Diretor extends Model
     protected $table = 'diretores';
 
     protected $fillable = [
+        'id',
         'IDEscola',
         'Nome',
         'Nascimento',

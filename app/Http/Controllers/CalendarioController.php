@@ -133,6 +133,15 @@ class CalendarioController extends Controller
 
     public function getEventos(){
         $idorg = Auth::user()->id_org;
+
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
         $SQL = <<<SQL
         SELECT 
             CONCAT('[',
@@ -149,6 +158,8 @@ class CalendarioController extends Controller
         FROM eventos ev
         INNER JOIN participacoeseventos pe ON(ev.id = pe.IDEvento)
         INNER JOIN escolas e ON(e.id = pe.IDEscola)
+        INNER JOIN organizacoes o ON(o.id = e.IDOrg)
+        WHERE o.id = $idorg $AND
         GROUP BY IDEvento
         SQL;
 
@@ -320,13 +331,21 @@ class CalendarioController extends Controller
     }
 
     public function getFeriasAlunos(){
+        $idorg = Auth::user()->id_org;
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
 
-        $feriasAlunos = DB::select("SELECT e.Nome as Escola, fa.DTInicio as Inicio, fa.DTTermino as Termino, fa.id as IDFerias FROM ferias_alunos fa INNER JOIN escolas e ON(e.id = fa.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = 1 ");
+        $feriasAlunos = DB::select("SELECT e.Nome as Escola, fa.DTInicio as Inicio, fa.DTTermino as Termino, fa.id as IDFerias FROM ferias_alunos fa INNER JOIN escolas e ON(e.id = fa.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
         if(count($feriasAlunos) > 0){
             foreach($feriasAlunos as $fa){
                 $item = [];
-                $item[] = $fa->Escola;
+                (Auth::user()->tipo == 2) ? $item[] = $fa->Escola : '';
                 $item[] = Controller::data($fa->Inicio,'d/m/Y');
                 $item[] = Controller::data($fa->Termino,'d/m/Y');
                 $item[] = "<a href='".route('Calendario/FeriasAlunos/Edit',$fa->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>";
@@ -347,13 +366,21 @@ class CalendarioController extends Controller
 
     public function getFeriasProfissionais(){
 
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
         $idorg = Auth::user()->id_org;
-        $feriasProfissionais = DB::select("SELECT e.Nome as Escola, p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg");
+        $feriasProfissionais = DB::select("SELECT e.Nome as Escola, p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND");
 
         if(count($feriasProfissionais) > 0){
             foreach($feriasProfissionais as $fp){
                 $item = [];
-                $item[] = $fp->Escola;
+                (Auth::user()->tipo == 2) ? $item[] = $fp->Escola : '';
                 $item[] = $fp->Professor;
                 $item[] = Controller::data($fp->Inicio,'d/m/Y');
                 $item[] = Controller::data($fp->Termino,'d/m/Y');
@@ -420,12 +447,21 @@ class CalendarioController extends Controller
     }
 
     public function getSabados(){
-        $sabados = DB::select("SELECT e.Nome as Escola, s.Data as Sabado, s.id as IDSabado FROM sabados_letivos s INNER JOIN escolas e ON(e.id = s.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = 1 ");
+
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+        $idorg = Auth::user()->id_org;
+        $sabados = DB::select("SELECT e.Nome as Escola, s.Data as Sabado, s.id as IDSabado FROM sabados_letivos s INNER JOIN escolas e ON(e.id = s.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
         if(count($sabados) > 0){
             foreach($sabados as $s){
                 $item = [];
-                $item[] = $s->Escola;
+                (Auth::user()->tipo == 2) ? $item[] = $s->Escola : '' ;
                 $item[] = Controller::data($s->Sabado,'d/m/Y');
                 $item[] = "<a href='".route('Calendario/Sabados/Edit',$s->IDSabado)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;

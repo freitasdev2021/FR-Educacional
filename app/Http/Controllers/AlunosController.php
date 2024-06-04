@@ -58,6 +58,15 @@ class AlunosController extends Controller
 
     public function getAlunos(){
         $idorg = Auth::user()->id_org;
+
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
         $SQL = "SELECT 
             m.Nome as Nome,
             t.Nome as Turma,
@@ -71,7 +80,7 @@ class AlunosController extends Controller
         INNER JOIN renovacoes r ON(r.IDAluno = a.id)
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        WHERE o.id = $idorg    
+        WHERE o.id = $idorg $AND    
         ";
 
         $registros = DB::select($SQL);
@@ -101,7 +110,7 @@ class AlunosController extends Controller
                 $item = [];
                 $item[] = $r->Nome;
                 $item[] = $r->Turma;
-                $item[] = $r->Escola;
+                (Auth::user()->tipo == 4) ? $item[] = $r->Escola : '';
                 $item[] = $r->Serie;
                 $item[] = Controller::data($r->Nascimento,'d/m/Y');
                 $item[] = Controller::data($r->Matricula,'d/m/Y');

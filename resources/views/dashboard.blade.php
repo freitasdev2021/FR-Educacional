@@ -71,7 +71,7 @@
        </div>
     </div>
     <script src="{{asset('js/relatoriosfornecedor.js')}}"></script>
-    @elseif(Auth::user()->tipo == 2 )
+    @elseif(in_array(Auth::user()->tipo,[2,4]))
     <div class="shadow p-3 dashboard">
       <div class="col-sm-12 row">
          <div class="col-sm-4">

@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Diretor;
+use Illuminate\Support\Facades\DB;
 
 abstract class Controller
 {
@@ -20,13 +22,19 @@ abstract class Controller
         return $maskared;
     }
 
-    public static function in_associative_array($array, $chave, $valorProcurado) {
+    public static function in_associative_array($array, $chave, $valorProcurado){
         foreach ($array as $subArray) {
-            if (isset($subArray[$chave]) && $subArray[$chave] === $valorProcurado) {
+            if (isset($subArray[$chave]) && $subArray[$chave] === $valorProcurado){
                 return true;
             }
         }
         return false;
+    }
+
+    public function getEscolaDiretor($IDDiretor){
+        $dirID = DB::select("SELECT IDProfissional FROM users WHERE id = $IDDiretor ")[0];
+        $dir = Diretor::select('IDEscola')->where('id',$dirID->IDProfissional)->first();
+        return $dir->IDEscola;
     }
 
     public static function array_associative_unique($array) {

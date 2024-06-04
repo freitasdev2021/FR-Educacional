@@ -7,21 +7,23 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
+            @if(Auth::user()->tipo == 2)
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
                     <a href="{{route('Pedagogos/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
+            <hr>
+            @endif
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
-                <hr>
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Pedagogos/list')}}">
                     <thead>
                       <tr>
                         <th style="text-align:center;" scope="col">Nome</th>
                         <th style="text-align:center;" scope="col">Admissão</th>
                         <th style="text-align:center;" scope="col">Contrato</th>
-                        <th style="text-align:center;" scope="col">Escola</th>
+                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escola</th> @endif
                         <th style="text-align:center;" scope="col">Endereço</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>

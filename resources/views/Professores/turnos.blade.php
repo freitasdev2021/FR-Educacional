@@ -18,7 +18,7 @@
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Professores/Turnos/list',$IDProfessor)}}">
                     <thead>
                       <tr>
-                        <th style="text-align:center;" scope="col">Escola</th>
+                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escola</th>@endif
                         <th style="text-align:center;" scope="col">Turma</th>
                         <th style="text-align:center;" scope="col">Disciplina</th>
                         <th style="text-align:center;" scope="col">Inicio</th>
