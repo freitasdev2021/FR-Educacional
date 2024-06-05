@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');
         Route::get('/Alunos/Novo',[AlunosController::class,'cadastro'])->name('Alunos/Novo');
+        Route::get('/Alunos/Cadastro/{id}',[AlunosController::class,'cadastro'])->name('Alunos/Edit');
         Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save');
         //DIRETORES
         Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list');

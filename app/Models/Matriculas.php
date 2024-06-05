@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Matricula extends Model
+class Matriculas extends Model
 {
     use HasFactory;
 
@@ -32,7 +32,8 @@ class Matricula extends Model
         'AMedico',
         'APsicologico',
         'Aprovado',
-        'Nascimento'
+        'Nascimento',
+        'Foto'
     ];
 
     public function escola()

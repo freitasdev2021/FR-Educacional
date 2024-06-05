@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Responsavel extends Model
 {
     use HasFactory;
-
+    protected $table = 'responsavel';
     protected $fillable = [
         'IDAluno',
         'RGPaisAnexo',
@@ -16,6 +16,7 @@ class Responsavel extends Model
         'NMResponsavel',
         'EmailResponsavel',
         'CLResponsavel',
+        'CPFResponsavel'
     ];
 
     public function aluno()
