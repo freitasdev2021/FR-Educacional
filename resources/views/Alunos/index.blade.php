@@ -48,6 +48,7 @@
                         <th style="text-align:center;" scope="col">Serie</th>
                         <th style="text-align:center;" scope="col">Data de Nascimento</th>
                         <th style="text-align:center;" scope="col">Vencimento da Matrícula</th>
+                        <th style="text-align:center;" scope="col">Matrícula</th>
                         <th style="text-align:center;" scope="col">Situação</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
@@ -60,4 +61,9 @@
             <!--//-->
         </div>
     </div>
+    <script>
+        function renovarMatricula(id){
+            $("#aluno_"+id).html()
+        }
+    </script>
 </x-educacional-layout>

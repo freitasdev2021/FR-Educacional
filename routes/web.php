@@ -73,6 +73,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/Alunos/Novo',[AlunosController::class,'cadastro'])->name('Alunos/Novo');
         Route::get('/Alunos/Cadastro/{id}',[AlunosController::class,'cadastro'])->name('Alunos/Edit');
         Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save');
+        Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
+
+        Route::get('/Alunos/Ficha/{id}',[AlunosController::class,'ficha'])->name('Alunos/Ficha');
+        Route::get('/Alunos/Atividades/{id}',[AlunosController::class,'atividades'])->name('Alunos/Atividades');
+        Route::get('/Alunos/Frequencia/{id}',[AlunosController::class,'frequencia'])->name('Alunos/Frequencia');
+
+        Route::get('/Alunos/Transferencias/list/{id}',[AlunosController::class,'getTransferencias'])->name('Alunos/Transferencias/list');
+        Route::get('/Alunos/Transferencias/{id}',[AlunosController::class,'transferencias'])->name('Alunos/Transferencias');
+
+        Route::get('/Alunos/Situacao/list/{id}',[AlunosController::class,'getSituacao'])->name('Alunos/Situacao/list');
+        Route::get('/Alunos/Situacao/{id}',[AlunosController::class,'situacao'])->name('Alunos/Situacao');
+        Route::get('/Alunos/Situacao/Cadastro/{IDAluno}',[AlunosController::class,'cadastroSituacao'])->name('Alunos/Situacao/Novo');
+        Route::post('/Alunos/Situacao/Save',[AlunosController::class,'saveSituacao'])->name('Alunos/Situacao/Save');
         //DIRETORES
         Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list');
         Route::get('/Diretores',[DiretoresController::class,'index'])->name('Diretores/index');

@@ -33,7 +33,10 @@ class Matriculas extends Model
         'APsicologico',
         'Aprovado',
         'Nascimento',
-        'Foto'
+        'Foto',
+        'Numero',
+        'Bairro',
+        'CDPasta'
     ];
 
     public function escola()

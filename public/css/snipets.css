@@ -444,4 +444,17 @@ header .current-date{
 .days li:not(.active):hover::before{
   background: #f2f2f2;
 }
+/*************FICHA DO ALUNO*****************/
+.fichaHeader{
+	width:100%;
+	display:flex;
+	flex-direction:row;
+	flex-wrap:wrap;
+	height:250px;
+	/* background:red; */
+}
+
+.dadoFicha{
+	width:20%;
+}
 /******************************/
