@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 07/06/2024 às 15:40
--- Versão do servidor: 10.4.28-MariaDB
--- Versão do PHP: 8.2.4
+-- Tempo de geração: 08/06/2024 às 18:24
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -1185,7 +1185,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('3E1OVJxFsbXh9aOadr38WlqHncEsodKBXVXEgQ44', 37, '127.0.0.1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiYTRRbHpuazVEUjN5NzVuVlI2a0VadlRSRHNibHBUdjdzME5BUWphYyI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zL0ZyZXF1ZW5jaWEvMSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM3O30=', 1717738035);
+('bsQ1ZxjelXo2mSMPFZGLdLa0BHq9FLTKILupsydt', 37, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiTlBGaElpRElCUDZ0WlFkWlpDajlZUmpxdE9VbDBDU3VweFRrWHhYdCI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjM5OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zL1N1c3BlbnNvLzMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozNzt9', 1717863699),
+('wtRbyE541357MDVS8GRK00YaiOZYzRUOHnPfimwR', 37, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiYUozVndvQm90ZUpVUVQyMGlYbVZydG9XQ2J5bmlMSTNmeDluNGtrSiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ1OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zL1RyYW5zZmVyZW5jaWFzLzEiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozNzt9', 1717822844);
 
 -- --------------------------------------------------------
 
@@ -1198,7 +1199,9 @@ CREATE TABLE `suspensos` (
   `IDInativo` int(11) NOT NULL,
   `Justificativa` varchar(250) NOT NULL,
   `INISuspensao` date DEFAULT NULL,
-  `TERSuspensao` date DEFAULT NULL
+  `TERSuspensao` date DEFAULT NULL,
+  `created_at` date NOT NULL,
+  `updated_at` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1242,9 +1245,21 @@ INSERT INTO `terceirizadas` (`id`, `IDOrg`, `Nome`, `CEP`, `Rua`, `Bairro`, `Cid
 CREATE TABLE `transferencias` (
   `id` int(11) NOT NULL,
   `IDAluno` int(11) NOT NULL,
-  `Aprovado` int(11) NOT NULL,
-  `IDEscolaDestino` int(11) NOT NULL
+  `Aprovado` int(11) NOT NULL DEFAULT 0,
+  `IDEscolaDestino` int(11) NOT NULL,
+  `created_at` date NOT NULL,
+  `updated_at` date NOT NULL,
+  `Justificativa` varchar(250) NOT NULL,
+  `IDEscolaOrigem` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `transferencias`
+--
+
+INSERT INTO `transferencias` (`id`, `IDAluno`, `Aprovado`, `IDEscolaDestino`, `created_at`, `updated_at`, `Justificativa`, `IDEscolaOrigem`) VALUES
+(1, 2, 0, 1, '2024-06-08', '2024-06-08', 'Transferido pq cagou no chão kkkkkkkk', 2),
+(2, 1, 0, 6, '2024-06-08', '2024-06-08', 'pq o sesi e a melhor escola', 1);
 
 -- --------------------------------------------------------
 
@@ -2019,7 +2034,7 @@ ALTER TABLE `sabados_letivos`
 -- AUTO_INCREMENT de tabela `suspensos`
 --
 ALTER TABLE `suspensos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `terceirizadas`
@@ -2031,7 +2046,7 @@ ALTER TABLE `terceirizadas`
 -- AUTO_INCREMENT de tabela `transferencias`
 --
 ALTER TABLE `transferencias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `turmas`
