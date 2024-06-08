@@ -76,11 +76,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
 
         Route::get('/Alunos/Ficha/{id}',[AlunosController::class,'ficha'])->name('Alunos/Ficha');
+        Route::get('/Alunos/Suspenso/{id}',[AlunosController::class,'suspenso'])->name('Alunos/Suspenso');
+        Route::post('/Alunos/Suspenso/Save',[AlunosController::class,'saveSuspenso'])->name('Alunos/Suspenso/Save');
+        Route::post('/Alunos/Suspenso/Remove',[AlunosController::class,'removerSuspensao'])->name('Alunos/Suspenso/Remove');
         Route::get('/Alunos/Atividades/{id}',[AlunosController::class,'atividades'])->name('Alunos/Atividades');
         Route::get('/Alunos/Frequencia/{id}',[AlunosController::class,'frequencia'])->name('Alunos/Frequencia');
 
         Route::get('/Alunos/Transferencias/list/{id}',[AlunosController::class,'getTransferencias'])->name('Alunos/Transferencias/list');
         Route::get('/Alunos/Transferencias/{id}',[AlunosController::class,'transferencias'])->name('Alunos/Transferencias');
+        Route::get('/Alunos/Transferencias/Cadastro/{IDAluno}',[AlunosController::class,'cadastroTransferencias'])->name('Alunos/Transferencias/Novo');
+        Route::post('/Alunos/Transferencias/Save',[AlunosController::class,'saveTransferencias'])->name('Alunos/Transferencias/Save');
 
         Route::get('/Alunos/Situacao/list/{id}',[AlunosController::class,'getSituacao'])->name('Alunos/Situacao/list');
         Route::get('/Alunos/Situacao/{id}',[AlunosController::class,'situacao'])->name('Alunos/Situacao');

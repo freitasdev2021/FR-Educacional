@@ -12,8 +12,9 @@ use App\Models\Responsavel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Suspenso;
 use App\Models\Situacao;
-
+use App\Models\Transferencia;
 use Storage;
 
 class AlunosController extends Controller
@@ -48,12 +49,39 @@ class AlunosController extends Controller
         'nome' => 'Situação',
         'endereco' => 'Situacao',
         'rota' => 'Alunos/Situacao'
+    ],[
+        'nome' => 'Afastamento',
+        'endereco' => 'Suspenso',
+        'rota' => 'Alunos/Suspenso'
     ]);
 
     public function index(){
         return view('Alunos.index',[
             'submodulos' => self::submodulos,
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ]);
+    }
+
+    public function suspenso($id){
+        $idorg = Auth::user()->id_org;
+        $SQL = "SELECT 
+            a.id as IDAluno, 
+            s.Justificativa,
+            s.INISuspensao,
+            s.TERSuspensao
+        FROM matriculas m
+        INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        LEFT JOIN suspensos s ON(s.IDInativo = a.id)
+        INNER JOIN escolas e ON(t.IDEscola = e.id)
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN responsavel re ON(re.IDAluno = a.id)
+        WHERE o.id = $idorg AND a.id = $id";
+
+        return view('Alunos.suspensao',[
+            'submodulos' => self::cadastroSubmodulos,
+            'Registro' => DB::select($SQL)[0],
+            'id'=> $id
         ]);
     }
 
@@ -69,6 +97,48 @@ class AlunosController extends Controller
             'submodulos'=>self::cadastroSubmodulos,
             'id' => $id
         ]);
+    }
+
+    public function saveSuspenso(Request $request){
+        try{
+            $suspenso = DB::select("SELECT id FROM suspensos WHERE IDInativo = $request->IDInativo AND INISuspensao < NOW() AND TERSuspensao > NOW()");
+            $sAluno = $request->all();
+            $sAluno['INISuspensao'] = date('Y-m-d');
+            if($suspenso){
+                Suspenso::where('IDInativo',$request->IDInativo)->update([
+                    'INISuspensao' => $request->INISuspensao,
+                    'TERSuspensao' => $request->TERSuspensao,
+                    'Justificativa' => $request->Justificativa
+                ]);
+            }else{
+                Suspenso::create([
+                    'INISuspensao' => $request->INISuspensao,
+                    'TERSuspensao' => $request->TERSuspensao,
+                    'Justificativa' => $request->Justificativa
+                ]);       
+            }
+            $rout = 'Alunos/Suspenso';
+            $aid = $request->IDInativo;
+            $status = 'success';
+            $mensagem = 'Suspensão Realizada';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = $th->getMessage();
+            $rout = 'Alunos/Suspenso';
+            $aid = $request->IDInativo;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function removerSuspensao(Request $request){
+        try{
+            DB::delete("DELETE FROM suspensos WHERE IDInativo = $request->IDInativo");
+        }catch(\Throwable $th){
+
+        }finally{
+            return redirect()->route('Alunos/Suspenso',$request->IDInativo)->with('success','Suspensão Removida! o Aluno Poderá Voltar as Aulas');
+        }
     }
 
     public function ficha($id){
@@ -541,6 +611,74 @@ class AlunosController extends Controller
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
+    }
+
+    public function saveTransferencias(Request $request){
+        try{
+            Transferencia::create($request->all());
+            $status = 'success';
+            $mensagem = "Transferência Feita com Sucesso!";
+            $rout = 'Alunos/Transferencias';
+            $aid = $request->IDAluno;
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = $th->getMessage();
+            $rout = 'Alunos/Transferencias';
+            $aid = $request->IDAluno;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function getTransferencias($IDAluno){
+        $idorg = Auth::user()->id_org;
+        $SQL = "SELECT
+            a.id as IDAluno, 
+            eOrigem.Nome as EscolaOrigem,
+            eDestino.Nome as EscolaDestino,
+            tr.Justificativa,
+            t.Nome as Turma,
+            tr.created_at as DTTransferencia
+        FROM transferencias tr
+        INNER JOIN alunos a ON(a.id = tr.IDAluno)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN escolas eOrigem ON(tr.IDEscolaOrigem = eOrigem.id)
+        INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
+        INNER JOIN organizacoes o ON(eOrigem.IDOrg = o.id)
+        WHERE o.id = $idorg AND a.id = $IDAluno   
+        ";
+
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->EscolaOrigem;
+                $item[] = $r->EscolaDestino;
+                $item[] = Controller::data($r->DTTransferencia,'d/m/Y');
+                $item[] = $r->Justificativa;
+                $item[] = $r->Turma;
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    function cadastroTransferencias($IDAluno){
+        return view('Alunos.cadastroTransferencia',[
+            'submodulos'=>self::cadastroSubmodulos,
+            'id' => $IDAluno,
+            'IDEscola' => self::getEscolaDiretor(Auth::user()->id),
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ]);
     }
 
     public function getAlunos(){

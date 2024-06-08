@@ -9,8 +9,10 @@ class Suspenso extends Model
 {
     use HasFactory;
 
+    protected $table = 'suspensos';
+
     protected $fillable = [
-        'IDAluno',
+        'IDInativo',
         'Justificativa',
         'INISuspensao',
         'TERSuspensao',

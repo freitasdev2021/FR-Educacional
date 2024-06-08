@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Transferencia extends Model
 {
     use HasFactory;
-
+    protected $table = 'transferencias';
     protected $fillable = [
         'IDAluno',
         'Aprovado',
         'IDEscolaDestino',
+        'IDEscolaOrigem',
+        'Justificativa'
     ];
 
     public function aluno()

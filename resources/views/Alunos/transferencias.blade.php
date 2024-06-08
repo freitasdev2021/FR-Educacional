@@ -9,20 +9,19 @@
             <!--CABECALHO-->
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
-                    <a href="{{route('Alunos/Novo')}}" class="btn btn-fr">Adicionar</a>
+                    <a href="{{route('Alunos/Transferencias/Novo',$id)}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <hr>
-                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Alunos/Transferencias/list')}}">
+                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Alunos/Transferencias/list',$id)}}">
                     <thead>
                       <tr>
+                        <th style="text-align:center;" scope="col">Escola de Origem</th>
                         <th style="text-align:center;" scope="col">Escola de Destino</th>
-                        <th style="text-align:center;" scope="col">Turma de Destino</th>
-                        <th style="text-align:center;" scope="col">Escola Anterior</th>
-                        <th style="text-align:center;" scope="col">Turma Anterior</th>
-                        <th style="text-align:center;" scope="col">Opções</th>
+                        <th style="text-align:center;" scope="col">Data de Transferência</th>
+                        <th style="text-align:center;" scope="col">Justificativa</th>
                       </tr>
                     </thead>
                     <tbody>
