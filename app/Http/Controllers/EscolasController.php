@@ -35,7 +35,7 @@ class EscolasController extends Controller
             'id' => ''
         ];
         if(Auth::user()->tipo == 4){
-            $view['Registro'] = Escola::find(self::getEscolaDiretor(Auth::user()->id))->first();
+            $view['Registro'] = Escola::where('id',self::getEscolaDiretor(Auth::user()->id))->first();
         }
         return view('Escolas.index',$view);
     }

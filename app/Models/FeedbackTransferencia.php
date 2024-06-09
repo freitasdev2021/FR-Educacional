@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class FeedbackTransferencia extends Model
 {
     use HasFactory;
-
+    protected $table = 'feedback_transferencias';
     protected $fillable = [
-        'IDAluno',
+        'IDTransferencia',
         'Feedback',
     ];
 

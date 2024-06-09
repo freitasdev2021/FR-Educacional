@@ -26,7 +26,7 @@
                     <input type="hidden" value="{{$id}}" name="IDAluno">
                     <div class="row">
                         <div class="col-sm-12">
-                            <input type="hidden" value="{{$id}}" name="IDEscolaOrigem">
+                            <input type="hidden" value="{{$IDEscola}}" name="IDEscolaOrigem">
                             <label>Escola de Destino</label>
                             <select name="IDEscolaDestino" class="form-control" required>
                                 <option value="0">Escola Fora da Rede</option>

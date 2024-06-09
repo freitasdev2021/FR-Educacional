@@ -7,6 +7,7 @@ use App\Models\Aluno;
 use App\Models\Matriculas;
 use App\Models\Escola;
 use App\Models\Turma;
+use App\Models\FeedbackTransferencia;
 use App\Models\Renovacoes;
 use App\Models\Responsavel;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,10 @@ class AlunosController extends Controller
         "nome" => "Alunos",
         "endereco" => "index",
         "rota" => "Alunos/index"
+    ],[
+        "nome" => 'Transferidos',
+        "endereco" => "Transferidos",
+        "rota" => "Alunos/Transferidos"
     ]);
 
     public const cadastroSubmodulos = array([
@@ -239,6 +244,116 @@ class AlunosController extends Controller
             'id' => $id,
             'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
         ]);
+    }
+
+    public function matriculaTransferidos($id){
+
+        $idorg = Auth::user()->id_org;
+        $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+        $SQL = "SELECT
+            a.id as IDAluno, 
+            tr.id as IDTransferencia,
+            eDestino.Nome as EscolaDestino,
+            eOrigem.Nome as EscolaOrigem,
+            tr.Justificativa,
+            m.Foto,
+            m.CDPasta,
+            tr.created_at as DTTransferencia
+        FROM transferencias tr
+        INNER JOIN alunos a ON(a.id = tr.IDAluno)
+        INNER JOIN matriculas m ON(a.IDMatricula = m.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
+        INNER JOIN escolas eOrigem ON(tr.IDEscolaOrigem = eOrigem.id)
+        INNER JOIN organizacoes o ON(eOrigem.IDOrg = o.id)
+        WHERE o.id = $idorg AND eDestino.id = $IDEscola AND tr.id = $id    
+        ";
+
+        $view = [
+            'submodulos' => self::submodulos,
+            'id' => '',
+            'Turmas' => Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get(),
+            'Registro' => DB::select($SQL)[0]
+        ];
+
+        return view('Alunos.matriculaTransferidos',$view);
+    }
+
+    public function transferidos(){
+        return view('Alunos.transferidos',[
+            'submodulos' => self::submodulos,
+            'id' => ''
+        ]);
+    }
+
+    public function matricularTransferido(Request $request){
+        try{
+            if($request->IDTurma != 0){
+                $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+                Aluno::find($request->IDAluno)->update(['IDTurma'=>$request->IDTurma]);
+                Transferencia::find($request->IDTransferencia)->update(['Aprovado'=> 1]);
+                DB::update("UPDATE escolas SET QTVagas = QTVagas-1 WHERE id = $IDEscola");
+                $mensagem = 'Transferência Realizada com Sucesso!';
+            }else{
+                Transferencia::find($request->IDTransferencia)->update(['Aprovado'=> 2]);
+                $mensagem = 'Transferência Reprovada';
+            }
+
+            FeedbackTransferencia::create(['IDTransferencia'=>$request->IDTransferencia,'Feedback'=>$request->Feedback]);
+            $rout = 'Alunos/Transferidos';
+            $aid = '';
+            $status = 'success';
+        }catch(\Throwable $th){
+            $rout = 'Alunos/Transferidos/Transferido';
+            $aid = $request->IDTransferencia;
+            $status = 'error';
+            $mensagem = 'Transferência Realizada com Sucesso!';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function getTransferidos(){
+
+        $idorg = Auth::user()->id_org;
+        $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+        $SQL = "SELECT
+            tr.id as IDTransferencia,
+            a.id as IDAluno, 
+            eDestino.Nome as EscolaDestino,
+            eOrigem.Nome as EscolaOrigem,
+            tr.Justificativa,
+            tr.created_at as DTTransferencia
+        FROM transferencias tr
+        INNER JOIN alunos a ON(a.id = tr.IDAluno)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
+        INNER JOIN escolas eOrigem ON(tr.IDEscolaOrigem = eOrigem.id)
+        INNER JOIN organizacoes o ON(eOrigem.IDOrg = o.id)
+        WHERE o.id = $idorg AND eDestino.id = $IDEscola AND tr.Aprovado = 0   
+        ";
+
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->EscolaOrigem;
+                $item[] = Controller::data($r->DTTransferencia,'d/m/Y');
+                $item[] = $r->Justificativa;
+                $item[] = "<a href=".route('Alunos/Transferidos/Transferido',$r->IDTransferencia)." class='btn btn-fr btn-xs'>Aprovar/Reprovar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
     }
 
     public function cadastro($id=null){
@@ -613,9 +728,32 @@ class AlunosController extends Controller
         }
     }
 
+    public function cancelaTransferencia(Request $request){
+        try{
+            Transferencia::find($request->IDTransferencia)->delete();
+            $status = 'success';
+            $mensagem = "Transferência Cancelada com Sucesso!";
+            $rout = 'Alunos/Transferencias';
+            $aid = $request->IDAluno;
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = $th->getMessage();
+            $rout = 'Alunos/Transferencias';
+            $aid = $request->IDAluno;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
     public function saveTransferencias(Request $request){
         try{
-            Transferencia::create($request->all());
+            if($request->IDEscolaOrigem !=0){
+                Transferencia::create($request->all());
+            }else{
+                $trs = $request->all();
+                $trs['Aprovado'] = 3;
+                Transferencia::create($trs);
+            }
             $status = 'success';
             $mensagem = "Transferência Feita com Sucesso!";
             $rout = 'Alunos/Transferencias';
@@ -634,16 +772,20 @@ class AlunosController extends Controller
         $idorg = Auth::user()->id_org;
         $SQL = "SELECT
             a.id as IDAluno, 
+            tr.id as IDTransferencia,
             eOrigem.Nome as EscolaOrigem,
-            eDestino.Nome as EscolaDestino,
             tr.Justificativa,
+            tr.Aprovado,
+            CASE WHEN tr.IDEscolaDestino = 0 THEN 'Escola Fora da Rede' ELSE eDestino.Nome END as Destino,
             t.Nome as Turma,
-            tr.created_at as DTTransferencia
+            tr.created_at as DTTransferencia,
+            CASE WHEN ft.Feedback IS NOT NULL THEN ft.Feedback ELSE '' END as Feedback
         FROM transferencias tr
         INNER JOIN alunos a ON(a.id = tr.IDAluno)
         INNER JOIN turmas t ON(a.IDTurma = t.id)
         INNER JOIN escolas eOrigem ON(tr.IDEscolaOrigem = eOrigem.id)
-        INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
+        LEFT JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
+        LEFT JOIN feedback_transferencias as ft ON(ft.IDTransferencia = tr.id)
         INNER JOIN organizacoes o ON(eOrigem.IDOrg = o.id)
         WHERE o.id = $idorg AND a.id = $IDAluno   
         ";
@@ -651,12 +793,32 @@ class AlunosController extends Controller
         $registros = DB::select($SQL);
         if(count($registros) > 0){
             foreach($registros as $r){
+                switch($r->Aprovado){
+                    case '0':
+                        $st = "<strong class='text-warning'>Pendente</strong>";
+                    break;
+                    case '1':
+                        $st = "<strong class='text-success'>Aprovado</strong>";
+                    break;
+                    case '2':
+                        $st = "<strong class='text-danger'>Reprovado (".$r->Feedback.")</strong>";
+                    break;
+                    case '3':
+                        $st = "<strong class='text-secondary'>Transferido Para Fora da Rede</strong>";
+                    break;
+                }
                 $item = [];
                 $item[] = $r->EscolaOrigem;
-                $item[] = $r->EscolaDestino;
+                $item[] = $r->Destino;
                 $item[] = Controller::data($r->DTTransferencia,'d/m/Y');
                 $item[] = $r->Justificativa;
-                $item[] = $r->Turma;
+                $item[] = $st;
+                $item[] = "<form id='formCancelaTransferencia' style='display:none' method='POST' action=".route('Alunos/Transferencias/Cancela').">
+                    <input type='hidden' name='_token' value=".csrf_token().">
+                    <input type='hidden' name='IDAluno' value='$r->IDAluno'>
+                    <input type='hidden' name='IDTransferencia' value='$r->IDTransferencia'>
+                </form>
+                <button class='btn btn-xs btn-danger' onclick='cancelarTransferencia($r->IDTransferencia)'>Cancelar Transferencia</button>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -702,9 +864,11 @@ class AlunosController extends Controller
             r.Vencimento as Vencimento,
             a.STAluno,
             m.Foto,
-            m.Email
+            m.Email,
+            tr.Aprovado
         FROM matriculas m
         INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
         INNER JOIN turmas t ON(a.IDTurma = t.id)
         INNER JOIN renovacoes r ON(r.IDAluno = a.id)
         INNER JOIN escolas e ON(t.IDEscola = e.id)
@@ -736,11 +900,17 @@ class AlunosController extends Controller
                     break;
                 }
 
+                if($r->Aprovado == 3){
+                    $transferido = "<strong class='text-danger'>(Aluno Transferido Para Outra Rede)</strong>";
+                }else{
+                    $transferido = '';
+                }
+
                 $Vencimento = Carbon::parse($r->Vencimento);
                 $Hoje = Carbon::parse(date('Y-m-d'));
 
                 $item = [];
-                $item[] = $r->Nome;
+                $item[] = $r->Nome." ".$transferido;
                 $item[] = $r->Turma;
                 (Auth::user()->tipo == 2) ? $item[] = $r->Escola : '';
                 $item[] = $r->Serie;

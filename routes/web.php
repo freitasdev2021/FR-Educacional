@@ -70,13 +70,18 @@ Route::middleware('auth')->group(function () {
         //ALUNOS
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');
+        Route::get('/Alunos/Transferidos',[AlunosController::class,'transferidos'])->name('Alunos/Transferidos');
+        Route::get('/Alunos/Transferidos/Transferido/{id}',[AlunosController::class,'matriculaTransferidos'])->name('Alunos/Transferidos/Transferido');
+        Route::get('/Alunos/Transferidos/list',[AlunosController::class,'getTransferidos'])->name('Alunos/Transferidos/list');
         Route::get('/Alunos/Novo',[AlunosController::class,'cadastro'])->name('Alunos/Novo');
         Route::get('/Alunos/Cadastro/{id}',[AlunosController::class,'cadastro'])->name('Alunos/Edit');
         Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save');
         Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
+        Route::post('/Alunos/Transferidos/Matricular',[AlunosController::class,'matricularTransferido'])->name('Alunos/Transferidos/Matricular');
 
         Route::get('/Alunos/Ficha/{id}',[AlunosController::class,'ficha'])->name('Alunos/Ficha');
         Route::get('/Alunos/Suspenso/{id}',[AlunosController::class,'suspenso'])->name('Alunos/Suspenso');
+        Route::post('/Alunos/Transferencias/Cancela',[AlunosController::class,'cancelaTransferencia'])->name('Alunos/Transferencias/Cancela');
         Route::post('/Alunos/Suspenso/Save',[AlunosController::class,'saveSuspenso'])->name('Alunos/Suspenso/Save');
         Route::post('/Alunos/Suspenso/Remove',[AlunosController::class,'removerSuspensao'])->name('Alunos/Suspenso/Remove');
         Route::get('/Alunos/Atividades/{id}',[AlunosController::class,'atividades'])->name('Alunos/Atividades');

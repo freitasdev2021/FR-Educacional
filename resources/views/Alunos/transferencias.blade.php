@@ -14,6 +14,16 @@
             </div>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
+                @if(session('success'))
+                <div class="col-sm-12 shadow p-2 bg-success text-white">
+                   <strong>{{session('success')}}</strong>
+                </div>
+                @elseif(session('error'))
+                <div class="col-sm-12 shadow p-2 bg-danger text-white">
+                   <strong>{{session('error')}}</strong>
+                </div>
+                <br>
+                @endif
                 <hr>
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Alunos/Transferencias/list',$id)}}">
                     <thead>
@@ -22,6 +32,8 @@
                         <th style="text-align:center;" scope="col">Escola de Destino</th>
                         <th style="text-align:center;" scope="col">Data de Transferência</th>
                         <th style="text-align:center;" scope="col">Justificativa</th>
+                        <th style="text-align:center;" scope="col">Status</th>
+                        <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -29,6 +41,13 @@
                     </tbody>
                 </table>
             </div>
+            <script>
+                function cancelarTransferencia(id){
+                    if(confirm("Deseja Cancelar a Transferência?")){
+                        $("#formCancelaTransferencia").submit()
+                    }
+                }
+            </script>
             <!--//-->
         </div>
     </div>
