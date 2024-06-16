@@ -33,15 +33,15 @@
              @endif
              <div class="col-sm-2">
                <label>O Ano vai De</label>
-               <input type="date" name="INIAno" class="form-control" value="{{isset($AnoLetivo[0]->INIAno) ? $AnoLetivo[0]->INIAno : ''}}" {{(Auth::user()->tipo == 4) ? 'disabled' : ''}}>
+               <input type="date" name="INIAno" class="form-control" value="{{isset($AnoLetivo[0]->INIAno) ? $AnoLetivo[0]->INIAno : ''}}" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
             </div>
             <div class="col-sm-2">
                <label>Até</label>
-               <input type="date" name="TERAno" class="form-control" value="{{isset($AnoLetivo[0]->TERAno) ?$AnoLetivo[0]->TERAno : ''}}" {{(Auth::user()->tipo == 4) ? 'disabled' : ''}}>
+               <input type="date" name="TERAno" class="form-control" value="{{isset($AnoLetivo[0]->TERAno) ?$AnoLetivo[0]->TERAno : ''}}" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
             </div>
             <div class="col-auto">
                <label style="visibility: hidden">a</label>
-               <input type="submit" class="form-control btn btn-success" value="Salvar Ano Letivo" {{(Auth::user()->tipo == 4) ? 'disabled' : ''}}>
+               <input type="submit" class="form-control btn btn-success" value="Salvar Ano Letivo" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
             </div>
           </form>
           <!--LISTAS-->

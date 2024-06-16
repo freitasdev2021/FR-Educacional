@@ -8,9 +8,11 @@
         <div class="fr-card-body">
             <!--CABECALHO-->
             <form class="col-sm-12 p-2 row">
+                @if((Auth::user()->tipo == 4))
                 <div class="col-auto">
                     <a href="{{route('Alunos/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
+                @endif
                 @if((Auth::user()->tipo == 2))
                 <div class="col-auto">
                     <select name="" class="form-control">
@@ -21,6 +23,7 @@
                     </select>
                 </div>
                 @endif
+                @if((Auth::user()->tipo == 4))
                 <div class="col-auto">
                     <select name="" class="form-control">
                         <option value="">Selecione o Status</option>
@@ -35,6 +38,7 @@
                 <div class="col-auto">
                     <input type="submit" value="Filtrar" class="form-control bg-fr text-white">
                 </div>
+                @endif
             </form>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">

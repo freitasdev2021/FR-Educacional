@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Diretor;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 abstract class Controller
@@ -9,6 +10,14 @@ abstract class Controller
     //FUNÇÃO DE MASCARA CPF E CNPJ PARA IMPRESSÃO NA TELA
     //$cpf = mask($details["cpf"], '###.###.###-##');
     //$cnpj = mask($details["cnpj"], '##.###.###/####-##');
+
+    public function getDados(){
+        return [
+            'org' => Auth::user()->id_org,
+            'tipo' => Auth::user()->tipo
+        ];
+    }
+
     public static function cpfCnpj($val, $mask) {
         $maskared = '';
         $k = 0;
@@ -20,6 +29,27 @@ abstract class Controller
             }
         }
         return $maskared;
+    }
+
+    public function getEscolasProfessor($ID){
+        $SQL = <<<SQL
+        SELECT 
+            e.id as IDEscola
+        FROM 
+            escolas e 
+        INNER JOIN alocacoes al ON(e.id = al.IDEscola) 
+        INNER JOIN users us ON(us.IDProfissional = al.IDProfissional ) 
+        WHERE us.id = $ID AND al.TPProfissional = 'PROF'
+        SQL; 
+
+        $arr = [];
+        $consulta = DB::select($SQL);
+        foreach($consulta as $c){
+            array_push($arr,$c->IDEscola);
+        }
+
+        return $arr;
+
     }
 
     public static function in_associative_array($array, $chave, $valorProcurado){

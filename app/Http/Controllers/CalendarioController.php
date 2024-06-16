@@ -142,6 +142,12 @@ class CalendarioController extends Controller
             $AND = '';
         }
 
+        if(Auth::user()->tipo == 6){
+            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+        }else{
+            $AND .=' ';
+        }
+
         $SQL = <<<SQL
         SELECT 
             CONCAT('[',
@@ -176,7 +182,7 @@ class CalendarioController extends Controller
                 $item = [];
                 $item[] = $d->DSEvento;
                 $item[] = implode(' ',array_unique($iscolas));
-                $item[] = "<a href='".route('Calendario/Eventos/Edit',$d->IDEvento)."' class='btn btn-primary btn-xs'>Editar</a>";
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Eventos/Edit',$d->IDEvento)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -340,6 +346,12 @@ class CalendarioController extends Controller
             $AND = '';
         }
 
+        if(Auth::user()->tipo == 6){
+            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+        }else{
+            $AND .=' ';
+        }
+
         $feriasAlunos = DB::select("SELECT e.Nome as Escola, fa.DTInicio as Inicio, fa.DTTermino as Termino, fa.id as IDFerias FROM ferias_alunos fa INNER JOIN escolas e ON(e.id = fa.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
         if(count($feriasAlunos) > 0){
@@ -348,7 +360,7 @@ class CalendarioController extends Controller
                 (Auth::user()->tipo == 2) ? $item[] = $fa->Escola : '';
                 $item[] = Controller::data($fa->Inicio,'d/m/Y');
                 $item[] = Controller::data($fa->Termino,'d/m/Y');
-                $item[] = "<a href='".route('Calendario/FeriasAlunos/Edit',$fa->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>";
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/FeriasAlunos/Edit',$fa->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -374,6 +386,12 @@ class CalendarioController extends Controller
             $AND = '';
         }
 
+        if(Auth::user()->tipo == 6){
+            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+        }else{
+            $AND .=' ';
+        }
+
         $idorg = Auth::user()->id_org;
         $feriasProfissionais = DB::select("SELECT e.Nome as Escola, p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND");
 
@@ -384,7 +402,7 @@ class CalendarioController extends Controller
                 $item[] = $fp->Professor;
                 $item[] = Controller::data($fp->Inicio,'d/m/Y');
                 $item[] = Controller::data($fp->Termino,'d/m/Y');
-                $item[] = "<a href='".route('Calendario/FeriasProfissionais/Edit',$fp->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>";
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/FeriasProfissionais/Edit',$fp->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -455,6 +473,13 @@ class CalendarioController extends Controller
         }else{
             $AND = '';
         }
+
+        if(Auth::user()->tipo == 6){
+            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+        }else{
+            $AND .=' ';
+        }
+
         $idorg = Auth::user()->id_org;
         $sabados = DB::select("SELECT e.Nome as Escola, s.Data as Sabado, s.id as IDSabado FROM sabados_letivos s INNER JOIN escolas e ON(e.id = s.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
@@ -463,7 +488,7 @@ class CalendarioController extends Controller
                 $item = [];
                 (Auth::user()->tipo == 2) ? $item[] = $s->Escola : '' ;
                 $item[] = Controller::data($s->Sabado,'d/m/Y');
-                $item[] = "<a href='".route('Calendario/Sabados/Edit',$s->IDSabado)."' class='btn btn-primary btn-xs'>Editar</a>";
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Sabados/Edit',$s->IDSabado)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -500,7 +525,20 @@ class CalendarioController extends Controller
 
     public function getParalizacoes(){
         $idorg = Auth::user()->id_org;
-        $paralizacao = DB::select("SELECT p.id as IDParalizacao, e.Nome as Escola, p.DTInicio as Inicio, p.DTTermino as Termino,p.DSMotivo FROM paralizacoes p INNER JOIN escolas e ON(e.id = p.IDEscola) INNER JOIN organizacoes o ON(o.id = e.IDOrg) WHERE o.id = $idorg");
+
+        if(Auth::user()->tipo == 4){
+            $AND = " AND e.id =".self::getEscolaDiretor(Auth::user()->id);
+        }else{
+            $AND =' ';
+        }
+
+        if(Auth::user()->tipo == 6){
+            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+        }else{
+            $AND .=' ';
+        }
+
+        $paralizacao = DB::select("SELECT p.id as IDParalizacao, e.Nome as Escola, p.DTInicio as Inicio, p.DTTermino as Termino,p.DSMotivo FROM paralizacoes p INNER JOIN escolas e ON(e.id = p.IDEscola) INNER JOIN organizacoes o ON(o.id = e.IDOrg) WHERE o.id = $idorg $AND");
         if(count($paralizacao) > 0){
             foreach($paralizacao as $p){
                 $item = [];
@@ -508,7 +546,7 @@ class CalendarioController extends Controller
                 $item[] = $p->DSMotivo;
                 $item[] = Controller::data($p->Inicio,'d/m/Y');
                 $item[] = Controller::data($p->Termino,'d/m/Y');
-                $item[] = "<a href='".route('Calendario/Paralizacoes/Edit',$p->IDParalizacao)."' class='btn btn-primary btn-xs'>Editar</a>";
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Paralizacoes/Edit',$p->IDParalizacao)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{

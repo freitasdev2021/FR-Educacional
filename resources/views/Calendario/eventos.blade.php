@@ -7,20 +7,24 @@
        </div>
        <div class="fr-card-body">
           <!--CABECALHO-->
+          @if(in_array(Auth::user()->tipo,[4,2]))
           <div class="col-sm-12 p-2 row">
              <div class="col-auto">
                 <a href="{{route('Calendario/Eventos/Novo')}}" class="btn btn-fr">Adicionar</a>
              </div>
           </div>
+          <hr>
+          @endif
           <!--LISTAS-->
           <div class="col-sm-12 p-2 ">
-             <hr>
              <table class="table table-sm tabela" id="escolas" data-rota="{{route('Calendario/Eventos/list')}}">
                <thead>
                  <tr>
                    <th style="text-align:center;" scope="col">Descrição</th>
                    <th style="text-align:center;" scope="col">Escolas Participantes</th>
+                   @if(in_array(Auth::user()->tipo,[4,2]))
                    <th style="text-align:center;" scope="col">Opções</th>
+                   @endif
                  </tr>
                </thead>
                <tbody>

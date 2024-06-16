@@ -13,24 +13,30 @@
              <div>
                 <a href="{{route('dashboard')}}" class="nav_logo"><i class='bx bx-book-reader text-white'></i><span class="nav_logo-name">FR Educacional</span> </a>
                 <div class="nav_list"> 
+                  @if(Auth::user()->tipo == 6)
+                  <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
+                  <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
+                  <x-modulo nome="Turmas" icon="bx bxs-graduation" rota="Calendario/index" endereco="Calendario"/>
+                  <x-modulo nome="Aulas" icon="bx bxs-book" rota="Calendario/index" endereco="Calendario"/>
+                  <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Calendario/index" endereco="Calendario"/>
+                  <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Calendario/index" endereco="Calendario"/>
+                  @endif
+                  @if(Auth::user()->tipo == 2)
+                  <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>
+                  @endif
                   @if(Auth::user()->tipo == 0)
                   <x-modulo nome="Secretarías" icon="bx bx-buildings" rota="Secretarias/index" endereco="Secretarias"/>
                   <x-modulo nome="Usuários" icon="bx bx-user" rota="Usuarios/indexFornecedor" endereco="Usuarios"/>
                   @elseif(in_array(Auth::user()->tipo,[2,4]))
-                  @if(Auth::user()->tipo == 2)
-                  <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>
-                  @endif
                   <x-modulo nome="Escola{{(Auth::user()->tipo == 2) ? 's' : ''}}" icon="bx bxs-school" rota="Escolas/index" endereco="Escolas"/>
                   <x-modulo nome="Professores" icon="bx bxs-book-reader" rota="Professores/index" endereco="Professores"/>
                   <x-modulo nome="Pedagogos" icon="bx bx-library" rota="Pedagogos/index" endereco="Pedagogos"/>
-                  <x-modulo nome="Responsaveis" icon="bx bx-male-female" rota="Responsaveis/index" endereco="Responsaveis"/>
+                  {{-- <x-modulo nome="Responsaveis" icon="bx bx-male-female" rota="Responsaveis/index" endereco="Responsaveis"/> --}}
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Auxiliares" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Merenda" icon="bx bx-fork" rota="Merenda/index" endereco="Merenda"/>
                   <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Transporte/index" endereco="Transporte"/>
-                  {{-- <x-modulo nome="Turmas" icon="bx bx-group" rota="Turmas/index" endereco="Turmas"/>
-                  <x-modulo nome="Disciplinas" icon="bx bx-pencil" rota="Disciplinas/index" endereco="Disciplinas"/> --}}
                   @endif 
                 </div>
              </div>

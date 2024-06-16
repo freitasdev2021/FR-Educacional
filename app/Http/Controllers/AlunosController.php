@@ -30,6 +30,12 @@ class AlunosController extends Controller
         "rota" => "Alunos/Transferidos"
     ]);
 
+    public const professoresModulos = array([
+        "nome" => "Alunos",
+        "endereco" => "index",
+        "rota" => "Alunos/index"
+    ]);
+
     public const cadastroSubmodulos = array([
         "nome" => "Cadastro",
         "endereco" => "Edit",
@@ -60,9 +66,30 @@ class AlunosController extends Controller
         'rota' => 'Alunos/Suspenso'
     ]);
 
+    public const professoresSubmodulos = array([
+        "nome" => "Cadastro",
+        "endereco" => "Edit",
+        "rota" => "Alunos/Edit"
+    ],[
+        'nome' => 'Atividades Desenvolvidas',
+        'endereco' => 'Atividades',
+        'rota' => 'Alunos/Atividades'
+    ],[
+        'nome' => 'Frequencia',
+        'endereco' => 'Frequencia',
+        'rota' => 'Alunos/Frequencia'
+    ]);
+
     public function index(){
+
+        if(self::getDados()['tipo'] == 6){
+            $modulos = self::professoresModulos;
+        }else{
+            $modulos = self::submodulos;
+        }
+
         return view('Alunos.index',[
-            'submodulos' => self::submodulos,
+            'submodulos' => $modulos,
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
         ]);
     }
@@ -215,16 +242,30 @@ class AlunosController extends Controller
     }
 
     public function frequencia($id){
+
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresSubmodulos;
+        }else{
+            $submodulos = self::cadastroSubmodulos;
+        }
+
         return view('Alunos.frequencia',[
-            'submodulos' => self::cadastroSubmodulos,
+            'submodulos' => $submodulos,
             'id' => $id,
             'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
         ]);
     }
 
     public function transferencias($id){
+
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresSubmodulos;
+        }else{
+            $submodulos = self::cadastroSubmodulos;
+        }
+
         return view('Alunos.transferencias',[
-            'submodulos' => self::cadastroSubmodulos,
+            'submodulos' => $submodulos,
             'id' => $id,
             'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
         ]);
@@ -239,8 +280,15 @@ class AlunosController extends Controller
     }
 
     public function atividades($id){
+
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresSubmodulos;
+        }else{
+            $submodulos = self::cadastroSubmodulos;
+        }
+
         return view('Alunos.atividades',[
-            'submodulos' => self::cadastroSubmodulos,
+            'submodulos' => $submodulos,
             'id' => $id,
             'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
         ]);
@@ -358,10 +406,17 @@ class AlunosController extends Controller
 
     public function cadastro($id=null){
         $idorg = Auth::user()->id_org;
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresModulos;
+        }else{
+            $submodulos = self::submodulos;
+        }
+
         $view = [
-            'submodulos' => self::submodulos,
+            'submodulos' => $submodulos,
             'id' => '',
-            'Turmas' => Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get()
+            'Turmas' => Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get(),
+            ''
         ];
 
         if($id){
@@ -417,9 +472,14 @@ class AlunosController extends Controller
             $Registro = DB::select($SQL)[0];
             $Vencimento = Carbon::parse($Registro->Vencimento);
             $Hoje = Carbon::parse(date('Y-m-d'));
-
-            $view['submodulos'] = self::cadastroSubmodulos;
+            if(self::getDados()['tipo'] == 6){
+                $view['submodulos'] = self::professoresSubmodulos;
+            }else{
+                $view['submodulos'] = self::cadastroSubmodulos;
+            }
+   
             $view['id'] = $id;
+            $view['IDOrg'] = Auth::user()->id_org;
             $view['Registro'] = $Registro;
             $view['Vencimento'] = $Vencimento;
             $view['Hoje'] = $Hoje;
@@ -852,6 +912,12 @@ class AlunosController extends Controller
             //dd($AND);
         }else{
             $AND = '';
+        }
+
+        if(Auth::user()->tipo == 6){
+            $AND .= " AND t.IDEscola IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+        }else{
+            $AND .=' ';
         }
 
         $SQL = "SELECT
