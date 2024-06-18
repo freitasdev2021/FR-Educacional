@@ -29,6 +29,12 @@ class EscolasController extends Controller
         "rota" => "Escolas/Turmas"
     ]);
 
+    public const professoresSubmodulos = array([
+        "nome" => "Cadastro",
+        "endereco" => "index",
+        "rota" => "Turmas/index"
+    ]);
+
     public function index(){
         $view = [
             "submodulos" => self::submodulos,
@@ -244,11 +250,11 @@ class EscolasController extends Controller
     }
 
     public function cadastroDisciplinas($id=null){
-
+        $idorg = Auth::user()->id_org;
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
-            'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org)
+            'escolas' => DB::select("SELECT CASE WHEN a.IDEscola = e.id THEN 1 ELSE 0 END as Alocado,e.Nome,e.id FROM escolas e LEFT JOIN alocacoes a ON(a.IDEscola = e.id) WHERE e.IDOrg = $idorg")
         ];
 
         if($id){
@@ -287,6 +293,19 @@ class EscolasController extends Controller
 
         return view('Escolas.createDisciplinas',$view);
 
+    }
+
+    public function getDisciplinasEscola($IDEscola){
+        $SQL = <<<SQL
+        SELECT 
+            d.NMDisciplina as Disciplina,
+            d.id as IDDisciplina
+        FROM disciplinas d
+        INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
+        WHERE ad.IDEscola = $IDEscola
+        SQL;
+
+        return json_encode(DB::select($SQL),JSON_UNESCAPED_UNICODE);
     }
 
     public function saveDisciplinas(Request $request){
@@ -330,12 +349,20 @@ class EscolasController extends Controller
 
         $idorg = Auth::user()->id_org;
 
+        if(Auth::user()->tipo == 6){
+            $AND = ' AND t.id IN('.implode(',',self::getFichaProfessor(Auth::user()->id,'Turmas')).')';
+        }elseif(Auth::user()->tipo == 4){
+            $AND = ' AND t.IDEscola = '.self::getEscolaDiretor(Auth::user()->id);
+        }else{
+            $AND = '';
+        }
+
         $SQL = <<<SQL
         SELECT t.id as IDTurma, t.Nome as Turma,t.INITurma,.t.TERTurma,e.Nome as Escola,t.Serie 
         FROM turmas t
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o on(e.IDOrg = o.id)
-        WHERE o.id = $idorg
+        WHERE o.id = $idorg $AND
         SQL;
 
         $turmas = DB::select($SQL);
@@ -345,9 +372,9 @@ class EscolasController extends Controller
                 $item[] = $t->Turma;
                 $item[] = $t->Serie;
                 (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
-                $item[] = $t->INITurma." - ".$t->TERTurma;
+                (in_array(Auth::user()->tipo,[2,4])) ? $item[] = $t->INITurma." - ".$t->TERTurma : '';
                 $item[] = 0;
-                $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>";
+                (in_array(Auth::user()->tipo,[2,4])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -363,10 +390,15 @@ class EscolasController extends Controller
         echo json_encode($resultados);
     }
 
-    public function turmas(){
-
+    public static function turmas(){
+        if(Auth::user()->tipo == 6){
+            $sub = self::professoresSubmodulos;
+        }else{
+            $sub = self::submodulos;
+        }
+        //dd(self::getFichaProfessor(Auth::user()->id,'Horarios'));
         return view('Escolas.turmas',[
-            "submodulos" => self::submodulos,
+            "submodulos" => $sub,
             'id' => ''
         ]);
     }

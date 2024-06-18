@@ -150,14 +150,6 @@ class ProfessoresController extends Controller
             ]),
             'IDProfessor' => $idprofessor,
             'Escolas' => DB::select("SELECT e.Nome as Escola, e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(e.id = a.IDEscola) INNER JOIN professores p ON(p.id = a.IDProfissional) WHERE p.id = $idprofessor "),
-            'Disciplinas' => DB::select("SELECT 
-                d.NMDisciplina as Disciplina,
-                d.id as IDDisciplina
-            FROM disciplinas d 
-            INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina) 
-            INNER JOIN escolas e ON(e.id = ad.IDDisciplina) 
-            INNER JOIN organizacoes o ON(e.IDorg = o.id) 
-            WHERE o.id = $idorg GROUP BY e.id"),
             "Turmas" => DB::select("SELECT t.Nome as Turma, t.id as IDTurma FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN professores p ON(p.id = a.IDProfissional) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg GROUP BY t.id ")
         );
 
@@ -165,6 +157,7 @@ class ProfessoresController extends Controller
 
             $SQL = <<<SQL
             SELECT tur.id as IDTurno,
+                e.id as IDEscola,
                 e.Nome as Escola,
                 t.Nome as Turma,
                 d.NMDisciplina as Disciplina,
@@ -179,10 +172,18 @@ class ProfessoresController extends Controller
             WHERE p.id = $idprofessor AND tur.id = $id
             SQL;
 
+            $view['Registro'] = DB::select($SQL)[0];
+            $IDEscola = $view['Registro']->IDEscola;
+            $view['Disciplinas'] = DB::select("SELECT 
+                d.NMDisciplina as Disciplina,
+                d.id as IDDisciplina
+            FROM disciplinas d
+            INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
+            WHERE ad.IDEscola = $IDEscola");
+
             $view[1]['nome'] = 'Cadastro Turno';
             $view[1]['endereco'] = 'Cadastro Turno';
             $view[1]['rota'] = 'Profesores/Turnos/Edit';
-            $view['Registro'] = DB::select($SQL)[0];
         }
 
         return view('Professores.cadastroTurnos',$view);

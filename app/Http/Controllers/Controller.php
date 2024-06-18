@@ -52,6 +52,40 @@ abstract class Controller
 
     }
 
+    public static function getFichaProfessor($id,$TipoFicha){
+        $SQL = <<<SQL
+        SELECT 
+            t.id as IDTurma,
+            d.id as IDDisciplina,
+            tn.INITur Inicio,
+            tn.TERTur Termino,
+            e.Nome as Escola,
+            t.Nome as Turma,
+            tn.DiaSemana as Dia,
+            d.NMDisciplina as Disciplina
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        WHERE us.id = $id GROUP BY tn.INITur,tn.TERTur,tn.DiaSemana
+        SQL;
+
+        if($TipoFicha == 'Horarios'){
+            $return = DB::select($SQL);
+        }elseif($TipoFicha == 'Turmas'){
+            $return = [];
+            $consulta = DB::select($SQL);
+            foreach($consulta as $c){
+                array_push($return,$c->IDTurma);
+            }
+        }
+
+        return $return;
+    }
+
     public static function in_associative_array($array, $chave, $valorProcurado){
         foreach ($array as $subArray) {
             if (isset($subArray[$chave]) && $subArray[$chave] === $valorProcurado){

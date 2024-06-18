@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\CalendarioController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
 use App\Http\Controllers\SecretariosController;
 use App\Http\Controllers\EscolasController;
+use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\DiretoresController;
 use App\Http\Controllers\ProfessoresController;
 use App\Http\Controllers\CardapioController;
@@ -18,12 +20,13 @@ use App\Http\Controllers\UsuariosController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     //
+    Route::get('/',[DashboardController::class,'index'])->name('dashboard');
     Route::middleware('fornecedor')->group(function () {
         //SECRETARÍAS
         Route::get('/Secretarias',[SecretariasController::class,'index'])->name('Secretarias/index');
@@ -61,12 +64,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/Escolas/Disciplinas/Novo',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Novo');
         Route::get('/Escolas/Disciplinas/Edit/{id}',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Cadastro');
         Route::post('/Escolas/Disciplinas/Save',[EscolasController::class,'saveDisciplinas'])->name('Escolas/Disciplinas/Save');
+        Route::get('/Escolas/Disciplinas/Get/{IDEscola}',[EscolasController::class,'getDisciplinasEscola'])->name('Escolas/Disciplinas/Get');
         //Turmas
         Route::get('/Escolas/Turmas/list',[EscolasController::class,'getTurmas'])->name('Escolas/Turmas/list');
         Route::get('/Escolas/Turmas',[EscolasController::class,'Turmas'])->name('Escolas/Turmas');
         Route::get('/Escolas/Turmas/Novo',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Novo');
         Route::get('/Escolas/Turmas/Edit/{id}',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Cadastro');
         Route::post('/Escolas/Turmas/Save',[EscolasController::class,'saveTurmas'])->name('Escolas/Turmas/Save');
+        Route::get('Turmas',[TurmasController::class,'index'])->name('Turmas/index');
         //ALUNOS
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');

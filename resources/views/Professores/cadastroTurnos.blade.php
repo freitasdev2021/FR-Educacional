@@ -87,4 +87,18 @@
             <!--//-->
         </div>
     </div>
+    <script>
+        $("select[name=IDEscola]").on("change",function(){
+            $.ajax({
+                url : '/Escolas/Disciplinas/Get/'+$(this).val(),
+                method : "GET"
+            }).done(function(ret){
+                Escolas = jQuery.parseJSON(ret)
+                $("select[name=IDDisciplina]").html("")
+                Escolas.forEach((i)=>{
+                    $("select[name=IDDisciplina]").append("<option value="+i.IDDisciplina+">"+i.Disciplina+"</option>")
+                })
+            })
+        })
+    </script>
 </x-educacional-layout>

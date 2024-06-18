@@ -208,5 +208,33 @@
          </div>
       </div>
    </div>
+    @elseif(Auth::user()->tipo == 6)
+    <div class="shadow">
+      {{-- <pre>
+         {{print_r($ficha)}}
+      </pre> --}}
+      <table class="table">
+         <thead class="bg-fr text-white">
+           <tr>
+             <th scope="col">Dia</th>
+             <th scope="col">Turno</th>
+             <th scope="col">Escola</th>
+             <th scope="col">Turma</th>
+             <th scope="col">Disciplina</th>
+           </tr>
+         </thead>
+         <tbody>
+         @foreach($ficha as $f)
+           <tr>
+             <td class="bg-primary text-white" align="center"><strong>{{$f->Dia}}</strong></td>
+             <td>{{$f->Inicio}} - {{$f->Termino}}</td>
+             <td>{{$f->Escola}}</td>
+             <td>{{$f->Turma}}</td>
+             <td>{{$f->Disciplina}}</td>
+           </tr>
+         @endforeach
+         </tbody>
+       </table>
+    </div>
     @endif
  </x-educacional-layout>
