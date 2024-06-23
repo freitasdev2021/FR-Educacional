@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
 use App\Http\Controllers\SecretariosController;
+use App\Http\Controllers\PlanejamentosController;
 use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\DiretoresController;
@@ -58,6 +59,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Escolas/Anosletivos/Novo',[EscolasController::class,'cadastroAnosLetivos'])->name('Escolas/Anosletivos/Novo');
         Route::get('/Escolas/Anosletivos/Edit/{id}',[EscolasController::class,'cadastroAnosLetivos'])->name('Escolas/Anosletivos/Cadastro');
         Route::post('/Escolas/Anosletivos/Save',[EscolasController::class,'saveAnosLetivos'])->name('Escolas/Anosletivos/Save');
+        Route::get('/Escolas/Turmas/{IDDisciplina}/getTurmasDisciplina/{TPRetorno}',[EscolasController::class,'getTurmasDisciplinas']);
         //Disciplinas
         Route::get('/Escolas/Disciplinas/list',[EscolasController::class,'getDisciplinas'])->name('Escolas/Disciplinas/list');
         Route::get('/Escolas/Disciplinas',[EscolasController::class,'Disciplinas'])->name('Escolas/Disciplinas');
@@ -101,6 +103,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/Alunos/Situacao/{id}',[AlunosController::class,'situacao'])->name('Alunos/Situacao');
         Route::get('/Alunos/Situacao/Cadastro/{IDAluno}',[AlunosController::class,'cadastroSituacao'])->name('Alunos/Situacao/Novo');
         Route::post('/Alunos/Situacao/Save',[AlunosController::class,'saveSituacao'])->name('Alunos/Situacao/Save');
+        //PLANEJAMENTOS
+        Route::get('Planejamentos/list',[PlanejamentosController::class,'getPlanejamentos'])->name('Planejamentos/list');
+        Route::get('Planejamentos',[PlanejamentosController::class,'index'])->name('Planejamentos/index');
+        Route::get('Planejamentos/Novo',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Novo');
+        Route::get('Planejamentos/Cadastro/{id}',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Cadastro');
+        Route::get('Planejamentos/Save',[PlanejamentosController::class,'save'])->name('Planejamentos/Save');
         //DIRETORES
         Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list');
         Route::get('/Diretores',[DiretoresController::class,'index'])->name('Diretores/index');

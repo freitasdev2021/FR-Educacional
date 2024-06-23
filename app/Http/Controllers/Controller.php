@@ -81,6 +81,12 @@ abstract class Controller
             foreach($consulta as $c){
                 array_push($return,$c->IDTurma);
             }
+        }elseif($TipoFicha == 'Disciplinas'){
+            $return = [];
+            $consulta = DB::select($SQL);
+            foreach($consulta as $c){
+                array_push($return,array('IDDisciplina'=>$c->IDDisciplina,'Disciplina'=>$c->Disciplina));
+            }
         }
 
         return $return;

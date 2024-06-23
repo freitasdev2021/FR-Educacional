@@ -18,7 +18,7 @@
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Turmas" icon="bx bxs-graduation" rota="Turmas/index" endereco="Turmas"/>
                   <x-modulo nome="Aulas" icon="bx bxs-book" rota="Calendario/index" endereco="Calendario"/>
-                  <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Calendario/index" endereco="Calendario"/>
+                  <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Planejamentos/index" endereco="Planejamentos"/>
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Calendario/index" endereco="Calendario"/>
                   @endif
                   @if(Auth::user()->tipo == 2)

@@ -344,6 +344,31 @@ class EscolasController extends Controller
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
     }
+    /////////////
+    public function getTurmasBySerie($Serie){
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie as Serie WHERE t.Serie = $Serie";
+        return DB::select($SQL);
+    }
+
+    public function getTurmasDisciplinas($IDDisciplina,$TPRetorno){
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,.e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(t.IDEscola = e.id) LEFT JOIN turnos tur ON(t.id = tur.IDTurma) WHERE tur.IDDisciplina = $IDDisciplina";
+        if($TPRetorno == "ARRAY"){
+            return DB::select($SQL);
+        }else{
+            ob_start();
+            foreach(DB::select($SQL) as $d){
+        ?>
+        <tr>
+            <td><input type="checkbox" value="<?=$d->IDTurma?>"></td>
+            <td><?=$d->Turma?></td>
+            <td><?=$d->Serie?></td>
+            <td><?=$d->Escola?></td>
+        </tr>
+        <?php
+            }
+            return ob_get_clean();
+        }
+    }
     ///////////////////////////////////////////TURMAS
     public function getTurmas(){
 
