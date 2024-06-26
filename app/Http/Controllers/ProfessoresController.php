@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Disciplina;
 use Illuminate\Http\Request;
 use App\Models\Professor;
 use App\Models\Turno;
@@ -22,6 +23,20 @@ class ProfessoresController extends Controller
         return view('Professores.index',[
             "submodulos" => self::submodulos
         ]);
+    }
+
+    public static function getProfessorByUser($IDUser){
+        $SQL = "SELECT IDProfissional FROM users u WHERE u.tipo = 6 AND u.id = $IDUser  ";
+        return DB::select($SQL)[0]->IDProfissional;
+    }
+
+    public static function getEscolasProfessor($IDProfessor){
+        $SQL = "SELECT e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN professores p  ON(p.id = a.IDProfissional) WHERE p.id = $IDProfessor AND a.TPProfissional = 'PROF' ";
+        $IDEscolas = [];
+        foreach(DB::select($SQL) as $e){
+            array_push($IDEscolas,$e->IDEscola);
+        }
+        return $IDEscolas;
     }
 
 
@@ -150,7 +165,13 @@ class ProfessoresController extends Controller
             ]),
             'IDProfessor' => $idprofessor,
             'Escolas' => DB::select("SELECT e.Nome as Escola, e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(e.id = a.IDEscola) INNER JOIN professores p ON(p.id = a.IDProfissional) WHERE p.id = $idprofessor "),
-            "Turmas" => DB::select("SELECT t.Nome as Turma, t.id as IDTurma FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN professores p ON(p.id = a.IDProfissional) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg GROUP BY t.id ")
+            'Disciplinas' => DB::select("SELECT 
+                d.NMDisciplina as Disciplina,
+                d.id as IDDisciplina
+            FROM disciplinas d
+            INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
+            WHERE ad.IDEscola IN(".implode(',',self::getEscolasProfessor($idprofessor)).") "),
+            "Turmas" => DB::select("SELECT t.Nome as Turma, t.id as IDTurma,t.Serie,e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN professores p ON(p.id = a.IDProfissional) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg GROUP BY t.id ")
         );
 
         if($id){
@@ -409,8 +430,9 @@ class ProfessoresController extends Controller
             }
             $status = 'success';
         }catch(\Throwable $th){
+            $rout = 'Professores/Novo';
             $status = 'error';
-            $mensagem = "Erro ao Salvar a Escola: ".$th;
+            $mensagem = "Erro ao Salvar a Escola: ".$th->getMessage();
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }

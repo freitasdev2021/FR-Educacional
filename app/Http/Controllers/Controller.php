@@ -31,7 +31,7 @@ abstract class Controller
         return $maskared;
     }
 
-    public function getEscolasProfessor($ID){
+    public function getCurrentEscolasProfessor($ID){
         $SQL = <<<SQL
         SELECT 
             e.id as IDEscola

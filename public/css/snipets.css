@@ -9,6 +9,10 @@ body{
 	overflow:hidden;
 }
 
+.periudos{
+	margin:10px;
+}
+
 .central{
     display:flex;
     flex-direction:column;

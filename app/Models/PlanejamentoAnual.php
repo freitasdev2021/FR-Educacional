@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class PlanejamentoAnual extends Model
 {
     use HasFactory;
-
+    protected $table = 'planejamentoanual';
     protected $fillable = [
         'IDProfessor',
         'IDDisciplina',
-        'IDTurma',
         'PLConteudos',
         'Aprovado',
+        'NMPlanejamento'
     ];
 
     protected $casts = [
@@ -29,10 +29,5 @@ class PlanejamentoAnual extends Model
     public function disciplina()
     {
         return $this->belongsTo(Disciplina::class, 'IDDisciplina');
-    }
-
-    public function turma()
-    {
-        return $this->belongsTo(Turma::class, 'IDTurma');
     }
 }

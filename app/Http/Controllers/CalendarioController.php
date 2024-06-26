@@ -143,7 +143,7 @@ class CalendarioController extends Controller
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }
@@ -347,7 +347,7 @@ class CalendarioController extends Controller
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }
@@ -387,7 +387,7 @@ class CalendarioController extends Controller
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }
@@ -475,7 +475,7 @@ class CalendarioController extends Controller
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }
@@ -533,7 +533,7 @@ class CalendarioController extends Controller
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }

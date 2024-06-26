@@ -106,9 +106,10 @@ Route::middleware('auth')->group(function () {
         //PLANEJAMENTOS
         Route::get('Planejamentos/list',[PlanejamentosController::class,'getPlanejamentos'])->name('Planejamentos/list');
         Route::get('Planejamentos',[PlanejamentosController::class,'index'])->name('Planejamentos/index');
+        Route::get('Planejamentos/{id}/Componentes',[PlanejamentosController::class,'componentes'])->name('Planejamentos/Componentes');
         Route::get('Planejamentos/Novo',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Novo');
         Route::get('Planejamentos/Cadastro/{id}',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Cadastro');
-        Route::get('Planejamentos/Save',[PlanejamentosController::class,'save'])->name('Planejamentos/Save');
+        Route::post('Planejamentos/Save',[PlanejamentosController::class,'save'])->name('Planejamentos/Save');
         //DIRETORES
         Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list');
         Route::get('/Diretores',[DiretoresController::class,'index'])->name('Diretores/index');

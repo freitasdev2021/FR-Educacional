@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08/06/2024 às 18:24
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
+-- Tempo de geração: 24/06/2024 às 22:49
+-- Versão do servidor: 10.4.28-MariaDB
+-- Versão do PHP: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -56,11 +56,8 @@ CREATE TABLE `alocacoes` (
 --
 
 INSERT INTO `alocacoes` (`IDEscola`, `IDProfissional`, `INITurno`, `TERTurno`, `created_at`, `updated_at`, `TPProfissional`) VALUES
-(1, 1, '12:39:00', '11:39:00', '2024-05-24', '2024-05-24', 'PROF'),
-(4, 1, '04:39:00', '05:39:00', '2024-05-24', '2024-05-24', 'PROF'),
-(3, 1, '04:39:00', '05:39:00', '2024-05-24', '2024-05-24', 'PEDA'),
-(1, 2, '12:39:00', '11:39:00', '2024-05-24', '2024-05-24', 'PROF'),
-(3, 2, '04:39:00', '02:39:00', '2024-05-24', '2024-05-24', 'PROF');
+(1, 1, '07:00:00', '11:25:00', '2024-06-24', '2024-06-24', 'PROF'),
+(2, 1, '13:00:00', '17:25:00', '2024-06-24', '2024-06-24', 'PROF');
 
 -- --------------------------------------------------------
 
@@ -80,10 +77,8 @@ CREATE TABLE `alocacoes_disciplinas` (
 --
 
 INSERT INTO `alocacoes_disciplinas` (`IDEscola`, `IDDisciplina`, `updated_at`, `created_at`) VALUES
-(1, 2, '2024-06-05', '2024-06-05'),
-(1, 3, '2024-06-05', '2024-06-05'),
-(1, 1, '2024-06-05', '2024-06-05'),
-(4, 1, '2024-06-05', '2024-06-05');
+(1, 1, '2024-06-24', '2024-06-24'),
+(2, 2, '2024-06-24', '2024-06-24');
 
 -- --------------------------------------------------------
 
@@ -126,15 +121,6 @@ CREATE TABLE `alunos` (
   `updated_at` date NOT NULL,
   `IDTurma` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `alunos`
---
-
-INSERT INTO `alunos` (`id`, `IDMatricula`, `STAluno`, `created_at`, `updated_at`, `IDTurma`) VALUES
-(1, 1, 0, '2024-06-05', '2024-06-07', 4),
-(2, 2, 0, '2024-06-05', '2024-06-05', 4),
-(3, 3, 0, '2024-06-06', '2024-06-06', 4);
 
 -- --------------------------------------------------------
 
@@ -259,6 +245,16 @@ CREATE TABLE `cache` (
   `value` mediumtext NOT NULL,
   `expiration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `cache`
+--
+
+INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('professor@gmail.com|127.0.0.1', 'i:1;', 1719256374),
+('professor@gmail.com|127.0.0.1:timer', 'i:1719256374;', 1719256374),
+('professor1@gmail.com|127.0.0.1', 'i:1;', 1719256369),
+('professor1@gmail.com|127.0.0.1:timer', 'i:1719256369;', 1719256369);
 
 -- --------------------------------------------------------
 
@@ -399,9 +395,8 @@ CREATE TABLE `disciplinas` (
 --
 
 INSERT INTO `disciplinas` (`id`, `NMDisciplina`, `Obrigatoria`, `created_at`, `updated_at`) VALUES
-(1, 'Biologia', 'Sim', '2024-05-27', '2024-06-05'),
-(2, 'Matemática', 'Sim', '2024-06-05', '2024-06-05'),
-(3, 'Português', 'Sim', '2024-06-05', '2024-06-05');
+(1, 'Ciencias da Natureza', 'Sim', '2024-06-24', '2024-06-24'),
+(2, 'Natureza e Sociedade', 'Não', '2024-06-24', '2024-06-24');
 
 -- --------------------------------------------------------
 
@@ -448,12 +443,8 @@ CREATE TABLE `escolas` (
 --
 
 INSERT INTO `escolas` (`id`, `IDOrg`, `Nome`, `CEP`, `Rua`, `Bairro`, `Cidade`, `Numero`, `UF`, `Telefone`, `Email`, `QTVagas`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Dr Ovidio', '35160208', 'Avenida Vinte e Seis de Outubro', 'Bela Vista', 'Ipatinga', 40, 'MG', '31983086235', 'testeescola@gmail.com', 600, '2024-05-15 19:09:34', '2024-05-16 06:09:58'),
-(2, 1, 'Escola Estadual Dom Helvecio', '35160251', 'Rua Campos Sales', 'Imbaúbas', 'Ipatinga', 500, 'MG', '3138233513', 'eedomhelvecio@gmail.com', 804, '2024-05-16 19:03:13', '2024-05-16 19:03:13'),
-(3, 1, 'Escola Municipal Padre Cicero de Castro', '35160225', 'Av. Fernando de Noronha', 'Bom Retiro', 'Ipatinga', 490, 'MG', '3138298454', 'padrecicero@gmail.com', 1204, '2024-05-17 06:08:17', '2024-05-18 19:05:11'),
-(4, 1, 'Polivalente', '35170188', 'Rua Maria Soares de Oliveira', 'Belvedere', 'Coronel Fabriciano', 134, 'MG', '31382314214', 'polivalente@gmail.com', 604, '2024-05-19 00:15:03', '2024-05-19 01:41:26'),
-(5, 1, 'Raulino', '35160100', 'Rua Estados Unidos', 'Cariru', 'Ipatinga', 210, 'MG', '31983086235', 'eofreitasmane@gmail.com', 28, '2024-05-19 01:40:24', '2024-05-24 21:26:40'),
-(6, 1, 'Escola Sesi', '35160208', 'Avenida Vinte e Seis de Outubro', 'Bela Vista', 'Ipatinga', 77, 'MG', '31983343434', 'sesi@gmail.com', 904, '2024-06-01 19:53:50', '2024-06-01 19:53:50');
+(1, 1, 'E.E. Doutor Ovídio De Andrade', '35160230', 'Rua Lourenço da Veiga', 'Bom Retiro', 'Ipatinga', 0, 'MG', '31345435534', 'drovidio@gmail.com', 1000, '2024-06-24 19:48:50', '2024-06-24 19:48:50'),
+(2, 1, 'Escola Municipal Gente Inocente', '35160279', 'Rua Vanádio', 'Imbaúbas', 'Ipatinga', 27, 'MG', '31923434234', 'genteinocente@gmail.com', 500, '2024-06-24 19:57:32', '2024-06-24 19:57:32');
 
 -- --------------------------------------------------------
 
@@ -1017,9 +1008,7 @@ CREATE TABLE `professores` (
 --
 
 INSERT INTO `professores` (`id`, `Nome`, `Nascimento`, `Admissao`, `Email`, `Celular`, `TerminoContrato`, `CEP`, `Rua`, `UF`, `Cidade`, `Bairro`, `Numero`, `Ativo`, `updated_at`, `created_at`) VALUES
-(1, 'Professor', '2024-05-11', '2024-05-17', 'prof@gmail.com', '12313123312', '2024-05-09', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 0, '2024-05-22', '2024-05-22'),
-(2, 'Fessor', '2024-05-16', '2024-05-25', 'fsfsfsf@gmail.com', '13132321334', '2024-05-10', '35160308', 'Rua Mogno', 'MG', 'Ipatinga', 'Horto', 444, 0, '2024-05-24', '2024-05-24'),
-(3, '', '0000-00-00', '0000-00-00', '', '', NULL, '', '', '', '', NULL, NULL, 0, '2024-05-27', '2024-05-27');
+(1, 'Professor João', '1970-08-25', '2013-09-08', 'professor1@gmail.com', '23423432423', '2028-08-10', '35160080', 'Rua Angola', 'MG', 'Ipatinga', 'Cariru', 29, 0, '2024-06-24', '2024-06-24');
 
 -- --------------------------------------------------------
 
@@ -1185,8 +1174,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('bsQ1ZxjelXo2mSMPFZGLdLa0BHq9FLTKILupsydt', 37, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiTlBGaElpRElCUDZ0WlFkWlpDajlZUmpxdE9VbDBDU3VweFRrWHhYdCI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjM5OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zL1N1c3BlbnNvLzMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozNzt9', 1717863699),
-('wtRbyE541357MDVS8GRK00YaiOZYzRUOHnPfimwR', 37, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiYUozVndvQm90ZUpVUVQyMGlYbVZydG9XQ2J5bmlMSTNmeDluNGtrSiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ1OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zL1RyYW5zZmVyZW5jaWFzLzEiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozNzt9', 1717822844);
+('WtEzQLm4odWQobrGT4yMAoSiE8wnsROXpZlVrjQO', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiZXNQM1NXSHNiTmhSQ1pQSWY0ZTNTR251Q3Mya0tTM1RFRmh5U1N2ayI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvRXNjb2xhcy9EaXNjaXBsaW5hcyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjY7fQ==', 1719262119);
 
 -- --------------------------------------------------------
 
@@ -1280,18 +1268,17 @@ CREATE TABLE `turmas` (
   `TotalAno` float DEFAULT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL,
-  `QTRepetencia` int(11) NOT NULL
+  `QTRepetencia` int(11) NOT NULL,
+  `IDPlanejamento` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `turmas`
 --
 
-INSERT INTO `turmas` (`id`, `IDEscola`, `Serie`, `Nome`, `INITurma`, `TERTurma`, `Periodo`, `NotaPeriodo`, `MediaPeriodo`, `TotalAno`, `updated_at`, `created_at`, `QTRepetencia`) VALUES
-(1, 3, '9º Ano E.FUNDAMENTAL', 'Turma 92', '07:00:00', '11:25:00', 'Trimestral', 30, 15, 100, '2024-05-18', '2024-05-17', 0),
-(2, 2, '1º Ano E.FUNDAMENTAL', 'Turma 100', '21:00:00', '00:00:00', 'Bimestral', 100, 15, 100, '2024-05-27', '2024-05-27', 0),
-(3, 3, '1º Ano E.MÉDIO', 'Turma 1000', '00:02:00', '00:02:00', 'Trimestral', 25, 15, 100, '2024-05-27', '2024-05-27', 0),
-(4, 1, '4º Ano E.FUNDAMENTAL', 'Turma dr ovidio', '20:11:00', '21:11:00', 'Bimestral', 25, 15, 100, '2024-06-03', '2024-06-03', 4);
+INSERT INTO `turmas` (`id`, `IDEscola`, `Serie`, `Nome`, `INITurma`, `TERTurma`, `Periodo`, `NotaPeriodo`, `MediaPeriodo`, `TotalAno`, `updated_at`, `created_at`, `QTRepetencia`, `IDPlanejamento`) VALUES
+(1, 2, '1º Periodo E.INFANTIL', '100', '13:00:00', '17:00:00', 'Semestral', 0, 0, 0, '2024-06-24', '2024-06-24', 0, 0),
+(2, 1, '8º Ano E.FUNDAMENTAL', '800', '07:00:00', '11:25:00', 'Bimestral', 25, 15, 100, '2024-06-24', '2024-06-24', 4, 0);
 
 -- --------------------------------------------------------
 
@@ -1310,17 +1297,6 @@ CREATE TABLE `turnos` (
   `created_at` date NOT NULL,
   `DiaSemana` varchar(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `turnos`
---
-
-INSERT INTO `turnos` (`id`, `IDProfessor`, `IDDisciplina`, `IDTurma`, `INITur`, `TERTur`, `updated_at`, `created_at`, `DiaSemana`) VALUES
-(1, 2, 1, 3, '20:26:00', '22:26:00', '2024-05-27', '2024-05-27', 'Terça'),
-(2, 2, 1, 1, '19:28:00', '19:31:00', '2024-05-27', '2024-05-27', 'Segunda'),
-(5, 2, 1, 1, '16:11:00', '18:11:00', '2024-06-03', '2024-06-03', 'Terça'),
-(6, 2, 1, 4, '20:12:00', '21:12:00', '2024-06-03', '2024-06-03', 'Terça'),
-(7, 2, 1, 4, '20:12:00', '21:12:00', '2024-06-03', '2024-06-03', 'Terça');
 
 -- --------------------------------------------------------
 
@@ -1349,12 +1325,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `id_org`, `password`, `permissoes`, `remember_token`, `created_at`, `updated_at`, `tipo`, `IDProfissional`) VALUES
 (1, 'Max Henrique', 'maxhenrique308@gmail.com', NULL, 0, '$2y$12$/2fbkxuWZYNET//AOJoBieyr3drGudBxEUIH1iwgcMqugWcQzOrie', NULL, 'wnkCCljlBFtehvjTcDcM8QeNETwmEGxZi7PkFqU9eNHV9lHAkHwuybJSBKR3', '2024-05-09 12:48:59', '2024-05-09 12:48:59', 0, NULL),
-(5, 'Max Henrique', 'testandooo@gmail.comm', NULL, 1, '$2y$12$H1rSGUbvU0uqv7a5JU4h5utfuO2akBAcWBA.jp.va6rchzSuF2v1K', NULL, NULL, '2024-05-13 08:11:39', '2024-05-13 08:12:20', 2, NULL),
 (6, 'Secretario 1', 'secretario@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-05-13 20:23:23', '2024-05-13 20:23:23', 2, NULL),
-(34, 'Professor', 'prof@gmail.com', NULL, 1, '$2y$12$vi0VpYjj5zaWaP7kxriLm.fJoPinyBhljY0vZpQf5tCmHDfBA2EjK', NULL, NULL, '2024-05-22 09:53:33', '2024-05-22 09:53:33', 6, 1),
-(35, 'Pedagogo', 'peda@gmail.com', NULL, 1, '$2y$12$Lzdz4nK9HNFbjBrViCyxte8Gl4O2ZA4hvfZRE.47kH.iZr5njvM3q', NULL, NULL, '2024-05-22 09:57:47', '2024-05-22 09:57:47', 6, 1),
-(36, 'Fessor', 'fsfsfsf@gmail.com', NULL, 1, '$2y$12$46gkbV1hGKeWZk/zZQzWeOtg1be9HQSp5eDLElzIvFfm8rHsXVb8u', NULL, NULL, '2024-05-24 08:39:28', '2024-05-24 20:59:29', 6, 2),
-(37, 'DIRETOR TESTE', 'diretor@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-06-03 19:15:54', '2024-06-03 19:15:54', 4, 5);
+(37, 'DIRETOR TESTE', 'diretor@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-06-03 19:15:54', '2024-06-03 19:15:54', 4, 5),
+(42, 'Professor João', 'professor1@gmail.com', NULL, 1, '$2y$12$/m.pZGfdkjQxwNJg3YpA3.IKx/SpzKjPTAnR/50MWP.pwLT6oKS2O', NULL, NULL, '2024-06-24 23:14:53', '2024-06-24 23:14:53', 6, 1);
 
 -- --------------------------------------------------------
 
@@ -1764,7 +1737,7 @@ ALTER TABLE `alteracoes_situacao`
 -- AUTO_INCREMENT de tabela `alunos`
 --
 ALTER TABLE `alunos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `atividades`
@@ -1842,7 +1815,7 @@ ALTER TABLE `diretores`
 -- AUTO_INCREMENT de tabela `disciplinas`
 --
 ALTER TABLE `disciplinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `dissertativas_ead`
@@ -1854,7 +1827,7 @@ ALTER TABLE `dissertativas_ead`
 -- AUTO_INCREMENT de tabela `escolas`
 --
 ALTER TABLE `escolas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `estoque`
@@ -1992,7 +1965,7 @@ ALTER TABLE `presenca`
 -- AUTO_INCREMENT de tabela `professores`
 --
 ALTER TABLE `professores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `renovacoes`
@@ -2052,19 +2025,19 @@ ALTER TABLE `transferencias`
 -- AUTO_INCREMENT de tabela `turmas`
 --
 ALTER TABLE `turmas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `turnos`
 --
 ALTER TABLE `turnos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de tabela `veiculos`

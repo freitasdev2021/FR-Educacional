@@ -915,7 +915,7 @@ class AlunosController extends Controller
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND t.IDEscola IN(".implode(',',self::getEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND t.IDEscola IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }

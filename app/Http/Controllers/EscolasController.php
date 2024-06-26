@@ -254,12 +254,13 @@ class EscolasController extends Controller
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
-            'escolas' => DB::select("SELECT CASE WHEN a.IDEscola = e.id THEN 1 ELSE 0 END as Alocado,e.Nome,e.id FROM escolas e LEFT JOIN alocacoes a ON(a.IDEscola = e.id) WHERE e.IDOrg = $idorg")
+            'escolas' => DB::select("SELECT e.Nome,e.id FROM escolas e LEFT JOIN alocacoes_disciplinas ad ON(ad.IDEscola = e.id) WHERE e.IDOrg = $idorg")
         ];
 
         if($id){
             $SQL = <<<SQL
             SELECT 
+                e.id as IDEscola,
                 d.NMDisciplina, 
                 d.Obrigatoria, 
                 d.id, 
@@ -359,7 +360,7 @@ class EscolasController extends Controller
             foreach(DB::select($SQL) as $d){
         ?>
         <tr>
-            <td><input type="checkbox" value="<?=$d->IDTurma?>"></td>
+            <td><input type="checkbox" value="<?=$d->IDTurma?>" name="Turma[]"></td>
             <td><?=$d->Turma?></td>
             <td><?=$d->Serie?></td>
             <td><?=$d->Escola?></td>
