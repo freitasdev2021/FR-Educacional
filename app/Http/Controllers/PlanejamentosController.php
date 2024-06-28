@@ -34,23 +34,84 @@ class PlanejamentosController extends Controller
     }
 
     public function componentes($id){
+        $rgs = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.IDPlanejamento = pa.id) WHERE pa.id = $id")[0];
         return view('Planejamentos.componentes',[
             'submodulos' => self::cadastroSubmodulos,
             'id' => $id,
-            'Registro' => DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.IDPlanejamento = pa.id) WHERE pa.id = $id")[0]
+            'Registro' => $rgs,
+            'Curriculo' => json_decode(json_decode($rgs->PLConteudos))
         ]);
+    }
+
+    public function saveComponentes(Request $request){
+        try{
+            $plan =  PlanejamentoAnual::find($request->IDPlanejamento);
+            $plan->update([
+                'PLConteudos' => $request->PLConteudos
+            ]);
+            $retorno['mensagem'] = 'Planejamento Atualizado com Sucesso!';
+            $retorno['status'] = 1;
+        }catch(\Throwable $th){
+            $retorno['status'] = 0;
+            $retorno['mensagem'] = $th->getMessage();
+        }finally{
+            return json_encode($retorno);
+        }
+    }
+
+    public function getPlanejamento($id){
+        $SQL = <<<SQL
+        SELECT 
+            p.*,
+            (SELECT 
+                CONCAT(
+                    '[',
+                    GROUP_CONCAT(
+                        CONCAT(
+                            '{"Turma":"', t2.Nome, '"',
+                            ',"Serie":"', t2.Serie, '"',
+                            ',"Escola":"', e.Nome, '"',
+                            ',"IDTurma":"', t2.id, '"',
+                            ',"Alocada":"', CASE WHEN t2.IDPlanejamento = p.id THEN '1' ELSE '0' END, '"}'
+                        ) 
+                        SEPARATOR ','
+                    ),
+                    ']'
+                )
+            FROM 
+                turmas t2 
+            LEFT JOIN 
+                escolas e ON t2.IDEscola = e.id
+            LEFT JOIN 
+                turnos tur2 ON(tur2.IDTurma = t2.id)
+            WHERE tur2.IDDisciplina = p.IDDisciplina
+            ) as Turmas
+        FROM 
+            planejamentoanual p 
+        LEFT JOIN 
+            turmas t ON p.id = t.IDPlanejamento
+        WHERE 
+            p.id = $id
+        GROUP BY 
+            t.id
+        SQL;
+
+        return DB::select($SQL);
     }
 
     public function cadastro($id=null){
         $view = [
             'submodulos' => self::submodulos,
             'id' => '',
-            'Disciplinas' => self::getFichaProfessor(Auth::user()->id,'Disciplinas')
+            'Disciplinas' => EscolasController::getDisciplinasProfessor(Auth::user()->id)
         ];
 
         if($id){
+            $rgs = self::getPlanejamento($id)[0];
             $view['submodulos'] = self::cadastroSubmodulos;
             $view['id'] = $id;
+            $view['Turmas'] = json_decode($rgs->Turmas);
+            $view['Registro'] = $rgs;
         }
 
         return view('Planejamentos.cadastro',$view);
@@ -59,26 +120,12 @@ class PlanejamentosController extends Controller
     public function save(Request $request){
         try{
             if($request->id){
-                $editTurma = array(
-                    'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
-                    'Aprovado' => $request->Aprovado,
-                    'IDDisciplina' => $request->IDDisciplina,
-                    'NMPlanejamento' => $request->NMPlanejamento
-                );
 
-                if($request->trocaTurma){
-                    $mensagem = 'Planejamento Alterado com Sucesso! Como as Turmas foram Alteradas, Espere a Aprovação do Coordenador Pedagógico';
-                    if($request->Aprovado){
-                        $editTurma['Aprovado'] = 0;
-                    }
+                Turma::where('IDPlanejamento',$request->id)->update(['IDPlanejamento'=>0]);
 
-                    foreach($request->Turma as $t){
-                        $Turma = Turma::find($t);
-                        $Turma->update(['IDPlanejamento'=>$request->id]);
-                    }
+                foreach($request->Turma as $t){
+                    Turma::where('id',$t)->update(['IDPlanejamento'=>$request->id]);
                 }
-
-                PlanejamentoAnual::create($editTurma);
 
                 $mensagem = 'Planejamento Alterado com Sucesso!';
                 $rout = 'Planejamentos/Cadastro';
@@ -86,14 +133,12 @@ class PlanejamentosController extends Controller
             }else{
                 $Planejamento = PlanejamentoAnual::create([
                     'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
-                    'Aprovado' => $request->Aprovado,
                     'IDDisciplina' => $request->IDDisciplina,
                     'NMPlanejamento' => $request->NMPlanejamento
                 ]);
-                    
+
                 foreach($request->Turma as $t){
-                    $Turma = Turma::find($t);
-                    $Turma->update(['IDPlanejamento'=>$Planejamento->id]);
+                    Turma::where('id',$t)->update(['IDPlanejamento'=>$Planejamento->id]);
                 }
 
                 $mensagem = 'Planejamento Criado com Sucesso! Agora Crie os Conteúdos e Abordagens de cada Período';
@@ -127,7 +172,7 @@ class PlanejamentosController extends Controller
         INNER JOIN disciplinas d ON(d.id = pa.IDDisciplina)
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        WHERE o.id = $orgId
+        WHERE o.id = $orgId GROUP BY pa.id
         SQL;
 
         $Planejamentos = DB::select($SQL);

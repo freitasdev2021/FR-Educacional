@@ -2,13 +2,11 @@
 
 @section('content')
 <body className='snippet-body'>
-    <body id="body-pd">
-       <header class="header" id="header">
-          <div class="header_toggle"> <i class='bx bx-menu' id="header-toggle"></i> </div>
-          <div class="header_img"> <img src="https://i.imgur.com/hczKIze.jpg" alt=""> </div>
-          
+    <body classname="snippet-body" id="body-pd" class="body-pd" cz-shortcut-listen="true">
+       <header class="header bg-fr" id="header">
+                
        </header>
-       <div class="l-navbar" id="nav-bar">
+       <div class="l-navbar show" id="nav-bar">
           <nav class="nav" >
              <div>
                 <a href="{{route('dashboard')}}" class="nav_logo"><i class='bx bx-book-reader text-white'></i><span class="nav_logo-name">FR Educacional</span> </a>

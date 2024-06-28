@@ -8,6 +8,9 @@
        <div class="fr-card-body">
           <!--CABECALHO-->
           <form action="{{route('Planejamentos/Save')}}" method="POST">
+            {{-- <pre>
+               {{print_r($Turmas)}}
+            </pre> --}}
             @csrf
             @if(session('success'))
             <div class="col-sm-12 shadow p-2 bg-success text-white">
@@ -22,18 +25,17 @@
             @if(isset($id))
             <input type="hidden" name="id" value="{{$id}}">
             @endif
-            <input type='hidden' name="Aprovado" value="{{isset($Registro) ? $Registro->Aprovado : 0}}">
             <div class="row">
                <div class="col-sm-6">
                   <label>Planejamento</label>
-                  <input type="text" name="NMPlanejamento" class="form-control">
+                  <input type="text" name="NMPlanejamento" class="form-control" value="{{isset($Registro) ? $Registro->NMPlanejamento : ''}}" {{($id) ? 'disabled' : 'required'}}>
                </div>
                <div class="col-sm-6">
                   <label>Disciplina</label>
-                  <select name="IDDisciplina" class="form-control">
+                  <select name="IDDisciplina" class="form-control" {{($id) ? 'disabled' : 'required'}}>
                      <option value="">Selecione</option>
                      @foreach($Disciplinas as $d)
-                     <option value="{{$d['IDDisciplina']}}">{{$d['Disciplina']}}</option>
+                        <option value="{{$d->IDDisciplina}}" {{(isset($Registro->IDDisciplina) && $d->IDDisciplina == $Registro->IDDisciplina) ? 'selected' : ''}}>{{$d->Disciplina}}</option>
                      @endforeach
                   </select>
                </div>
@@ -47,7 +49,16 @@
                         <th>Escola</th>
                      </thead>
                      <tbody id="turmasTable">
-                                                
+                        @if($id)
+                           @foreach($Turmas as $t)
+                              <tr>
+                                 <td><input type="checkbox" value="{{$t->IDTurma}}" {{($t->Alocada) ? 'checked' : ''}} name="Turma[]"></td>
+                                 <td>{{$t->Turma}}</td>
+                                 <td>{{$t->Serie}}</td>
+                                 <td>{{$t->Escola}}</td>
+                              </tr>
+                           @endforeach
+                        @endif
                      </tbody>
                   </table>
                </div>
@@ -63,7 +74,7 @@
             $("select[name=IDDisciplina]").on("change",function(){
                $.ajax({
                   method : 'GET',
-                  url : "/Escolas/Turmas/"+$(this).val()+"/getTurmasDisciplina/HTML"
+                  url : "/Escolas/Turmas/"+$(this).val()+"/getTurmasDisciplina/HTML/"{{$id}}
                }).done(function(response){
                   $("#turmasTable").html(response)
                })

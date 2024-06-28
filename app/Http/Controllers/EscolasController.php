@@ -296,6 +296,24 @@ class EscolasController extends Controller
 
     }
 
+    public static function getDisciplinasProfessor($id){
+        $SQL = <<<SQL
+        SELECT
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        WHERE us.id = $id GROUP BY d.id
+        SQL;
+
+        return DB::select($SQL);
+    }
+
     public function getDisciplinasEscola($IDEscola){
         $SQL = <<<SQL
         SELECT 
@@ -351,16 +369,34 @@ class EscolasController extends Controller
         return DB::select($SQL);
     }
 
-    public function getTurmasDisciplinas($IDDisciplina,$TPRetorno){
-        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,.e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(t.IDEscola = e.id) LEFT JOIN turnos tur ON(t.id = tur.IDTurma) WHERE tur.IDDisciplina = $IDDisciplina";
+
+
+    public function getTurmasDisciplinas($IDDisciplina,$TPRetorno,$IDPlanejamento = null){
+        $SQL = "SELECT 
+            t.id as IDTurma,
+            t.Nome as Turma,
+            t.Serie,
+            e.Nome as Escola, 
+            CASE WHEN pa.id = t.IDPlanejamento THEN 1 ELSE 0 END as Alocada 
+        FROM turmas t 
+        INNER JOIN escolas e ON(t.IDEscola = e.id) 
+        LEFT JOIN turnos tur ON(t.id = tur.IDTurma) 
+        LEFT JOIN planejamentoanual pa ON(pa.id = t.IDPlanejamento) 
+        WHERE tur.IDDisciplina = $IDDisciplina AND t.IDPlanejamento = 0";
         if($TPRetorno == "ARRAY"){
             return DB::select($SQL);
+            //echo $SQL;
         }else{
             ob_start();
             foreach(DB::select($SQL) as $d){
+                if($d->Alocada && $IDPlanejamento){
+                    $alocada = 1;
+                }else{
+                    $alocada = 0;
+                }
         ?>
         <tr>
-            <td><input type="checkbox" value="<?=$d->IDTurma?>" name="Turma[]"></td>
+            <td><input type="checkbox" value="<?=$d->IDTurma?>" <?=($alocada) ? 'checked' : ''?> name="Turma[]"></td>
             <td><?=$d->Turma?></td>
             <td><?=$d->Serie?></td>
             <td><?=$d->Escola?></td>
