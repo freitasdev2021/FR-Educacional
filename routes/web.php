@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
 use App\Http\Controllers\SecretariosController;
+use App\Http\Controllers\AulasController;
+use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
 use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\TurmasController;
@@ -117,19 +119,36 @@ Route::middleware('auth')->group(function () {
         Route::get('/Diretores/Novo',[DiretoresController::class,'cadastro'])->name('Diretores/Novo');
         Route::get('/Diretores/Cadastro/{id}',[DiretoresController::class,'cadastro'])->name('Diretores/Edit');
         Route::post('/Diretoress/Save',[DiretoresController::class,'save'])->name('Diretores/Save');
+        //AULAS
+        Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
+        Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
+        Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo');
+        Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
+        Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
+        //ATIVIDADES
+        Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
+        Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');
+        Route::get('/Aulas/Atividades/Novo',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Novo');
+        Route::get('/Aulas/Atividades/Cadastro/{id}',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Edit');
+        Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save');
+        //OCORRENCIAS
+        Route::get('/Ocorrencias/list',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list');
+        Route::get('/Ocorrencias',[OcorrenciasController::class,'index'])->name('Ocorrencias/index');
+        Route::get('/Ocorrencias/Novo',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Novo');
+        Route::get('/Ocorrencias/Cadastro/{id}',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Edit');
+        Route::post('/Ocorrencias/Save',[OcorrenciasController::class,'save'])->name('Ocorrencias/Save');
         //PROFESSORES
         Route::get('/Professores/list',[ProfessoresController::class,'getProfessores'])->name('Professores/list');
         Route::get('/Professores',[ProfessoresController::class,'index'])->name('Professores/index');
         Route::get('/Professores/Novo',[ProfessoresController::class,'cadastro'])->name('Professores/Novo');
         Route::get('/Professores/Cadastro/{id}',[ProfessoresController::class,'cadastro'])->name('Professores/Edit');
         Route::post('/Professores/Save',[ProfessoresController::class,'save'])->name('Professores/Save');
-        //turnos
+        //TURNOS
         Route::get('/Professores/Turnos/list/{idprofessor}',[ProfessoresController::class,'getTurnosProfessor'])->name('Professores/Turnos/list');
         Route::get('/Professores/Turnos/{idprofessor}',[ProfessoresController::class,'Turnos'])->name('Professores/Turnos');
         Route::get('/Professores/{idprofessor}/Turnos/Novo',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Novo');
         Route::get('/Professores/{idprofessor}/Turnos/Cadastro/{id}',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Edit');
         Route::post('/Professores/Turnos/Save',[ProfessoresController::class,'saveTurno'])->name('Professores/Turnos/Save');
-        //
         //PEDAGOGOS
         Route::get('/Pedagogos/list',[PedagogosController::class,'getPedagogos'])->name('Pedagogos/list');
         Route::get('/Pedagogos',[PedagogosController::class,'index'])->name('Pedagogos/index');

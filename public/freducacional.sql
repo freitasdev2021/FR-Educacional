@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 24/06/2024 às 22:49
+-- Tempo de geração: 29/06/2024 às 18:38
 -- Versão do servidor: 10.4.28-MariaDB
 -- Versão do PHP: 8.2.4
 
@@ -130,12 +130,14 @@ CREATE TABLE `alunos` (
 
 CREATE TABLE `atividades` (
   `id` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
+  `IDAula` int(11) NOT NULL,
   `IDDisciplina` int(11) NOT NULL,
   `DTAvaliacao` date NOT NULL,
   `TPConteudo` varchar(50) NOT NULL,
   `DSAtividade` varchar(250) NOT NULL,
-  `Pontuacao` float NOT NULL
+  `Pontuacao` float NOT NULL,
+  `created_at` date NOT NULL,
+  `updated_at` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -149,7 +151,10 @@ CREATE TABLE `atividades_atribuicoes` (
   `IDAluno` int(11) NOT NULL,
   `DTEntrega` date NOT NULL,
   `Realizado` int(11) NOT NULL,
-  `Feedback` varchar(50) DEFAULT NULL
+  `Feedback` varchar(50) DEFAULT NULL,
+  `created_at` date NOT NULL,
+  `updated_at` date NOT NULL,
+  `Nota` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -190,12 +195,15 @@ CREATE TABLE `atividades_ead` (
 
 CREATE TABLE `aulas` (
   `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
   `IDTurma` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
+  `DSConteudo` varchar(50) NOT NULL,
+  `DSAula` varchar(100) NOT NULL,
+  `updated_at` date NOT NULL,
+  `created_at` date NOT NULL,
   `IDProfessor` int(11) NOT NULL,
-  `INIAula` datetime NOT NULL,
-  `TERAula` datetime NOT NULL
+  `IDDisciplina` int(11) NOT NULL,
+  `INIAula` time NOT NULL,
+  `TERAula` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -252,9 +260,7 @@ CREATE TABLE `cache` (
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
 ('professor@gmail.com|127.0.0.1', 'i:1;', 1719256374),
-('professor@gmail.com|127.0.0.1:timer', 'i:1719256374;', 1719256374),
-('professor1@gmail.com|127.0.0.1', 'i:1;', 1719256369),
-('professor1@gmail.com|127.0.0.1:timer', 'i:1719256369;', 1719256369);
+('professor@gmail.com|127.0.0.1:timer', 'i:1719256374;', 1719256374);
 
 -- --------------------------------------------------------
 
@@ -943,9 +949,20 @@ CREATE TABLE `planejamentoanual` (
   `IDProfessor` int(11) NOT NULL,
   `IDDisciplina` int(11) NOT NULL,
   `IDTurma` int(11) NOT NULL,
+  `NMPlanejamento` varchar(25) NOT NULL,
   `PLConteudos` text NOT NULL,
-  `Aprovado` int(11) NOT NULL
+  `Aprovado` int(11) NOT NULL,
+  `updated_at` date NOT NULL,
+  `created_at` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `planejamentoanual`
+--
+
+INSERT INTO `planejamentoanual` (`id`, `IDProfessor`, `IDDisciplina`, `IDTurma`, `NMPlanejamento`, `PLConteudos`, `Aprovado`, `updated_at`, `created_at`) VALUES
+(1, 1, 1, 0, 'planejamento oitavo ano', '\"{\\\"primeiroBimestre\\\":[{\\\"Conteudo\\\":\\\"kkkklll\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[]},{\\\"Conteudo\\\":\\\"kjkjkjk\\\",\\\"Inicio\\\":\\\"33\\\",\\\"Termino\\\":\\\"33\\\",\\\"Conteudos\\\":[\\\"ddd\\\",\\\"ghh\\\"]}],\\\"segundoBimestre\\\":[{\\\"Conteudo\\\":\\\"fghfgh\\\",\\\"Inicio\\\":\\\"345\\\",\\\"Termino\\\":\\\"5345\\\",\\\"Conteudos\\\":[\\\"fsdfsdf\\\",\\\"fsdfsf\\\",\\\"fsdfdsf\\\"]},{\\\"Conteudo\\\":\\\"fghfghfg\\\",\\\"Inicio\\\":\\\"435\\\",\\\"Termino\\\":\\\"5345\\\",\\\"Conteudos\\\":[\\\"fsdfs\\\",\\\"fsdfsf\\\",\\\"fsdfsdf\\\"]},{\\\"Conteudo\\\":\\\"hgfhghh\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[]},{\\\"Conteudo\\\":\\\"fsdfsf\\\",\\\"Inicio\\\":\\\"455\\\",\\\"Termino\\\":\\\"435\\\",\\\"Conteudos\\\":[]}],\\\"terceiroBimestre\\\":[{\\\"Conteudo\\\":\\\"hjhghj\\\",\\\"Inicio\\\":\\\"345\\\",\\\"Termino\\\":\\\"545\\\",\\\"Conteudos\\\":[\\\"ffff\\\",\\\"ffff\\\",\\\"ffff\\\"]}],\\\"quartoBimestre\\\":[]}\"', 0, '2024-06-27', '2024-06-24'),
+(3, 1, 2, 0, 'Planejamento Infantil', '\"{\\\"primeiroSemestre\\\":[{\\\"Conteudo\\\":\\\"dsfdsf\\\",\\\"Inicio\\\":\\\"44\\\",\\\"Termino\\\":\\\"44\\\",\\\"Conteudos\\\":[\\\"fsdfsd\\\",\\\"fsdfsdf\\\"]},{\\\"Conteudo\\\":\\\"fdsfsdf\\\",\\\"Inicio\\\":\\\"34534\\\",\\\"Termino\\\":\\\"4353\\\",\\\"Conteudos\\\":[\\\"fsdfsdfsd\\\"]}],\\\"segundoSemestre\\\":[{\\\"Conteudo\\\":\\\"fsdfsdfsdf\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[\\\"sdfsdf\\\",\\\"fsdfsdfsd\\\"]},{\\\"Conteudo\\\":\\\"fsdfsdfsd\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[\\\"fsdfsd\\\",\\\"fsdfsdf\\\",\\\"fsdfsdf\\\"]}]}\"', 0, '2024-06-28', '2024-06-28');
 
 -- --------------------------------------------------------
 
@@ -1174,7 +1191,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('WtEzQLm4odWQobrGT4yMAoSiE8wnsROXpZlVrjQO', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiZXNQM1NXSHNiTmhSQ1pQSWY0ZTNTR251Q3Mya0tTM1RFRmh5U1N2ayI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvRXNjb2xhcy9EaXNjaXBsaW5hcyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjY7fQ==', 1719262119);
+('8GQeFrjPEOKvbn748OBan8f3xeDGMtkv92yfAEcl', 37, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoibkwzc1diMHlRNzFEZWJnYWFlYm1oaDVjTThJRXdVeG81cTFrdENGRyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjI4OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mzc7fQ==', 1719602339);
 
 -- --------------------------------------------------------
 
@@ -1277,8 +1294,9 @@ CREATE TABLE `turmas` (
 --
 
 INSERT INTO `turmas` (`id`, `IDEscola`, `Serie`, `Nome`, `INITurma`, `TERTurma`, `Periodo`, `NotaPeriodo`, `MediaPeriodo`, `TotalAno`, `updated_at`, `created_at`, `QTRepetencia`, `IDPlanejamento`) VALUES
-(1, 2, '1º Periodo E.INFANTIL', '100', '13:00:00', '17:00:00', 'Semestral', 0, 0, 0, '2024-06-24', '2024-06-24', 0, 0),
-(2, 1, '8º Ano E.FUNDAMENTAL', '800', '07:00:00', '11:25:00', 'Bimestral', 25, 15, 100, '2024-06-24', '2024-06-24', 4, 0);
+(1, 2, '1º Periodo E.INFANTIL', '100', '13:00:00', '17:00:00', 'Semestral', 0, 0, 0, '2024-06-28', '2024-06-24', 0, 3),
+(2, 1, '8º Ano E.FUNDAMENTAL', '800', '07:00:00', '11:25:00', 'Bimestral', 25, 15, 100, '2024-06-28', '2024-06-24', 4, 1),
+(3, 1, '8º Ano E.FUNDAMENTAL', '801', '07:00:00', '11:25:00', 'Bimestral', 15, 25, 100, '2024-06-28', '2024-06-27', 4, 1);
 
 -- --------------------------------------------------------
 
@@ -1297,6 +1315,15 @@ CREATE TABLE `turnos` (
   `created_at` date NOT NULL,
   `DiaSemana` varchar(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `turnos`
+--
+
+INSERT INTO `turnos` (`id`, `IDProfessor`, `IDDisciplina`, `IDTurma`, `INITur`, `TERTur`, `updated_at`, `created_at`, `DiaSemana`) VALUES
+(1, 1, 2, 1, '13:00:00', '13:50:00', '2024-06-24', '2024-06-24', 'Segunda'),
+(2, 1, 1, 2, '07:00:00', '07:50:00', '2024-06-24', '2024-06-24', 'Segunda'),
+(3, 1, 1, 3, '07:50:00', '08:40:00', '2024-06-27', '2024-06-27', 'Segunda');
 
 -- --------------------------------------------------------
 
@@ -1327,7 +1354,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `id_org`, `pass
 (1, 'Max Henrique', 'maxhenrique308@gmail.com', NULL, 0, '$2y$12$/2fbkxuWZYNET//AOJoBieyr3drGudBxEUIH1iwgcMqugWcQzOrie', NULL, 'wnkCCljlBFtehvjTcDcM8QeNETwmEGxZi7PkFqU9eNHV9lHAkHwuybJSBKR3', '2024-05-09 12:48:59', '2024-05-09 12:48:59', 0, NULL),
 (6, 'Secretario 1', 'secretario@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-05-13 20:23:23', '2024-05-13 20:23:23', 2, NULL),
 (37, 'DIRETOR TESTE', 'diretor@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-06-03 19:15:54', '2024-06-03 19:15:54', 4, 5),
-(42, 'Professor João', 'professor1@gmail.com', NULL, 1, '$2y$12$/m.pZGfdkjQxwNJg3YpA3.IKx/SpzKjPTAnR/50MWP.pwLT6oKS2O', NULL, NULL, '2024-06-24 23:14:53', '2024-06-24 23:14:53', 6, 1);
+(42, 'Professor João', 'professor1@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-06-24 23:14:53', '2024-06-24 23:14:53', 6, 1);
 
 -- --------------------------------------------------------
 
@@ -1947,7 +1974,7 @@ ALTER TABLE `pedagogos`
 -- AUTO_INCREMENT de tabela `planejamentoanual`
 --
 ALTER TABLE `planejamentoanual`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `planejamentosemanal`
@@ -2025,13 +2052,13 @@ ALTER TABLE `transferencias`
 -- AUTO_INCREMENT de tabela `turmas`
 --
 ALTER TABLE `turmas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `turnos`
 --
 ALTER TABLE `turnos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `users`
