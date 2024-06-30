@@ -285,6 +285,27 @@ class ProfessoresController extends Controller
         return view('Professores.turnos',$view);
     }
 
+    public static function getTurmasProfessor($id){
+        $SQL = <<<SQL
+        SELECT 
+            t.id as IDTurma,
+            t.Nome as Turma,
+            t.Serie,
+            e.Nome as Escola
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        WHERE us.id = $id GROUP BY tn.INITur,tn.TERTur,tn.DiaSemana
+        SQL;
+
+        return DB::select($SQL);
+
+    }
+
     public function saveTurno(Request $request){
         try{
             if($request->id){

@@ -99,6 +99,10 @@ class PlanejamentosController extends Controller
         return DB::select($SQL);
     }
 
+    public function getPlanejamentoByTurma($IDTurma){
+        $SQL = DB::select("SELECT PLConteudos FROM planejamentoanual WHERE IDTurma = $IDTurma ")[0]->PLConteudos;
+    }
+
     public function cadastro($id=null){
         $view = [
             'submodulos' => self::submodulos,

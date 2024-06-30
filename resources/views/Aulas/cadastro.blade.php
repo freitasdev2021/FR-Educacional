@@ -30,20 +30,33 @@
                             <label>Assunto da Aula</label>
                             <input type="text" name="NMAula" class="form-control">
                         </div>
-                        <div class="col-sm-6">
-                            <label>Turno</label>
-                            <select class="form-control" name="IDTurno">
-                                <option value="">Selecione</option>
-                            </select>
+                        <div class="col-sm-3">
+                            <label>Inicio</label>
+                            <input type="time" name="INIAula" class="form-control">
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Termino</label>
+                            <input type="time" name="TERAula" class="form-control">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <label>Turma</label>
+                            <select class="form-control" name="DSConteudo">
+                                <option value="">Selecione</option>
+                                @foreach($Turmas as $t)
+                                <option value="{{$t->IDTurma}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Turma." (".$t->Serie ." - ".$t->Escola.")"}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
                             <label>Conteudo</label>
                             <select class="form-control" name="DSConteudo">
                                 <option value="">Selecione</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-sm-12">
                             <label>Descrição da Aula</label>
                             <textarea name="DSAula" class="form-control"></textarea>

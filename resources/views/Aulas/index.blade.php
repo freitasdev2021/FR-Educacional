@@ -20,7 +20,6 @@
                       <tr>
                         <th style="text-align:center;" scope="col">Aula</th>
                         <th style="text-align:center;" scope="col">Disciplina</th>
-                        <th style="text-align:center;" scope="col">Planejamento</th>
                         <th style="text-align:center;" scope="col">Conteudo</th>
                         <th style="text-align:center;" scope="col">Presença</th>
                         <th style="text-align:center;" scope="col">Opções</th>
