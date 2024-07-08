@@ -727,7 +727,7 @@ class AlunosController extends Controller
 
                 Responsavel::where('IDAluno',$request->IDAluno)->update($responsavel);
 
-                $aid = $request->IDMatricula;
+                $aid = $request->IDAluno;
                 $rout = 'Alunos/Edit';
             }
             $status = 'success';
@@ -939,7 +939,7 @@ class AlunosController extends Controller
         INNER JOIN renovacoes r ON(r.IDAluno = a.id)
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        WHERE o.id = $idorg $AND    
+        WHERE o.id = $idorg $AND GROUP BY a.id    
         ";
 
         $registros = DB::select($SQL);

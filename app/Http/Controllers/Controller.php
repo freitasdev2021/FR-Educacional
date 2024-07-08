@@ -92,6 +92,13 @@ abstract class Controller
         return $return;
     }
 
+    public static function alternativeUsData($dt){
+        $dtExplode = explode('/',$dt);
+        $data = $dtExplode[2]."-".$dtExplode[1]."-".$dtExplode[0];
+
+        return $data;
+    }
+
     public static function in_associative_array($array, $chave, $valorProcurado){
         foreach ($array as $subArray) {
             if (isset($subArray[$chave]) && $subArray[$chave] === $valorProcurado){

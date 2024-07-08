@@ -306,6 +306,32 @@ class ProfessoresController extends Controller
 
     }
 
+    public function getDisciplinasTurmaProfessor($IDTurma){
+        $id = Auth::user()->id;
+        $SQL = <<<SQL
+        SELECT
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        INNER JOIN turnos tur ON(tur.IDDisciplina = d.id)
+        WHERE us.id = $id AND t.id = $IDTurma GROUP BY d.id
+        SQL;
+        ob_start();
+        foreach(DB::select($SQL) as $tp){
+        ?>
+        <option value="">Selecione</option>
+        <option value="<?=$tp->IDDisciplina?>"><?=$tp->Disciplina?></option>
+        <?php
+        }
+        return ob_get_clean();
+    }
+
     public function saveTurno(Request $request){
         try{
             if($request->id){

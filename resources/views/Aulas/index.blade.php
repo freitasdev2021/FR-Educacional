@@ -22,6 +22,7 @@
                         <th style="text-align:center;" scope="col">Disciplina</th>
                         <th style="text-align:center;" scope="col">Conteudo</th>
                         <th style="text-align:center;" scope="col">Presença</th>
+                        <th style="text-align:center;" scope="col">Data da Aula</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

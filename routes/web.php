@@ -111,6 +111,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Planejamentos/{id}/Componentes',[PlanejamentosController::class,'componentes'])->name('Planejamentos/Componentes');
         Route::get('/Planejamentos/Novo',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Novo');
         Route::get('/Planejamentos/Cadastro/{id}',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Cadastro');
+        Route::get('/Planejamentos/getConteudo/{IDDisciplina}',[PlanejamentosController::class,'getPlanejamentoByTurma'])->name('Planejamentos/getConteudo');
         Route::post('/Planejamentos/Save',[PlanejamentosController::class,'save'])->name('Planejamentos/Save');
         Route::post('/Planejamentos/Componentes/Save',[PlanejamentosController::class,'saveComponentes'])->name('Planejamentos/Componentes/Save');
         //DIRETORES
@@ -124,6 +125,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
         Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo');
         Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
+        Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
         Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
         //ATIVIDADES
         Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
@@ -149,6 +151,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Professores/{idprofessor}/Turnos/Novo',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Novo');
         Route::get('/Professores/{idprofessor}/Turnos/Cadastro/{id}',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Edit');
         Route::post('/Professores/Turnos/Save',[ProfessoresController::class,'saveTurno'])->name('Professores/Turnos/Save');
+        Route::get('/Professores/DisciplinasProfessor/{IDTurma}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
         //PEDAGOGOS
         Route::get('/Pedagogos/list',[PedagogosController::class,'getPedagogos'])->name('Pedagogos/list');
         Route::get('/Pedagogos',[PedagogosController::class,'index'])->name('Pedagogos/index');

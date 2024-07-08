@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Aulas;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProfessoresController;
 use Illuminate\Support\Facades\DB;
@@ -46,11 +47,30 @@ class AulasController extends Controller
         $view = [
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
             'submodulos' => self::submodulos,
-            'id' => '',
+            'id' => ''
         ];
 
         if($id){
+            $SQL = <<<SQL
+            SELECT
+                a.id as IDAula,
+                a.DSAula,
+                a.STAula,
+                d.NMDisciplina,
+                a.IDTurma,
+                d.id as IDDisciplina,
+                a.DSConteudo,
+                a.INIAula,
+                a.TERAula
+            FROM aulas a
+            INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
+            INNER JOIN turmas t ON(t.id = a.IDTurma)
+            WHERE a.id = $id
+            SQL;
+
+            $aula = DB::select($SQL)[0];
             $view['id'] = $id;
+            $view['Registro'] = $aula;
             $view['submodulos'] = self::cadastroSubmodulos;
         }
 
@@ -71,12 +91,43 @@ class AulasController extends Controller
         return view('Aulas.cadastroAtividades',$view);
     }
 
+    public function save(Request $request){
+        try{
+            if($request->id){
+                $rout = 'Aulas/Edit';
+                Aulas::find($request->id)->update([
+                    'STAula' => 2
+                ]);
+                $aid = $request->id;
+                $status = 'success';
+                $mensagem = 'Aula Encerrada com Sucesso!';
+            }else{
+                $AulaData = $request->all();
+                $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
+                $Aula = Aulas::create($AulaData);
+                $rout = 'Aulas/Edit';
+                $aid = $Aula->id;
+                $status = 'success';
+                $mensagem = 'Aula Iniciada com Sucesso!';
+            }
+        }catch(\Throwable $th){
+            $rout = 'Aulas/Novo';
+            $aid = '';
+            $status = 'success';
+            $mensagem = 'Suspensão Realizada';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
     public function getAulas(){
         $SQL = <<<SQL
         SELECT
+            a.id as IDAula,
             a.DSAula,
             d.NMDisciplina,
             a.DSConteudo,
+            a.created_at
         FROM aulas a
         INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
         SQL;
@@ -86,9 +137,10 @@ class AulasController extends Controller
                 $item = [];
                 $item[] = $a->DSAula;
                 $item[] = $a->NMDisciplina;
-                $item[] = $a->Conteudo;
+                $item[] = $a->DSConteudo;
                 $item[] = 0;
-                $item[] = "<a href='".route('Aulas/Edit',$a->IDAula);
+                $item[] = self::data($a->created_at,'d/m/Y');
+                $item[] = "<a href=".route('Aulas/Edit',$a->IDAula)." class='btn btn-fr btn-xs'>Abrir Diário</a>";
                 $itensJSON[] = $item;
             }
         }else{

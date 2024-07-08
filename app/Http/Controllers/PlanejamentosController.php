@@ -8,6 +8,7 @@ use App\Models\PlanejamentoAnual;
 use App\Http\Controllers\ProfessoresController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class PlanejamentosController extends Controller
 {
@@ -99,8 +100,96 @@ class PlanejamentosController extends Controller
         return DB::select($SQL);
     }
 
-    public function getPlanejamentoByTurma($IDTurma){
-        $SQL = DB::select("SELECT PLConteudos FROM planejamentoanual WHERE IDTurma = $IDTurma ")[0]->PLConteudos;
+    public function getPlanejamentoByTurma($IDDisciplina){
+        $SQL = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.IDPlanejamento = pa.id) WHERE IDDisciplina = $IDDisciplina ")[0];
+        $Planejamento = json_decode(json_decode($SQL->PLConteudos,true),true);
+        $DTHoje = date('Y-m-d');
+        switch($SQL->Periodo){
+            case 'Bimestral':
+                //PRIMEIRO BIMESTRE
+                $arrIniPrimeiroB = [];
+                $arrTerPrimeiroB = [];
+                foreach($Planejamento['primeiroBimestre'] as $pb){
+                    array_push($arrIniPrimeiroB,$pb['Inicio']);
+                    array_push($arrTerPrimeiroB,$pb['Termino']);
+                }
+                $ARRDatasPrimeiroB = array_merge($arrIniPrimeiroB,$arrTerPrimeiroB);
+                if(count($ARRDatasPrimeiroB) > 0){
+                    $INIPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[0]));
+                    $TERPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[count($ARRDatasPrimeiroB)-1]));
+                    if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje){
+                        $return = $Planejamento['primeiroBimestre'];
+                    }
+                }
+                //SEGUNDO BIMESTRE
+                $arrIniSegundoB = [];
+                $arrTerSegundoB = [];
+                foreach($Planejamento['segundoBimestre'] as $sb){
+                    array_push($arrIniSegundoB,$sb['Inicio']);
+                    array_push($arrTerSegundoB,$sb['Termino']);
+                }
+                $ARRDatasSegundoB = array_merge($arrIniSegundoB,$arrTerSegundoB);
+                if(count($ARRDatasSegundoB)){
+                    $INISegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[0]));
+                    $TERSegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[count($ARRDatasSegundoB)-1]));
+                    if($INISegundoB <= $DTHoje && $TERSegundoB >= $DTHoje){
+                        $return = $Planejamento['segundoBimestre'];
+                    }
+                }
+                //TERCEIRO BIMESTRE
+                $arrIniTerceiroB = [];
+                $arrTerTerceiroB = [];
+                foreach($Planejamento['terceiroBimestre'] as $tb){
+                    array_push($arrIniTerceiroB,$tb['Inicio']);
+                    array_push($arrTerTerceiroB,$tb['Termino']);
+                }
+                $ARRDatasTerceiroB = array_merge($arrIniTerceiroB,$arrTerTerceiroB);
+                if(count($ARRDatasTerceiroB) > 0){
+                    $INITerceiroB = Carbon::parse(self::alternativeUsData($ARRDatasTerceiroB[0]));
+                    $TERTerceiroB = Carbon::parse(self::alternativeUsData($ARRDatasTerceiroB[count($ARRDatasTerceiroB)-1]));
+                    if($INITerceiroB <= $DTHoje && $TERTerceiroB >= $DTHoje){
+                        $return = $Planejamento['terceiroBimestre'];
+                    }
+                }
+                //QUARTO BIMESTRE
+                $arrIniQuartoB = [];
+                $arrTerQuartoB = [];
+                foreach($Planejamento['quartoBimestre'] as $qb){
+                    array_push($arrIniQuartoB,$qb['Inicio']);
+                    array_push($arrTerQuartoB,$qb['Termino']);
+                }
+                $ARRDatasQuartoB = array_merge($arrIniQuartoB,$arrTerQuartoB);
+                if(count($ARRDatasQuartoB) > 0){
+                    $INIQuartoB = Carbon::parse(self::alternativeUsData($ARRDatasQuartoB[0]));
+                    $TERQuartoB = Carbon::parse(self::alternativeUsData($ARRDatasQuartoB[count($ARRDatasQuartoB)-1]));
+                    if($INIQuartoB <= $DTHoje && $TERQuartoB >= $DTHoje){
+                        $return = $Planejamento['quartoBimestre'];
+                    }
+                }
+                /////////////////
+            break;
+            case 'Trimestral':
+            break;
+            case 'Semestral':
+            break;
+            case 'Anual':
+            break;
+        }
+        ob_start();
+        foreach($return as $r){
+        ?>
+        <optgroup label="<?=$r['Conteudo']?>">
+        <?php
+        foreach($r['Conteudos'] as $rc){
+        ?>
+        <option value="<?=$rc?>"><?=$rc?></option>
+        <?php
+            }
+        ?>
+        </optgroup>
+        <?php
+        }
+        return ob_get_clean();
     }
 
     public function cadastro($id=null){
