@@ -121,6 +121,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/Diretores/Cadastro/{id}',[DiretoresController::class,'cadastro'])->name('Diretores/Edit');
         Route::post('/Diretoress/Save',[DiretoresController::class,'save'])->name('Diretores/Save');
         //AULAS
+        Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
+        Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
+        Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca');
         Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
         Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
         Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo');

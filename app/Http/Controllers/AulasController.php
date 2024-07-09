@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aulas;
+use App\Models\Chamada;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProfessoresController;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +28,8 @@ class AulasController extends Controller
         'endereco' => 'Edit'
     ],[
         'nome' => 'Lista de Chamada',
-        'endereco' => 'Chamada',
-        'rota' => 'Aulas/Chamada'
+        'endereco' => 'Presenca',
+        'rota' => 'Aulas/Presenca'
     ]);
     //LISTAGEM PRINCIPAL
     public function index(){
@@ -76,8 +77,8 @@ class AulasController extends Controller
 
         return view('Aulas.cadastro',$view);
     }
+
     //CADASTRO DE ATIVIDADES
-    
     public function cadastroAtividades($id=null){
         $view = [
             'submodulos' => self::submodulos,
@@ -91,6 +92,7 @@ class AulasController extends Controller
         return view('Aulas.cadastroAtividades',$view);
     }
 
+    //
     public function save(Request $request){
         try{
             if($request->id){
@@ -155,4 +157,75 @@ class AulasController extends Controller
         
         echo json_encode($resultados);
     }
+    //
+    public function chamada($IDAula){
+        return view('Aulas.chamada',[
+            'submodulos' => self::cadastroSubmodulos,
+            'id' => $IDAula
+        ]);
+    }
+    //
+    public function getAulaPresenca($IDAula){
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                au.STAula,
+                m.id AS IDAluno,
+                CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            INNER JOIN turmas t ON a.IDTurma = t.id
+            INNER JOIN aulas au ON t.id = au.IDTurma
+            LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
+            WHERE t.id = au.IDTurma AND au.id = $IDAula
+            GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
+        SQL;
+        $frequencia = DB::select($SQL);
+        $rota = route('Aulas/setPresenca');
+        if(count($frequencia) > 0){
+            foreach($frequencia as $f){
+                $checked = '';
+                $disabled = '';
+                if($f->Presente){
+                    $checked = 'checked';
+                }
+
+                if($f->STAula == 2){
+                    $disabled = 'disabled';
+                }   
+
+                $item = [];
+                $item[] = $f->Aluno;
+                $item[] = "<input type='checkbox' name='Presenca' $disabled onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked >";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($frequencia)),
+            "recordsFiltered" => intval(count($frequencia)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+    //
+    public function setPresenca(Request $request){
+        try{
+            $Vez = Chamada::where('IDAluno',$request->IDAluno)->where("IDAula",$request->IDAula)->first();
+            if($Vez){
+                Chamada::where('IDAluno',$request->IDAluno)->where("IDAula",$request->IDAula)->delete();
+            }else{
+                Chamada::create($request->all());
+            }
+            $retorno = "";
+        }catch(\Throwable $th){
+            $retorno = $th->getMessage();
+        }finally{
+            return $retorno;
+        }
+    }
+    //
 }

@@ -26,31 +26,53 @@
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
+                        <!--CADASTRO-->
                         <div class="col-sm-6">
-                            <label>Aula da Atividade</label>
-                            <select class="form-control" name="IDAula">
-                                <option value="">Selecione</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Aula da Atividade</label>
+                                    <select class="form-control" name="IDAula">
+                                        <option value="">Selecione</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label>Data de Entrega</label>
+                                    <input type="datetime-local" class="form-control" name="DTEntrega">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <label>Conteudo</label>
+                                    <input type="text" class="form-control" name="TPConteudo">
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>Pontuação</label>
+                                    <input type="number" class="form-control" name="Pontuacao">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label>Descrição da Atividade</label>
+                                    <textarea name="DSAtividade" class="form-control"></textarea>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <label>Data de Entrega</label>
-                            <input type="datetime-local" class="form-control" name="DTEntrega">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-10">
-                            <label>Conteudo</label>
-                            <input type="text" class="form-control" name="TPConteudo">
-                        </div>
-                        <div class="col-sm-2">
-                            <label>Pontuação</label>
-                            <input type="number" class="form-control" name="Pontuacao">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <label>Descrição da Atividade</label>
-                            <textarea name="DSAtividade" class="form-control"></textarea>
+                        <!--ATRIBUIÇÕES DO CARGO-->
+                        <div class="col-sm-6" align="center">
+                            <label col="col-sm-6">Atribuições das Atividades</label>
+                            <table>
+                                <table class="table table-sm tabela">
+                                    <thead>
+                                      <tr>
+                                        <th style="text-align:center;" scope="col">Aluno</th>
+                                        <th style="text-align:center;" scope="col">Atividade</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      
+                                    </tbody>
+                                </table>
+                            </table>
                         </div>
                     </div>
                     <br>
