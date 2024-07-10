@@ -130,6 +130,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
         Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
         Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
+        Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');
         //ATIVIDADES
         Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
         Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');

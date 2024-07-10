@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Atividade;
+use App\Models\AtividadeAtribuicao;
 use App\Models\Aulas;
 use App\Models\Chamada;
 use Illuminate\Http\Request;
@@ -83,15 +85,66 @@ class AulasController extends Controller
         $view = [
             'submodulos' => self::submodulos,
             'id' => '',
+            'Aulas' => Aulas::select('id','DSAula')->where('IDProfessor',Auth::user()->IDProfissional)->get() 
         ];
 
         if($id){
+            //
+            $AlunosSQL = <<<SQL
+                SELECT 
+                    m.Nome AS Aluno,
+                    m.id AS IDAluno,
+                    CASE WHEN att.IDAluno IS NOT NULL THEN 'checked' ELSE '' END AS Atribuido
+                FROM alunos a
+                INNER JOIN matriculas m ON m.id = a.IDMatricula
+                INNER JOIN turmas t ON a.IDTurma = t.id
+                INNER JOIN aulas au ON t.id = au.IDTurma
+                LEFT JOIN atividades atv ON au.id = atv.IDAula
+                LEFT JOIN atividades_atribuicoes att ON atv.id = att.IDAtividade AND m.id = att.IDAluno
+                WHERE t.id = au.IDTurma AND atv.id = $id
+                GROUP BY m.Nome, m.id, att.IDAluno;
+
+
+            SQL;
+            //
+            $alunosAtividades = DB::select($AlunosSQL);
+            //
             $view['id'] = $id;
+            $view['Alunos'] = $alunosAtividades;
+            $view['Registro'] = Atividade::find($id)->first();
         }
 
         return view('Aulas.cadastroAtividades',$view);
     }
+    //
+    public function getAulaAlunos(Request $request){
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                m.id AS IDAluno,
+                CASE WHEN f.IDAluno IS NOT NULL THEN 'Presente' ELSE 'Falta' END AS Presente
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            INNER JOIN turmas t ON a.IDTurma = t.id
+            INNER JOIN aulas au ON t.id = au.IDTurma
+            LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
+            WHERE t.id = au.IDTurma AND au.id = $request->IDAula
+            GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
+        SQL;
 
+        $alunosAtividades = DB::select($SQL);
+
+        ob_start();
+        foreach($alunosAtividades as $at){
+        ?>
+            <tr>
+                <td><?=$at->Aluno ." (".$at->Presente.")"?></td>
+                <td><input type="checkbox" value="<?=$at->IDAluno?>" name="Aluno[]"></td>
+            </tr>
+        <?php
+        }
+        return ob_get_clean();
+    }
     //
     public function save(Request $request){
         try{
@@ -121,7 +174,49 @@ class AulasController extends Controller
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
     }
-
+    //
+    public function saveAtividades(Request $request){
+        try{
+            if($request->id){
+                Atividade::find($request->id)->update($request->all());
+                if($request->alterarAtt){
+                    AtividadeAtribuicao::where('IDAtividade',$request->id)->delete();
+                    foreach($request->Aluno as $a){
+                        AtividadeAtribuicao::create([
+                            "IDAtividade" => $request->id,
+                            "IDAluno" => $a
+                        ]);
+                    }
+                }
+                //
+                $rout = 'Aulas/Atividades/Edit';
+                $aid = $request->id;
+                $status = 'success';
+                $mensagem = 'Atividade Alterada com Sucesso!';
+            }else{
+                $Atividade = Atividade::create($request->all());
+                
+                foreach($request->Aluno as $a){
+                    AtividadeAtribuicao::create([
+                        "IDAtividade" => $Atividade->id,
+                        "IDAluno" => $a
+                    ]);
+                }
+                $rout = 'Aulas/Atividades/Novo';
+                $aid = '';
+                $status = 'success';
+                $mensagem = 'Atividade Cadastrada com Sucesso!';
+            }
+        }catch(\Throwable $th){
+            $rout = 'Aulas/Novo';
+            $aid = '';
+            $status = 'success';
+            $mensagem = 'Suspensão Realizada';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
     public function getAulas(){
         $SQL = <<<SQL
         SELECT
@@ -152,6 +247,47 @@ class AulasController extends Controller
         $resultados = [
             "recordsTotal" => intval(count($aulas)),
             "recordsFiltered" => intval(count($aulas)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+    //
+    public function getAtividades(){
+        $SQL = <<<SQL
+        SELECT
+            atv.DSAtividade,
+            p.Nome as Professor,
+            t.Nome as Turma,
+            a.DSAula as Aula,
+            atv.id as IDAtividade,
+            atv.created_at as Aplicada
+        FROM atividades atv
+        INNER JOIN aulas a ON(a.id = atv.id)
+        INNER JOIN professores p ON(p.id = a.IDProfessor)
+        INNER JOIN turmas t ON(t.id = a.IDProfessor)
+        SQL;
+        $atividades = DB::select($SQL);
+        if(count($atividades) > 0){
+            foreach($atividades as $a){
+                $item = [];
+                $item[] = $a->DSAtividade;
+                $item[] = $a->Professor;
+                $item[] = $a->Turma;
+                $item[] = $a->Aula;
+                $item[] = "0/0";
+                $item[] = 0;
+                $item[] = self::data($a->Aplicada,'d/m/Y');
+                $item[] = "<a href=".route('Aulas/Atividades/Edit',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($atividades)),
+            "recordsFiltered" => intval(count($atividades)),
             "data" => $itensJSON 
         ];
         

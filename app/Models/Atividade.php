@@ -10,9 +10,9 @@ class Atividade extends Model
     use HasFactory;
 
     protected $fillable = [
-        'IDTurma',
+        'IDAula',
         'IDDisciplina',
-        'DTAvaliacao',
+        'DTEntrega',
         'TPConteudo',
         'DSAtividade',
         'Pontuacao',

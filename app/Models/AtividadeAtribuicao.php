@@ -9,11 +9,13 @@ class AtividadeAtribuicao extends Model
 {
     use HasFactory;
 
+    protected $table = 'atividades_atribuicoes';
     protected $fillable = [
         'IDAluno',
         'DTEntrega',
         'Realizado',
         'Feedback',
+        'IDAtividade'
     ];
 
     public function aluno()

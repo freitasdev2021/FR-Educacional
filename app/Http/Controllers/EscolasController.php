@@ -420,7 +420,7 @@ class EscolasController extends Controller
         }
 
         $SQL = <<<SQL
-        SELECT t.id as IDTurma, t.Nome as Turma,t.INITurma,.t.TERTurma,e.Nome as Escola,t.Serie 
+        SELECT t.id as IDTurma, t.Nome as Turma,t.INITurma,t.TERTurma,e.Nome as Escola,t.Serie 
         FROM turmas t
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o on(e.IDOrg = o.id)
@@ -475,7 +475,7 @@ class EscolasController extends Controller
 
         if($id){
             $SQL = <<<SQL
-            SELECT t.id as IDTurma,t.Periodo, t.Nome as Turma,t.INITurma,.t.TERTurma,e.id as IDEscola,t.Serie,t.NotaPeriodo,t.MediaPeriodo,t.TotalAno
+            SELECT t.id as IDTurma,t.Periodo, t.Nome as Turma,t.INITurma,t.TERTurma,e.id as IDEscola,t.Serie,t.NotaPeriodo,t.MediaPeriodo,t.TotalAno
             FROM turmas t
             INNER JOIN escolas e ON(e.id = t.IDEscola)
             INNER JOIN organizacoes o on(e.IDOrg = o.id)
