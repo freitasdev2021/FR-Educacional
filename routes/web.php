@@ -136,7 +136,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');
         Route::get('/Aulas/Atividades/Novo',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Novo');
         Route::get('/Aulas/Atividades/Cadastro/{id}',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Edit');
+        Route::get('/Aulas/Atividades/Correcao/{id}',[AulasController::class,'correcaoAtividades'])->name('Aulas/Atividades/Correcao');
         Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save');
+        Route::post('/Aulas/Atividades/setNota',[AulasController::class,'setNota'])->name('Aulas/Atividades/setNota');
         //OCORRENCIAS
         Route::get('/Ocorrencias/list',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list');
         Route::get('/Ocorrencias',[OcorrenciasController::class,'index'])->name('Ocorrencias/index');

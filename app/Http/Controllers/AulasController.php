@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Atividade;
 use App\Models\AtividadeAtribuicao;
 use App\Models\Aulas;
+use App\Models\Nota;
 use App\Models\Chamada;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProfessoresController;
@@ -32,6 +33,22 @@ class AulasController extends Controller
         'nome' => 'Lista de Chamada',
         'endereco' => 'Presenca',
         'rota' => 'Aulas/Presenca'
+    ]);
+    //
+    const cadastroAtividades = array([
+        'nome' => 'Atividades e Avaliações',
+        'rota' => 'Aulas/Atividades/index',
+        'endereco' => 'Atividades'
+    ],[
+        'nome' => 'Lançar Notas',
+        'endereco' => 'Correcao',
+        'rota' => 'Aulas/Atividades/Correcao'
+    ]);
+    //
+    const cadastroCorrecaoAtividades = array([
+        'nome' => 'Lançar Notas',
+        'endereco' => 'Atividades',
+        'rota' => 'Aulas/Atividades/Correcao'
     ]);
     //LISTAGEM PRINCIPAL
     public function index(){
@@ -103,18 +120,44 @@ class AulasController extends Controller
                 LEFT JOIN atividades_atribuicoes att ON atv.id = att.IDAtividade AND m.id = att.IDAluno
                 WHERE t.id = au.IDTurma AND atv.id = $id
                 GROUP BY m.Nome, m.id, att.IDAluno;
-
-
             SQL;
             //
             $alunosAtividades = DB::select($AlunosSQL);
             //
             $view['id'] = $id;
+            $view['submodulos'] = self::cadastroAtividades;
             $view['Alunos'] = $alunosAtividades;
             $view['Registro'] = Atividade::find($id)->first();
         }
 
         return view('Aulas.cadastroAtividades',$view);
+    }
+    //
+    public function correcaoAtividades($id){
+        //
+        $AlunosSQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                m.id AS IDAluno,
+                CASE WHEN n.IDAluno IS NOT NULL THEN n.Nota ELSE '' END AS Pontos,
+                CASE WHEN n.IDAluno IS NOT NULL THEN 'Corrigida' ELSE 'Não Corrigida' END AS Concluido
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            INNER JOIN turmas t ON a.IDTurma = t.id
+            INNER JOIN aulas au ON t.id = au.IDTurma
+            INNER JOIN atividades atv ON au.id = atv.IDAula
+            INNER JOIN atividades_atribuicoes att ON atv.id = att.IDAtividade AND m.id = att.IDAluno
+            LEFT JOIN notas n ON atv.id = n.IDAtividade AND m.id = n.IDAluno
+            WHERE t.id = au.IDTurma AND atv.id = $id
+            GROUP BY m.Nome, m.id, n.IDAluno, n.Nota;
+
+        SQL;
+        //
+        return view('Aulas.correcaoAtividades',[
+            'id' => $id,
+            'submodulos' => self::cadastroCorrecaoAtividades,
+            "Alunos" => DB::select($AlunosSQL)
+        ]);
     }
     //
     public function getAulaAlunos(Request $request){
@@ -144,6 +187,45 @@ class AulasController extends Controller
         <?php
         }
         return ob_get_clean();
+    }
+    //
+    public static function setNota(Request $request){
+        try{
+            $Notas = [];
+            $Aluno = [];
+            foreach($request->Pontuacao as $nt){
+                if(!is_null($nt)){
+                    array_push($Notas,intval($nt));
+                }
+            }
+            //
+            foreach($request->Aluno as $al){
+                array_push($Aluno,intval($al));
+            }
+            //
+            for($i=0;$i<count($Notas);$i++){
+                $Pontos[] = [
+                    "IDAtividade" => $request->IDAtividade,
+                    "IDAluno" => $Aluno[$i],
+                    "Nota" => $Notas[$i]
+                ];
+            }
+            //
+            Nota::where('IDAtividade',$request->IDAtividade)->delete();
+            foreach($Pontos as $p){
+                Nota::create($p);
+            }
+            //
+            $aid = $request->IDAtividade;
+            $status = 'success';
+            $mensagem = 'Notas Lançadas com Sucesso';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = 'Erro ao lançar notas:'. $th->getMessage();
+            $aid = $request->IDAtividade;
+        }finally{
+            return redirect()->route('Aulas/Atividades/Correcao',$aid)->with($status,$mensagem);
+        }
     }
     //
     public function save(Request $request){
