@@ -7,7 +7,7 @@
       </div>
       <div class="fr-card-body">
          <!--CABECALHO-->
-         @if(in_array(Auth::user()->id,[4,2]))
+         @if(in_array(Auth::user()->tipo,[4,2]))
          <div class="col-sm-12 p-2 row">
             <div class="col-auto">
                <a class="btn btn-fr" href="{{route('Calendario/FeriasProfissionais/Novo')}}">Adicionar</a>

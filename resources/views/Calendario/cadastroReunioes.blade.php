@@ -18,12 +18,12 @@
             </div>
             <br>
             @endif
-            @if(isset($Registro->IDEvento))
-            <input type="hidden" value="{{$Registro->IDEvento}}" name="id">
+            @if(isset($Registro->IDReuniao))
+            <input type="hidden" value="{{$Registro->IDReuniao}}" name="id">
             @endif
             <div class="col-sm-12 p-2">
                <div class="row">
-                  <div class="col-sm-3">
+                  <div class="col-sm-6">
                      <label>Escola</label>
                      <select name="IDEscola" class="form-control">
                         <option value="">Selecione</option>
@@ -32,24 +32,33 @@
                         @endforeach
                      </select>
                   </div>
-                  <div class="col-sm-3">
-                     <label>Data</label>
-                     <input type="date" name="Data" class="form-control" value="{{isset($Registro) ? $Registro->Data : ''}}">
-                  </div>
-                  <div class="col-sm-3">
-                     <label>Inicio</label>
-                     <input type="time" name="Inicio" class="form-control" value="{{isset($Registro) ? $Registro->Inicio : ''}}">
-                  </div>
-                  <div class="col-sm-3">
-                     <label>Termino</label>
-                     <input type="time" name="Termino" class="form-control" value="{{isset($Registro) ? $Registro->Termino : ''}}">
-                  </div>
+                  <div class="col-sm-6">
+                    <label>Turma</label>
+                    <select name="IDEscola" class="form-control">
+                       <option value="">Selecione</option>
+                       
+                    </select>
+                 </div>
                </div>
                 <div class="row">
                    <div class="col-sm-12">
                       <label>Descrição do Evento</label>
                       <textarea class="form-control" maxlength="250" name="DSEvento" placeholder="Max 250 Caracteres" rows="3" required>{{isset($Registro) ? $Registro->DSEvento : ''}}</textarea>
                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label>Data</label>
+                        <input type="date" name="Data" class="form-control" value="{{isset($Registro) ? $Registro->Data : ''}}">
+                     </div>
+                     <div class="col-sm-4">
+                        <label>Inicio</label>
+                        <input type="time" name="Inicio" class="form-control" value="{{isset($Registro) ? $Registro->Inicio : ''}}">
+                     </div>
+                     <div class="col-sm-4">
+                        <label>Termino</label>
+                        <input type="time" name="Termino" class="form-control" value="{{isset($Registro) ? $Registro->Termino : ''}}">
+                     </div>
                 </div>
                 <br>
                 <div class="row">

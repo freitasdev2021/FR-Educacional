@@ -20,8 +20,11 @@
              <table class="table table-sm tabela" id="escolas" data-rota="{{route('Calendario/Eventos/list')}}">
                <thead>
                  <tr>
-                   <th style="text-align:center;" scope="col">Descrição</th>
-                   <th style="text-align:center;" scope="col">Escolas Participantes</th>
+                   <th style="text-align:center;" scope="col">Data</th>
+                   <th style="text-align:center;" scope="col">Evento</th>
+                   <th style="text-align:center;" scope="col">Escola</th>
+                   <th style="text-align:center;" scope="col">Inicio</th>
+                   <th style="text-align:center;" scope="col">Termino</th>
                    @if(in_array(Auth::user()->tipo,[4,2]))
                    <th style="text-align:center;" scope="col">Opções</th>
                    @endif

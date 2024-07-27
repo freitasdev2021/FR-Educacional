@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Escola;
 use App\Models\FeriasAlunos;
+use App\Models\Reuniao;
 use App\Models\SabadoLetivo;
 use App\Models\participacoesEvento;
 use App\Models\Evento;
@@ -80,43 +81,35 @@ class CalendarioController extends Controller
         ]);
     }
 
-    public function reunioesIndex(){
-        return view('Calendario.reunioes',[
-            "submodulos" => self::submodulos,
-            'id' => '',
-            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
-        ]);
-    }
-
     public function eventosCadastro($id=null){
         $orgId = Auth::user()->id_org;
 
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
-            'EscolasRegistradas' => Controller::array_associative_unique(DB::select("SELECT e.id as IDEscola,e.Nome as Escola FROM escolas e INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $orgId ORDER BY e.Nome"))
+            'Escolas' => Escola::all()->where('IDOrg',$orgId)
         ];
 
         if($id){
             $SQL = <<<SQL
                 SELECT 
-                e.Nome Escola,
-                    e.id as IDEscola,
-                    pe.DTInicio as INITurno,
-                    pe.DTTermino as TERTurno,
                     ev.DSEvento,
+                    ev.Inicio,
+                    ev.Data,
+                    es.id as IDEscola,
+                    ev.Termino,
                     ev.id as IDEvento,
-                CASE WHEN (SELECT COUNT(IDEscola) FROM participacoeseventos WHERE IDEvento = $id AND IDEscola = e.id) > 0 THEN 1 ELSE 0 END as Participando
-                FROM escolas e 
-                LEFT JOIN participacoeseventos pe ON(e.id = pe.IDEscola) 
-                LEFT JOIN eventos ev ON(ev.id = pe.IDEvento)
-                SQL;
-
-                $view['submodulos'][0]['endereco'] = "Edit";
-                $view['submodulos'][0]['rota'] = "Calendario/Eventos/Edit";
-                $view['id'] = $id;
-                $view['Registro'] = Evento::find($id);
-                $view['EscolasRegistradas'] = Controller::array_associative_unique(DB::select($SQL));
+                    es.Nome as Escola 
+                FROM 
+                    eventos ev 
+                    INNER JOIN escolas es ON(ev.IDEscola = es.id) 
+                    INNER JOIN organizacoes o ON(o.id = es.IDOrg) 
+                WHERE o.id = $orgId AND ev.id = $id
+            SQL;
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Calendario/Eventos/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = DB::select($SQL)[0];
         }
 
         return view('Calendario.cadastroEventos',$view);
@@ -149,40 +142,30 @@ class CalendarioController extends Controller
         }
 
         $SQL = <<<SQL
-        SELECT 
-            CONCAT('[',
-                        GROUP_CONCAT(
-                        '{'
-                        ,'"Escola":"',e.Nome,'"'
-                        ,',"DTInicio":"',pe.DTInicio,'"'
-                        ,',"DTTermino":"',pe.DTTermino,'"'
-                        ,'}' 
-                    SEPARATOR ','),
-                ']') as Escolas,
-                DSEvento,
-                ev.id as IDEvento
-        FROM eventos ev
-        INNER JOIN participacoeseventos pe ON(ev.id = pe.IDEvento)
-        INNER JOIN escolas e ON(e.id = pe.IDEscola)
-        INNER JOIN organizacoes o ON(o.id = e.IDOrg)
-        WHERE o.id = $idorg $AND
-        GROUP BY IDEvento
+            SELECT 
+                ev.DSEvento,
+                ev.Inicio,
+                ev.Termino,
+                ev.Data,
+                ev.id as IDEvento,
+                es.Nome as Escola 
+            FROM 
+                eventos ev 
+                INNER JOIN escolas es ON(ev.IDEscola = es.id) 
+                INNER JOIN organizacoes o ON(o.id = es.IDOrg) 
+            WHERE o.id = $idorg $AND
         SQL;
 
-        $iscolas = [];
-
-        $diretores = DB::select($SQL);
-        if(count($diretores) > 0){
-            foreach($diretores as $d){
-
-                foreach(json_decode($d->Escolas,true) as $es){
-                    array_push($iscolas,"<ul>".$es['Escola']."(".$es['DTInicio'].") - (".$es['DTTermino'].")"."</ul>");
-                }
-
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
                 $item = [];
-                $item[] = $d->DSEvento;
-                $item[] = implode(' ',array_unique($iscolas));
-                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Eventos/Edit',$d->IDEvento)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                $item[] = $r->Data;
+                $item[] = $r->DSEvento;
+                $item[] = $r->Escola;
+                $item[] = $r->Inicio;
+                $item[] = $r->Termino;
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Eventos/Edit',$r->IDEvento)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -190,8 +173,8 @@ class CalendarioController extends Controller
         }
         
         $resultados = [
-            "recordsTotal" => intval(count($diretores)),
-            "recordsFiltered" => intval(count($diretores)),
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
             "data" => $itensJSON 
         ];
         
@@ -203,85 +186,14 @@ class CalendarioController extends Controller
             $aid = '';
             if($request->id){
                 $Evento = Evento::find($request->id);
-                $Evento->update([
-                    'DSEvento' => $request->DSEvento
-                ]);
+                $Evento->update($request->all());
                 $rout = 'Calendario/Eventos/Edit';
                 $mensagem = 'Salvamento Feito com Sucesso!';
                 $aid = $request->id;
-                ////
-                if($request->alteraEvento){
-
-                    $eventoParts = participacoesEvento::where('IDEvento',$request->id);
-                    $eventoParts->delete();
-
-                    $participacoes = [];
-                    $DTInicio = [];
-                    $DTTermino = [];
-                    $escolas = $request->Escola;
-    
-                    foreach($request->DTInicio as $ini){
-                        if(!is_null($ini)){
-                            array_push($DTInicio,$ini);
-                        }
-                    }
-    
-                    foreach($request->DTTermino as $ter){
-                        if(!is_null($ter)){
-                            array_push($DTTermino,$ter);
-                        }
-                    }
-    
-                    for($i=0; $i<count($escolas);$i++){
-                        $participacoes[] = [
-                            'IDEvento' => $request->id,
-                            'IDEscola' => $escolas[$i],
-                            "DTInicio" => $DTInicio[$i],
-                            "DTTermino" => $DTTermino[$i],
-                            "DSEvento" => $request->DSEvento
-                        ];
-                    }
-                    
-                    foreach($participacoes as $pa){
-                        participacoesEvento::create($pa);
-                    }
-                }
                 ///
             }else{
-                $participacoes = [];
-                $DTInicio = [];
-                $DTTermino = [];
-                $escolas = $request->Escola;
-
-                foreach($request->DTInicio as $ini){
-                    if(!is_null($ini)){
-                        array_push($DTInicio,$ini);
-                    }
-                }
-
-                foreach($request->DTTermino as $ter){
-                    if(!is_null($ter)){
-                        array_push($DTTermino,$ter);
-                    }
-                }
-
-                $evento = Evento::create([
-                    "DSEvento" => $request->DSEvento
-                ]);
-
-                for($i=0; $i<count($escolas);$i++){
-                    $participacoes[] = [
-                        'IDEvento' => $evento->id,
-                        'IDEscola' => $escolas[$i],
-                        "DTInicio" => $DTInicio[$i],
-                        "DTTermino" => $DTTermino[$i],
-                        "DSEvento" => $request->DSEvento
-                    ];
-                }
-                
-                foreach($participacoes as $pa){
-                    participacoesEvento::create($pa);
-                }
+                Evento::create($request->all());
+                $aid = '';
                 $rout = 'Calendario/Eventos/Novo';
                 $mensagem = 'Salvamento Feito com Sucesso!';
             }
@@ -657,5 +569,27 @@ class CalendarioController extends Controller
             'id' => '',
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
         ]);
+    }
+
+    public function reunioesIndex(){
+        return view('Calendario.reunioes',[
+            "submodulos" => self::submodulos,
+            'id' => ''
+        ]);
+    }
+
+    public function reunioesCadastro($id){
+        $view = [
+            'submodulos' => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ];
+
+        if($id){
+            $view['id'] = $id;
+            $view['Registro'] = Reuniao::find($id);
+        }
+        
+        return view('Calendario.cadastroReunioes',$view);
     }
 }
