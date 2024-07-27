@@ -43,7 +43,7 @@
                         @foreach($escolas as $e)
                             <div class="form-check escola">
                                 {{-- <input type="hidden" name="Escola[]" value="{{isset($Registro->Escolas) && in_array($e->Nome,json_decode($Registro->Escolas,true)) ? $e->id : ''}}"> --}}
-                                <input class="form-check-input" type="checkbox" value="{{$e->id}}" name="Escola[]" {{isset($Registro->Escolas) && $e->id == $Registro->IDEscola ? 'checked' : ''}} id="flexCheckDefault">
+                                <input class="form-check-input" type="checkbox" value="{{$e->id}}" name="Escola[]" {{isset($Registro) && $e->Alocado == 1 ? 'checked' : ''}} id="flexCheckDefault">
                                 <label class="form-check-label" for="flexCheckDefault">
                                 {{$e->Nome}}
                                 </label>

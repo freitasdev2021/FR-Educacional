@@ -54,7 +54,7 @@
                         <th style="text-align:center;" scope="col">Vencimento da Matrícula</th>
                         <th style="text-align:center;" scope="col">Matrícula</th>
                         <th style="text-align:center;" scope="col">Situação</th>
-                        <th style="text-align:center;" scope="col">Opções</th>
+                        @if(Auth::user()->tipo == 4 || Auth::user()->tipo == 6 )<th style="text-align:center;" scope="col">Opções</th>@endif
                       </tr>
                     </thead>
                     <tbody>

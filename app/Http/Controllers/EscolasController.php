@@ -260,36 +260,23 @@ class EscolasController extends Controller
         if($id){
             $SQL = <<<SQL
             SELECT 
-                e.id as IDEscola,
-                d.NMDisciplina, 
-                d.Obrigatoria, 
-                d.id, 
-                (SELECT CONCAT('[', GROUP_CONCAT('"', e2.Nome, '"' SEPARATOR ','), ']')
-                FROM escolas e2 
-                WHERE e2.id IN 
-                    (SELECT e3.id 
-                    FROM disciplinas d3 INNER JOIN alocacoes_disciplinas ad3 ON(d.id = ad.IDDisciplina) INNER JOIN escolas e3 ON(e3.id = ad3.IDEscola) 
-                    WHERE d3.NMDisciplina = d.NMDisciplina)
-                ) as Escolas
-            FROM 
-                disciplinas d
-            INNER JOIN
-                alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
-            INNER JOIN 
-                escolas e ON (ad.IDEscola = e.id)
-            INNER JOIN 
-                organizacoes o ON(e.IDOrg = o.id)
-            WHERE d.id = $id
-            GROUP BY 
-                d.NMDisciplina;
+                e.Nome,
+                e.id,
+                CASE WHEN d.id IS NOT NULL THEN 1 ELSE 0 END as Alocado
+            FROM escolas e 
+            LEFT JOIN alocacoes_disciplinas ad ON e.id = ad.IDEscola AND ad.IDDisciplina = $id
+            LEFT JOIN disciplinas d ON d.id = ad.IDDisciplina
+            WHERE e.IDOrg = 1
+            GROUP BY e.Nome, e.id;
             SQL;
 
 
-            $disciplinas = DB::select($SQL);
+            $Escolas = DB::select($SQL);
             $view['submodulos'][0]['endereco'] = "Edit";
             $view['submodulos'][0]['rota'] = "Escolas/Edit";
             $view['id'] = $id;
-            $view['Registro'] = $disciplinas[0];
+            $view['escolas'] = $Escolas;
+            $view['Registro'] = Disciplina::find($id);
         }
 
         return view('Escolas.createDisciplinas',$view);
@@ -510,6 +497,7 @@ class EscolasController extends Controller
             $mensagem = 'Salvamento Feito com Sucesso';
         }catch(\Throwable $th){
             $status = 'error';
+            $rout = 'Escolas/Turmas/Novo';
             $mensagem = "Erro ao Salvar a Turma: ".$th;
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);

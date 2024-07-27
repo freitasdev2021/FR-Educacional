@@ -497,35 +497,35 @@ class AlunosController extends Controller
 
                 if($request->file('CResidencia')){
                     $CResidencia = $request->file('CResidencia')->getClientOriginalName();
-                    $request->file('CResidencia')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$CDPasta,$CResidencia,'public');
+                    $request->file('CResidencia')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CResidencia,'public');
                 }else{
                     $CResidencia = '';
                 }
     
                 if($request->file('RGPaisAnexo')){
                     $RGPaisAnexo = $request->file('RGPaisAnexo')->getClientOriginalName();
-                    $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$CDPasta,$RGPaisAnexo,'public');
+                    $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$RGPaisAnexo,'public');
                 }else{
                     $RGPaisAnexo = '';
                 }
     
                 if($request->file('AnexoRG')){
                     $AnexoRG = $request->file('AnexoRG')->getClientOriginalName();
-                    $request->file('AnexoRG')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$CDPasta,$AnexoRG,'public');
+                    $request->file('AnexoRG')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$AnexoRG,'public');
                 }else{
                     $AnexoRG = '';
                 }
     
                 if($request->file('Historico')){
                     $Historico = $request->file('Historico')->getClientOriginalName();
-                    $request->file('Historico')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$CDPasta,$Historico,'public');
+                    $request->file('Historico')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$Historico,'public');
                 }else{
                     $Historico = '';
                 }
     
                 if($request->file('Foto')){
                     $Foto = $request->file('Foto')->getClientOriginalName();
-                    $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$CDPasta,$Foto,'public');
+                    $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$Foto,'public');
                 }else{
                     $Foto = '';
                 }
@@ -596,40 +596,40 @@ class AlunosController extends Controller
                 
                 if($request->file('CResidencia')){
                     $CResidencia = $request->file('CResidencia')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'alunos/aluno_'. $request->CDPasta . '/' . $request->oldCResidencia);
-                    $request->file('CResidencia')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$request->CDPasta,$CResidencia,'public');
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldCResidencia);
+                    $request->file('CResidencia')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$CResidencia,'public');
                 }else{
                     $CResidencia = '';
                 }
     
                 if($request->file('RGPaisAnexo')){
                     $RGPaisAnexo = $request->file('RGPaisAnexo')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'alunos/aluno_'. $request->CDPasta . '/' . $request->oldRGPaisAnexo);
-                    $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$request->CDPasta,$RGPaisAnexo,'public');
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldRGPaisAnexo);
+                    $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$RGPaisAnexo,'public');
                 }else{
                     $RGPaisAnexo = '';
                 }
     
                 if($request->file('AnexoRG')){
                     $AnexoRG = $request->file('AnexoRG')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'alunos/aluno_'. $request->CDPasta . '/' . $request->oldAnexoRG);
-                    $request->file('AnexoRG')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$request->CDPasta,$AnexoRG,'public');
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldAnexoRG);
+                    $request->file('AnexoRG')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$AnexoRG,'public');
                 }else{
                     $AnexoRG = '';
                 }
     
                 if($request->file('Historico')){
                     $Historico = $request->file('Historico')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'alunos/aluno_'. $request->CDPasta . '/' . $request->oldHistorico);
-                    $request->file('Historico')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$request->CDPasta,$Historico,'public');
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldHistorico);
+                    $request->file('Historico')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Historico,'public');
                 }else{
                     $Historico = '';
                 }
     
                 if($request->file('Foto')){
                     $Foto = $request->file('Foto')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'alunos/aluno_'. $request->CDPasta . '/' . $request->oldFoto);
-                    $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'alunos/aluno_'.$request->CDPasta,$Foto,'public');
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldFoto);
+                    $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Foto,'public');
                 }else{
                     $Foto = '';
                 }
@@ -984,9 +984,7 @@ class AlunosController extends Controller
                 $item[] = Controller::data($r->Vencimento,'d/m/Y');
                 $item[] = $Vencimento->lt($Hoje) ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";
                 $item[] = $Situacao;
-                $item[] = "
-                <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>
-                ";
+                $item[] = (Auth::user()->tipo == 4 || Auth::user()->tipo == 6 ) ? " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
