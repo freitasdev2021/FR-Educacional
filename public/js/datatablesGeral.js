@@ -4,14 +4,14 @@ const urlParams = new URLSearchParams(window.location.search);
 var partesDaUrlMovimentacoes = urlAtual.split('/');
 var IDColaborador = partesDaUrlMovimentacoes[partesDaUrlMovimentacoes.length - 1];
 //FILTRO DE COLABORADORES
-if(urlParams.get('de')){
-    var de = urlParams.get('de')
-    var ate = urlParams.get('ate')
-    urlApontamentos = $("#example2").attr("data-route")+"?de="+de+"&ate="+ate
+if(urlParams.get('Status')){
+    var Status = urlParams.get('Status')
+    urlApontamentos = $("#escolas").attr("data-rota")+"?Status="+Status
 }else{
-    urlApontamentos = $("#example2").attr("data-route")
+    urlApontamentos = $("#escolas").attr("data-route")
 }
 
+// console.log(urlApontamentos)
 //
 
 $("#secretarias").dataTable({

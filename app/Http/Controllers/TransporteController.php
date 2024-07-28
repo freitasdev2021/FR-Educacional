@@ -440,6 +440,31 @@ class TransporteController extends Controller
         }
     }
     //
+    public function saveTerceirizadas(Request $request){
+        try{
+            $ter = $request->all();
+            if($request->id){
+                Terceirizada::find($request->id)->update($ter);
+                $aid = $request->id;
+                $rout = "Transporte/Terceirizadas/Edit";
+            }else{
+                $ter['IDOrg'] = Auth::user()->id_org;
+                Terceirizada::create($ter);
+                $rout = "Transporte/Terceirizadas/Novo";
+                $aid = '';
+            }
+            $mensagem = "Ponto de Parada Cadastrado com Sucesso";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $aid = '';
+            $mensagem = $th->getMessage();
+            $status = 'error'; 
+            $rout = "Transporte/Novo";
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+    //
     public function save(Request $request){
         try{
             $ter = $request->all();

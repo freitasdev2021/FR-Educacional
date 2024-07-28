@@ -7,11 +7,14 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
+            @if(Auth::user()->id == 4)
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
                     <a href="{{route('Alunos/Transferencias/Novo',$id)}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
+            <hr>
+            @endif
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 @if(session('success'))
@@ -24,7 +27,6 @@
                 </div>
                 <br>
                 @endif
-                <hr>
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Alunos/Transferencias/list',$id)}}">
                     <thead>
                       <tr>

@@ -29,7 +29,7 @@
                 <input type="hidden" name="CDPasta" value="{{$Registro->CDPasta}}">
                 @endif
                 <div class="col-sm-12 p-2">
-                @if(Auth::user()->tipo == 4)
+                @if(in_array(Auth::user()->tipo,[4,2]))
                     <div>
                         <div class="d-flex justify-content-center mb-4">
                             <img id="selectedAvatar" src="{{ isset($Registro->Foto) ? url('storage/organizacao_' . Auth::user()->id_org . '_alunos/aluno_' . $Registro->CDPasta . '/' . $Registro->Foto) : asset('img/kidAvatar.png') }}"
@@ -198,6 +198,7 @@
                     </div>
                     <br>
                     <div class="row">
+                        @if(in_array(Auth::user()->tipo,[4]))
                         <div class="col-auto">
                             <button class="btn btn-fr">Salvar</button>
                         </div>
@@ -209,6 +210,7 @@
                         <div class="col-auto">
                             <a class="btn btn-light" href="{{route('Alunos/index')}}">Cancelar</a>
                         </div>
+                        @endif
                     </div>
                     @elseif(Auth::user()->tipo == 6)
                     <div>

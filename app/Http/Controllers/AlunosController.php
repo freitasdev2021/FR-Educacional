@@ -146,7 +146,8 @@ class AlunosController extends Controller
                 Suspenso::create([
                     'INISuspensao' => $request->INISuspensao,
                     'TERSuspensao' => $request->TERSuspensao,
-                    'Justificativa' => $request->Justificativa
+                    'Justificativa' => $request->Justificativa,
+                    'IDInativo' => $request->IDInativo
                 ]);       
             }
             $rout = 'Alunos/Suspenso';
@@ -182,6 +183,7 @@ class AlunosController extends Controller
             t.Nome as Turma,
             e.Nome as Escola,
             t.Serie as Serie,
+            t.id as IDTurma,
             m.Nascimento as Nascimento,
             r.Vencimento as Vencimento,
             a.STAluno,
@@ -211,7 +213,7 @@ class AlunosController extends Controller
             m.APsicologico,
             m.CDPasta,
             m.AnexoRG,
-            re.RGPaisAnexo,
+            m.RGPaisAnexo,
             m.CResidencia,
             m.Historico
         FROM matriculas m
@@ -223,13 +225,13 @@ class AlunosController extends Controller
         INNER JOIN responsavel re ON(re.IDAluno = a.id)
         WHERE o.id = $idorg AND a.id = $id  
         ";
+        $Ficha = DB::select($SQL)[0];
         return view('Alunos.ficha',[
             'submodulos' => self::cadastroSubmodulos,
             'id' => $id,
-            'IDEscola' => self::getEscolaDiretor(Auth::user()->id),
-            'Ficha' => DB::select($SQL)[0],
+            'Ficha' => $Ficha,
             'IDOrg' => Auth::user()->id_org,
-            'Turmas' => Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get()
+            'Turmas' => Turma::where('IDEscola',$Ficha->IDTurma)->get()
         ]);
     }
 
@@ -266,8 +268,7 @@ class AlunosController extends Controller
 
         return view('Alunos.transferencias',[
             'submodulos' => $submodulos,
-            'id' => $id,
-            'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
+            'id' => $id
         ]);
     }
 
@@ -364,7 +365,13 @@ class AlunosController extends Controller
     public function getTransferidos(){
 
         $idorg = Auth::user()->id_org;
-        $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = " AND eDestino.id=".$IDEscola;
+        }else{
+            $AND = "";
+        }
+
         $SQL = "SELECT
             tr.id as IDTransferencia,
             a.id as IDAluno, 
@@ -378,7 +385,7 @@ class AlunosController extends Controller
         INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
         INNER JOIN escolas eOrigem ON(tr.IDEscolaOrigem = eOrigem.id)
         INNER JOIN organizacoes o ON(eOrigem.IDOrg = o.id)
-        WHERE o.id = $idorg AND eDestino.id = $IDEscola AND tr.Aprovado = 0   
+        WHERE o.id = $idorg $AND AND tr.Aprovado = 0   
         ";
 
         $registros = DB::select($SQL);
@@ -415,8 +422,7 @@ class AlunosController extends Controller
         $view = [
             'submodulos' => $submodulos,
             'id' => '',
-            'Turmas' => Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get(),
-            ''
+            'Turmas' => (Auth::user()->tipo == 4) ? Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get() : Turma::all()
         ];
 
         if($id){
@@ -920,6 +926,14 @@ class AlunosController extends Controller
             $AND .=' ';
         }
 
+        if(isset($_GET['Status']) && !empty($_GET['Status'])){
+            $AND .= " AND a.STAluno=".$_GET['Status'];
+        }
+
+        if(isset($_GET['Escola']) && !empty($_GET['Escola'])){
+            $AND .= " AND e.id=".$_GET['Escola'];
+        }
+
         $SQL = "SELECT
             a.id as IDAluno, 
             m.Nome as Nome,
@@ -927,11 +941,11 @@ class AlunosController extends Controller
             e.Nome as Escola,
             t.Serie as Serie,
             m.Nascimento as Nascimento,
-            r.Vencimento as Vencimento,
+            MAX(r.Vencimento) as Vencimento,
             a.STAluno,
             m.Foto,
             m.Email,
-            tr.Aprovado
+            MAX(tr.Aprovado) as Aprovado
         FROM matriculas m
         INNER JOIN alunos a ON(a.IDMatricula = m.id)
         LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
@@ -941,7 +955,7 @@ class AlunosController extends Controller
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         WHERE o.id = $idorg $AND GROUP BY a.id    
         ";
-
+        //dd($SQL);
         $registros = DB::select($SQL);
         if(count($registros) > 0){
             foreach($registros as $r){
@@ -984,7 +998,7 @@ class AlunosController extends Controller
                 $item[] = Controller::data($r->Vencimento,'d/m/Y');
                 $item[] = $Vencimento->lt($Hoje) ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";
                 $item[] = $Situacao;
-                $item[] = (Auth::user()->tipo == 4 || Auth::user()->tipo == 6 ) ? " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>" : '';
+                $item[] = " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>";
                 $itensJSON[] = $item;
             }
         }else{

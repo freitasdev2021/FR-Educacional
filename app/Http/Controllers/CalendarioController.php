@@ -129,14 +129,14 @@ class CalendarioController extends Controller
 
         if(Auth::user()->tipo == 4){
             $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
+            $AND = ' AND es.id='.$IDEscola;
             //dd($AND);
         }else{
             $AND = '';
         }
 
         if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
+            $AND .= " AND es.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
         }else{
             $AND .=' ';
         }
@@ -334,12 +334,16 @@ class CalendarioController extends Controller
         try{
             $status = 'success';
             $mensagem = 'Ferias Salvas com Sucesso';
+            $data = $request->all();
+            if(Auth::user()->tipo == 4){
+                $data['IDEscola'] = self::getEscolaDiretor(Auth::user()->id);
+            }
             if($request->id){
-                FeriasAlunos::find($request->id)->update($request->all());
+                FeriasAlunos::find($request->id)->update($data);
                 $aid = $request->id;
                 $rout = 'Calendario/FeriasAlunos/Edit';
             }else{
-                FeriasAlunos::create($request->all());
+                FeriasAlunos::create($data);
                 $rout = 'Calendario/FeriasAlunos';
                 $aid = '';
             }
@@ -589,7 +593,7 @@ class CalendarioController extends Controller
             $view['id'] = $id;
             $view['Registro'] = Reuniao::find($id);
         }
-        
+
         return view('Calendario.cadastroReunioes',$view);
     }
 }

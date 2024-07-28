@@ -114,12 +114,7 @@
                     <div class="row">
                         <div class="col-sm-3">
                             <label>Turma</label>
-                            <select class="form-control" name="IDTurma" disabled>
-                                <option value="">Selecione</option>
-                                @foreach($Turmas as $t)
-                                <option value="{{$t->id}}" {{isset($Ficha->IDTurma) && $Ficha->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Nome." (".$t->Serie.")"}}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" disabled class="form-control" value="">
                         </div>
                         <div class="col-sm-3">
                             <label>Possui NEE</label>
@@ -173,19 +168,19 @@
                     <div class="row">
                         <div class="col-sm-3">
                             <br>
-                            <a href="{{url("storage/organizacao_".$IDOrg."alunos/aluno_$Ficha->CDPasta/$Ficha->RGPaisAnexo")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> RG dos Pais</a>
+                            <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->RGPaisAnexo")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> RG dos Pais</a>
                         </div>
                         <div class="col-sm-3">
                             <br>
-                            <a href="{{url("storage/organizacao_".$IDOrg."alunos/aluno_$Ficha->CDPasta/$Ficha->AnexoRG")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> RG do Aluno</a>
+                            <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->AnexoRG")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> RG do Aluno</a>
                         </div>
                         <div class="col-sm-3">
                             <br>
-                            <a href="{{url("storage/organizacao_".$IDOrg."alunos/aluno_$Ficha->CDPasta/$Ficha->CResidencia")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Comprovante de Residência</a>
+                            <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->CResidencia")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Comprovante de Residência</a>
                         </div>
                         <div class="col-sm-3">
                             <br>
-                            <a href="{{url("storage/organizacao_".$IDOrg."alunos/aluno_$Ficha->CDPasta/$Ficha->Historico")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Histórico Escolar</a>
+                            <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->Historico")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Histórico Escolar</a>
                         </div>
                     </div>
                 </div>

@@ -7,7 +7,7 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
-            <form class="col-sm-12 p-2 row">
+            <form class="col-sm-12 p-2 row" method="GET">
                 @if((Auth::user()->tipo == 4))
                 <div class="col-auto">
                     <a href="{{route('Alunos/Novo')}}" class="btn btn-fr">Adicionar</a>
@@ -15,35 +15,53 @@
                 @endif
                 @if((Auth::user()->tipo == 2))
                 <div class="col-auto">
-                    <select name="" class="form-control">
-                        <option value="">Selecione a Escola</option>
-                        @foreach($Escolas as $es)
-                        <option value="{{$es['id']}}">{{$es['Nome']}}</option>
-                        @endforeach
+                    <select name="Status" class="form-control" >
+                        <option value="">Selecione o Status</option>
+                        <option value="0" {{isset($_GET['Status']) && $_GET['Status'] == '0' ? 'selected' : ''}}>Frequente</option>
+                        <option value="1" {{isset($_GET['Status']) && $_GET['Status'] == '1' ? 'selected' : ''}}>Evadido</option>
+                        <option value="2" {{isset($_GET['Status']) && $_GET['Status'] == '2' ? 'selected' : ''}}>Desistente</option>
+                        <option value="3" {{isset($_GET['Status']) && $_GET['Status'] == '3' ? 'selected' : ''}}>Desligado</option>
+                        <option value="4" {{isset($_GET['Status']) && $_GET['Status'] == '4' ? 'selected' : ''}}>Egresso</option>
+                        <option value="5" {{isset($_GET['Status']) && $_GET['Status'] == '5' ? 'selected' : ''}}>Transferido Para Outra Rede</option>
                     </select>
                 </div>
-                @endif
-                @if((Auth::user()->tipo == 4))
                 <div class="col-auto">
-                    <select name="" class="form-control">
-                        <option value="">Selecione o Status</option>
-                        <option value="0">Frequente</option>
-                        <option value="1">Evadido</option>
-                        <option value="2">Desistente</option>
-                        <option value="3">Desligado</option>
-                        <option value="4">Egresso</option>
-                        <option value="5">Transferido Para Outra Rede</option>
+                    <select name="Escola" class="form-control">
+                        <option value="">Selecione a Escola</option>
+                        @foreach($Escolas as $es)
+                        <option value="{{$es['id']}}" {{isset($_GET['Escola']) && $_GET['Escola'] == $es['id'] ? 'selected' : ''}}>{{$es['Nome']}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
                     <input type="submit" value="Filtrar" class="form-control bg-fr text-white">
                 </div>
                 @endif
+                @if((Auth::user()->tipo == 4))
+                <div class="col-auto">
+                    <select name="Status" class="form-control" required>
+                        <option value="">Selecione o Status</option>
+                        <option value="0" {{isset($_GET['Status']) && $_GET['Status'] == '0' ? 'selected' : ''}}>Frequente</option>
+                        <option value="1" {{isset($_GET['Status']) && $_GET['Status'] == '1' ? 'selected' : ''}}>Evadido</option>
+                        <option value="2" {{isset($_GET['Status']) && $_GET['Status'] == '2' ? 'selected' : ''}}>Desistente</option>
+                        <option value="3" {{isset($_GET['Status']) && $_GET['Status'] == '3' ? 'selected' : ''}}>Desligado</option>
+                        <option value="4" {{isset($_GET['Status']) && $_GET['Status'] == '4' ? 'selected' : ''}}>Egresso</option>
+                        <option value="5" {{isset($_GET['Status']) && $_GET['Status'] == '5' ? 'selected' : ''}}>Transferido Para Outra Rede</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <input type="submit" value="Filtrar" class="form-control bg-fr text-white">
+                </div>
+                @endif
+                <div class="col-auto">
+                    <label style="visibility: hidden">a</label>
+                    <a href="{{route('Alunos/index')}}" class="btn btn-warning text-white">Limpar Filtros</a>
+                </div>
             </form>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <hr>
-                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Alunos/list')}}">
+                <table class="table table-sm tabela" id="escolas" data-rota="{{ route('Alunos/list') . (isset($_GET['Status']) ? '?Status=' . $_GET['Status'] : '') . (isset($_GET['Escola']) ? '&Escola=' . $_GET['Escola'] : '') }}">
                     <thead>
                       <tr>
                         <th style="text-align:center;" scope="col">Nome</th>
@@ -54,7 +72,7 @@
                         <th style="text-align:center;" scope="col">Vencimento da Matrícula</th>
                         <th style="text-align:center;" scope="col">Matrícula</th>
                         <th style="text-align:center;" scope="col">Situação</th>
-                        @if(Auth::user()->tipo == 4 || Auth::user()->tipo == 6 )<th style="text-align:center;" scope="col">Opções</th>@endif
+                        <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>
                     <tbody>

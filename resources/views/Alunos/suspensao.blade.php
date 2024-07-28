@@ -38,9 +38,11 @@
                     </div>
                     <br>
                     <div class="row">
+                        @if(empty($Registro->Justificativa))
                         <div class="col-auto">
                             <button class="btn btn-fr">Salvar</button>
                         </div>
+                        @endif
                         @if(!empty($Registro->Justificativa))
                         <div class="col-auto">
                             <button class="btn btn-danger" type="button" onclick="removerSuspensao()">Remover Suspensão</button>
