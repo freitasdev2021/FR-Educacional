@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             "fornecedor" => \App\Http\Middleware\fornecedor::class,
             "secretario" => \App\Http\Middleware\secretario::class,
+            "professor" => \App\Http\Middleware\professor::class,
+            'secretarioDiretor' => \App\Http\Middleware\secretarioDiretor::class,
+            'secretarioProfessor' => \App\Http\Middleware\secretarioProfessor::class,
+            'time' => \App\Http\Middleware\time::class,
+            'auxiliar' => \App\Http\Middleware\auxiliar::class,
             "diretor" => \App\Http\Middleware\diretor::class,
             "pedagogo" => \App\Http\Middleware\pedagogo::class,
             "coordenador" => \App\Http\Middleware\coordenador::class

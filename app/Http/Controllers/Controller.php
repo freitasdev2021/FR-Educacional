@@ -108,7 +108,7 @@ abstract class Controller
         return false;
     }
 
-    public function getEscolaDiretor($IDDiretor){
+    public static function getEscolaDiretor($IDDiretor){
         $dirID = DB::select("SELECT IDProfissional FROM users WHERE id = $IDDiretor ")[0];
         $dir = Diretor::select('IDEscola')->where('id',$dirID->IDProfissional)->first();
         return $dir->IDEscola;

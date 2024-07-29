@@ -80,7 +80,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Matriculas</span>
                   <span class="info-box-number">
-                  0
+                  {{$Matriculas->Quantidade}}
                   </span>
                </div>
             </div>
@@ -91,7 +91,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos Cadastrados</span>
                   <span class="info-box-number">
-                  0
+                  {{$Alunos->Quantidade}}
                   </span>
                </div>
             </div>
@@ -102,7 +102,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos Desistentes</span>
                   <span class="info-box-number">
-                  0
+                  {{$Desistentes->Quantidade}}
                   </span>
                </div>
             </div>
@@ -113,7 +113,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos Evadidos</span>
                   <span class="info-box-number">
-                  0
+                  {{$Evadidos->Quantidade}}
                   </span>
                </div>
             </div>
@@ -124,7 +124,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos Transferidos</span>
                   <span class="info-box-number">
-                  0
+                  {{$Transferidos->Quantidade}}
                   </span>
                </div>
             </div>
@@ -135,7 +135,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos com Alergia</span>
                   <span class="info-box-number">
-                  0
+                  {{$Alergia->Quantidade}}
                   </span>
                </div>
             </div>
@@ -146,7 +146,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos que Utilizam Transporte</span>
                   <span class="info-box-number">
-                  0
+                  {{$Transporte->Quantidade}}
                   </span>
                </div>
             </div>
@@ -157,7 +157,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Alunos com NEE</span>
                   <span class="info-box-number">
-                  0
+                  {{$NEE->Quantidade}}
                   </span>
                </div>
             </div>
@@ -168,7 +168,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Bolsa Familia</span>
                   <span class="info-box-number">
-                  0
+                  {{$BolsaFamilia->Quantidade}}
                   </span>
                </div>
             </div>
@@ -179,7 +179,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Acompanhamento Médico</span>
                   <span class="info-box-number">
-                  0
+                  {{$AMedico->Quantidade}}
                   </span>
                </div>
             </div>
@@ -190,7 +190,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Acompanhamento Psicologico</span>
                   <span class="info-box-number">
-                  0
+                  {{$APsicologico->Quantidade}}
                   </span>
                </div>
             </div>
@@ -201,7 +201,7 @@
                <div class="info-box-content">
                   <span class="info-box-text">Usuários</span>
                   <span class="info-box-number">
-                  0
+                  {{$Usuarios->Usuarios}}
                   </span>
                </div>
             </div>

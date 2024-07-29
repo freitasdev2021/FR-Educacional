@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class professor
+class auxiliar
 {
     /**
      * Handle an incoming request.
@@ -16,10 +16,9 @@ class professor
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->tipo < 6) {
+        if (Auth::user()->tipo < 3) {
             return redirect()->route('dashboard');
         }
-
         return $next($request);
     }
 }
