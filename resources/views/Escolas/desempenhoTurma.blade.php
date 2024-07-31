@@ -6,9 +6,10 @@
            @endforeach
         </div>
         <div class="fr-card-body">
+            <!--LISTAS-->
             <!--CABECALHO-->
             <form class="col-sm-12 p-2 row" action="{{$_SERVER['PHP_SELF']}}" method="GET">
-                <label>Utilize os Filtros para Iniciar a Pesquisa</label>
+                <label>Utilize os Filtros para Iniciar a Pesquisa de Desempenho da Turma</label>
                 <div class="col-auto">
                     <select name="Disciplina" class="form-control" required>
                         <option value="">Selecione a Disciplina</option>
@@ -28,22 +29,26 @@
                 <div class="col-auto">
                     <button class="btn btn-success">Filtrar</button>
                 </div>
+                <div class="col-auto">
+                    <a href="{{route('Turmas/index')}}" class="btn btn-default">Voltar</a>
+                </div>
             </form>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <hr>
-                <table class="table table-sm tabela" id="escolas" data-rota="{{ route('Alunos/Desempenho/list',$id) . (isset($_GET['Disciplina']) ? '?Disciplina=' . $_GET['Disciplina'] : '') . (isset($_GET['Estagio']) ? '&Estagio=' . $_GET['Estagio'] : '') }}">
+                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Turmas/Desempenho/list',$id. (isset($_GET['Disciplina']) ? '?Disciplina=' . $_GET['Disciplina'] : ''). (isset($_GET['Estagio']) ? '&Estagio=' . $_GET['Estagio'] : ''))}}">
                     <thead>
-                      <tr>
+                        <tr>
+                        <th style="text-align:center;" scope="col">Aluno</th>
+                        <th style="text-align:center;" scope="col">Total</th>
+                        <th style="text-align:center;" scope="col">Estagio</th>
+                        <th style="text-align:center;" scope="col">Frequencia</th>
                         <th style="text-align:center;" scope="col">Disciplina</th>
-                        <th style="text-align:center;" scope="col">Atividade</th>
-                        <th style="text-align:center;" scope="col">Pontuação</th>
-                        <th style="text-align:center;" scope="col">Estágio</th>
-                        <th style="text-align:center;" scope="col">Data</th>
-                      </tr>
+                        <th style="text-align:center;" scope="col">Resultado</th>
+                        </tr>
                     </thead>
                     <tbody>
-                      
+                        
                     </tbody>
                 </table>
             </div>
@@ -51,8 +56,14 @@
         </div>
     </div>
     <script>
-        function renovarMatricula(id){
-            $("#aluno_"+id).html()
+        function recuperacao(rec){
+            $.ajax({
+                method : "GET",
+                url : rec
+            }).done(function(response){
+                console.log(response)
+            })
+            return true
         }
     </script>
 </x-educacional-layout>

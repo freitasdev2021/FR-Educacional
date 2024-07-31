@@ -70,6 +70,7 @@
                             <textarea name="DSAula" class="form-control" {{(isset($Registro->DSAula)) ? 'disabled' : 'required'}}>{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
                         </div>
                     </div>
+                    <input type="hidden" name="Estagio">
                     <br>
                     <div class="col-sm-12 text-left row">
                         @if(!isset($Registro->STAula) || $Registro->STAula < 2)
@@ -97,6 +98,10 @@
                        }).done(function(response){
                           $("select[name=DSConteudo]").html(response)
                        })
+                    })
+                    //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
+                    $("select[name=DSConteudo]").on("change",function(){
+                        $("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
                     })
                     //
                 </script>    

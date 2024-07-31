@@ -345,7 +345,7 @@ class AulasController extends Controller
             atv.id as IDAtividade,
             atv.created_at as Aplicada
         FROM atividades atv
-        INNER JOIN aulas a ON(a.id = atv.id)
+        INNER JOIN aulas a ON(a.id = atv.IDAula)
         INNER JOIN professores p ON(p.id = a.IDProfessor)
         INNER JOIN turmas t ON(t.id = a.IDProfessor)
         SQL;

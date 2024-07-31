@@ -77,7 +77,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/Professores/{idprofessor}/Turnos/Novo',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Novo');
         Route::get('/Professores/{idprofessor}/Turnos/Cadastro/{id}',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Edit');
         Route::post('/Professores/Turnos/Save',[ProfessoresController::class,'saveTurno'])->name('Professores/Turnos/Save');
-        Route::get('/Professores/DisciplinasProfessor/{IDTurma}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
         //PEDAGOGOS
         Route::get('/Pedagogos/list',[PedagogosController::class,'getPedagogos'])->name('Pedagogos/list');
         Route::get('/Pedagogos',[PedagogosController::class,'index'])->name('Pedagogos/index');
@@ -91,7 +90,9 @@ Route::middleware('auth')->group(function () {
     });
     //CAMADA DE SEGURANÇA SECRETARIO E PROFESSOR
     Route::middleware('secretarioProfessor')->group(function(){
-        
+        Route::get('/Professores/DisciplinasProfessor/{IDTurma}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
+        Route::get('/Turmas/Desempenho/{IDTurma}',[TurmasController::class,'desempenho'])->name('Turmas/Desempenho');
+        Route::get('/Turmas/Desempenho/list/{IDTurma}',[TurmasController::class,'getDesempenho'])->name('Turmas/Desempenho/list');
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
@@ -114,6 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/Alunos/Suspenso/Remove',[AlunosController::class,'removerSuspensao'])->name('Alunos/Suspenso/Remove')->middleware(['diretor','secretario','auxiliar']);
         Route::get('/Alunos/Atividades/{id}',[AlunosController::class,'atividades'])->name('Alunos/Atividades');
         Route::get('/Alunos/Frequencia/{id}',[AlunosController::class,'frequencia'])->name('Alunos/Frequencia');
+        Route::get('/Alunos/Desempenho/list/{id}',[AlunosController::class,'getAtividadesAluno'])->name('Alunos/Desempenho/list');
         //TRANSFERENCIAS DO ALUNO
         Route::get('/Alunos/Transferencias/list/{id}',[AlunosController::class,'getTransferencias'])->name('Alunos/Transferencias/list')->middleware(['diretor','secretario','auxiliar']);
         Route::get('/Alunos/Transferencias/{id}',[AlunosController::class,'transferencias'])->name('Alunos/Transferencias')->middleware(['diretor','secretario','auxiliar']);
@@ -275,7 +277,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/Pedagogos/Novo',[PedagogosController::class,'cadastro'])->name('Pedagogos/Novo');
         Route::post('/Pedagogos/Save',[PedagogosController::class,'save'])->name('Pedagogos/Save');
     });
-    
+    //CAMADA DE SEGURANÇA DO PROFESSOR
+    Route::middleware('professor')->group(function(){
+        Route::get('/Alunos/Recuperacao/{IDAluno}/{Estagio}',[AlunosController::class,'recuperacao'])->name('Alunos/Recuperacao');
+    });
     //PERFIL
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

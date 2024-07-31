@@ -12,6 +12,7 @@ use App\Models\Renovacoes;
 use App\Models\Responsavel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Nota;
 use Carbon\Carbon;
 use App\Models\Suspenso;
 use App\Models\Situacao;
@@ -288,11 +289,85 @@ class AlunosController extends Controller
             $submodulos = self::cadastroSubmodulos;
         }
 
+        $IDTurma = Aluno::find($id)->IDTurma;
+
+        $Turma = Turma::find($IDTurma);
+        switch($Turma->Periodo){
+            case 'Bimestral':
+                $Estagios = array("1º BIM","2º BIM","3º BIM","4º BIM");
+            break;
+            case 'Trimestral':
+                $Estagios = array("1º TRI","2º TRI","3º TRI");
+            break;
+            case 'Semestral':
+                $Estagios = array("1º SEM","2º SEM");
+            break;
+            case 'Anual':
+                $Estagios = array("1º PER");
+            break;
+        }
+
+        $IDOrg = Auth::user()->id_org;
+
+        $Disciplinas = json_encode(DB::select("SELECT 
+            d.NMDisciplina as Disciplina,
+            d.id as IDDisciplina
+        FROM disciplinas d 
+        INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina)
+        INNER JOIN escolas e ON(e.id = ad.IDDisciplina)
+        WHERE e.IDOrg = $IDOrg GROUP BY d.id"));
+
         return view('Alunos.atividades',[
             'submodulos' => $submodulos,
             'id' => $id,
-            'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
+            'IDEscola' => self::getEscolaDiretor(Auth::user()->id),
+            'Disciplinas' => (Auth::user()->tipo == 6) ? self::getFichaProfessor(Auth::user()->id,'Disciplinas') : json_decode($Disciplinas,true),
+            "Estagios" => $Estagios
         ]);
+    }
+
+    public function getAtividadesAluno($IDAluno){
+        $AND = "";
+        $registros = [];
+        if(isset($_GET['Disciplina'])){
+            $AND = " AND d.id=".$_GET['Disciplina']." AND a.Estagio='".$_GET['Estagio']."'";
+            $idorg = Auth::user()->id_org;
+            $SQL = "SELECT at.TPConteudo, 
+                CASE WHEN att.IDAluno = n.IDAluno THEN n.Nota ELSE 0 END as Nota,
+                a.Estagio,
+                at.created_at as Data,
+                d.NMDisciplina as Disciplina
+                FROM atividades at
+                INNER JOIN aulas a ON(a.id = at.IDAula)
+                INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
+                INNER JOIN atividades_atribuicoes att ON(at.id = att.IDAtividade)
+                INNER JOIN notas n ON(att.IDAluno = n.IDAluno)
+                WHERE n.IDAluno = $IDAluno $AND
+            ";
+
+            $registros = DB::select($SQL);
+        }
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->Disciplina;
+                $item[] = $r->TPConteudo;
+                $item[] = $r->Nota;
+                $item[] = $r->Estagio;
+                $item[] = self::data($r->Data,'d/m/Y');
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+
+        echo json_encode($resultados);
     }
 
     public function matriculaTransferidos($id){
@@ -492,6 +567,16 @@ class AlunosController extends Controller
         }
 
         return view('Alunos.cadastro',$view);
+    }
+
+    public function recuperacao($IDAluno,$Estagio){
+        $SQL = "SELECT IDAtividade FROM notas n INNER JOIN atividades at ON(at.id = n.IDAtividade) INNER JOIN aulas a ON(a.id = at.IDAula) WHERE a.Estagio = '$Estagio' AND n.IDAluno = $IDAluno";
+        $IDAtividades = DB::select($SQL);
+        $IDAtividadesArray = array_map(function($item) {
+            return $item->IDAtividade;
+        }, $IDAtividades);
+        //dd($IDAtividades);
+        Nota::whereIn('IDAtividade',$IDAtividadesArray)->delete();
     }
 
     public function save(Request $request){

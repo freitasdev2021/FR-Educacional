@@ -18,6 +18,7 @@ class Aulas extends Model
         'IDDisciplina',
         'INIAula',
         'TERAula',
-        'STAula'
+        'STAula',
+        'Estagio'
     ];
 }

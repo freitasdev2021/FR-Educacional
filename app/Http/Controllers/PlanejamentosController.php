@@ -118,7 +118,8 @@ class PlanejamentosController extends Controller
                     $INIPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[0]));
                     $TERPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[count($ARRDatasPrimeiroB)-1]));
                     if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje){
-                        $return = $Planejamento['primeiroBimestre'];
+                        $return['Conteudo'] = $Planejamento['primeiroBimestre'];
+                        $return['Estagio'] = "1º BIM";
                     }
                 }
                 //SEGUNDO BIMESTRE
@@ -133,7 +134,8 @@ class PlanejamentosController extends Controller
                     $INISegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[0]));
                     $TERSegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[count($ARRDatasSegundoB)-1]));
                     if($INISegundoB <= $DTHoje && $TERSegundoB >= $DTHoje){
-                        $return = $Planejamento['segundoBimestre'];
+                        $return['Conteudo'] = $Planejamento['segundoBimestre'];
+                        $return['Estagio'] = "2º BIM";
                     }
                 }
                 //TERCEIRO BIMESTRE
@@ -148,7 +150,8 @@ class PlanejamentosController extends Controller
                     $INITerceiroB = Carbon::parse(self::alternativeUsData($ARRDatasTerceiroB[0]));
                     $TERTerceiroB = Carbon::parse(self::alternativeUsData($ARRDatasTerceiroB[count($ARRDatasTerceiroB)-1]));
                     if($INITerceiroB <= $DTHoje && $TERTerceiroB >= $DTHoje){
-                        $return = $Planejamento['terceiroBimestre'];
+                        $return['Conteudo'] = $Planejamento['terceiroBimestre'];
+                        $return['Estagio'] = "3º BIM";
                     }
                 }
                 //QUARTO BIMESTRE
@@ -163,26 +166,120 @@ class PlanejamentosController extends Controller
                     $INIQuartoB = Carbon::parse(self::alternativeUsData($ARRDatasQuartoB[0]));
                     $TERQuartoB = Carbon::parse(self::alternativeUsData($ARRDatasQuartoB[count($ARRDatasQuartoB)-1]));
                     if($INIQuartoB <= $DTHoje && $TERQuartoB >= $DTHoje){
-                        $return = $Planejamento['quartoBimestre'];
+                        $return['Conteudo'] = $Planejamento['quartoBimestre'];
+                        $return['Estagio'] = "4º BIM";
                     }
                 }
                 /////////////////
             break;
             case 'Trimestral':
+                $arrIniPrimeiroB = [];
+                $arrTerPrimeiroB = [];
+                foreach($Planejamento['primeiroTrimestre'] as $pb){
+                    array_push($arrIniPrimeiroB,$pb['Inicio']);
+                    array_push($arrTerPrimeiroB,$pb['Termino']);
+                }
+                $ARRDatasPrimeiroB = array_merge($arrIniPrimeiroB,$arrTerPrimeiroB);
+                if(count($ARRDatasPrimeiroB) > 0){
+                    $INIPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[0]));
+                    $TERPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[count($ARRDatasPrimeiroB)-1]));
+                    if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje){
+                        $return['Conteudo'] = $Planejamento['primeiroTrimestre'];
+                        $return['Estagio'] = "1º TRI";
+                    }
+                }
+                //SEGUNDO BIMESTRE
+                $arrIniSegundoB = [];
+                $arrTerSegundoB = [];
+                foreach($Planejamento['segundoTrimestre'] as $sb){
+                    array_push($arrIniSegundoB,$sb['Inicio']);
+                    array_push($arrTerSegundoB,$sb['Termino']);
+                }
+                $ARRDatasSegundoB = array_merge($arrIniSegundoB,$arrTerSegundoB);
+                if(count($ARRDatasSegundoB)){
+                    $INISegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[0]));
+                    $TERSegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[count($ARRDatasSegundoB)-1]));
+                    if($INISegundoB <= $DTHoje && $TERSegundoB >= $DTHoje){
+                        $return['Conteudo'] = $Planejamento['segundoTrimestre'];
+                        $return['Estagio'] = "2º TRI";
+                    }
+                }
+                //TERCEIRO BIMESTRE
+                $arrIniTerceiroB = [];
+                $arrTerTerceiroB = [];
+                foreach($Planejamento['terceiroTrimestre'] as $tb){
+                    array_push($arrIniTerceiroB,$tb['Inicio']);
+                    array_push($arrTerTerceiroB,$tb['Termino']);
+                }
+                $ARRDatasTerceiroB = array_merge($arrIniTerceiroB,$arrTerTerceiroB);
+                if(count($ARRDatasTerceiroB) > 0){
+                    $INITerceiroB = Carbon::parse(self::alternativeUsData($ARRDatasTerceiroB[0]));
+                    $TERTerceiroB = Carbon::parse(self::alternativeUsData($ARRDatasTerceiroB[count($ARRDatasTerceiroB)-1]));
+                    if($INITerceiroB <= $DTHoje && $TERTerceiroB >= $DTHoje){
+                        $return['Conteudo'] = $Planejamento['terceiroTrimestre'];
+                        $return['Estagio'] = "3º TRI";
+                    }
+                }
             break;
             case 'Semestral':
+                $arrIniPrimeiroB = [];
+                $arrTerPrimeiroB = [];
+                foreach($Planejamento['primeiroSemestre'] as $pb){
+                    array_push($arrIniPrimeiroB,$pb['Inicio']);
+                    array_push($arrTerPrimeiroB,$pb['Termino']);
+                }
+                $ARRDatasPrimeiroB = array_merge($arrIniPrimeiroB,$arrTerPrimeiroB);
+                if(count($ARRDatasPrimeiroB) > 0){
+                    $INIPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[0]));
+                    $TERPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[count($ARRDatasPrimeiroB)-1]));
+                    if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje){
+                        $return['Conteudo'] = $Planejamento['primeiroSemestre'];
+                        $return['Estagio'] = "1º SEM";
+                    }
+                }
+                //SEGUNDO BIMESTRE
+                $arrIniSegundoB = [];
+                $arrTerSegundoB = [];
+                foreach($Planejamento['segundoSemestre'] as $sb){
+                    array_push($arrIniSegundoB,$sb['Inicio']);
+                    array_push($arrTerSegundoB,$sb['Termino']);
+                }
+                $ARRDatasSegundoB = array_merge($arrIniSegundoB,$arrTerSegundoB);
+                if(count($ARRDatasSegundoB)){
+                    $INISegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[0]));
+                    $TERSegundoB = Carbon::parse(self::alternativeUsData($ARRDatasSegundoB[count($ARRDatasSegundoB)-1]));
+                    if($INISegundoB <= $DTHoje && $TERSegundoB >= $DTHoje){
+                        $return['Conteudo'] = $Planejamento['segundoSemestre'];
+                        $return['Estagio'] = "2º SEM";
+                    }
+                }
             break;
             case 'Anual':
+                $arrIniPrimeiroB = [];
+                $arrTerPrimeiroB = [];
+                foreach($Planejamento['primeiroPeriodo'] as $pb){
+                    array_push($arrIniPrimeiroB,$pb['Inicio']);
+                    array_push($arrTerPrimeiroB,$pb['Termino']);
+                }
+                $ARRDatasPrimeiroB = array_merge($arrIniPrimeiroB,$arrTerPrimeiroB);
+                if(count($ARRDatasPrimeiroB) > 0){
+                    $INIPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[0]));
+                    $TERPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[count($ARRDatasPrimeiroB)-1]));
+                    if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje){
+                        $return['Conteudo'] = $Planejamento['primeiroPeriodo'];
+                        $return['Estagio'] = "1º PER";
+                    }
+                }
             break;
         }
         ob_start();
-        foreach($return as $r){
+        foreach($return['Conteudo'] as $r){
         ?>
         <optgroup label="<?=$r['Conteudo']?>">
         <?php
         foreach($r['Conteudos'] as $rc){
         ?>
-        <option value="<?=$rc?>"><?=$rc?></option>
+        <option data-estagio="<?=$return['Estagio']?>" value="<?=$rc?>"><?=$rc?></option>
         <?php
             }
         ?>
