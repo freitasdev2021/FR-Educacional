@@ -108,13 +108,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar')->middleware(['auxiliar']);
         Route::post('/Alunos/Transferidos/Matricular',[AlunosController::class,'matricularTransferido'])->name('Alunos/Transferidos/Matricular')->middleware('auxiliar');
         //DADOS DO ALUNO
-        Route::get('/Alunos/Ficha/{id}',[AlunosController::class,'ficha'])->name('Alunos/Ficha')->middleware(['diretor','secretario','auxiliar']);
+        Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico')->middleware(['diretor','secretario','auxiliar']);
+        Route::get('/Alunos/Boletim/{id}',[AlunosController::class,'boletim'])->name('Alunos/Boletim')->middleware(['diretor','secretario','auxiliar']);
         Route::get('/Alunos/Suspenso/{id}',[AlunosController::class,'suspenso'])->name('Alunos/Suspenso')->middleware(['diretor','secretario','auxiliar']);
         Route::post('/Alunos/Transferencias/Cancela',[AlunosController::class,'cancelaTransferencia'])->name('Alunos/Transferencias/Cancela')->middleware(['diretor','secretario','auxiliar']);
         Route::post('/Alunos/Suspenso/Save',[AlunosController::class,'saveSuspenso'])->name('Alunos/Suspenso/Save')->middleware(['diretor','secretario','auxiliar']);
         Route::post('/Alunos/Suspenso/Remove',[AlunosController::class,'removerSuspensao'])->name('Alunos/Suspenso/Remove')->middleware(['diretor','secretario','auxiliar']);
         Route::get('/Alunos/Atividades/{id}',[AlunosController::class,'atividades'])->name('Alunos/Atividades');
-        Route::get('/Alunos/Frequencia/{id}',[AlunosController::class,'frequencia'])->name('Alunos/Frequencia');
+        Route::get('/Alunos/Ficha/{id}',[AlunosController::class,'ficha'])->name('Alunos/Ficha');
         Route::get('/Alunos/Desempenho/list/{id}',[AlunosController::class,'getAtividadesAluno'])->name('Alunos/Desempenho/list');
         //TRANSFERENCIAS DO ALUNO
         Route::get('/Alunos/Transferencias/list/{id}',[AlunosController::class,'getTransferencias'])->name('Alunos/Transferencias/list')->middleware(['diretor','secretario','auxiliar']);

@@ -35,7 +35,7 @@ class PlanejamentosController extends Controller
     }
 
     public function componentes($id){
-        $rgs = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.IDPlanejamento = pa.id) WHERE pa.id = $id")[0];
+        $rgs = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.id = pa.IDTurma) WHERE pa.id = $id")[0];
         return view('Planejamentos.componentes',[
             'submodulos' => self::cadastroSubmodulos,
             'id' => $id,
@@ -51,7 +51,7 @@ class PlanejamentosController extends Controller
                 'PLConteudos' => $request->PLConteudos
             ]);
             $retorno['mensagem'] = 'Planejamento Atualizado com Sucesso!';
-            $retorno['status'] = 1;
+            $retorno['status'] = $request->IDPlanejamento;
         }catch(\Throwable $th){
             $retorno['status'] = 0;
             $retorno['mensagem'] = $th->getMessage();
@@ -61,47 +61,25 @@ class PlanejamentosController extends Controller
     }
 
     public function getPlanejamento($id){
+        
         $SQL = <<<SQL
         SELECT 
-            p.*,
-            (SELECT 
-                CONCAT(
-                    '[',
-                    GROUP_CONCAT(
-                        CONCAT(
-                            '{"Turma":"', t2.Nome, '"',
-                            ',"Serie":"', t2.Serie, '"',
-                            ',"Escola":"', e.Nome, '"',
-                            ',"IDTurma":"', t2.id, '"',
-                            ',"Alocada":"', CASE WHEN t2.IDPlanejamento = p.id THEN '1' ELSE '0' END, '"}'
-                        ) 
-                        SEPARATOR ','
-                    ),
-                    ']'
-                )
-            FROM 
-                turmas t2 
-            LEFT JOIN 
-                escolas e ON t2.IDEscola = e.id
-            LEFT JOIN 
-                turnos tur2 ON(tur2.IDTurma = t2.id)
-            WHERE tur2.IDDisciplina = p.IDDisciplina
-            ) as Turmas
-        FROM 
-            planejamentoanual p 
-        LEFT JOIN 
-            turmas t ON p.id = t.IDPlanejamento
-        WHERE 
-            p.id = $id
-        GROUP BY 
-            t.id
+            t.id as IDTurma,
+            t.Nome as Turma,
+            t.Serie,
+            e.Nome as Escola,
+            CASE WHEN p.IDTurma IS NOT NULL THEN 'checked' ELSE '' END as Checked
+        FROM turmas t 
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        LEFT JOIN planejamentoanual p ON(p.IDTurma = t.id)
+        GROUP BY t.id
         SQL;
 
         return DB::select($SQL);
     }
 
     public function getPlanejamentoByTurma($IDDisciplina){
-        $SQL = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.IDPlanejamento = pa.id) WHERE IDDisciplina = $IDDisciplina ")[0];
+        $SQL = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.id = pa.IDTurma) WHERE IDDisciplina = $IDDisciplina ")[0];
         $Planejamento = json_decode(json_decode($SQL->PLConteudos,true),true);
         $DTHoje = date('Y-m-d');
         switch($SQL->Periodo){
@@ -297,11 +275,11 @@ class PlanejamentosController extends Controller
         ];
 
         if($id){
-            $rgs = self::getPlanejamento($id)[0];
+            $rgs = self::getPlanejamento($id);
             $view['submodulos'] = self::cadastroSubmodulos;
             $view['id'] = $id;
-            $view['Turmas'] = json_decode($rgs->Turmas);
-            $view['Registro'] = $rgs;
+            $view['Turmas'] = $rgs;
+            $view['Registro'] = PlanejamentoAnual::find($id);
         }
 
         return view('Planejamentos.cadastro',$view);
@@ -310,25 +288,28 @@ class PlanejamentosController extends Controller
     public function save(Request $request){
         try{
             if($request->id){
-
-                Turma::where('IDPlanejamento',$request->id)->update(['IDPlanejamento'=>0]);
-
+                PlanejamentoAnual::where('IDDisciplina',$request->IDDisciplina)->delete();
                 foreach($request->Turma as $t){
-                    Turma::where('id',$t)->update(['IDPlanejamento'=>$request->id]);
+                    PlanejamentoAnual::create([
+                        'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
+                        'IDDisciplina' => $request->IDDisciplina,
+                        'NMPlanejamento' => $request->NMPlanejamento,
+                        'IDTurma' => $t
+                    ]);
                 }
 
                 $mensagem = 'Planejamento Alterado com Sucesso!';
                 $rout = 'Planejamentos/Cadastro';
                 $aid = $request->id;
             }else{
-                $Planejamento = PlanejamentoAnual::create([
-                    'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
-                    'IDDisciplina' => $request->IDDisciplina,
-                    'NMPlanejamento' => $request->NMPlanejamento
-                ]);
-
+                
                 foreach($request->Turma as $t){
-                    Turma::where('id',$t)->update(['IDPlanejamento'=>$Planejamento->id]);
+                    $Planejamento = PlanejamentoAnual::create([
+                        'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
+                        'IDDisciplina' => $request->IDDisciplina,
+                        'NMPlanejamento' => $request->NMPlanejamento,
+                        'IDTurma' => $t
+                    ]);
                 }
 
                 $mensagem = 'Planejamento Criado com Sucesso! Agora Crie os Conteúdos e Abordagens de cada Período';
@@ -347,6 +328,11 @@ class PlanejamentosController extends Controller
     }
 
     public function getPlanejamentos(){
+        $arrTurmasT = [];
+        foreach(EscolasController::getDisciplinasProfessor(Auth::user()->id) as $gt){
+            array_push($arrTurmasT,$gt->IDDisciplina);
+        }
+        $turmas = implode(",",$arrTurmasT);
         $orgId = Auth::user()->id_org;
         $SQL = <<<SQL
          SELECT 
@@ -358,12 +344,13 @@ class PlanejamentosController extends Controller
             pa.id as IDPlanejamento,
             pa.NMPlanejamento
         FROM planejamentoanual pa
-        INNER JOIN turmas t ON(pa.id = t.IDPlanejamento)
+        INNER JOIN turmas t ON(t.id = pa.IDTurma)
         INNER JOIN disciplinas d ON(d.id = pa.IDDisciplina)
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        WHERE o.id = $orgId GROUP BY pa.id
+        WHERE o.id = $orgId AND pa.id IN($turmas) GROUP BY pa.id
         SQL;
+        //dd($SQL);
 
         $Planejamentos = DB::select($SQL);
 

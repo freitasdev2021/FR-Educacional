@@ -359,6 +359,12 @@ class EscolasController extends Controller
 
 
     public function getTurmasDisciplinas($IDDisciplina,$TPRetorno,$IDPlanejamento = null){
+        $arrTurmasT = [];
+        foreach(ProfessoresController::getTurmasProfessor(Auth::user()->id) as $art){
+            array_push($arrTurmasT,$art->IDTurma);
+        }
+
+        $TurmasP = implode(',',$arrTurmasT);
         $SQL = "SELECT 
             t.id as IDTurma,
             t.Nome as Turma,
@@ -369,7 +375,7 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id) 
         LEFT JOIN turnos tur ON(t.id = tur.IDTurma) 
         LEFT JOIN planejamentoanual pa ON(pa.id = t.IDPlanejamento) 
-        WHERE tur.IDDisciplina = $IDDisciplina AND t.IDPlanejamento = 0";
+        WHERE tur.IDDisciplina = $IDDisciplina and t.id IN($TurmasP)";
         if($TPRetorno == "ARRAY"){
             return DB::select($SQL);
             //echo $SQL;

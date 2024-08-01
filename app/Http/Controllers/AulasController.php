@@ -300,6 +300,7 @@ class AulasController extends Controller
     }
     //
     public function getAulas(){
+        $IDProf = Auth::user()->IDProfissional;
         $SQL = <<<SQL
         SELECT
             a.id as IDAula,
@@ -309,6 +310,7 @@ class AulasController extends Controller
             a.created_at
         FROM aulas a
         INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
+        WHERE a.IDProfessor = $IDProf
         SQL;
         $aulas = DB::select($SQL);
         if(count($aulas) > 0){
@@ -336,6 +338,7 @@ class AulasController extends Controller
     }
     //
     public function getAtividades(){
+        $IDProf = Auth::user()->IDProfissional;
         $SQL = <<<SQL
         SELECT
             atv.DSAtividade,
@@ -348,6 +351,7 @@ class AulasController extends Controller
         INNER JOIN aulas a ON(a.id = atv.IDAula)
         INNER JOIN professores p ON(p.id = a.IDProfessor)
         INNER JOIN turmas t ON(t.id = a.IDProfessor)
+        WHERE a.IDProfessor = $IDProf GROUP BY atv.id
         SQL;
         $atividades = DB::select($SQL);
         if(count($atividades) > 0){

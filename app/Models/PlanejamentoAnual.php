@@ -14,7 +14,8 @@ class PlanejamentoAnual extends Model
         'IDDisciplina',
         'PLConteudos',
         'Aprovado',
-        'NMPlanejamento'
+        'NMPlanejamento',
+        'IDTurma'
     ];
 
     protected $casts = [

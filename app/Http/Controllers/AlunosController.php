@@ -50,9 +50,13 @@ class AlunosController extends Controller
         'endereco' => 'Atividades',
         'rota' => 'Alunos/Atividades'
     ],[
-        'nome' => 'Frequencia',
-        'endereco' => 'Frequencia',
-        'rota' => 'Alunos/Frequencia'
+        'nome' => 'Boletim',
+        'endereco' => 'Boletim',
+        'rota' => 'Alunos/Boletim'
+    ],[
+        'nome' => 'Histórico',
+        'endereco' => 'Historico',
+        'rota' => 'Alunos/Historico'
     ],[
         'nome' => 'Transferencias',
         'endereco' => 'Transferencias',
@@ -75,10 +79,6 @@ class AlunosController extends Controller
         'nome' => 'Atividades Desenvolvidas',
         'endereco' => 'Atividades',
         'rota' => 'Alunos/Atividades'
-    ],[
-        'nome' => 'Frequencia',
-        'endereco' => 'Frequencia',
-        'rota' => 'Alunos/Frequencia'
     ]);
 
     public function index(){
@@ -244,7 +244,7 @@ class AlunosController extends Controller
         ]);
     }
 
-    public function frequencia($id){
+    public function historico($id){
 
         if(self::getDados()['tipo'] == 6){
             $submodulos = self::professoresSubmodulos;
@@ -252,10 +252,30 @@ class AlunosController extends Controller
             $submodulos = self::cadastroSubmodulos;
         }
 
-        return view('Alunos.frequencia',[
+        return view('Alunos.historico',[
+            'submodulos' => $submodulos,
+            'id' => $id
+        ]);
+    }
+
+    public function boletim($id){
+
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresSubmodulos;
+        }else{
+            $submodulos = self::cadastroSubmodulos;
+        }
+
+        $SQL = <<<SQL
+            SELECT 
+        SQL;
+
+        //$Boletim = DB::select($SQL);
+
+        return view('Alunos.boletim',[
             'submodulos' => $submodulos,
             'id' => $id,
-            'IDEscola' => self::getEscolaDiretor(Auth::user()->id)
+            "Boletim" => []
         ]);
     }
 

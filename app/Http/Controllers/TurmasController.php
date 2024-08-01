@@ -65,10 +65,10 @@ class TurmasController extends Controller
                 m.Nome as Aluno,
                 a.id as IDAluno,
                 t.Periodo,
-                SUM(n.Nota) as Total,
+                (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $Disciplina AND n2.IDAluno = a.id ) as Total,
                 au.Estagio,
-                CASE WHEN SUM(n.Nota) < t.MediaPeriodo THEN 'Reprovado' ELSE 'Aprovado' END as Resultado,
-                (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAluno = a.id) as Frequencia,
+                CASE WHEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $Disciplina AND n2.IDAluno = a.id ) < t.MediaPeriodo THEN 'Reprovado' ELSE 'Aprovado' END as Resultado,
+                (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id ) as Frequencia,
                 d.NMDisciplina as Disciplina
             FROM alunos a
             INNER JOIN matriculas m ON(m.id = a.IDMatricula)
@@ -76,7 +76,7 @@ class TurmasController extends Controller
             INNER JOIN notas n ON(n.IDAluno = a.id)
             INNER JOIN aulas au ON(t.id = au.IDTurma)
             INNER JOIN disciplinas d ON (d.id = au.IDDisciplina)
-            WHERE a.IDTurma = 1 AND au.IDDisciplina = $Disciplina AND au.Estagio = '$Estagio' AND DATE_FORMAT(au.created_at,'%Y') = $NOW GROUP BY m.Nome,au.Estagio
+            WHERE a.IDTurma = $IDTurma AND au.IDDisciplina = $Disciplina AND au.Estagio = '$Estagio' AND DATE_FORMAT(au.created_at,'%Y') = $NOW GROUP BY m.Nome,au.Estagio
             SQL;
             $resultados = DB::select($SQL);
         }else{

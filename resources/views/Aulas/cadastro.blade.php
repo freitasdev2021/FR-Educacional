@@ -97,12 +97,14 @@
                           url : "/Planejamentos/getConteudo/"+$(this).val()
                        }).done(function(response){
                           $("select[name=DSConteudo]").html(response)
+                          $("input[name=Estagio]").val($("select[name=DSConteudo] option:selected").attr("data-estagio"))
                        })
                     })
                     //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
                     $("select[name=DSConteudo]").on("change",function(){
                         $("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
                     })
+                    
                     //
                 </script>    
             </div>
