@@ -245,7 +245,57 @@ class AlunosController extends Controller
     }
 
     public function historico($id){
+        // Primeiro, obtenha todos os anos em que o aluno tem registros
+        $anos = DB::table('aulas')
+            ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
+            ->join('alunos', 'alunos.id', '=', 'frequencia.IDAluno')
+            ->where('alunos.id', $id)
+            ->select(DB::raw('DISTINCT YEAR(aulas.created_at) as ano'))
+            ->orderBy('ano')
+            ->pluck('ano')
+            ->toArray();
 
+        // Crie a parte dinâmica da consulta para as colunas de anos
+        $selectYears = '';
+        foreach ($anos as $ano) {
+            $selectYears .= "
+            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id ) END) as Total_{$ano}, 
+            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                    (SELECT COUNT(f2.id) 
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND au2.IDDisciplina = d.id 
+                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                END) as Frequencia_{$ano}
+            ";
+        }
+        $selectYears = rtrim($selectYears, ', ');
+
+        // Consulta SQL dinâmica
+        $historico = DB::select("
+            SELECT 
+                d.NMDisciplina as Disciplina,
+                {$selectYears}
+            FROM 
+                disciplinas d
+            INNER JOIN 
+                aulas au ON(d.id = au.IDDisciplina)
+            INNER JOIN 
+                frequencia f ON(au.id = f.IDAula)
+            INNER JOIN 
+                alunos a ON(a.id = f.IDAluno)
+            INNER JOIN 
+                atividades at ON(at.IDAula = au.id)
+            INNER JOIN 
+                notas n ON(at.id = n.IDAtividade)
+            WHERE 
+                a.id = :aluno_id
+            GROUP BY 
+                d.id;
+        ", ['aluno_id' => $id]);
+
+        
         if(self::getDados()['tipo'] == 6){
             $submodulos = self::professoresSubmodulos;
         }else{
@@ -254,7 +304,9 @@ class AlunosController extends Controller
 
         return view('Alunos.historico',[
             'submodulos' => $submodulos,
-            'id' => $id
+            'id' => $id,
+            'historico' => $historico,
+            'anos' => $anos
         ]);
     }
 
@@ -265,17 +317,94 @@ class AlunosController extends Controller
         }else{
             $submodulos = self::cadastroSubmodulos;
         }
-
-        $SQL = <<<SQL
-            SELECT 
-        SQL;
+        $Turma = Turma::find(Aluno::find($id)->IDTurma);
+        switch($Turma->Periodo){
+            case 'Bimestral':
+                $SQL = <<<SQL
+                    SELECT 
+                        d.NMDisciplina as Disciplina,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' ) as Nota1B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" ) as Faltas1B,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' ) as Nota2B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" ) as Faltas2B,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' ) as Nota3B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" ) as Faltas3B,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' ) as Nota4B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" ) as Faltas4B
+                    FROM disciplinas d
+                    INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+                    INNER JOIN frequencia f ON(au.id = f.IDAula)
+                    INNER JOIN alunos a ON(a.id = f.IDAluno)
+                    INNER JOIN atividades at ON(at.IDAula = au.id)
+                    INNER JOIN notas n ON(at.id = n.IDAtividade)
+                    WHERE a.id = $id
+                    GROUP BY d.id 
+                SQL;
+            break;
+            case 'Trimestral':
+                $SQL = <<<SQL
+                    SELECT 
+                        d.NMDisciplina as Disciplina,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º TRI' ) as Nota1B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º TRI" ) as Faltas1B,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º TRI' ) as Nota2B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º TRI" ) as Faltas2B,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º TRI' ) as Nota3B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º TRI" ) as Faltas3B
+                    FROM disciplinas d
+                    INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+                    INNER JOIN frequencia f ON(au.id = f.IDAula)
+                    INNER JOIN alunos a ON(a.id = f.IDAluno)
+                    INNER JOIN atividades at ON(at.IDAula = au.id)
+                    INNER JOIN notas n ON(at.id = n.IDAtividade)
+                    WHERE a.id = $id
+                    GROUP BY d.id 
+                SQL;
+            break;
+            case 'Semestral':
+                $SQL = <<<SQL
+                    SELECT 
+                        d.NMDisciplina as Disciplina,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º SEM' ) as Nota1B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º SEM" ) as Faltas1B,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º SEM' ) as Nota2B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º SEM" ) as Faltas2B
+                    FROM disciplinas d
+                    INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+                    INNER JOIN frequencia f ON(au.id = f.IDAula)
+                    INNER JOIN alunos a ON(a.id = f.IDAluno)
+                    INNER JOIN atividades at ON(at.IDAula = au.id)
+                    INNER JOIN notas n ON(at.id = n.IDAtividade)
+                    WHERE a.id = $id
+                    GROUP BY d.id 
+                SQL;
+            break;
+            case 'Anual':
+                $SQL = <<<SQL
+                    SELECT 
+                        d.NMDisciplina as Disciplina,
+                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º PER' ) as Nota1B,
+                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º PER" ) as Faltas1B
+                    FROM disciplinas d
+                    INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+                    INNER JOIN frequencia f ON(au.id = f.IDAula)
+                    INNER JOIN alunos a ON(a.id = f.IDAluno)
+                    INNER JOIN atividades at ON(at.IDAula = au.id)
+                    INNER JOIN notas n ON(at.id = n.IDAtividade)
+                    WHERE a.id = $id
+                    GROUP BY d.id 
+                SQL;
+            break;
+        }
 
         //$Boletim = DB::select($SQL);
 
         return view('Alunos.boletim',[
             'submodulos' => $submodulos,
             'id' => $id,
-            "Boletim" => []
+            "Boletim" => DB::select($SQL),
+            "Periodo" => $Turma->Periodo,
+            "MediaPeriodo" => $Turma->MediaPeriodo
         ]);
     }
 

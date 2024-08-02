@@ -1,2078 +1,1925 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
+CREATE DATABASE  IF NOT EXISTS `freducacional` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `freducacional`;
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: 127.0.0.1
--- Tempo de geração: 29/06/2024 às 18:38
--- Versão do servidor: 10.4.28-MariaDB
--- Versão do PHP: 8.2.4
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
+-- Host: localhost    Database: freducacional
+-- ------------------------------------------------------
+-- Server version	9.0.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Banco de dados: `freducacional`
+-- Table structure for table `afastados`
 --
 
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `afastados`
---
-
+DROP TABLE IF EXISTS `afastados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `afastados` (
-  `id` int(11) NOT NULL,
-  `IDInativo` int(11) NOT NULL,
-  `Justificativa` varchar(250) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDInativo` int NOT NULL,
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
   `INISuspensao` date DEFAULT NULL,
-  `TERSuspensao` date DEFAULT NULL
+  `TERSuspensao` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `alocacoes`
+-- Dumping data for table `afastados`
 --
 
+LOCK TABLES `afastados` WRITE;
+/*!40000 ALTER TABLE `afastados` DISABLE KEYS */;
+/*!40000 ALTER TABLE `afastados` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `alocacoes`
+--
+
+DROP TABLE IF EXISTS `alocacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `alocacoes` (
-  `IDEscola` int(11) NOT NULL,
-  `IDProfissional` int(11) NOT NULL,
+  `IDEscola` int NOT NULL,
+  `IDProfissional` int NOT NULL,
   `INITurno` time NOT NULL,
   `TERTurno` time NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `TPProfissional` varchar(4) NOT NULL
+  `TPProfissional` varchar(4) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `alocacoes`
+-- Dumping data for table `alocacoes`
 --
 
-INSERT INTO `alocacoes` (`IDEscola`, `IDProfissional`, `INITurno`, `TERTurno`, `created_at`, `updated_at`, `TPProfissional`) VALUES
-(1, 1, '07:00:00', '11:25:00', '2024-06-24', '2024-06-24', 'PROF'),
-(2, 1, '13:00:00', '17:25:00', '2024-06-24', '2024-06-24', 'PROF');
-
--- --------------------------------------------------------
+LOCK TABLES `alocacoes` WRITE;
+/*!40000 ALTER TABLE `alocacoes` DISABLE KEYS */;
+INSERT INTO `alocacoes` VALUES (3,1,'13:00:00','17:00:00','2024-07-28','2024-07-28','PROF'),(1,1,'07:00:00','11:00:00','2024-07-28','2024-07-28','PROF'),(1,2,'13:00:00','17:00:00','2024-07-31','2024-07-31','PROF');
+/*!40000 ALTER TABLE `alocacoes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `alocacoes_disciplinas`
+-- Table structure for table `alocacoes_disciplinas`
 --
 
+DROP TABLE IF EXISTS `alocacoes_disciplinas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `alocacoes_disciplinas` (
-  `IDEscola` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
+  `IDEscola` int NOT NULL,
+  `IDDisciplina` int NOT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `alocacoes_disciplinas`
+-- Dumping data for table `alocacoes_disciplinas`
 --
 
-INSERT INTO `alocacoes_disciplinas` (`IDEscola`, `IDDisciplina`, `updated_at`, `created_at`) VALUES
-(1, 1, '2024-06-24', '2024-06-24'),
-(2, 2, '2024-06-24', '2024-06-24');
-
--- --------------------------------------------------------
+LOCK TABLES `alocacoes_disciplinas` WRITE;
+/*!40000 ALTER TABLE `alocacoes_disciplinas` DISABLE KEYS */;
+INSERT INTO `alocacoes_disciplinas` VALUES (1,1,'2024-07-28','2024-07-28'),(3,1,'2024-07-28','2024-07-28'),(1,2,'2024-07-28','2024-07-28'),(2,2,'2024-07-28','2024-07-28'),(3,2,'2024-07-28','2024-07-28');
+/*!40000 ALTER TABLE `alocacoes_disciplinas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `alteracoes_situacao`
+-- Table structure for table `alteracoes_situacao`
 --
 
+DROP TABLE IF EXISTS `alteracoes_situacao`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `alteracoes_situacao` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `STAluno` int(11) NOT NULL,
-  `Justificativa` varchar(250) NOT NULL,
-  `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `alteracoes_situacao`
---
-
-INSERT INTO `alteracoes_situacao` (`id`, `IDAluno`, `STAluno`, `Justificativa`, `created_at`, `updated_at`) VALUES
-(1, 1, 0, 'Pulou o Muro pra correr atras de pipa', '2024-06-07', '2024-06-07'),
-(2, 1, 0, 'Terminou os estudos', '2024-06-07', '2024-06-07'),
-(3, 1, 0, 'Terminou os estudos', '2024-06-07', '2024-06-07'),
-(4, 1, 4, 'egressado kkk', '2024-06-07', '2024-06-07'),
-(5, 1, 2, 'Desistiu de tudo', '2024-06-07', '2024-06-07'),
-(6, 1, 0, 'Voltou tudo', '2024-06-07', '2024-06-07');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `alunos`
---
-
-CREATE TABLE `alunos` (
-  `id` int(11) NOT NULL,
-  `IDMatricula` int(11) NOT NULL,
-  `STAluno` int(11) DEFAULT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `STAluno` int NOT NULL,
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `IDTurma` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `atividades`
+-- Dumping data for table `alteracoes_situacao`
 --
 
+LOCK TABLES `alteracoes_situacao` WRITE;
+/*!40000 ALTER TABLE `alteracoes_situacao` DISABLE KEYS */;
+INSERT INTO `alteracoes_situacao` VALUES (1,1,0,'fdgdfgg','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `alteracoes_situacao` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `alunos`
+--
+
+DROP TABLE IF EXISTS `alunos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `alunos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDMatricula` int NOT NULL,
+  `STAluno` int DEFAULT NULL,
+  `created_at` date NOT NULL,
+  `updated_at` date NOT NULL,
+  `IDTurma` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `alunos`
+--
+
+LOCK TABLES `alunos` WRITE;
+/*!40000 ALTER TABLE `alunos` DISABLE KEYS */;
+INSERT INTO `alunos` VALUES (1,1,0,'2024-07-28','2024-07-29',1),(2,2,0,'2024-07-28','2024-07-28',1);
+/*!40000 ALTER TABLE `alunos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `atividades`
+--
+
+DROP TABLE IF EXISTS `atividades`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `atividades` (
-  `id` int(11) NOT NULL,
-  `IDAula` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
-  `DTAvaliacao` date NOT NULL,
-  `TPConteudo` varchar(50) NOT NULL,
-  `DSAtividade` varchar(250) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAula` int NOT NULL,
+  `DTEntrega` datetime NOT NULL,
+  `TPConteudo` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `DSAtividade` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
   `Pontuacao` float NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `atividades_atribuicoes`
+-- Dumping data for table `atividades`
 --
 
+LOCK TABLES `atividades` WRITE;
+/*!40000 ALTER TABLE `atividades` DISABLE KEYS */;
+INSERT INTO `atividades` VALUES (1,2,'2024-07-31 20:16:00','Atividade 1 Matematica','At1 mat',10,'2024-07-31','2024-07-31'),(2,3,'2024-07-31 20:41:00','At1 Port','port at1',10,'2024-07-31','2024-07-31'),(3,3,'2024-07-31 23:19:00','At3 pt','pt at3 atividade 3 portugues',10,'2024-08-01','2024-08-01');
+/*!40000 ALTER TABLE `atividades` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `atividades_atribuicoes`
+--
+
+DROP TABLE IF EXISTS `atividades_atribuicoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `atividades_atribuicoes` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `DTEntrega` date NOT NULL,
-  `Realizado` int(11) NOT NULL,
-  `Feedback` varchar(50) DEFAULT NULL,
+  `IDAluno` int NOT NULL,
+  `DTEntrega` datetime DEFAULT NULL,
+  `Realizado` int DEFAULT NULL,
+  `Feedback` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `Nota` float NOT NULL
+  `Nota` float DEFAULT NULL,
+  `IDAtividade` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `atividades_atribuicoes_ead`
+-- Dumping data for table `atividades_atribuicoes`
 --
 
+LOCK TABLES `atividades_atribuicoes` WRITE;
+/*!40000 ALTER TABLE `atividades_atribuicoes` DISABLE KEYS */;
+INSERT INTO `atividades_atribuicoes` VALUES (1,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,1),(2,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,1),(1,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,2),(1,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,3),(2,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,3),(1,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,4),(2,NULL,NULL,NULL,'2024-07-30','2024-07-30',NULL,4),(1,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,5),(1,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,6),(2,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,6),(1,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,1),(2,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,1),(1,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,2),(2,NULL,NULL,NULL,'2024-07-31','2024-07-31',NULL,2),(1,NULL,NULL,NULL,'2024-08-01','2024-08-01',NULL,3),(2,NULL,NULL,NULL,'2024-08-01','2024-08-01',NULL,3);
+/*!40000 ALTER TABLE `atividades_atribuicoes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `atividades_atribuicoes_ead`
+--
+
+DROP TABLE IF EXISTS `atividades_atribuicoes_ead`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `atividades_atribuicoes_ead` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
   `DTEntrega` date NOT NULL,
-  `Realizado` int(11) NOT NULL,
-  `Feedback` varchar(50) DEFAULT NULL
+  `Realizado` int NOT NULL,
+  `Feedback` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `atividades_ead`
+-- Dumping data for table `atividades_atribuicoes_ead`
 --
 
+LOCK TABLES `atividades_atribuicoes_ead` WRITE;
+/*!40000 ALTER TABLE `atividades_atribuicoes_ead` DISABLE KEYS */;
+/*!40000 ALTER TABLE `atividades_atribuicoes_ead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `atividades_ead`
+--
+
+DROP TABLE IF EXISTS `atividades_ead`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `atividades_ead` (
-  `id` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDTurma` int NOT NULL,
+  `IDDisciplina` int NOT NULL,
   `DTAvaliacao` date NOT NULL,
-  `TPConteudo` varchar(50) NOT NULL,
-  `DSAtividade` varchar(250) NOT NULL,
-  `Pontuacao` float NOT NULL
+  `TPConteudo` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `DSAtividade` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `Pontuacao` float NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `aulas`
+-- Dumping data for table `atividades_ead`
 --
 
+LOCK TABLES `atividades_ead` WRITE;
+/*!40000 ALTER TABLE `atividades_ead` DISABLE KEYS */;
+/*!40000 ALTER TABLE `atividades_ead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `aulas`
+--
+
+DROP TABLE IF EXISTS `aulas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `aulas` (
-  `id` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
-  `DSConteudo` varchar(50) NOT NULL,
-  `DSAula` varchar(100) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDTurma` int NOT NULL,
+  `DSConteudo` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Estagio` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `DSAula` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL,
-  `IDProfessor` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
+  `IDProfessor` int NOT NULL,
+  `IDDisciplina` int NOT NULL,
   `INIAula` time NOT NULL,
-  `TERAula` time NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+  `TERAula` time NOT NULL,
+  `STAula` int DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `aulas_ead`
+-- Dumping data for table `aulas`
 --
 
+LOCK TABLES `aulas` WRITE;
+/*!40000 ALTER TABLE `aulas` DISABLE KEYS */;
+INSERT INTO `aulas` VALUES (2,1,'fsdfsf','3º BIM','Aula de Matematica','2024-07-31','2024-07-31',1,1,'07:00:00','07:50:00',1),(3,1,'fsdfdsf','3º BIM','Aula de Portugues','2024-07-31','2024-07-31',2,2,'07:50:00','08:40:00',1),(4,1,'fsdfdsf','3º BIM','dfsdfdsfsdf','2024-08-01','2024-08-01',2,2,'23:02:00','01:02:00',1);
+/*!40000 ALTER TABLE `aulas` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `aulas_ead`
+--
+
+DROP TABLE IF EXISTS `aulas_ead`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `aulas_ead` (
-  `id` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
-  `Descricao_da_Aula` varchar(250) NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDTurma` int NOT NULL,
+  `Descricao_da_Aula` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `auxiliares`
+-- Dumping data for table `aulas_ead`
 --
 
+LOCK TABLES `aulas_ead` WRITE;
+/*!40000 ALTER TABLE `aulas_ead` DISABLE KEYS */;
+/*!40000 ALTER TABLE `aulas_ead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auxiliares`
+--
+
+DROP TABLE IF EXISTS `auxiliares`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auxiliares` (
-  `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEscola` int NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Nascimento` date NOT NULL,
   `Admissao` date NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Celular` varchar(11) NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Celular` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
   `TerminoContrato` date DEFAULT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Bairro` varchar(500) DEFAULT NULL,
-  `Numero` int(11) DEFAULT NULL,
-  `Ativo` int(11) NOT NULL
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Numero` int DEFAULT NULL,
+  `Ativo` int NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `cache`
+-- Dumping data for table `auxiliares`
 --
 
+LOCK TABLES `auxiliares` WRITE;
+/*!40000 ALTER TABLE `auxiliares` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auxiliares` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `cache`
+--
+
+DROP TABLE IF EXISTS `cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cache` (
-  `key` varchar(255) NOT NULL,
-  `value` mediumtext NOT NULL,
-  `expiration` int(11) NOT NULL
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expiration` int NOT NULL,
+  PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `cache`
+-- Dumping data for table `cache`
 --
 
-INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('professor@gmail.com|127.0.0.1', 'i:1;', 1719256374),
-('professor@gmail.com|127.0.0.1:timer', 'i:1719256374;', 1719256374);
-
--- --------------------------------------------------------
+LOCK TABLES `cache` WRITE;
+/*!40000 ALTER TABLE `cache` DISABLE KEYS */;
+INSERT INTO `cache` VALUES ('diretor@gmail.com|127.0.0.1','i:1;',1722564377),('diretor@gmail.com|127.0.0.1:timer','i:1722564377;',1722564377),('professor@gmail.com|127.0.0.1','i:1;',1722290671),('professor@gmail.com|127.0.0.1:timer','i:1722290671;',1722290671);
+/*!40000 ALTER TABLE `cache` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `cache_locks`
+-- Table structure for table `cache_locks`
 --
 
+DROP TABLE IF EXISTS `cache_locks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cache_locks` (
-  `key` varchar(255) NOT NULL,
-  `owner` varchar(255) NOT NULL,
-  `expiration` int(11) NOT NULL
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `owner` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expiration` int NOT NULL,
+  PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `calendario`
+-- Dumping data for table `cache_locks`
 --
 
+LOCK TABLES `cache_locks` WRITE;
+/*!40000 ALTER TABLE `cache_locks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cache_locks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `calendario`
+--
+
+DROP TABLE IF EXISTS `calendario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `calendario` (
-  `id` int(11) NOT NULL,
-  `IDOrg` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDOrg` int NOT NULL,
   `INIAno` date NOT NULL,
   `TERAno` date NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `calendario`
---
-
-INSERT INTO `calendario` (`id`, `IDOrg`, `INIAno`, `TERAno`, `created_at`, `updated_at`) VALUES
-(1, 1, '2024-02-01', '2024-12-07', '2024-05-25', '2024-05-25');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `cardapio`
---
-
-CREATE TABLE `cardapio` (
-  `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
-  `Dia` date NOT NULL,
-  `Turno` varchar(20) NOT NULL,
-  `Descricao` text NOT NULL,
-  `Foto` text NOT NULL,
   `updated_at` date NOT NULL,
-  `created_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `cardapio`
+-- Dumping data for table `calendario`
 --
 
-INSERT INTO `cardapio` (`id`, `IDEscola`, `Dia`, `Turno`, `Descricao`, `Foto`, `updated_at`, `created_at`) VALUES
-(1, 2, '2024-05-30', 'Manhã', 'Arroz com Feijão e Suco', '', '2024-05-29', '2024-05-29');
-
--- --------------------------------------------------------
+LOCK TABLES `calendario` WRITE;
+/*!40000 ALTER TABLE `calendario` DISABLE KEYS */;
+INSERT INTO `calendario` VALUES (1,1,'2024-02-01','2024-12-01','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `calendario` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `comentarios_planual`
+-- Table structure for table `cardapio`
 --
 
+DROP TABLE IF EXISTS `cardapio`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cardapio` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEscola` int NOT NULL,
+  `Dia` date NOT NULL,
+  `Turno` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `Descricao` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Foto` text COLLATE utf8mb4_general_ci NOT NULL,
+  `updated_at` date NOT NULL,
+  `created_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cardapio`
+--
+
+LOCK TABLES `cardapio` WRITE;
+/*!40000 ALTER TABLE `cardapio` DISABLE KEYS */;
+INSERT INTO `cardapio` VALUES (1,0,'2024-07-29','Manhã','gfdgdgfgdfg','','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `cardapio` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `comentarios_planual`
+--
+
+DROP TABLE IF EXISTS `comentarios_planual`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `comentarios_planual` (
-  `id` int(11) NOT NULL,
-  `IDPlanejamentoAnual` int(11) NOT NULL,
-  `IDPedagogo` int(11) NOT NULL,
-  `Feedback` varchar(500) NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDPlanejamentoAnual` int NOT NULL,
+  `IDPedagogo` int NOT NULL,
+  `Feedback` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `comentarios_plsemanal`
+-- Dumping data for table `comentarios_planual`
 --
 
+LOCK TABLES `comentarios_planual` WRITE;
+/*!40000 ALTER TABLE `comentarios_planual` DISABLE KEYS */;
+/*!40000 ALTER TABLE `comentarios_planual` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `comentarios_plsemanal`
+--
+
+DROP TABLE IF EXISTS `comentarios_plsemanal`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `comentarios_plsemanal` (
-  `id` int(11) NOT NULL,
-  `IDPlanejamentoSemanal` int(11) NOT NULL,
-  `IDPedagogo` int(11) NOT NULL,
-  `Feedback` varchar(500) NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDPlanejamentoSemanal` int NOT NULL,
+  `IDPedagogo` int NOT NULL,
+  `Feedback` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `diretores`
+-- Dumping data for table `comentarios_plsemanal`
 --
 
+LOCK TABLES `comentarios_plsemanal` WRITE;
+/*!40000 ALTER TABLE `comentarios_plsemanal` DISABLE KEYS */;
+/*!40000 ALTER TABLE `comentarios_plsemanal` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `diretores`
+--
+
+DROP TABLE IF EXISTS `diretores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `diretores` (
-  `id` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Nascimento` date NOT NULL,
   `Admissao` date NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Celular` varchar(11) NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Celular` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
   `TerminoContrato` date DEFAULT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Bairro` varchar(50) DEFAULT NULL,
-  `Numero` int(11) DEFAULT NULL,
-  `IDEscola` int(11) NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Numero` int DEFAULT NULL,
+  `IDEscola` int NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `diretores`
+-- Dumping data for table `diretores`
 --
 
-INSERT INTO `diretores` (`id`, `Nome`, `Nascimento`, `Admissao`, `Email`, `Celular`, `TerminoContrato`, `CEP`, `Rua`, `UF`, `Cidade`, `Bairro`, `Numero`, `IDEscola`, `created_at`, `updated_at`) VALUES
-(1, 'gallinheiro', '2024-05-10', '2024-05-25', 'gallicu@gmail.com', '31932342424', '2024-05-17', '35160108', 'Rua Hungria', 'MG', 'Ipatinga', 'Cariru', 234, 5, '2024-05-20', '2024-05-20'),
-(2, '423534', '2024-05-25', '2024-05-18', 'dfsfs@gmail.com', '32424234242', '2024-05-16', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2442, 4, '2024-05-20', '2024-05-20'),
-(3, 'PedagogoTest', '2024-05-18', '2024-05-23', 'sdfsdf@gmail.com', '42424242', '2024-05-16', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 0, '2024-05-22', '2024-05-22'),
-(4, 'sdfsdfsd', '2024-05-09', '2024-05-16', 'dsfsdfsd@gmai.com', '234242423', '2024-06-01', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 0, '2024-05-22', '2024-05-22'),
-(5, 'DIRETOR TESTE', '2024-06-27', '2024-06-07', 'diretor@gmail.com', '31983086235', '2024-07-04', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 1, '2024-06-03', '2024-06-03');
-
--- --------------------------------------------------------
+LOCK TABLES `diretores` WRITE;
+/*!40000 ALTER TABLE `diretores` DISABLE KEYS */;
+INSERT INTO `diretores` VALUES (1,'Diretor 1','1975-08-15','2024-07-28','diretor1@gmail.com','23432423422','2024-11-28','35160208','Avenida Vinte e Seis de Outubro','MG','Ipatinga','Bela Vista',2014,1,'2024-07-28','2024-07-28');
+/*!40000 ALTER TABLE `diretores` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `disciplinas`
+-- Table structure for table `disciplinas`
 --
 
+DROP TABLE IF EXISTS `disciplinas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `disciplinas` (
-  `id` int(11) NOT NULL,
-  `NMDisciplina` varchar(30) NOT NULL,
-  `Obrigatoria` varchar(3) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `NMDisciplina` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
+  `Obrigatoria` varchar(3) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `disciplinas`
+-- Dumping data for table `disciplinas`
 --
 
-INSERT INTO `disciplinas` (`id`, `NMDisciplina`, `Obrigatoria`, `created_at`, `updated_at`) VALUES
-(1, 'Ciencias da Natureza', 'Sim', '2024-06-24', '2024-06-24'),
-(2, 'Natureza e Sociedade', 'Não', '2024-06-24', '2024-06-24');
-
--- --------------------------------------------------------
+LOCK TABLES `disciplinas` WRITE;
+/*!40000 ALTER TABLE `disciplinas` DISABLE KEYS */;
+INSERT INTO `disciplinas` VALUES (1,'Matemática','Sim','2024-07-28','2024-07-28'),(2,'Lingua Portuguesa','Sim','2024-07-28','2024-07-28');
+/*!40000 ALTER TABLE `disciplinas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `dissertativas_ead`
+-- Table structure for table `dissertativas_ead`
 --
 
+DROP TABLE IF EXISTS `dissertativas_ead`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dissertativas_ead` (
-  `id` int(11) NOT NULL,
-  `IDAtividade` int(11) NOT NULL,
-  `Enunciado` varchar(50) NOT NULL,
-  `Resposta` text DEFAULT NULL,
-  `Feedback` varchar(250) DEFAULT NULL,
-  `Resultado` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAtividade` int NOT NULL,
+  `Enunciado` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Resposta` text COLLATE utf8mb4_general_ci,
+  `Feedback` varchar(250) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Resultado` int NOT NULL,
   `Total` float NOT NULL,
-  `Nota` float DEFAULT NULL
+  `Nota` float DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `escolas`
+-- Dumping data for table `dissertativas_ead`
 --
 
+LOCK TABLES `dissertativas_ead` WRITE;
+/*!40000 ALTER TABLE `dissertativas_ead` DISABLE KEYS */;
+/*!40000 ALTER TABLE `dissertativas_ead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `escolas`
+--
+
+DROP TABLE IF EXISTS `escolas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `escolas` (
-  `id` int(11) NOT NULL,
-  `IDOrg` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `Bairro` varchar(50) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Numero` int(11) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Telefone` varchar(11) NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `QTVagas` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDOrg` int NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Numero` int NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Telefone` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `QTVagas` int NOT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `escolas`
+-- Dumping data for table `escolas`
 --
 
-INSERT INTO `escolas` (`id`, `IDOrg`, `Nome`, `CEP`, `Rua`, `Bairro`, `Cidade`, `Numero`, `UF`, `Telefone`, `Email`, `QTVagas`, `created_at`, `updated_at`) VALUES
-(1, 1, 'E.E. Doutor Ovídio De Andrade', '35160230', 'Rua Lourenço da Veiga', 'Bom Retiro', 'Ipatinga', 0, 'MG', '31345435534', 'drovidio@gmail.com', 1000, '2024-06-24 19:48:50', '2024-06-24 19:48:50'),
-(2, 1, 'Escola Municipal Gente Inocente', '35160279', 'Rua Vanádio', 'Imbaúbas', 'Ipatinga', 27, 'MG', '31923434234', 'genteinocente@gmail.com', 500, '2024-06-24 19:57:32', '2024-06-24 19:57:32');
-
--- --------------------------------------------------------
+LOCK TABLES `escolas` WRITE;
+/*!40000 ALTER TABLE `escolas` DISABLE KEYS */;
+INSERT INTO `escolas` VALUES (1,1,'Escola Municipal Levindo Mariano','35162282','Rua Mariano Félix','Bom Jardim','Ipatinga',570,'MG','3138298388','levindomariano@pmi.com.br',597,'2024-07-28 20:38:56','2024-07-28 20:38:56'),(2,1,'Escola Municipal Gente Inocente','35160279','Rua Vanádio','Imbaúbas','Ipatinga',27,'MG','3138298358','genteinocente@pmi.mg.gov.br',499,'2024-07-28 20:40:10','2024-07-28 20:40:10'),(3,1,'Escola Municipal Carlos Drumond de Andrade','35162155','Rua Artur Azevedo','Ideal','Ipatinga',118,'MG','3138298380','carlosdrumong@mg.gov.br',799,'2024-07-28 20:44:26','2024-07-28 20:44:26');
+/*!40000 ALTER TABLE `escolas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `estoque`
+-- Table structure for table `estoque`
 --
 
+DROP TABLE IF EXISTS `estoque`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `estoque` (
-  `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEscola` int NOT NULL,
   `Quantidade` float NOT NULL,
-  `TPUnidade` varchar(2) NOT NULL,
+  `TPUnidade` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
   `Vencimento` date DEFAULT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `Item` varchar(250) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `Item` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `estoque`
+-- Dumping data for table `estoque`
 --
 
-INSERT INTO `estoque` (`id`, `IDEscola`, `Quantidade`, `TPUnidade`, `Vencimento`, `created_at`, `updated_at`, `Item`) VALUES
-(1, 2, 4, 'UN', '2024-07-23', '2024-05-29', '2024-05-29', 'Saco de Arroz');
-
--- --------------------------------------------------------
+LOCK TABLES `estoque` WRITE;
+/*!40000 ALTER TABLE `estoque` DISABLE KEYS */;
+INSERT INTO `estoque` VALUES (1,1,-31,'UN','2024-08-09','2024-07-29','2024-07-29','gsg'),(2,1,234,'UN','2024-07-30','2024-07-29','2024-07-29','gfgdfg'),(3,1,3244,'UN','2024-07-26','2024-07-29','2024-07-29','sdfsdf');
+/*!40000 ALTER TABLE `estoque` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `estoque_movimentacao`
+-- Table structure for table `estoque_movimentacao`
 --
 
+DROP TABLE IF EXISTS `estoque_movimentacao`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `estoque_movimentacao` (
-  `id` int(11) NOT NULL,
-  `IDEstoque` int(11) NOT NULL,
-  `TPMovimentacao` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEstoque` int NOT NULL,
+  `TPMovimentacao` int NOT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL,
-  `Quantidade` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `Quantidade` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `estoque_movimentacao`
+-- Dumping data for table `estoque_movimentacao`
 --
 
-INSERT INTO `estoque_movimentacao` (`id`, `IDEstoque`, `TPMovimentacao`, `updated_at`, `created_at`, `Quantidade`) VALUES
-(1, 1, 0, '2024-05-29', '2024-05-29', 2);
-
--- --------------------------------------------------------
+LOCK TABLES `estoque_movimentacao` WRITE;
+/*!40000 ALTER TABLE `estoque_movimentacao` DISABLE KEYS */;
+INSERT INTO `estoque_movimentacao` VALUES (1,1,0,'2024-07-29','2024-07-29',35);
+/*!40000 ALTER TABLE `estoque_movimentacao` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `eventos`
+-- Table structure for table `eventos`
 --
 
+DROP TABLE IF EXISTS `eventos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `eventos` (
-  `id` int(11) NOT NULL,
-  `DSEvento` varchar(250) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `DSEvento` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  `IDEscola` int NOT NULL,
+  `Data` date NOT NULL,
+  `Inicio` time NOT NULL,
+  `Termino` time NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `eventos`
+-- Dumping data for table `eventos`
 --
 
-INSERT INTO `eventos` (`id`, `DSEvento`, `created_at`, `updated_at`) VALUES
-(1, 'Reuniao de Pais', '2024-05-24', '2024-05-24');
-
--- --------------------------------------------------------
+LOCK TABLES `eventos` WRITE;
+/*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
+INSERT INTO `eventos` VALUES (1,'fgdfgdgdgf','2024-07-29','2024-07-29',1,'2024-07-29','00:31:00','04:31:00');
+/*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `failed_jobs`
+-- Table structure for table `failed_jobs`
 --
 
+DROP TABLE IF EXISTS `failed_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `failed_jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `uuid` varchar(255) NOT NULL,
-  `connection` text NOT NULL,
-  `queue` text NOT NULL,
-  `payload` longtext NOT NULL,
-  `exception` longtext NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `faltas_justificadas`
+-- Dumping data for table `failed_jobs`
 --
 
+LOCK TABLES `failed_jobs` WRITE;
+/*!40000 ALTER TABLE `failed_jobs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `failed_jobs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `faltas_justificadas`
+--
+
+DROP TABLE IF EXISTS `faltas_justificadas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `faltas_justificadas` (
-  `id` int(11) NOT NULL,
-  `IDPessoa` int(11) NOT NULL,
-  `Justificativa` varchar(250) NOT NULL,
-  `DTFalta` date DEFAULT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDPessoa` int NOT NULL,
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `DTFalta` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `faltas_justificadas_profissional`
+-- Dumping data for table `faltas_justificadas`
 --
 
+LOCK TABLES `faltas_justificadas` WRITE;
+/*!40000 ALTER TABLE `faltas_justificadas` DISABLE KEYS */;
+/*!40000 ALTER TABLE `faltas_justificadas` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `faltas_justificadas_profissional`
+--
+
+DROP TABLE IF EXISTS `faltas_justificadas_profissional`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `faltas_justificadas_profissional` (
-  `id` int(11) NOT NULL,
-  `IDPessoa` int(11) NOT NULL,
-  `Justificativa` varchar(250) NOT NULL,
-  `DTFalta` date DEFAULT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDPessoa` int NOT NULL,
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `DTFalta` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `feedback_transferencias`
+-- Dumping data for table `faltas_justificadas_profissional`
 --
 
+LOCK TABLES `faltas_justificadas_profissional` WRITE;
+/*!40000 ALTER TABLE `faltas_justificadas_profissional` DISABLE KEYS */;
+/*!40000 ALTER TABLE `faltas_justificadas_profissional` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `feedback_transferencias`
+--
+
+DROP TABLE IF EXISTS `feedback_transferencias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `feedback_transferencias` (
-  `id` int(11) NOT NULL,
-  `Feedback` varchar(250) NOT NULL,
-  `IDTransferencia` int(11) NOT NULL
+  `id` int NOT NULL,
+  `Feedback` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `IDTransferencia` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `ferias_alunos`
+-- Dumping data for table `feedback_transferencias`
 --
 
+LOCK TABLES `feedback_transferencias` WRITE;
+/*!40000 ALTER TABLE `feedback_transferencias` DISABLE KEYS */;
+/*!40000 ALTER TABLE `feedback_transferencias` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ferias_alunos`
+--
+
+DROP TABLE IF EXISTS `ferias_alunos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ferias_alunos` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `DTInicio` date NOT NULL,
   `DTTermino` date NOT NULL,
-  `IDEscola` int(11) NOT NULL,
+  `IDEscola` int NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `ferias_alunos`
+-- Dumping data for table `ferias_alunos`
 --
 
-INSERT INTO `ferias_alunos` (`id`, `DTInicio`, `DTTermino`, `IDEscola`, `created_at`, `updated_at`) VALUES
-(1, '2024-05-30', '2024-05-16', 4, '2024-05-24', '2024-05-25'),
-(2, '2024-05-10', '2024-05-30', 5, '2024-05-25', '2024-05-25'),
-(3, '0000-00-00', '0000-00-00', 2, '2024-05-25', '2024-05-25'),
-(4, '2024-05-08', '2024-05-31', 1, '2024-05-25', '2024-05-25'),
-(5, '2024-05-11', '2024-05-31', 1, '2024-05-25', '2024-05-25'),
-(6, '2024-05-09', '2024-05-14', 1, '2024-05-25', '2024-05-25');
-
--- --------------------------------------------------------
+LOCK TABLES `ferias_alunos` WRITE;
+/*!40000 ALTER TABLE `ferias_alunos` DISABLE KEYS */;
+INSERT INTO `ferias_alunos` VALUES (1,'2024-07-17','2024-07-26',1,'2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `ferias_alunos` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `ferias_profissionais`
+-- Table structure for table `ferias_profissionais`
 --
 
+DROP TABLE IF EXISTS `ferias_profissionais`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ferias_profissionais` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `DTInicio` date NOT NULL,
   `DTTermino` date NOT NULL,
-  `IDEscola` int(11) NOT NULL,
-  `IDProfissional` int(11) NOT NULL,
+  `IDEscola` int NOT NULL,
+  `IDProfissional` int NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `ferias_profissionais`
+-- Dumping data for table `ferias_profissionais`
 --
 
-INSERT INTO `ferias_profissionais` (`id`, `DTInicio`, `DTTermino`, `IDEscola`, `IDProfissional`, `created_at`, `updated_at`) VALUES
-(1, '2024-05-15', '2024-05-25', 4, 2, '2024-05-26', '2024-05-26');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `jobs`
---
-
-CREATE TABLE `jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `queue` varchar(255) NOT NULL,
-  `payload` longtext NOT NULL,
-  `attempts` tinyint(3) UNSIGNED NOT NULL,
-  `reserved_at` int(10) UNSIGNED DEFAULT NULL,
-  `available_at` int(10) UNSIGNED NOT NULL,
-  `created_at` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+LOCK TABLES `ferias_profissionais` WRITE;
+/*!40000 ALTER TABLE `ferias_profissionais` DISABLE KEYS */;
+INSERT INTO `ferias_profissionais` VALUES (1,'2024-07-24','2024-07-29',1,1,'2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `ferias_profissionais` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `job_batches`
+-- Table structure for table `frequencia`
 --
 
+DROP TABLE IF EXISTS `frequencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `frequencia` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `IDAula` int DEFAULT NULL,
+  `Presenca` int DEFAULT '0',
+  `created_at` date DEFAULT NULL,
+  `updated_at` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `frequencia`
+--
+
+LOCK TABLES `frequencia` WRITE;
+/*!40000 ALTER TABLE `frequencia` DISABLE KEYS */;
+INSERT INTO `frequencia` VALUES (1,1,1,0,'2024-07-31','2024-07-31'),(2,2,1,0,'2024-07-31','2024-07-31'),(3,1,3,0,'2024-07-31','2024-07-31'),(4,2,3,0,'2024-07-31','2024-07-31'),(5,1,2,0,'2024-07-31','2024-07-31'),(6,2,2,0,'2024-07-31','2024-07-31'),(7,1,4,0,'2024-08-01','2024-08-01');
+/*!40000 ALTER TABLE `frequencia` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `job_batches`
+--
+
+DROP TABLE IF EXISTS `job_batches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `job_batches` (
-  `id` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `total_jobs` int(11) NOT NULL,
-  `pending_jobs` int(11) NOT NULL,
-  `failed_jobs` int(11) NOT NULL,
-  `failed_job_ids` longtext NOT NULL,
-  `options` mediumtext DEFAULT NULL,
-  `cancelled_at` int(11) DEFAULT NULL,
-  `created_at` int(11) NOT NULL,
-  `finished_at` int(11) DEFAULT NULL
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_jobs` int NOT NULL,
+  `pending_jobs` int NOT NULL,
+  `failed_jobs` int NOT NULL,
+  `failed_job_ids` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `options` mediumtext COLLATE utf8mb4_unicode_ci,
+  `cancelled_at` int DEFAULT NULL,
+  `created_at` int NOT NULL,
+  `finished_at` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `justificativa_alteracoes`
+-- Dumping data for table `job_batches`
 --
 
+LOCK TABLES `job_batches` WRITE;
+/*!40000 ALTER TABLE `job_batches` DISABLE KEYS */;
+/*!40000 ALTER TABLE `job_batches` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobs`
+--
+
+DROP TABLE IF EXISTS `jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jobs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint unsigned NOT NULL,
+  `reserved_at` int unsigned DEFAULT NULL,
+  `available_at` int unsigned NOT NULL,
+  `created_at` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobs`
+--
+
+LOCK TABLES `jobs` WRITE;
+/*!40000 ALTER TABLE `jobs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jobs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `justificativa_alteracoes`
+--
+
+DROP TABLE IF EXISTS `justificativa_alteracoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `justificativa_alteracoes` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `Justificativa` varchar(250) NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `matriculas`
+-- Dumping data for table `justificativa_alteracoes`
 --
 
+LOCK TABLES `justificativa_alteracoes` WRITE;
+/*!40000 ALTER TABLE `justificativa_alteracoes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `justificativa_alteracoes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `matriculas`
+--
+
+DROP TABLE IF EXISTS `matriculas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `matriculas` (
-  `id` int(11) NOT NULL,
-  `AnexoRG` varchar(100) NOT NULL,
-  `CResidencia` varchar(100) NOT NULL,
-  `Historico` varchar(100) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
-  `CPF` varchar(11) NOT NULL,
-  `RG` varchar(9) NOT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Celular` varchar(11) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `BolsaFamilia` int(11) NOT NULL,
-  `Alergia` int(11) NOT NULL,
-  `Transporte` int(11) NOT NULL,
-  `NEE` int(11) NOT NULL,
-  `AMedico` int(11) NOT NULL,
-  `APsicologico` int(11) NOT NULL,
-  `Aprovado` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `AnexoRG` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `CResidencia` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Historico` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `CPF` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
+  `RG` varchar(9) COLLATE utf8mb4_general_ci NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Celular` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `BolsaFamilia` int NOT NULL,
+  `Alergia` int NOT NULL,
+  `Transporte` int NOT NULL,
+  `NEE` int NOT NULL,
+  `AMedico` int NOT NULL,
+  `APsicologico` int NOT NULL,
+  `Aprovado` int NOT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL,
   `Nascimento` date NOT NULL,
-  `Foto` varchar(100) NOT NULL,
-  `Bairro` varchar(10) NOT NULL,
-  `Numero` int(11) NOT NULL,
-  `CDPasta` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `Foto` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `Numero` int NOT NULL,
+  `CDPasta` bigint NOT NULL,
+  `RGPaisAnexo` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `matriculas`
+-- Dumping data for table `matriculas`
 --
 
-INSERT INTO `matriculas` (`id`, `AnexoRG`, `CResidencia`, `Historico`, `Nome`, `CPF`, `RG`, `CEP`, `Rua`, `Email`, `Celular`, `UF`, `Cidade`, `BolsaFamilia`, `Alergia`, `Transporte`, `NEE`, `AMedico`, `APsicologico`, `Aprovado`, `updated_at`, `created_at`, `Nascimento`, `Foto`, `Bairro`, `Numero`, `CDPasta`) VALUES
-(1, 'curriculo 2024 (2).pdf', 'curriculo.pdf', 'Proposta comercial FR tecnologia.pdf', 'Freitinha', '08901129671', '20896779', '35160208', 'Avenida Vinte e Seis de Outubro', 'maxhenrique308@gmail.com', '31983908623', 'MG', 'Ipatinga', 0, 0, 0, 0, 0, 0, 1, '2024-06-05', '2024-06-05', '2001-02-16', 'freitinha.png', 'Bela Vista', 2014, 62971084206),
-(2, 'daeonline.pdf', 'Cupom baixado (2).pdf', 'curriculo.pdf', 'Freitão', '08901129671', '20896779', '35160208', 'Avenida Vinte e Seis de Outubro', 'maxhenriquee308@gmail.com', '45453453453', 'MG', 'Ipatinga', 1, 1, 1, 1, 1, 1, 1, '2024-06-06', '2024-06-05', '2001-02-16', 'maiordeipatingalinkedin.jpeg', 'Bela Vista', 0, 45561104601),
-(3, '923f3ef6dbd04ae49677ac43bd779fce-6-17.pdf', 'testeclick.pdf', 'LISTA_EDUCAR_ALUNOS-1_compressed.pdf', 'fsdfsdfsd', '23424234234', '44234324', '35171026', 'Rua Tungstênio', 'sdfsd@gmail.com', '23322342342', 'MG', 'Coronel Fabriciano', 1, 1, 1, 1, 1, 1, 1, '2024-06-06', '2024-06-06', '2024-06-11', 'XT3B3773.jpg', 'Recanto Ve', 234, 62696647991);
-
--- --------------------------------------------------------
+LOCK TABLES `matriculas` WRITE;
+/*!40000 ALTER TABLE `matriculas` DISABLE KEYS */;
+INSERT INTO `matriculas` VALUES (1,'Proposta.pdf','Planilha-de-Custos CRT-ES.pdf','PLANEJAMENTO HISTÓRIA 6 ANO.pdf','Aluna 1','42342342424','23424344','35160208','Avenida Vinte e Seis de Outubro','fsfsd@gmail.com','23423434244','MG','Ipatinga',1,1,1,1,1,1,1,'2024-07-28','2024-07-28','2024-07-28','aluna-na-biblioteca.png','Bela Vista',2424,42562821820,'termo.bnc.pdf'),(2,'termo.bnc (2).pdf','Propospa Cosmópolis (1).pdf','Proposta.pdf','Aluno 2','35345345344','44354353','35160209','Rua Virginópolis','gdfg@gmail.com','23432432442','MG','Ipatinga',1,0,1,1,0,1,1,'2024-07-28','2024-07-28','2024-07-22','EF1.png','Bela Vista',44,19241598974,'Formalização da Prorrogação da Assinatura Locaweb.pdf');
+/*!40000 ALTER TABLE `matriculas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `migrations`
+-- Table structure for table `migrations`
 --
 
+DROP TABLE IF EXISTS `migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(255) NOT NULL,
-  `batch` int(11) NOT NULL
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `migrations`
+-- Dumping data for table `migrations`
 --
 
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
-(1, '0001_01_01_000000_create_users_table', 1),
-(2, '0001_01_01_000001_create_cache_table', 1),
-(3, '0001_01_01_000002_create_jobs_table', 1);
-
--- --------------------------------------------------------
+LOCK TABLES `migrations` WRITE;
+/*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `motoristas`
+-- Table structure for table `motoristas`
 --
 
+DROP TABLE IF EXISTS `motoristas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `motoristas` (
-  `id` int(11) NOT NULL,
-  `IDOrganizacao` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDOrganizacao` int NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Nascimento` date NOT NULL,
   `Admissao` date NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Celular` varchar(11) NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Celular` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
   `TerminoContrato` date DEFAULT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Bairro` varchar(500) DEFAULT NULL,
-  `Numero` int(11) DEFAULT NULL,
-  `Ativo` int(11) NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Numero` int DEFAULT NULL,
+  `Ativo` int NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `motoristas`
+-- Dumping data for table `motoristas`
 --
 
-INSERT INTO `motoristas` (`id`, `IDOrganizacao`, `Nome`, `Nascimento`, `Admissao`, `Email`, `Celular`, `TerminoContrato`, `CEP`, `Rua`, `UF`, `Cidade`, `Bairro`, `Numero`, `Ativo`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Eusébioo', '2024-05-07', '2024-05-24', 'Maxhenrique307@gmail.com', '31983242343', '2024-05-25', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 0, '2024-05-31', '2024-05-31'),
-(2, 1, 'Motorista Tste', '2024-06-13', '2024-06-19', 'aaada@gmail.com', '12131213213', '2024-06-19', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 0, '2024-06-01', '2024-06-01');
-
--- --------------------------------------------------------
+LOCK TABLES `motoristas` WRITE;
+/*!40000 ALTER TABLE `motoristas` DISABLE KEYS */;
+INSERT INTO `motoristas` VALUES (1,1,'motora','2001-03-23','2024-07-29','fsdfsdf@gmail.com','2342343242','2024-08-01','35160208','Avenida Vinte e Seis de Outubro','MG','Ipatinga','Bela Vista',2014,0,'2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `motoristas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `objetivas_ead`
+-- Table structure for table `notas`
 --
 
+DROP TABLE IF EXISTS `notas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notas` (
+  `IDAluno` int NOT NULL,
+  `IDAtividade` int NOT NULL,
+  `Nota` float NOT NULL,
+  `created_at` date DEFAULT NULL,
+  `updated_at` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notas`
+--
+
+LOCK TABLES `notas` WRITE;
+/*!40000 ALTER TABLE `notas` DISABLE KEYS */;
+INSERT INTO `notas` VALUES (1,1,10,'2024-08-01','2024-08-01'),(2,1,10,'2024-08-01','2024-08-01'),(1,2,10,'2024-08-01','2024-08-01'),(2,2,10,'2024-08-01','2024-08-01'),(1,3,5,'2024-08-01','2024-08-01');
+/*!40000 ALTER TABLE `notas` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `objetivas_ead`
+--
+
+DROP TABLE IF EXISTS `objetivas_ead`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `objetivas_ead` (
-  `id` int(11) NOT NULL,
-  `IDAtividade` int(11) NOT NULL,
-  `Enunciado` varchar(50) NOT NULL,
-  `Opcoes` text NOT NULL,
-  `Correta` varchar(1) NOT NULL,
-  `Resposta` varchar(1) DEFAULT NULL,
-  `Feedback` varchar(250) DEFAULT NULL,
-  `Total` float NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAtividade` int NOT NULL,
+  `Enunciado` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Opcoes` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Correta` varchar(1) COLLATE utf8mb4_general_ci NOT NULL,
+  `Resposta` varchar(1) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Feedback` varchar(250) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Total` float NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `ocorrencias`
+-- Dumping data for table `objetivas_ead`
 --
 
+LOCK TABLES `objetivas_ead` WRITE;
+/*!40000 ALTER TABLE `objetivas_ead` DISABLE KEYS */;
+/*!40000 ALTER TABLE `objetivas_ead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ocorrencias`
+--
+
+DROP TABLE IF EXISTS `ocorrencias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ocorrencias` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `IDProfessor` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `IDProfessor` int NOT NULL,
   `DTOcorrencia` datetime NOT NULL,
-  `DSOcorrido` varchar(500) NOT NULL
+  `DSOcorrido` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `organizacoes`
+-- Dumping data for table `ocorrencias`
 --
 
+LOCK TABLES `ocorrencias` WRITE;
+/*!40000 ALTER TABLE `ocorrencias` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ocorrencias` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `organizacoes`
+--
+
+DROP TABLE IF EXISTS `organizacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organizacoes` (
-  `id` int(11) NOT NULL,
-  `Organizacao` varchar(100) NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Endereco` varchar(250) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(30) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `Organizacao` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Endereco` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `organizacoes`
+-- Dumping data for table `organizacoes`
 --
 
-INSERT INTO `organizacoes` (`id`, `Organizacao`, `Email`, `Endereco`, `UF`, `Cidade`, `updated_at`, `created_at`) VALUES
-(1, 'Oba Oba e o Maior de Ipatinga', 'maxhenrique308@gmail.co', '{\"Rua\":\"Avenida Vinte e Seis de Outubro\",\"Cidade\":\"Ipatinga\",\"Bairro\":\"Bela Vista\",\"UF\":\"MG\",\"Numero\":\"2014\",\"CEP\":\"35160-208\"}', 'MG', 'Ipatinga', '2024-05-13 04:11:14', '2024-05-12 07:56:27'),
-(2, 'testando secretaria', 'teste@gmail.com', '{\"Rua\":\"Avenida Vinte e Seis de Outubro\",\"Cidade\":\"Ipatinga\",\"Bairro\":\"Bela Vista\",\"UF\":\"MG\",\"Numero\":\"2014\",\"CEP\":\"35160-208\"}', 'MG', 'Ipatinga', '2024-05-13 05:08:57', '2024-05-13 05:08:57');
-
--- --------------------------------------------------------
+LOCK TABLES `organizacoes` WRITE;
+/*!40000 ALTER TABLE `organizacoes` DISABLE KEYS */;
+INSERT INTO `organizacoes` VALUES (1,'Prefeitura Municipal de Ipatinga - PMI','educacional@pmi.mg.gov.br','{\"Rua\":\"Avenida Carlos Chagas\",\"Cidade\":\"Ipatinga\",\"Bairro\":\"Cidade Nobre\",\"UF\":\"MG\",\"Numero\":\"825\",\"CEP\":\"35162-359\"}','MG','Ipatinga','2024-07-28 20:32:28','2024-07-28 20:32:28');
+/*!40000 ALTER TABLE `organizacoes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `paradas`
+-- Table structure for table `paradas`
 --
 
+DROP TABLE IF EXISTS `paradas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `paradas` (
-  `id` int(11) NOT NULL,
-  `IDRota` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDRota` int NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Hora` time NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `paradas`
+-- Dumping data for table `paradas`
 --
 
-INSERT INTO `paradas` (`id`, `IDRota`, `Nome`, `Hora`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Test', '15:38:00', '2024-06-01', '2024-06-01'),
-(2, 1, 'Testt', '19:08:00', '2024-06-01', '2024-06-01');
-
--- --------------------------------------------------------
+LOCK TABLES `paradas` WRITE;
+/*!40000 ALTER TABLE `paradas` DISABLE KEYS */;
+INSERT INTO `paradas` VALUES (1,1,'Ponto A2','06:30:00','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `paradas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `paralizacoes`
+-- Table structure for table `paralizacoes`
 --
 
+DROP TABLE IF EXISTS `paralizacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `paralizacoes` (
-  `id` int(11) NOT NULL,
-  `DSMotivo` varchar(250) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `DSMotivo` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `IDEscola` int NOT NULL,
   `DTInicio` date NOT NULL,
   `DTTermino` date NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `paralizacoes`
+-- Dumping data for table `paralizacoes`
 --
 
-INSERT INTO `paralizacoes` (`id`, `DSMotivo`, `IDEscola`, `DTInicio`, `DTTermino`, `created_at`, `updated_at`) VALUES
-(1, 'Motivod e teste', 3, '2024-05-06', '2024-05-30', '2024-05-25', '2024-05-25');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `participacoeseventos`
---
-
-CREATE TABLE `participacoeseventos` (
-  `IDEscola` int(11) NOT NULL,
-  `IDEvento` int(11) NOT NULL,
-  `DTInicio` datetime NOT NULL,
-  `DTTermino` datetime NOT NULL,
-  `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+LOCK TABLES `paralizacoes` WRITE;
+/*!40000 ALTER TABLE `paralizacoes` DISABLE KEYS */;
+INSERT INTO `paralizacoes` VALUES (1,'fgdfgdgdf',1,'2024-07-29','2024-07-31','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `paralizacoes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Despejando dados para a tabela `participacoeseventos`
+-- Table structure for table `password_reset_tokens`
 --
 
-INSERT INTO `participacoeseventos` (`IDEscola`, `IDEvento`, `DTInicio`, `DTTermino`, `created_at`, `updated_at`) VALUES
-(1, 1, '2024-05-13 04:38:00', '2024-06-01 04:38:00', '2024-05-24', '2024-05-24'),
-(4, 1, '2024-05-06 04:38:00', '2024-06-01 04:38:00', '2024-05-24', '2024-05-24');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `password_reset_tokens`
---
-
+DROP TABLE IF EXISTS `password_reset_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `password_reset_tokens` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `pedagogos`
+-- Dumping data for table `password_reset_tokens`
 --
 
+LOCK TABLES `password_reset_tokens` WRITE;
+/*!40000 ALTER TABLE `password_reset_tokens` DISABLE KEYS */;
+/*!40000 ALTER TABLE `password_reset_tokens` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `pedagogos`
+--
+
+DROP TABLE IF EXISTS `pedagogos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedagogos` (
-  `id` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Nascimento` date NOT NULL,
   `Admissao` date NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Celular` varchar(11) NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Celular` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
   `TerminoContrato` date DEFAULT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Bairro` varchar(500) DEFAULT NULL,
-  `Numero` int(11) DEFAULT NULL,
-  `Ativo` int(11) NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Numero` int DEFAULT NULL,
+  `Ativo` int NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `pedagogos`
---
-
-INSERT INTO `pedagogos` (`id`, `Nome`, `Nascimento`, `Admissao`, `Email`, `Celular`, `TerminoContrato`, `CEP`, `Rua`, `UF`, `Cidade`, `Bairro`, `Numero`, `Ativo`, `created_at`, `updated_at`) VALUES
-(1, 'Pedagogo', '2024-05-18', '2024-05-11', 'peda@gmail.com', '32442443423', '2024-05-18', '35160208', 'Avenida Vinte e Seis de Outubro', 'MG', 'Ipatinga', 'Bela Vista', 2014, 0, '2024-05-22', '2024-05-22');
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `planejamentoanual`
---
-
-CREATE TABLE `planejamentoanual` (
-  `id` int(11) NOT NULL,
-  `IDProfessor` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
-  `NMPlanejamento` varchar(25) NOT NULL,
-  `PLConteudos` text NOT NULL,
-  `Aprovado` int(11) NOT NULL,
   `updated_at` date NOT NULL,
-  `created_at` date NOT NULL
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `planejamentoanual`
+-- Dumping data for table `pedagogos`
 --
 
-INSERT INTO `planejamentoanual` (`id`, `IDProfessor`, `IDDisciplina`, `IDTurma`, `NMPlanejamento`, `PLConteudos`, `Aprovado`, `updated_at`, `created_at`) VALUES
-(1, 1, 1, 0, 'planejamento oitavo ano', '\"{\\\"primeiroBimestre\\\":[{\\\"Conteudo\\\":\\\"kkkklll\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[]},{\\\"Conteudo\\\":\\\"kjkjkjk\\\",\\\"Inicio\\\":\\\"33\\\",\\\"Termino\\\":\\\"33\\\",\\\"Conteudos\\\":[\\\"ddd\\\",\\\"ghh\\\"]}],\\\"segundoBimestre\\\":[{\\\"Conteudo\\\":\\\"fghfgh\\\",\\\"Inicio\\\":\\\"345\\\",\\\"Termino\\\":\\\"5345\\\",\\\"Conteudos\\\":[\\\"fsdfsdf\\\",\\\"fsdfsf\\\",\\\"fsdfdsf\\\"]},{\\\"Conteudo\\\":\\\"fghfghfg\\\",\\\"Inicio\\\":\\\"435\\\",\\\"Termino\\\":\\\"5345\\\",\\\"Conteudos\\\":[\\\"fsdfs\\\",\\\"fsdfsf\\\",\\\"fsdfsdf\\\"]},{\\\"Conteudo\\\":\\\"hgfhghh\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[]},{\\\"Conteudo\\\":\\\"fsdfsf\\\",\\\"Inicio\\\":\\\"455\\\",\\\"Termino\\\":\\\"435\\\",\\\"Conteudos\\\":[]}],\\\"terceiroBimestre\\\":[{\\\"Conteudo\\\":\\\"hjhghj\\\",\\\"Inicio\\\":\\\"345\\\",\\\"Termino\\\":\\\"545\\\",\\\"Conteudos\\\":[\\\"ffff\\\",\\\"ffff\\\",\\\"ffff\\\"]}],\\\"quartoBimestre\\\":[]}\"', 0, '2024-06-27', '2024-06-24'),
-(3, 1, 2, 0, 'Planejamento Infantil', '\"{\\\"primeiroSemestre\\\":[{\\\"Conteudo\\\":\\\"dsfdsf\\\",\\\"Inicio\\\":\\\"44\\\",\\\"Termino\\\":\\\"44\\\",\\\"Conteudos\\\":[\\\"fsdfsd\\\",\\\"fsdfsdf\\\"]},{\\\"Conteudo\\\":\\\"fdsfsdf\\\",\\\"Inicio\\\":\\\"34534\\\",\\\"Termino\\\":\\\"4353\\\",\\\"Conteudos\\\":[\\\"fsdfsdfsd\\\"]}],\\\"segundoSemestre\\\":[{\\\"Conteudo\\\":\\\"fsdfsdfsdf\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[\\\"sdfsdf\\\",\\\"fsdfsdfsd\\\"]},{\\\"Conteudo\\\":\\\"fsdfsdfsd\\\",\\\"Inicio\\\":\\\"\\\",\\\"Termino\\\":\\\"\\\",\\\"Conteudos\\\":[\\\"fsdfsd\\\",\\\"fsdfsdf\\\",\\\"fsdfsdf\\\"]}]}\"', 0, '2024-06-28', '2024-06-28');
-
--- --------------------------------------------------------
+LOCK TABLES `pedagogos` WRITE;
+/*!40000 ALTER TABLE `pedagogos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pedagogos` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `planejamentosemanal`
+-- Table structure for table `planejamentoanual`
 --
 
+DROP TABLE IF EXISTS `planejamentoanual`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `planejamentoanual` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDProfessor` int NOT NULL,
+  `IDDisciplina` int NOT NULL,
+  `IDTurma` int NOT NULL,
+  `NMPlanejamento` varchar(25) COLLATE utf8mb4_general_ci NOT NULL,
+  `PLConteudos` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Aprovado` int NOT NULL,
+  `updated_at` date NOT NULL,
+  `created_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `planejamentoanual`
+--
+
+LOCK TABLES `planejamentoanual` WRITE;
+/*!40000 ALTER TABLE `planejamentoanual` DISABLE KEYS */;
+INSERT INTO `planejamentoanual` VALUES (1,1,1,1,'Matemática','\"{\\\"primeiroBimestre\\\":[{\\\"Conteudo\\\":\\\"m1\\\",\\\"Inicio\\\":\\\"01\\/02\\/2024\\\",\\\"Termino\\\":\\\"01\\/04\\/2024\\\",\\\"Conteudos\\\":[\\\"sdfsf\\\"]}],\\\"segundoBimestre\\\":[{\\\"Conteudo\\\":\\\"m2\\\",\\\"Inicio\\\":\\\"01\\/04\\/2024\\\",\\\"Termino\\\":\\\"01\\/07\\/2024\\\",\\\"Conteudos\\\":[\\\"fsdfdsf\\\"]}],\\\"terceiroBimestre\\\":[{\\\"Conteudo\\\":\\\"m3\\\",\\\"Inicio\\\":\\\"01\\/07\\/2024\\\",\\\"Termino\\\":\\\"01\\/09\\/2024\\\",\\\"Conteudos\\\":[\\\"fsdfsf\\\",\\\"fsddsf\\\"]}],\\\"quartoBimestre\\\":[{\\\"Conteudo\\\":\\\"m4\\\",\\\"Inicio\\\":\\\"01\\/09\\/2024\\\",\\\"Termino\\\":\\\"01\\/12\\/2024\\\",\\\"Conteudos\\\":[\\\"fdsfdsf\\\",\\\"fsdff\\\"]}]}\"',0,'2024-07-31','2024-07-31'),(2,2,2,1,'Planejamento Portugues','\"{\\\"primeiroBimestre\\\":[{\\\"Conteudo\\\":\\\"p1\\\",\\\"Inicio\\\":\\\"01\\/02\\/2024\\\",\\\"Termino\\\":\\\"01\\/04\\/2024\\\",\\\"Conteudos\\\":[\\\"fdsf\\\"]}],\\\"segundoBimestre\\\":[{\\\"Conteudo\\\":\\\"p2\\\",\\\"Inicio\\\":\\\"01\\/04\\/2024\\\",\\\"Termino\\\":\\\"01\\/06\\/2024\\\",\\\"Conteudos\\\":[\\\"sdfdsf\\\"]}],\\\"terceiroBimestre\\\":[{\\\"Conteudo\\\":\\\"p3\\\",\\\"Inicio\\\":\\\"01\\/06\\/2024\\\",\\\"Termino\\\":\\\"01\\/08\\/2024\\\",\\\"Conteudos\\\":[\\\"fsdfdsf\\\"]}],\\\"quartoBimestre\\\":[{\\\"Conteudo\\\":\\\"p4\\\",\\\"Inicio\\\":\\\"01\\/08\\/2024\\\",\\\"Termino\\\":\\\"01\\/10\\/2024\\\",\\\"Conteudos\\\":[\\\"fsdfdsf\\\"]}]}\"',0,'2024-07-31','2024-07-31');
+/*!40000 ALTER TABLE `planejamentoanual` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `planejamentosemanal`
+--
+
+DROP TABLE IF EXISTS `planejamentosemanal`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `planejamentosemanal` (
-  `id` int(11) NOT NULL,
-  `IDPlanejamentoAnual` int(11) NOT NULL,
-  `PLConteudos` text NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDPlanejamentoAnual` int NOT NULL,
+  `PLConteudos` text COLLATE utf8mb4_general_ci NOT NULL,
   `INISemana` date NOT NULL,
   `TERSemana` date NOT NULL,
-  `Aprovado` int(11) NOT NULL
+  `Aprovado` int NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `presenca`
+-- Dumping data for table `planejamentosemanal`
 --
 
+LOCK TABLES `planejamentosemanal` WRITE;
+/*!40000 ALTER TABLE `planejamentosemanal` DISABLE KEYS */;
+/*!40000 ALTER TABLE `planejamentosemanal` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `presenca`
+--
+
+DROP TABLE IF EXISTS `presenca`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `presenca` (
-  `id` int(11) NOT NULL,
-  `IDAula` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
-  `IDProfessor` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `Status` int(11) NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAula` int NOT NULL,
+  `IDEscola` int NOT NULL,
+  `IDTurma` int NOT NULL,
+  `IDProfessor` int NOT NULL,
+  `IDAluno` int NOT NULL,
+  `Status` int NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `professores`
+-- Dumping data for table `presenca`
 --
 
+LOCK TABLES `presenca` WRITE;
+/*!40000 ALTER TABLE `presenca` DISABLE KEYS */;
+/*!40000 ALTER TABLE `presenca` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `professores`
+--
+
+DROP TABLE IF EXISTS `professores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `professores` (
-  `id` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Nascimento` date NOT NULL,
   `Admissao` date NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `Celular` varchar(11) NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Celular` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
   `TerminoContrato` date DEFAULT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Bairro` varchar(500) DEFAULT NULL,
-  `Numero` int(11) DEFAULT NULL,
-  `Ativo` int(11) NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Numero` int DEFAULT NULL,
+  `Ativo` int NOT NULL,
   `updated_at` date NOT NULL,
-  `created_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `professores`
+-- Dumping data for table `professores`
 --
 
-INSERT INTO `professores` (`id`, `Nome`, `Nascimento`, `Admissao`, `Email`, `Celular`, `TerminoContrato`, `CEP`, `Rua`, `UF`, `Cidade`, `Bairro`, `Numero`, `Ativo`, `updated_at`, `created_at`) VALUES
-(1, 'Professor João', '1970-08-25', '2013-09-08', 'professor1@gmail.com', '23423432423', '2028-08-10', '35160080', 'Rua Angola', 'MG', 'Ipatinga', 'Cariru', 29, 0, '2024-06-24', '2024-06-24');
-
--- --------------------------------------------------------
+LOCK TABLES `professores` WRITE;
+/*!40000 ALTER TABLE `professores` DISABLE KEYS */;
+INSERT INTO `professores` VALUES (1,'Professor 1','1980-10-05','2024-07-28','professor1@gmail.com','31933244223','2024-10-16','35160208','Avenida Vinte e Seis de Outubro','MG','Ipatinga','Bela Vista',2014,0,'2024-07-28','2024-07-28'),(2,'Professor 2','2024-08-01','2024-07-31','professor2@gmail.com','31983086235','2024-08-02','35160208','Avenida Vinte e Seis de Outubro','MG','Ipatinga','Bela Vista',2014,0,'2024-07-31','2024-07-31');
+/*!40000 ALTER TABLE `professores` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `renovacoes`
+-- Table structure for table `renovacoes`
 --
 
+DROP TABLE IF EXISTS `renovacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `renovacoes` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `Aprovado` int(11) NOT NULL,
-  `ANO` year(4) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `Aprovado` int NOT NULL,
+  `ANO` year NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `Vencimento` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `Vencimento` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `renovacoes`
+-- Dumping data for table `renovacoes`
 --
 
-INSERT INTO `renovacoes` (`id`, `IDAluno`, `Aprovado`, `ANO`, `created_at`, `updated_at`, `Vencimento`) VALUES
-(1, 1, 1, '2025', '2024-06-05', '2024-06-05', '2025-06-29'),
-(2, 2, 1, '2024', '2024-06-05', '2024-06-06', '2024-06-22'),
-(3, 3, 1, '2025', '2024-06-06', '2024-06-07', '2025-06-05');
-
--- --------------------------------------------------------
+LOCK TABLES `renovacoes` WRITE;
+/*!40000 ALTER TABLE `renovacoes` DISABLE KEYS */;
+INSERT INTO `renovacoes` VALUES (1,1,1,2024,'2024-07-28','2024-07-28','2025-01-01'),(2,2,1,2024,'2024-07-28','2024-07-28','2024-10-25');
+/*!40000 ALTER TABLE `renovacoes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `responsavel`
+-- Table structure for table `responsavel`
 --
 
+DROP TABLE IF EXISTS `responsavel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `responsavel` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `RGPaisAnexo` text NOT NULL,
-  `RGPais` varchar(9) NOT NULL,
-  `NMResponsavel` varchar(50) NOT NULL,
-  `EmailResponsavel` varchar(50) NOT NULL,
-  `CLResponsavel` varchar(11) NOT NULL,
-  `CPFResponsavel` varchar(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `RGPaisAnexo` text COLLATE utf8mb4_general_ci NOT NULL,
+  `RGPais` varchar(9) COLLATE utf8mb4_general_ci NOT NULL,
+  `NMResponsavel` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `EmailResponsavel` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `CLResponsavel` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
+  `CPFResponsavel` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `responsavel`
+-- Dumping data for table `responsavel`
 --
 
-INSERT INTO `responsavel` (`id`, `IDAluno`, `RGPaisAnexo`, `RGPais`, `NMResponsavel`, `EmailResponsavel`, `CLResponsavel`, `CPFResponsavel`, `created_at`, `updated_at`) VALUES
-(1, 1, '', '20823455', 'Zenilda Barros Nelvam', 'zenilda@gmail.com', '31987778018', '16885066672', '2024-06-05', '2024-06-05'),
-(2, 2, 'C:\\xampp\\tmp\\phpE0A3.tmp', '20896779', 'Angelica', 'maxhenrique308@gmaiol.com', '43543534534', '08901129671', '2024-06-05', '2024-06-06'),
-(3, 3, '', '24234234', 'dsfdsfsd', 'adasd@gmail.com', '42442342342', '23424234234', '2024-06-06', '2024-06-07');
-
--- --------------------------------------------------------
+LOCK TABLES `responsavel` WRITE;
+/*!40000 ALTER TABLE `responsavel` DISABLE KEYS */;
+INSERT INTO `responsavel` VALUES (1,1,'C:\\Users\\frtec\\AppData\\Local\\Temp\\phpEA27.tmp','23443543','Pai 1','fgfdgdf@gmail.com','23434424243','43534534343','2024-07-28','2024-07-28'),(2,2,'C:\\Users\\frtec\\AppData\\Local\\Temp\\php1A79.tmp','23432424','sdfsfsd@gmail.com','sdfds@gmail.com','23423244242','23424232342','2024-07-28','2024-07-28');
+/*!40000 ALTER TABLE `responsavel` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `reunioes`
+-- Table structure for table `reunioes`
 --
 
+DROP TABLE IF EXISTS `reunioes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reunioes` (
-  `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
-  `DTInicio` datetime NOT NULL,
-  `DTTermino` datetime NOT NULL,
-  `DSEvento` varchar(250) NOT NULL
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEscola` int NOT NULL,
+  `IDTurma` int NOT NULL,
+  `Data` date NOT NULL,
+  `Inicio` time NOT NULL,
+  `Termino` time NOT NULL,
+  `DSReunião` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `rodagem`
+-- Dumping data for table `reunioes`
 --
 
+LOCK TABLES `reunioes` WRITE;
+/*!40000 ALTER TABLE `reunioes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `reunioes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rodagem`
+--
+
+DROP TABLE IF EXISTS `rodagem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rodagem` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `KMInicial` float NOT NULL,
   `KMFinal` float NOT NULL,
-  `IDVeiculo` int(11) NOT NULL,
-  `IDRota` int(11) NOT NULL,
+  `IDVeiculo` int NOT NULL,
+  `IDRota` int NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `rodagem`
+-- Dumping data for table `rodagem`
 --
 
-INSERT INTO `rodagem` (`id`, `KMInicial`, `KMFinal`, `IDVeiculo`, `IDRota`, `created_at`, `updated_at`) VALUES
-(1, 356, 480, 1, 1, '2024-06-01', '2024-06-01'),
-(2, 800, 1200, 1, 0, '2024-06-01', '2024-06-01'),
-(3, 67, 84, 1, 1, '2024-06-01', '2024-06-01');
-
--- --------------------------------------------------------
+LOCK TABLES `rodagem` WRITE;
+/*!40000 ALTER TABLE `rodagem` DISABLE KEYS */;
+INSERT INTO `rodagem` VALUES (1,60700,60770,1,1,'2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `rodagem` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `rotas`
+-- Table structure for table `rotas`
 --
 
+DROP TABLE IF EXISTS `rotas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rotas` (
-  `id` int(11) NOT NULL,
-  `IDVeiculo` int(11) NOT NULL,
-  `IDMotorista` int(11) NOT NULL,
-  `Descricao` varchar(50) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDVeiculo` int NOT NULL,
+  `IDMotorista` int NOT NULL,
+  `Descricao` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Distancia` float NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `Turno` varchar(5) NOT NULL,
-  `Partida` varchar(50) NOT NULL,
-  `Chegada` varchar(50) NOT NULL,
+  `Turno` varchar(5) COLLATE utf8mb4_general_ci NOT NULL,
+  `Partida` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Chegada` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `HoraPartida` time NOT NULL,
   `HoraChegada` time NOT NULL,
-  `DiasJSON` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `DiasJSON` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `rotas`
+-- Dumping data for table `rotas`
 --
 
-INSERT INTO `rotas` (`id`, `IDVeiculo`, `IDMotorista`, `Descricao`, `Distancia`, `created_at`, `updated_at`, `Turno`, `Partida`, `Chegada`, `HoraPartida`, `HoraChegada`, `DiasJSON`) VALUES
-(1, 0, 1, 'sdfsdff', 567, '2024-06-01', '2024-06-01', 'Manhã', 'adssdf', 'sfsdfsf', '01:36:00', '04:36:00', '[\"Segunda\",\"Quarta\",\"Sabado\"]'),
-(4, 0, 2, 'Descrição da Partida', 80, '2024-06-01', '2024-06-01', 'Manhã', 'Ipatinga', 'Timoteo', '15:35:00', '13:40:00', '[\"Segunda\",\"Quarta\",\"Quinta\"]');
-
--- --------------------------------------------------------
+LOCK TABLES `rotas` WRITE;
+/*!40000 ALTER TABLE `rotas` DISABLE KEYS */;
+INSERT INTO `rotas` VALUES (1,0,1,'Partida do Busão',70,'2024-07-29','2024-07-29','Manhã','Ponto A','Ponto B','06:00:00','08:00:00','[\"Segunda\",\"Terça\",\"Quarta\",\"Quinta\",\"Sexta\"]');
+/*!40000 ALTER TABLE `rotas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `sabados_letivos`
+-- Table structure for table `sabados_letivos`
 --
 
+DROP TABLE IF EXISTS `sabados_letivos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sabados_letivos` (
-  `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEscola` int NOT NULL,
   `Data` date NOT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `sabados_letivos`
+-- Dumping data for table `sabados_letivos`
 --
 
-INSERT INTO `sabados_letivos` (`id`, `IDEscola`, `Data`, `created_at`, `updated_at`) VALUES
-(1, 2, '2024-08-03', '2024-05-25', '2024-05-25'),
-(2, 3, '2024-09-14', '2024-05-25', '2024-05-25');
-
--- --------------------------------------------------------
+LOCK TABLES `sabados_letivos` WRITE;
+/*!40000 ALTER TABLE `sabados_letivos` DISABLE KEYS */;
+INSERT INTO `sabados_letivos` VALUES (1,1,'2024-08-03','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `sabados_letivos` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `sessions`
+-- Table structure for table `sessions`
 --
 
+DROP TABLE IF EXISTS `sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sessions` (
-  `id` varchar(255) NOT NULL,
-  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `ip_address` varchar(45) DEFAULT NULL,
-  `user_agent` text DEFAULT NULL,
-  `payload` longtext NOT NULL,
-  `last_activity` int(11) NOT NULL
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sessions_user_id_index` (`user_id`),
+  KEY `sessions_last_activity_index` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `sessions`
+-- Dumping data for table `sessions`
 --
 
-INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('8GQeFrjPEOKvbn748OBan8f3xeDGMtkv92yfAEcl', 37, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoibkwzc1diMHlRNzFEZWJnYWFlYm1oaDVjTThJRXdVeG81cTFrdENGRyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjI4OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvQWx1bm9zIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mzc7fQ==', 1719602339);
-
--- --------------------------------------------------------
+LOCK TABLES `sessions` WRITE;
+/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
+INSERT INTO `sessions` VALUES ('VjfXN0m5DaCwURgp0bNtHPTErg2G6BKjJnS5jPPx',2,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36','YTo1OntzOjY6Il90b2tlbiI7czo0MDoieVVQNTFtaThnSkFQM1c1aEZzWjlzZ1FOd2IyejYzSDFJaDlNenRaOSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjM5OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvaW5kZXgucGhwL0VzY29sYXMiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=',1722574950);
+/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `suspensos`
+-- Table structure for table `suspensos`
 --
 
+DROP TABLE IF EXISTS `suspensos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `suspensos` (
-  `id` int(11) NOT NULL,
-  `IDInativo` int(11) NOT NULL,
-  `Justificativa` varchar(250) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDInativo` int NOT NULL,
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
   `INISuspensao` date DEFAULT NULL,
   `TERSuspensao` date DEFAULT NULL,
   `created_at` date NOT NULL,
-  `updated_at` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+  `updated_at` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Estrutura para tabela `terceirizadas`
+-- Dumping data for table `suspensos`
 --
 
+LOCK TABLES `suspensos` WRITE;
+/*!40000 ALTER TABLE `suspensos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `suspensos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `terceirizadas`
+--
+
+DROP TABLE IF EXISTS `terceirizadas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `terceirizadas` (
-  `id` int(11) NOT NULL,
-  `IDOrg` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
-  `CEP` varchar(8) NOT NULL,
-  `Rua` varchar(50) NOT NULL,
-  `Bairro` varchar(50) NOT NULL,
-  `Cidade` varchar(50) NOT NULL,
-  `Numero` int(11) NOT NULL,
-  `UF` varchar(2) NOT NULL,
-  `Telefone` varchar(11) NOT NULL,
-  `Email` varchar(50) NOT NULL,
-  `CNPJ` varchar(14) NOT NULL,
-  `Ramo` varchar(30) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDOrg` int NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `CEP` varchar(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `Rua` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Bairro` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cidade` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Numero` int NOT NULL,
+  `UF` varchar(2) COLLATE utf8mb4_general_ci NOT NULL,
+  `Telefone` varchar(11) COLLATE utf8mb4_general_ci NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `CNPJ` varchar(14) COLLATE utf8mb4_general_ci NOT NULL,
+  `Ramo` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `TerminoContrato` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `TerminoContrato` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `terceirizadas`
+-- Dumping data for table `terceirizadas`
 --
 
-INSERT INTO `terceirizadas` (`id`, `IDOrg`, `Nome`, `CEP`, `Rua`, `Bairro`, `Cidade`, `Numero`, `UF`, `Telefone`, `Email`, `CNPJ`, `Ramo`, `created_at`, `updated_at`, `TerminoContrato`) VALUES
-(1, 1, 'Testando empresa', '35160208', 'Avenida Vinte e Seis de Outubro', 'Bela Vista', 'Ipatinga', 2024, 'MG', '44334535345', 'ddfsfs@gmail.com', '32.324.2342/34', 'Transportes', '2024-05-31', '2024-05-31', '2024-05-31');
-
--- --------------------------------------------------------
+LOCK TABLES `terceirizadas` WRITE;
+/*!40000 ALTER TABLE `terceirizadas` DISABLE KEYS */;
+INSERT INTO `terceirizadas` VALUES (1,1,'motora terceirizado','35160-20','Avenida Vinte e Seis de Outubro','Bela Vista','Ipatinga',2014,'MG','(34) 5 3553','sdfs@gmail.com','34.232.4324/24','Transportes','2024-07-29','2024-07-29','2024-07-29');
+/*!40000 ALTER TABLE `terceirizadas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `transferencias`
+-- Table structure for table `transferencias`
 --
 
+DROP TABLE IF EXISTS `transferencias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `transferencias` (
-  `id` int(11) NOT NULL,
-  `IDAluno` int(11) NOT NULL,
-  `Aprovado` int(11) NOT NULL DEFAULT 0,
-  `IDEscolaDestino` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDAluno` int NOT NULL,
+  `Aprovado` int NOT NULL DEFAULT '0',
+  `IDEscolaDestino` int NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `Justificativa` varchar(250) NOT NULL,
-  `IDEscolaOrigem` int(11) NOT NULL
+  `Justificativa` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `IDEscolaOrigem` int NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `transferencias`
+-- Dumping data for table `transferencias`
 --
 
-INSERT INTO `transferencias` (`id`, `IDAluno`, `Aprovado`, `IDEscolaDestino`, `created_at`, `updated_at`, `Justificativa`, `IDEscolaOrigem`) VALUES
-(1, 2, 0, 1, '2024-06-08', '2024-06-08', 'Transferido pq cagou no chão kkkkkkkk', 2),
-(2, 1, 0, 6, '2024-06-08', '2024-06-08', 'pq o sesi e a melhor escola', 1);
-
--- --------------------------------------------------------
+LOCK TABLES `transferencias` WRITE;
+/*!40000 ALTER TABLE `transferencias` DISABLE KEYS */;
+/*!40000 ALTER TABLE `transferencias` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `turmas`
+-- Table structure for table `turmas`
 --
 
+DROP TABLE IF EXISTS `turmas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `turmas` (
-  `id` int(11) NOT NULL,
-  `IDEscola` int(11) NOT NULL,
-  `Serie` varchar(30) NOT NULL,
-  `Nome` varchar(30) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDEscola` int NOT NULL,
+  `Serie` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
+  `Nome` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
   `INITurma` time NOT NULL,
   `TERTurma` time NOT NULL,
-  `Periodo` varchar(10) NOT NULL,
+  `Periodo` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
   `NotaPeriodo` float DEFAULT NULL,
   `MediaPeriodo` float DEFAULT NULL,
   `TotalAno` float DEFAULT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL,
-  `QTRepetencia` int(11) NOT NULL,
-  `IDPlanejamento` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `QTRepetencia` int NOT NULL,
+  `IDPlanejamento` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `turmas`
+-- Dumping data for table `turmas`
 --
 
-INSERT INTO `turmas` (`id`, `IDEscola`, `Serie`, `Nome`, `INITurma`, `TERTurma`, `Periodo`, `NotaPeriodo`, `MediaPeriodo`, `TotalAno`, `updated_at`, `created_at`, `QTRepetencia`, `IDPlanejamento`) VALUES
-(1, 2, '1º Periodo E.INFANTIL', '100', '13:00:00', '17:00:00', 'Semestral', 0, 0, 0, '2024-06-28', '2024-06-24', 0, 3),
-(2, 1, '8º Ano E.FUNDAMENTAL', '800', '07:00:00', '11:25:00', 'Bimestral', 25, 15, 100, '2024-06-28', '2024-06-24', 4, 1),
-(3, 1, '8º Ano E.FUNDAMENTAL', '801', '07:00:00', '11:25:00', 'Bimestral', 15, 25, 100, '2024-06-28', '2024-06-27', 4, 1);
-
--- --------------------------------------------------------
+LOCK TABLES `turmas` WRITE;
+/*!40000 ALTER TABLE `turmas` DISABLE KEYS */;
+INSERT INTO `turmas` VALUES (1,1,'1º Ano E.FUNDAMENTAL','Sala 1','13:00:00','17:25:00','Bimestral',30,15,100,'2024-07-31','2024-07-28',4,2),(2,1,'2º Ano E.FUNDAMENTAL','Sala 2','13:00:00','17:25:00','Bimestral',30,60,100,'2024-07-28','2024-07-28',4,0);
+/*!40000 ALTER TABLE `turmas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `turnos`
+-- Table structure for table `turnos`
 --
 
+DROP TABLE IF EXISTS `turnos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `turnos` (
-  `id` int(11) NOT NULL,
-  `IDProfessor` int(11) NOT NULL,
-  `IDDisciplina` int(11) NOT NULL,
-  `IDTurma` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDProfessor` int NOT NULL,
+  `IDDisciplina` int NOT NULL,
+  `IDTurma` int NOT NULL,
   `INITur` time NOT NULL,
   `TERTur` time NOT NULL,
   `updated_at` date NOT NULL,
   `created_at` date NOT NULL,
-  `DiaSemana` varchar(15) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `DiaSemana` varchar(15) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `turnos`
+-- Dumping data for table `turnos`
 --
 
-INSERT INTO `turnos` (`id`, `IDProfessor`, `IDDisciplina`, `IDTurma`, `INITur`, `TERTur`, `updated_at`, `created_at`, `DiaSemana`) VALUES
-(1, 1, 2, 1, '13:00:00', '13:50:00', '2024-06-24', '2024-06-24', 'Segunda'),
-(2, 1, 1, 2, '07:00:00', '07:50:00', '2024-06-24', '2024-06-24', 'Segunda'),
-(3, 1, 1, 3, '07:50:00', '08:40:00', '2024-06-27', '2024-06-27', 'Segunda');
-
--- --------------------------------------------------------
+LOCK TABLES `turnos` WRITE;
+/*!40000 ALTER TABLE `turnos` DISABLE KEYS */;
+INSERT INTO `turnos` VALUES (1,1,1,1,'07:01:00','07:50:00','2024-07-29','2024-07-28','Segunda'),(2,2,2,1,'13:00:00','13:50:00','2024-07-31','2024-07-31','Segunda');
+/*!40000 ALTER TABLE `turnos` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `users`
+-- Table structure for table `users`
 --
 
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `id_org` int(11) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `permissoes` varchar(255) DEFAULT NULL,
-  `remember_token` varchar(100) DEFAULT NULL,
+  `id_org` int NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `permissoes` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `tipo` int(11) NOT NULL,
-  `IDProfissional` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `tipo` int NOT NULL,
+  `IDProfissional` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `users`
+-- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `id_org`, `password`, `permissoes`, `remember_token`, `created_at`, `updated_at`, `tipo`, `IDProfissional`) VALUES
-(1, 'Max Henrique', 'maxhenrique308@gmail.com', NULL, 0, '$2y$12$/2fbkxuWZYNET//AOJoBieyr3drGudBxEUIH1iwgcMqugWcQzOrie', NULL, 'wnkCCljlBFtehvjTcDcM8QeNETwmEGxZi7PkFqU9eNHV9lHAkHwuybJSBKR3', '2024-05-09 12:48:59', '2024-05-09 12:48:59', 0, NULL),
-(6, 'Secretario 1', 'secretario@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-05-13 20:23:23', '2024-05-13 20:23:23', 2, NULL),
-(37, 'DIRETOR TESTE', 'diretor@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-06-03 19:15:54', '2024-06-03 19:15:54', 4, 5),
-(42, 'Professor João', 'professor1@gmail.com', NULL, 1, '$2y$12$korMKEXh/E.pIPM8fOJfneBPR9rdLbLjQXFVKx50sQMYhBtwprUPS', NULL, NULL, '2024-06-24 23:14:53', '2024-06-24 23:14:53', 6, 1);
-
--- --------------------------------------------------------
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'Max Henrique','maxhenrique308@gmail.com',NULL,0,'$2y$12$1du1SEUwJqUORRZVBo9jS.jmDaV8MtEecWKY3k4sZ/B0Oq9XwEMEu',NULL,NULL,'2024-07-28 23:28:16','2024-07-28 23:28:16',0,NULL),(2,'Secretario de Educação da Ipatinga','secretario@gmail.com',NULL,1,'$2y$12$1du1SEUwJqUORRZVBo9jS.jmDaV8MtEecWKY3k4sZ/B0Oq9XwEMEu',NULL,NULL,'2024-07-28 23:34:01','2024-07-28 23:34:01',2,NULL),(3,'Professor 1','professor1@gmail.com',NULL,1,'$2y$12$1du1SEUwJqUORRZVBo9jS.jmDaV8MtEecWKY3k4sZ/B0Oq9XwEMEu',NULL,NULL,'2024-07-29 01:44:36','2024-07-29 01:44:36',6,1),(4,'Diretor 1','diretor1@gmail.com',NULL,1,'$2y$12$1du1SEUwJqUORRZVBo9jS.jmDaV8MtEecWKY3k4sZ/B0Oq9XwEMEu',NULL,NULL,'2024-07-29 01:46:32','2024-07-29 01:46:32',4,1),(5,'Professor 2','professor2@gmail.com',NULL,1,'$2y$12$1du1SEUwJqUORRZVBo9jS.jmDaV8MtEecWKY3k4sZ/B0Oq9XwEMEu',NULL,NULL,'2024-07-31 20:04:33','2024-07-31 20:04:33',6,2);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Estrutura para tabela `veiculos`
+-- Table structure for table `veiculos`
 --
 
+DROP TABLE IF EXISTS `veiculos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `veiculos` (
-  `id` int(11) NOT NULL,
-  `IDOrganizacao` int(11) NOT NULL,
-  `Nome` varchar(50) NOT NULL,
-  `Marca` varchar(50) NOT NULL,
-  `Placa` varchar(7) NOT NULL,
-  `Cor` varchar(10) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `IDOrganizacao` int NOT NULL,
+  `Nome` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Marca` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Placa` varchar(7) COLLATE utf8mb4_general_ci NOT NULL,
+  `Cor` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` date NOT NULL,
   `updated_at` date NOT NULL,
-  `KMAquisicao` float NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `KMAquisicao` float NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Despejando dados para a tabela `veiculos`
+-- Dumping data for table `veiculos`
 --
 
-INSERT INTO `veiculos` (`id`, `IDOrganizacao`, `Nome`, `Marca`, `Placa`, `Cor`, `created_at`, `updated_at`, `KMAquisicao`) VALUES
-(1, 1, 'Mercedes 344', 'Mercedes', '1159', 'Preto', '2024-05-31', '2024-05-31', 771);
+LOCK TABLES `veiculos` WRITE;
+/*!40000 ALTER TABLE `veiculos` DISABLE KEYS */;
+INSERT INTO `veiculos` VALUES (1,1,'Marcopolo f1','Marcopolo','1159','Preto','2024-07-29','2024-07-29',60700);
+/*!40000 ALTER TABLE `veiculos` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
--- Índices para tabelas despejadas
+-- Dumping routines for database 'freducacional'
 --
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
---
--- Índices de tabela `afastados`
---
-ALTER TABLE `afastados`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `alteracoes_situacao`
---
-ALTER TABLE `alteracoes_situacao`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `alunos`
---
-ALTER TABLE `alunos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `atividades`
---
-ALTER TABLE `atividades`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `atividades_atribuicoes`
---
-ALTER TABLE `atividades_atribuicoes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `atividades_atribuicoes_ead`
---
-ALTER TABLE `atividades_atribuicoes_ead`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `atividades_ead`
---
-ALTER TABLE `atividades_ead`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `aulas`
---
-ALTER TABLE `aulas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `aulas_ead`
---
-ALTER TABLE `aulas_ead`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `auxiliares`
---
-ALTER TABLE `auxiliares`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `cache`
---
-ALTER TABLE `cache`
-  ADD PRIMARY KEY (`key`);
-
---
--- Índices de tabela `cache_locks`
---
-ALTER TABLE `cache_locks`
-  ADD PRIMARY KEY (`key`);
-
---
--- Índices de tabela `calendario`
---
-ALTER TABLE `calendario`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `cardapio`
---
-ALTER TABLE `cardapio`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `comentarios_planual`
---
-ALTER TABLE `comentarios_planual`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `comentarios_plsemanal`
---
-ALTER TABLE `comentarios_plsemanal`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `diretores`
---
-ALTER TABLE `diretores`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `disciplinas`
---
-ALTER TABLE `disciplinas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `dissertativas_ead`
---
-ALTER TABLE `dissertativas_ead`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `escolas`
---
-ALTER TABLE `escolas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `estoque`
---
-ALTER TABLE `estoque`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `estoque_movimentacao`
---
-ALTER TABLE `estoque_movimentacao`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `eventos`
---
-ALTER TABLE `eventos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `failed_jobs`
---
-ALTER TABLE `failed_jobs`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`);
-
---
--- Índices de tabela `faltas_justificadas`
---
-ALTER TABLE `faltas_justificadas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `faltas_justificadas_profissional`
---
-ALTER TABLE `faltas_justificadas_profissional`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `ferias_alunos`
---
-ALTER TABLE `ferias_alunos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `ferias_profissionais`
---
-ALTER TABLE `ferias_profissionais`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `jobs`
---
-ALTER TABLE `jobs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `jobs_queue_index` (`queue`);
-
---
--- Índices de tabela `job_batches`
---
-ALTER TABLE `job_batches`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `justificativa_alteracoes`
---
-ALTER TABLE `justificativa_alteracoes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `matriculas`
---
-ALTER TABLE `matriculas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `motoristas`
---
-ALTER TABLE `motoristas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `objetivas_ead`
---
-ALTER TABLE `objetivas_ead`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `ocorrencias`
---
-ALTER TABLE `ocorrencias`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `organizacoes`
---
-ALTER TABLE `organizacoes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `paradas`
---
-ALTER TABLE `paradas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `paralizacoes`
---
-ALTER TABLE `paralizacoes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `password_reset_tokens`
---
-ALTER TABLE `password_reset_tokens`
-  ADD PRIMARY KEY (`email`);
-
---
--- Índices de tabela `pedagogos`
---
-ALTER TABLE `pedagogos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `planejamentoanual`
---
-ALTER TABLE `planejamentoanual`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `planejamentosemanal`
---
-ALTER TABLE `planejamentosemanal`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `presenca`
---
-ALTER TABLE `presenca`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `professores`
---
-ALTER TABLE `professores`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `renovacoes`
---
-ALTER TABLE `renovacoes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `responsavel`
---
-ALTER TABLE `responsavel`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `reunioes`
---
-ALTER TABLE `reunioes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `rodagem`
---
-ALTER TABLE `rodagem`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `rotas`
---
-ALTER TABLE `rotas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `sabados_letivos`
---
-ALTER TABLE `sabados_letivos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `sessions`
---
-ALTER TABLE `sessions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sessions_user_id_index` (`user_id`),
-  ADD KEY `sessions_last_activity_index` (`last_activity`);
-
---
--- Índices de tabela `suspensos`
---
-ALTER TABLE `suspensos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `terceirizadas`
---
-ALTER TABLE `terceirizadas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `transferencias`
---
-ALTER TABLE `transferencias`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `turmas`
---
-ALTER TABLE `turmas`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `turnos`
---
-ALTER TABLE `turnos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_email_unique` (`email`);
-
---
--- Índices de tabela `veiculos`
---
-ALTER TABLE `veiculos`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT para tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `afastados`
---
-ALTER TABLE `afastados`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `alteracoes_situacao`
---
-ALTER TABLE `alteracoes_situacao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT de tabela `alunos`
---
-ALTER TABLE `alunos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `atividades`
---
-ALTER TABLE `atividades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `atividades_atribuicoes`
---
-ALTER TABLE `atividades_atribuicoes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `atividades_atribuicoes_ead`
---
-ALTER TABLE `atividades_atribuicoes_ead`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `atividades_ead`
---
-ALTER TABLE `atividades_ead`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `aulas`
---
-ALTER TABLE `aulas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `aulas_ead`
---
-ALTER TABLE `aulas_ead`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `auxiliares`
---
-ALTER TABLE `auxiliares`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `calendario`
---
-ALTER TABLE `calendario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `cardapio`
---
-ALTER TABLE `cardapio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `comentarios_planual`
---
-ALTER TABLE `comentarios_planual`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `comentarios_plsemanal`
---
-ALTER TABLE `comentarios_plsemanal`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `diretores`
---
-ALTER TABLE `diretores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT de tabela `disciplinas`
---
-ALTER TABLE `disciplinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `dissertativas_ead`
---
-ALTER TABLE `dissertativas_ead`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `escolas`
---
-ALTER TABLE `escolas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `estoque`
---
-ALTER TABLE `estoque`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `estoque_movimentacao`
---
-ALTER TABLE `estoque_movimentacao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `eventos`
---
-ALTER TABLE `eventos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `failed_jobs`
---
-ALTER TABLE `failed_jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `faltas_justificadas`
---
-ALTER TABLE `faltas_justificadas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `faltas_justificadas_profissional`
---
-ALTER TABLE `faltas_justificadas_profissional`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `ferias_alunos`
---
-ALTER TABLE `ferias_alunos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT de tabela `ferias_profissionais`
---
-ALTER TABLE `ferias_profissionais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `jobs`
---
-ALTER TABLE `jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `justificativa_alteracoes`
---
-ALTER TABLE `justificativa_alteracoes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `matriculas`
---
-ALTER TABLE `matriculas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `motoristas`
---
-ALTER TABLE `motoristas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `objetivas_ead`
---
-ALTER TABLE `objetivas_ead`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `ocorrencias`
---
-ALTER TABLE `ocorrencias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `organizacoes`
---
-ALTER TABLE `organizacoes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `paradas`
---
-ALTER TABLE `paradas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `paralizacoes`
---
-ALTER TABLE `paralizacoes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `pedagogos`
---
-ALTER TABLE `pedagogos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `planejamentoanual`
---
-ALTER TABLE `planejamentoanual`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `planejamentosemanal`
---
-ALTER TABLE `planejamentosemanal`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `presenca`
---
-ALTER TABLE `presenca`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `professores`
---
-ALTER TABLE `professores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `renovacoes`
---
-ALTER TABLE `renovacoes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `responsavel`
---
-ALTER TABLE `responsavel`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `reunioes`
---
-ALTER TABLE `reunioes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `rodagem`
---
-ALTER TABLE `rodagem`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `rotas`
---
-ALTER TABLE `rotas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT de tabela `sabados_letivos`
---
-ALTER TABLE `sabados_letivos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `suspensos`
---
-ALTER TABLE `suspensos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `terceirizadas`
---
-ALTER TABLE `terceirizadas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `transferencias`
---
-ALTER TABLE `transferencias`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de tabela `turmas`
---
-ALTER TABLE `turmas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `turnos`
---
-ALTER TABLE `turnos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `users`
---
-ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
-
---
--- AUTO_INCREMENT de tabela `veiculos`
---
-ALTER TABLE `veiculos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-COMMIT;
-
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2024-08-02  2:05:21

@@ -62,41 +62,81 @@
                 </tr>
             </table>
             <table>
-                <thead>
-                    <tr>
-                        <th rowspan="2">Disciplina</th>
-                        <th colspan="2">1º Bimestre</th>
-                        <th colspan="2">2º Bimestre</th>
-                        <th colspan="2">3º Bimestre</th>
-                        <th colspan="2">4º Bimestre</th>
-                        <th rowspan="2">Média</th>
-                        <th rowspan="2">Situação</th>
-                    </tr>
-                    <tr>
-                        <th>Nota</th>
-                        <th>Faltas</th>
-                        <th>Nota</th>
-                        <th>Faltas</th>
-                        <th>Nota</th>
-                        <th>Faltas</th>
-                        <th>Nota</th>
-                        <th>Faltas</th>
-                    </tr>
-                </thead>
+                @switch($Periodo)
+                    @case('Bimestral')
+                        <x-headbimestre/>
+                        @break
+                    @case('Trimestral')
+                        <x-headtrimestre/>
+                        @break
+                    @case('Semestral')
+                        <x-headsemestre/>
+                        @break
+                    @case('Anual')
+                        <x-headanual/>
+                        @break
+                    @default
+                        
+                @endswitch
                 <tbody>
-                    <tr>
-                        <td>Matemática</td>
-                        <td>8.0</td>
-                        <td>2</td>
-                        <td>7.5</td>
-                        <td>1</td>
-                        <td>9.0</td>
-                        <td>0</td>
-                        <td>8.5</td>
-                        <td>1</td>
-                        <td>8.25</td>
-                        <td>Aprovado</td>
-                    </tr>
+                    @switch($Periodo)
+                        @case('Bimestral')
+                            @foreach($Boletim as $b)
+                            <tr>
+                                <td>{{$b->Disciplina}}</td>
+                                <td>{{$b->Nota1B}}</td>
+                                <td>{{$b->Faltas1B}}</td>
+                                <td>{{$b->Nota2B}}</td>
+                                <td>{{$b->Faltas2B}}</td>
+                                <td>{{$b->Nota3B}}</td>
+                                <td>{{$b->Faltas3B}}</td>
+                                <td>{{$b->Nota4B}}</td>
+                                <td>{{$b->Faltas4B}}</td>
+                                <td>{{$MediaPeriodo}}</td>
+                                <td>{{($b->Nota1B + $b->Nota2B + $b->Nota3B + $b->Nota4B >= $MediaPeriodo*4) ? 'Aprovado' : 'Reprovado'}}</td>
+                            </tr>
+                            @endforeach
+                        @break
+                    @case('Trimestral')
+                        @foreach($Boletim as $b)
+                            <tr>
+                                <td>{{$b->Disciplina}}</td>
+                                <td>{{$b->Nota1B}}</td>
+                                <td>{{$b->Faltas1B}}</td>
+                                <td>{{$b->Nota2B}}</td>
+                                <td>{{$b->Faltas2B}}</td>
+                                <td>{{$b->Nota3B}}</td>
+                                <td>{{$b->Faltas3B}}</td>
+                                <td>{{$MediaPeriodo}}</td>
+                                <td>{{($b->Nota1B + $b->Nota2B + $b->Nota3B >= $MediaPeriodo*3) ? 'Aprovado' : 'Reprovado'}}</td>
+                            </tr>
+                            @endforeach
+                        @break
+                    @case('Semestral')
+                        @foreach($Boletim as $b)
+                            <tr>
+                                <td>{{$b->Disciplina}}</td>
+                                <td>{{$b->Nota1B}}</td>
+                                <td>{{$b->Faltas1B}}</td>
+                                <td>{{$b->Nota2B}}</td>
+                                <td>{{$b->Faltas2B}}</td>
+                                <td>{{$MediaPeriodo}}</td>
+                                <td>{{($b->Nota1B + $b->Nota2B >= $MediaPeriodo*3) ? 'Aprovado' : 'Reprovado'}}</td>
+                            </tr>
+                            @endforeach
+                        @break
+                    @case('Anual')
+                        @foreach($Boletim as $b)
+                            <tr>
+                                <td>{{$b->Disciplina}}</td>
+                                <td>{{$b->Nota1B}}</td>
+                                <td>{{$MediaPeriodo}}</td>
+                                <td>{{($b->Nota1B >= $MediaPeriodo*3) ? 'Aprovado' : 'Reprovado'}}</td>
+                            </tr>
+                            @endforeach
+                        @break
+                    @default
+                    @endswitch
                 </tbody>
             </table>
         </div>

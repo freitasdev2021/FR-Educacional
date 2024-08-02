@@ -64,55 +64,28 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Disciplina</th>
-                        <th>2019</th>
-                        <th>2020</th>
-                        <th>2021</th>
+                        <th rowspan="2">Disciplina</th>
+                        @foreach ($anos as $ano)
+                            <th colspan="2">{{ $ano }}</th>
+                        @endforeach
+                    </tr>
+                    <tr>
+                        @foreach ($anos as $ano)
+                            <th>Nota</th>
+                            <th>Frequência</th>
+                        @endforeach
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Matemática</td>
-                        <td>8.0</td>
-                        <td>7.5</td>
-                        <td>8.5</td>
-                    </tr>
-                    <tr>
-                        <td>Português</td>
-                        <td>7.5</td>
-                        <td>7.0</td>
-                        <td>8.0</td>
-                    </tr>
-                    <tr>
-                        <td>História</td>
-                        <td>9.0</td>
-                        <td>8.5</td>
-                        <td>9.0</td>
-                    </tr>
-                    <tr>
-                        <td>Geografia</td>
-                        <td>6.5</td>
-                        <td>7.0</td>
-                        <td>7.5</td>
-                    </tr>
-                    <tr>
-                        <td>Ciências</td>
-                        <td>7.0</td>
-                        <td>8.0</td>
-                        <td>8.5</td>
-                    </tr>
-                    <tr>
-                        <td>Inglês</td>
-                        <td>8.0</td>
-                        <td>7.5</td>
-                        <td>8.0</td>
-                    </tr>
-                    <tr>
-                        <td>Educação Física</td>
-                        <td>9.5</td>
-                        <td>9.0</td>
-                        <td>9.5</td>
-                    </tr>
+                    @foreach ($historico as $linha)
+                        <tr>
+                            <td>{{ $linha->Disciplina }}</td>
+                            @foreach ($anos as $ano)
+                                <td>{{ $linha->{'Total_' . $ano} }}</td>
+                                <td>{{ number_format(($linha->{'Frequencia_' . $ano} * 50) / 60, 2) }}</td>
+                            @endforeach
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
