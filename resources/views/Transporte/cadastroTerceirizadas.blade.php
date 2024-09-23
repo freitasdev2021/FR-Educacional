@@ -107,6 +107,6 @@
         //
         $("input[name=CEP]").inputmask('99999-999')
         $("input[name=Telefone]").inputmask('(99) 9 9999-9999')
-        $("input[name=CNPJ]").inputmask('99.999.9999/99')
+        $("input[name=CNPJ]").inputmask('99.999.999/9999-99')
     </script>
 </x-educacional-layout>

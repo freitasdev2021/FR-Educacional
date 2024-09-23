@@ -225,7 +225,7 @@ class EscolasController extends Controller
                 $item = [];
                 $item[] = $d->NMDisciplina;
                 (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
-                $item[] = "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = (Auth::user()->tipo == 2) ? "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -413,11 +413,14 @@ class EscolasController extends Controller
         }
 
         $SQL = <<<SQL
-        SELECT t.id as IDTurma, t.Nome as Turma,t.INITurma,t.TERTurma,e.Nome as Escola,t.Serie 
+        SELECT t.id as IDTurma, COUNT(a.id) as QTAlunos, t.Nome as Turma,t.INITurma,t.TERTurma,e.Nome as Escola,t.Serie 
         FROM turmas t
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o on(e.IDOrg = o.id)
+        LEFT JOIN alunos a ON(a.IDTurma = t.id)
         WHERE o.id = $idorg $AND
+        GROUP BY 
+            t.id, t.Nome, t.INITurma, t.TERTurma, e.Nome, t.Serie
         SQL;
 
         $turmas = DB::select($SQL);
@@ -428,7 +431,7 @@ class EscolasController extends Controller
                 $item[] = $t->Serie;
                 (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = $t->INITurma." - ".$t->TERTurma : '';
-                $item[] = 0;
+                $item[] = $t->QTAlunos;
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 (Auth::user()->tipo == 6) ? $item[] = "<a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
                 $itensJSON[] = $item;
@@ -491,6 +494,7 @@ class EscolasController extends Controller
         try{
             $aid = '';
             $turma = $request->all();
+            $turma['IDEscola'] = self::getEscolaDiretor(Auth::user()->id);
             if($request->id){
                 $Turma = Turma::find($request->id);
                 $Turma->update($turma);

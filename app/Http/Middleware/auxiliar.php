@@ -16,7 +16,7 @@ class auxiliar
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->tipo < 3) {
+        if (Auth::user()->tipo > 3) {
             return redirect()->route('dashboard');
         }
         return $next($request);

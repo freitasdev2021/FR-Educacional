@@ -22,8 +22,6 @@
                         <th style="text-align:center;" scope="col">Professor</th>
                         <th style="text-align:center;" scope="col">Turma</th>
                         <th style="text-align:center;" scope="col">Aula</th>
-                        <th style="text-align:center;" scope="col">Cumpridos/Designados</th>
-                        <th style="text-align:center;" scope="col">Aproveitamento</th>
                         <th style="text-align:center;" scope="col">Aplicação</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>

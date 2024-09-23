@@ -307,10 +307,12 @@ class AulasController extends Controller
             a.DSAula,
             d.NMDisciplina,
             a.DSConteudo,
-            a.created_at
+            a.created_at,
+            (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
         FROM aulas a
         INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
-        WHERE a.IDProfessor = $IDProf
+        LEFT JOIN frequencia f ON(f.IDAula = a.id)
+        WHERE a.IDProfessor = $IDProf GROUP BY a.id
         SQL;
         $aulas = DB::select($SQL);
         if(count($aulas) > 0){
@@ -319,7 +321,7 @@ class AulasController extends Controller
                 $item[] = $a->DSAula;
                 $item[] = $a->NMDisciplina;
                 $item[] = $a->DSConteudo;
-                $item[] = 0;
+                $item[] = $a->Frequencia;
                 $item[] = self::data($a->created_at,'d/m/Y');
                 $item[] = "<a href=".route('Aulas/Edit',$a->IDAula)." class='btn btn-fr btn-xs'>Abrir Diário</a>";
                 $itensJSON[] = $item;
@@ -346,11 +348,16 @@ class AulasController extends Controller
             t.Nome as Turma,
             a.DSAula as Aula,
             atv.id as IDAtividade,
-            atv.created_at as Aplicada
+            atv.created_at as Aplicada,
+            COUNT(n.IDAtividade) as Cumpridos,
+            (SELECT COUNT(IDAluno) FROM atividades a2 INNER JOIN atividades_atribuicoes ata ON(a2.id = ata.IDAtividade) WHERE ata.IDAtividade = atv.id AND atv.id = a2.id) as Designados,
+            SUM(atv.Pontuacao) as Pontuacao,
+            SUM(n.Nota) as Nota
         FROM atividades atv
         INNER JOIN aulas a ON(a.id = atv.IDAula)
         INNER JOIN professores p ON(p.id = a.IDProfessor)
         INNER JOIN turmas t ON(t.id = a.IDProfessor)
+        LEFT JOIN notas n ON(atv.id = n.IDAtividade)
         WHERE a.IDProfessor = $IDProf GROUP BY atv.id
         SQL;
         $atividades = DB::select($SQL);
@@ -361,8 +368,6 @@ class AulasController extends Controller
                 $item[] = $a->Professor;
                 $item[] = $a->Turma;
                 $item[] = $a->Aula;
-                $item[] = "0/0";
-                $item[] = 0;
                 $item[] = self::data($a->Aplicada,'d/m/Y');
                 $item[] = "<a href=".route('Aulas/Atividades/Edit',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a>";
                 $itensJSON[] = $item;

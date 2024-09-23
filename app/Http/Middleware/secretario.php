@@ -16,7 +16,7 @@ class secretario
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->tipo < 2) {
+        if (Auth::user()->tipo > 2) {
             return redirect()->route('dashboard');
         }
 

@@ -25,6 +25,7 @@
                     <input type="hidden" name="id" value="{{$id}}">
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
+                    @if(Auth::user()->tipo == 2)
                     <div class="row">
                         <div class="col-sm-12">
                             <label>Escola</label>
@@ -36,6 +37,7 @@
                             </select>
                         </div>
                     </div>
+                    @endif
                     <div class="row">
                         <div class="col-sm-6">
                             <label>Série</label>
