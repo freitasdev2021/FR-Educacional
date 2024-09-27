@@ -26,21 +26,29 @@
                   {{print_r($EscolasRegistradas)}}
                </pre> --}}
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <label>Nome do Item</label>
                         <input type="text" name="Item" class="form-control" value="{{isset($Registro) ? $Registro->Item : ''}}">
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
+                        <label>Tamanho da Embalagem</label>
+                        <input type="text" name="TMEmbalagem" class="form-control" value="{{isset($Registro) ? $Registro->TMEmbalagem : ''}}">
+                    </div>
+                    <div class="col-sm-4">
                         <label>Quantidade</label>
                         <input type="text" name="Quantidade" class="form-control" {{(Route::currentRouteName() == 'Merenda/Estoque/Edit') ? 'disabled' : ''}} value="{{isset($Registro) ? $Registro->Quantidade : ''}}">
                     </div>
                 </div>
                 <div class="row">
-                   <div class="col-sm-6">
+                    <div class="col-sm-4">
+                      <label>Código</label>
+                      <input type="text" maxlength="13" required class="form-control" name="CDProduto" value="{{isset($Registro) ? $Registro->CDProduto : ''}}">
+                    </div>
+                   <div class="col-sm-4">
                      <label>Vencimento</label>
                      <input type="date" class="form-control" name="Vencimento" value="{{isset($Registro) ? $Registro->Vencimento : ''}}">
                    </div>
-                   <div class="col-sm-6">
+                   <div class="col-sm-4">
                     <label>Tipo UN</label>
                     <select class="form-control" name="TPUnidade">
                         <option>Selecione</option>
@@ -48,6 +56,10 @@
                         <option value="KG" {{isset($Registro) && $Registro->Unidade == 'KG' ? 'selected' : ''}}>KG</option>
                     </select>
                    </div>
+                   <div class="col-sm-12">
+                        <label>Informações Nutricionais</label>
+                        <textarea name="Info" class="form-control">{{isset($Registro) ? $Registro->Info : ''}}</textarea>
+                    </div>
                 </div>
                 <br>
                 <div class="row">

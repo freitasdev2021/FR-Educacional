@@ -180,12 +180,14 @@ class CardapioController extends Controller
         try{
             $status = 'success';
             $mensagem = 'Estoque Salvo com Sucesso';
+            $data = $request->all();
+            $data['IDEscola'] = self::getEscolaDiretor(Auth::user()->id);
             if($request->id){
-                Estoque::find($request->id)->update($request->all());
+                Estoque::find($request->id)->update($data);
                 $aid = $request->id;
                 $rout = 'Merenda/Estoque/Edit';
             }else{
-                Estoque::create($request->all());
+                Estoque::create($data);
                 $rout = 'Merenda/Estoque/Novo';
                 $aid = '';
             }

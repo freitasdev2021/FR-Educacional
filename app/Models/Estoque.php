@@ -14,6 +14,9 @@ class Estoque extends Model
         'Quantidade',
         'TPUnidade',
         'Vencimento',
+        'TMEmbalagem',
+        'Info',
+        'CDProduto',
         'Item'
     ];
 
