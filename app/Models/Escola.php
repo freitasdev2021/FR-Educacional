@@ -12,6 +12,7 @@ class Escola extends Model
     protected $fillable = [
         'IDOrg',
         'Nome',
+        'Foto',
         'CEP',
         'Rua',
         'Bairro',

@@ -39,10 +39,13 @@
                     </div>
                     @endif
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-3">
                             <label>Série</label>
                             <select name="Serie" class="form-control">
                                 <option value="">Selecione</option>
+                                <optgroup label="Supletivo">
+                                    <option value="Educação de Jovens e Adultos (EJA)" {{(isset($Registro->Serie) && $Registro->Serie == "Educação de Jovens e Adultos (EJA)" ) ? 'selected' : ''}}>Educação de Jovens e Adultos (EJA)</option>
+                                </optgroup>
                                 <optgroup label="Ensino Infantil: 1º ao 4º Periodo">
                                     <option value="1º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie == "1º Periodo E.INFANTIL" ) ? 'selected' : ''}}>1º Periodo E.INFANTIL</option>
                                     <option value="2º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie =="2º Periodo E.INFANTIL") ? 'selected' : ''}}>2º Periodo E.INFANTIL</option>
@@ -65,6 +68,12 @@
                                     <option value="2º Ano E.MÉDIO" {{(isset($Registro->Serie) && $Registro->Serie == "2º Ano E.MÉDIO" ) ? 'selected' : ''}}>2º Ano E.MÉDIO</option>
                                     <option value="3º Ano E.MÉDIO" {{(isset($Registro->Serie) && $Registro->Serie == "3º Ano E.MÉDIO" ) ? 'selected' : ''}}>3º Ano E.MÉDIO</option>
                                 </optgroup>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Salas</label>
+                            <select name="IDSala" class="form-control">
+                                <option name="">Selecione</option>
                             </select>
                         </div>
                         <div class="col-sm-3">

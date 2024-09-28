@@ -10,7 +10,7 @@ use App\Models\Disciplina;
 use App\Models\alocacoesDisciplinas;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Storage;
 
 class EscolasController extends Controller
 {
@@ -27,6 +27,14 @@ class EscolasController extends Controller
         "nome" => "Turmas",
         "endereco" => "Turmas",
         "rota" => "Escolas/Turmas"
+    ],[
+        "nome" => "Salas",
+        "endereco" => "Salas",
+        "rota" => "Escolas/Salas"
+    ],[
+        "nome" => "Vagas",
+        "endereco"=> "Vagas",
+        "rota" => "Escolas/Vagas"
     ]);
 
     public const professoresSubmodulos = array([
@@ -99,10 +107,23 @@ class EscolasController extends Controller
             if($request->id){
                 $Escola = Escola::find($request->id);
                 $Escola->update($esc);
+                if($request->file('Foto')){
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_escolas/escola_'. $request->id . '/' . $request->oldFoto);
+                    $Foto = $request->file('Foto')->getClientOriginalName();
+                    $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_escolas/escola_'.$request->id,$Foto,'public');
+                }else{
+                    $Foto = '';
+                }
+                $esc['Foto'] = $Foto;
                 $rout = 'Escolas/Edit';
                 $aid = $request->id;
             }else{
-                Escola::create($esc);
+                if($request->file('Foto')){
+                    $Foto = $request->file('Foto')->getClientOriginalName();
+                    $esc['Foto'] = $Foto;
+                }
+                $IDEscola = Escola::create($esc);
+                $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_escolas/escola_'.$IDEscola,$Foto,'public');
                 $rout = 'Escolas/Novo';
             }
             $status = 'success';
@@ -175,13 +196,17 @@ class EscolasController extends Controller
                 $AnoLetivo = Calendario::find($request->id);
                 $AnoLetivo->update([
                     'INIAno' => $request->INIAno,
-                    'TERAno' => $request->TERAno
+                    'TERAno' => $request->TERAno,
+                    'INIRematricula' => $request->INIRematricula,
+                    'TERRematricula' => $request->TERRematricula
                 ]);
                 $aid = $request->id;
             }else{
                 Calendario::create([
                     'INIAno' => $request->INIAno,
                     'TERAno' => $request->TERAno,
+                    'INIRematricula' => $request->INIRematricula,
+                    'TERRematricula' => $request->TERRematricula,
                     "IDOrg" => Auth::user()->id_org
                 ]);
             }
@@ -413,7 +438,15 @@ class EscolasController extends Controller
         }
 
         $SQL = <<<SQL
-        SELECT t.id as IDTurma, COUNT(a.id) as QTAlunos, t.Nome as Turma,t.INITurma,t.TERTurma,e.Nome as Escola,t.Serie 
+        SELECT 
+            t.id as IDTurma, 
+            COUNT(a.id) as QTAlunos, 
+            t.Nome as Turma,t.INITurma,
+            t.TERTurma,
+            e.Nome as Escola,
+            t.Serie,
+            t.Periodo,
+            (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE au2.IDTurma = t.id ) as Frequencia 
         FROM turmas t
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o on(e.IDOrg = o.id)
@@ -426,12 +459,30 @@ class EscolasController extends Controller
         $turmas = DB::select($SQL);
         if(count($turmas) > 0){
             foreach($turmas as $t){
+
+                switch($t->Periodo){
+                    case 'Bimestral':
+                        $Estagios = 200/4;
+                    break;
+                    case 'Trimestral':
+                        $Estagios = 200/3;
+                    break;
+                    case 'Semestral':
+                        $Estagios = 200/2;
+                    break;
+                    case 'Anual':
+                        $Estagios = 200/1;
+                    break;
+                }
+
                 $item = [];
                 $item[] = $t->Turma;
                 $item[] = $t->Serie;
                 (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = $t->INITurma." - ".$t->TERTurma : '';
                 $item[] = $t->QTAlunos;
+                $item[] = 200 - $t->Frequencia;
+                $item[] = ($t->Frequencia/$Estagios)*100.." %";;
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 (Auth::user()->tipo == 6) ? $item[] = "<a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
                 $itensJSON[] = $item;

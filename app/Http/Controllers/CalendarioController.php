@@ -77,7 +77,7 @@ class CalendarioController extends Controller
             "submodulos" => self::submodulos,
             'id' => '',
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get(),
-            "AnoLetivo" => DB::select("SELECT INIAno,TERAno,id as IDAno FROM calendario WHERE IDOrg = $idorg ")
+            "AnoLetivo" => DB::select("SELECT INIAno,TERAno,id as IDAno,INIRematricula,TERRematricula FROM calendario WHERE IDOrg = $idorg ")
         ]);
     }
 

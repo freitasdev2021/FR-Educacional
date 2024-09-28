@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--LISTAS-->
             <div class="col-sm-12 p-2 center-form">
-                <form action="{{route('Escolas/Save')}}" method="POST">
+                <form action="{{route('Escolas/Save')}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method("POST")
                     @if(session('success'))
@@ -23,8 +23,21 @@
                     @endif
                     @if(isset($Registro->id))
                     <input type="hidden" name="id" value="{{$Registro->id}}">
+                    <input type="hidden" name="oldFoto" value="{{$Registro->Foto}}">
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
+                    <div>
+                        <div class="d-flex justify-content-center mb-4">
+                            <img id="selectedAvatar" src="{{ isset($Registro->Foto) ? url('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Registro->id . '/' . $Registro->Foto) : asset('img/escolaAvatar.jpg') }}"
+                            class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover;" alt="example placeholder" />
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <div data-mdb-ripple-init class="btn btn-primary btn-rounded">
+                                <label class="form-label text-white m-1" for="customFile2">Upload Foto</label>
+                                <input type="file" name="Foto" class="form-control d-none" id="customFile2" onchange="displaySelectedImage(event, 'selectedAvatar')" accept="image/jpg,image/png,image/jpeg" {{!isset($Registro) ? 'required' : ''}} />
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-sm-4">
                             <label>Nome da escola</label>
@@ -83,6 +96,20 @@
         </div>
     </div>
     <script>
+        function displaySelectedImage(event, elementId) {
+            const selectedImage = document.getElementById(elementId);
+            const fileInput = event.target;
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    selectedImage.src = e.target.result;
+                };
+
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
         $('input[name=CEP]').on("change",function(e){
             if( $(this).val().length == 9){
                 var cep = $(this).val();

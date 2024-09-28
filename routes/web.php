@@ -4,7 +4,7 @@ use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
-use App\Http\Controllers\SecretariosController;
+use App\Http\Controllers\VagasController;
 use App\Http\Controllers\AulasController;
 use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
@@ -18,7 +18,8 @@ use App\Http\Controllers\ResponsaveisController;
 use App\Http\Controllers\AlunosController;
 use App\Http\Controllers\AuxiliaresController;
 use App\Http\Controllers\TransporteController;
-use App\Http\Controllers\ApoioController;
+use App\Http\Controllers\EnderecosController;
+use App\Http\Controllers\SalasController;
 use App\Http\Controllers\UsuariosController;
 use Illuminate\Support\Facades\Route;
 
@@ -104,8 +105,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/Alunos/Transferidos/list',[AlunosController::class,'getTransferidos'])->name('Alunos/Transferidos/list');
         Route::get('/Alunos/Novo',[AlunosController::class,'cadastro'])->name('Alunos/Novo');
         Route::get('/Alunos/Cadastro/{id}',[AlunosController::class,'cadastro'])->name('Alunos/Edit');
-        Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save')->middleware(['auxiliar']);
-        Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar')->middleware(['auxiliar']);
+        Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save');
+        Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
         Route::post('/Alunos/Transferidos/Matricular',[AlunosController::class,'matricularTransferido'])->name('Alunos/Transferidos/Matricular');
         //DADOS DO ALUNO
         Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico');
@@ -166,12 +167,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/Escolas/Turmas/list',[EscolasController::class,'getTurmas'])->name('Escolas/Turmas/list');
         Route::get('/Escolas/Turmas',[EscolasController::class,'Turmas'])->name('Escolas/Turmas');
         Route::get('Turmas',[TurmasController::class,'index'])->name('Turmas/index');
+        //SALAS
+        Route::get('Escolas/Salas',[SalasController::class,'index'])->name('Escolas/Salas');
+        Route::get('Escolas/Salas/Cadastro',[SalasController::class,'cadastro'])->name('Escolas/Salas/Novo');
+        Route::get('Escolas/Salas/Cadastro/{id}',[SalasController::class,'cadastro'])->name('Escolas/Salas/Edit');
+        Route::get('Escolas/Salas/list',[SalasController::class,'getSalas'])->name('Escolas/Salas/list');
+        Route::post('Escolas/Salas/Save',[SalasController::class,'save'])->name('Escolas/Salas/Save');
         //PAIS
         Route::get('/Responsaveis',[ResponsaveisController::class,'index'])->name('Responsaveis/index');
         Route::get('/Responsaveis/Novo',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Novo');
         Route::get('/Responsaveis/Cadastro/{id}',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Edit');
         Route::post('/Responsaveis/Save',[ResponsaveisController::class,'save'])->name('Responsaveis/Save');
+        //VAGAS
+        Route::get('Escolas/Vagas',[VagasController::class,'index'])->name('Escolas/Vagas');
+        Route::get('Escolas/Vagas/Cadastro',[VagasController::class,'cadastro'])->name('Escolas/Vagas/Novo');
+        Route::get('Escolas/Vagas/Cadastro/{IDVaga}',[VagasController::class,'cadastro'])->name('Escolas/Vagas/Edit');
+        Route::get('Escolas/Vagas/list',[VagasController::class,'getVagas'])->name('Escolas/Vagas/list');
+        Route::post('Escolas/Vagas/Save',[VagasController::class,'save'])->name('Escolas/Vagas/Save');
         //CALENDARIO
+        Route::post('Calendario/Rematricula',[CalendarioController::class,'rematricula'])->name('Calendario/Rematricula');
         Route::get('/Calendario',[CalendarioController::class,'index'])->name('Calendario/index');
         Route::get('/Calendario/Eventos/list',[CalendarioController::class,'getEventos'])->name('Calendario/Eventos/list');
         Route::get('/Calendario/Eventos',[CalendarioController::class,'eventosIndex'])->name('Calendario/Eventos');
@@ -265,6 +279,12 @@ Route::middleware('auth')->group(function () {
     });
     //CAMADA DE SEGURANÇA DO SECRETARIO
     Route::middleware('secretario')->group(function(){
+        //ENDERECOS
+        Route::get('Enderecos',[EnderecosController::class,'index'])->name('Enderecos/index');
+        Route::get('Enderecos/Cadastro',[EnderecosController::class,'cadastro'])->name('Enderecos/Novo');
+        Route::get('Enderecos/list',[EnderecosController::class,'getEnderecos'])->name('Enderecos/list');
+        Route::get('Enderecos/Cadastro/{id}',[EnderecosController::class,'cadastro'])->name('Enderecos/Edit');
+        Route::post('Enderecos/Save',[EnderecosController::class,'save'])->name('Enderecos/Save');
         //DIRETORES
         Route::get('/Diretores/list',[DiretoresController::class,'getDiretores'])->name('Diretores/list');
         Route::get('/Diretores',[DiretoresController::class,'index'])->name('Diretores/index');

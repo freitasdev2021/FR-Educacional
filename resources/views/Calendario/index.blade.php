@@ -19,15 +19,6 @@
              </div>
              <br>
              @endif
-             {{-- <div class="col-auto">
-               <label>Filtre pela Escola</label>
-               <select class="form-control">
-                  <option>Selecione</option>
-                  @foreach($Escolas as $es)
-                  <option value="{{$es->id}}">{{$es->Nome}}</option>
-                  @endforeach
-               </select>
-             </div> --}}
              @if(isset($AnoLetivo[0]->IDAno))
              <input type="hidden" name="id" value="{{$AnoLetivo[0]->IDAno}}">
              @endif
@@ -38,6 +29,14 @@
             <div class="col-sm-2">
                <label>Até</label>
                <input type="date" name="TERAno" class="form-control" value="{{isset($AnoLetivo[0]->TERAno) ?$AnoLetivo[0]->TERAno : ''}}" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
+            </div>
+            <div class="col-sm-2">
+               <label>I.Rematricula</label>
+               <input type="date" name="INIRematricula" class="form-control" value="{{isset($AnoLetivo[0]->INIRematricula) ? $AnoLetivo[0]->INIRematricula : ''}}" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
+            </div>
+            <div class="col-sm-2">
+               <label>TER.Rematricula</label>
+               <input type="date" name="TERRematricula" class="form-control" value="{{isset($AnoLetivo[0]->TERRematricula) ?$AnoLetivo[0]->TERRematricula : ''}}" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
             </div>
             <div class="col-auto">
                <label style="visibility: hidden">a</label>

@@ -19,7 +19,8 @@ class Turma extends Model
         'NotaPeriodo',
         'MediaPeriodo',
         'TotalAno',
-        'QTRepetencia'
+        'QTRepetencia',
+        'IDSala'
     ];
 
     public function escola()

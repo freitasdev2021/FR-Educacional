@@ -13,6 +13,8 @@ class Calendario extends Model
         'IDOrg',
         'INIAno',
         'TERAno',
+        'INIRematricula',
+        'TERRematricula'
     ];
 
     public function escola()
