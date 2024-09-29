@@ -35,6 +35,10 @@ class EscolasController extends Controller
         "nome" => "Vagas",
         "endereco"=> "Vagas",
         "rota" => "Escolas/Vagas"
+    ],[
+        "nome" => "Relatorios",
+        "endereco"=> "Relatorios",
+        "rota" => "Escolas/Relatorios"
     ]);
 
     public const professoresSubmodulos = array([
@@ -42,6 +46,12 @@ class EscolasController extends Controller
         "endereco" => "index",
         "rota" => "Turmas/index"
     ]);
+
+    public function relatorios(){
+        return view('escolas.relatorios',[
+            "submodulos" => self::submodulos
+        ]);
+    }
 
     public function index(){
         $view = [

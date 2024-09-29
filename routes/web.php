@@ -11,6 +11,7 @@ use App\Http\Controllers\PlanejamentosController;
 use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\DiretoresController;
+use App\Http\Controllers\RelatoriosController;
 use App\Http\Controllers\ProfessoresController;
 use App\Http\Controllers\CardapioController;
 use App\Http\Controllers\PedagogosController;
@@ -178,6 +179,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/Responsaveis/Novo',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Novo');
         Route::get('/Responsaveis/Cadastro/{id}',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Edit');
         Route::post('/Responsaveis/Save',[ResponsaveisController::class,'save'])->name('Responsaveis/Save');
+        //RELATORIOS
+        Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
+        Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');
         //VAGAS
         Route::get('Escolas/Vagas',[VagasController::class,'index'])->name('Escolas/Vagas');
         Route::get('Escolas/Vagas/Cadastro',[VagasController::class,'cadastro'])->name('Escolas/Vagas/Novo');
