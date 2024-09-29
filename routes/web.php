@@ -158,11 +158,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save')->middleware('professor');
         Route::post('/Aulas/Atividades/setNota',[AulasController::class,'setNota'])->name('Aulas/Atividades/setNota')->middleware('professor');
         //OCORRENCIAS
-        Route::get('/Ocorrencias/list',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list')->middleware('professor');
-        Route::get('/Ocorrencias',[OcorrenciasController::class,'index'])->name('Ocorrencias/index')->middleware('professor');
-        Route::get('/Ocorrencias/Novo',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Novo')->middleware('professor');
-        Route::get('/Ocorrencias/Cadastro/{id}',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Edit')->middleware('professor');
-        Route::post('/Ocorrencias/Save',[OcorrenciasController::class,'save'])->name('Ocorrencias/Save')->middleware('professor');
+        Route::get('Ocorrencias/list',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list');
+        Route::get('Ocorrencias',[OcorrenciasController::class,'index'])->name('Ocorrencias/index');
+        Route::get('Ocorrencias/Novo',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Novo');
+        Route::get('Ocorrencias/Cadastro/{id}',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Edit');
+        Route::post('Ocorrencias/Save',[OcorrenciasController::class,'save'])->name('Ocorrencias/Save');
         //TURMAS
         Route::get('/Escolas/Turmas/{IDDisciplina}/getTurmasDisciplina/{TPRetorno}',[EscolasController::class,'getTurmasDisciplinas']);
         Route::get('/Escolas/Turmas/list',[EscolasController::class,'getTurmas'])->name('Escolas/Turmas/list');
@@ -182,6 +182,7 @@ Route::middleware('auth')->group(function () {
         //RELATORIOS
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
         Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');
+        Route::put('Escolas/Relatorios/Gerar/{Tipo}',[RelatoriosController::class,'Gerar'])->name('Escolas/Relatorios/Gerar');
         //VAGAS
         Route::get('Escolas/Vagas',[VagasController::class,'index'])->name('Escolas/Vagas');
         Route::get('Escolas/Vagas/Cadastro',[VagasController::class,'cadastro'])->name('Escolas/Vagas/Novo');

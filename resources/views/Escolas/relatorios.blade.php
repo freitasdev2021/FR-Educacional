@@ -42,6 +42,12 @@
                         <td>28/09/2024</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Evadidos')}}">Imprimir</a></td>
                       </tr>
+                      <tr>
+                        <td>Responsaveis</td>
+                        <td>Nominal</td>
+                        <td>28/09/2024</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Responsaveis')}}">Imprimir</a></td>
+                      </tr>
                     </tbody>
                   </table>
             </div>

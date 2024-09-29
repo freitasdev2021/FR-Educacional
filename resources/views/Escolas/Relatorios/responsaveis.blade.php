@@ -12,21 +12,27 @@
                 <h5>Escolha os dados do relatório</h5>
                 <div class="col-sm-12 p-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Nome da Escola" name="Conteudo[]" id="flexCheckDefault">
+                        <input class="form-check-input" type="checkbox" value="Responsavel" name="Conteudo[]" id="flexCheckDefault">
                         <label class="form-check-label" for="flexCheckDefault">
-                          Nome da Escola
+                          Responsavel
                         </label>
                       </div>
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Evadidos" name="Conteudo[]" id="flexCheckChecked">
+                        <input class="form-check-input" type="checkbox" value="Aluno" name="Conteudo[]" id="flexCheckChecked">
                         <label class="form-check-label" for="flexCheckChecked">
-                          Evadidos
+                          Aluno
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Endereço" name="Conteudo[]" id="flexCheckChecked">
+                        <input class="form-check-input" type="checkbox" value="Telefone" name="Conteudo[]" id="flexCheckChecked">
                         <label class="form-check-label" for="flexCheckChecked">
-                          Endereço
+                          Telefone
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Escola" name="Conteudo[]" id="flexCheckChecked">
+                        <label class="form-check-label" for="flexCheckChecked">
+                          Escola
                         </label>
                     </div>
                 </div>

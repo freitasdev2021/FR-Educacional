@@ -9,6 +9,7 @@ use App\Models\Escola;
 use App\Models\Turma;
 use App\Models\FeedbackTransferencia;
 use App\Models\Renovacoes;
+use App\Models\Remanejo;
 use App\Models\Responsavel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -945,6 +946,20 @@ class AlunosController extends Controller
                     'STAluno' => 0,
                     'IDTurma' => $request->IDTurma
                 );
+
+                $IDTurmaOrigem = Aluno::find($request->IDAluno)->IDTurma;
+                $IDEscola = Turma::find($IDTurmaOrigem)->IDEscola;
+
+                //dd($IDEscola);
+
+                if($request->IDTurma != $IDTurmaOrigem){
+                    Remanejo::create([
+                        "IDTurmaOrigem" => $IDTurmaOrigem,
+                        "IDTurmaDestino" => $request->IDTurma,
+                        "IDAluno" => $request->IDAluno,
+                        "IDEscola" => $IDEscola
+                    ]);
+                }
 
                 Aluno::find($request->IDAluno)->update($aluno);
 

@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ocorrencia extends Model
+class Remanejo extends Model
 {
     use HasFactory;
 
+    protected $table = "remanejados";
+
     protected $fillable = [
-        'IDAlvo',
-        'IDEscola',
-        'IDEmissor',
-        'DTOcorrencia',
-        'DSOcorrido',
+        'IDAluno',
+        'IDTurmaOrigem',
+        'IDTurmaDestino',
+        'IDEscola'
     ];
 }
