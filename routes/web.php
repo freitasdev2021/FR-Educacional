@@ -17,6 +17,7 @@ use App\Http\Controllers\CardapioController;
 use App\Http\Controllers\PedagogosController;
 use App\Http\Controllers\ResponsaveisController;
 use App\Http\Controllers\AlunosController;
+use App\Http\Controllers\FichaController;
 use App\Http\Controllers\AuxiliaresController;
 use App\Http\Controllers\TransporteController;
 use App\Http\Controllers\EnderecosController;
@@ -109,6 +110,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save');
         Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
         Route::post('/Alunos/Transferidos/Matricular',[AlunosController::class,'matricularTransferido'])->name('Alunos/Transferidos/Matricular');
+        //FICHA AVALIATIVA
+        Route::post('Fichas/Save',[FichaController::class,'save'])->name('Fichas/Save');
+        Route::get('Fichas',[FichaController::class,'index'])->name('Fichas/index');
+        Route::get('Fichas/list',[FichaController::class,'getFichas'])->name('Fichas/list');
+        Route::get('Fichas/Cadastro',[FichaController::class,'cadastro'])->name('Fichas/Novo');
+        Route::get('Fichas/Cadastro/{id}',[FichaController::class,'cadastro'])->name('Fichas/Edit');
+        Route::get('Fichas/Respostas/{id}',[FichaController::class,'respostas'])->name('Fichas/Respostas');
+        Route::get('Fichas/getRespostas/{id}',[FichaController::class,'getRespostas'])->name('Fichas/getRespostas');
+        Route::get('Fichas/Respostas/Export/{id}', [FichaController::class, 'exportRespostas'])->name('Fichas/Respostas/Export');
+        Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
+        Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
         //DADOS DO ALUNO
         Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico');
         Route::get('/Alunos/Boletim/{id}',[AlunosController::class,'boletim'])->name('Alunos/Boletim');
