@@ -19,6 +19,21 @@ class ProfessoresController extends Controller
         "endereco" => "index",
         "rota" => "Professores/index"
     ]);
+
+    public const cadastroSubmodulos = array([
+        "nome" => 'Cadastro',
+        "endereco" => "Edit",
+        "rota" => "Professores/Edit"
+    ],[
+        "nome" => "Turnos",
+        "endereco" => "Turnos",
+        "rota" => "Professores/Turnos"
+    ],[
+        "nome" => "Apoio",
+        "endereco" => "Apoio",
+        "rota" => "Professores/Apoio"
+    ]);
+        
     public function index(){
         return view('Professores.index',[
             "submodulos" => self::submodulos
@@ -162,6 +177,10 @@ class ProfessoresController extends Controller
                 "nome" => "Turnos",
                 "endereco" => "Turnos",
                 "rota" => "Professores/Turnos"
+            ],[
+                "nome" => "Apoio",
+                "endereco" => "Apoio",
+                "rota" => "Professores/Apoio"
             ]),
             'IDProfessor' => $idprofessor,
             'Escolas' => DB::select("SELECT e.Nome as Escola, e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(e.id = a.IDEscola) INNER JOIN professores p ON(p.id = a.IDProfissional) WHERE p.id = $idprofessor "),
@@ -258,6 +277,12 @@ class ProfessoresController extends Controller
                 "endereco" => "Turnos",
                 "rota" => "Professores/Turnos"
             ]);
+
+            array_push($view['submodulos'],[
+                "nome" => "Apoio",
+                "endereco" => "Apoio",
+                "rota" => "Professores/Apoio"
+            ]);
             //
             $view['id'] = $id;
             $view['Registro'] = $Professor[0];
@@ -278,6 +303,10 @@ class ProfessoresController extends Controller
                 "nome" => "Turnos",
                 "endereco" => "Turnos",
                 "rota" => "Professores/Turnos"
+            ],[
+                "nome" => "Apoio",
+                "endereco" => "Apoio",
+                "rota" => "Professores/Apoio"
             ]),
             'IDProfessor' => $idprofessor
         );
