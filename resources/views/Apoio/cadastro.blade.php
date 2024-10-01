@@ -60,25 +60,48 @@
                     </div>
                     <hr>
                 </form>
-                <form action="{{route('Professores/Apoio/Save')}}" method="POST">
+                <form action="{{route('Professores/Apoio/NovaEvolucao')}}" method="POST">
                     @csrf
-                    @method("POST")
-                    @if(session('success'))
-                    <div class="col-sm-12 shadow p-2 bg-success text-white">
-                        <strong>{{session('success')}}</strong>
-                    </div>
-                    @elseif(session('error'))
-                    <div class="col-sm-12 shadow p-2 bg-danger text-white">
-                        <strong>{{session('error')}}</strong>
-                    </div>
-                    <br>
-                    @endif
                     @if(isset($Registro->id))
                     <input type="hidden" name="id" value="{{$Registro->id}}">
                     @endif
+                    <input type="hidden" name="IDProfessor" value="{{$IDProfessor}}">
                     <div class="row">
-                        <textarea name="Evolucao"></textarea>
+                        @if(isset($Registro->id))
+                        <div class="col-sm-12">
+                            <label>Evoluiu</label>
+                            <textarea name="Evolucao" class="form-control"></textarea>
+                        </div>
+                        @endif
+                        @if(isset($Registro->id) && !empty($Registro->DSEvolucao))
+                        <div class="col-sm-12">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Evolução</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($Evolucao as $e)
+                                    <tr>
+                                        <td>{{$e->Evolucao}}</td>
+                                        <td>{{$e->Data}}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @endif
                     </div>
+                    <br>
+                    @if(isset($Registro->id))
+                    <div class="col-sm-12 text-left row">
+                        <button type="submit" class="btn btn-fr col-auto">Adicionar Evolução</button>
+                        &nbsp;
+                        <a class="btn btn-light col-auto" href="{{route('Professores/Apoio',$IDProfessor)}}">Voltar</a>
+                    </div>
+                    @endif
                 </form>    
             </div>
             <!--//-->
