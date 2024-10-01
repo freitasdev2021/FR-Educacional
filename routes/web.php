@@ -10,6 +10,7 @@ use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
 use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\TurmasController;
+use App\Http\Controllers\ApoioController;
 use App\Http\Controllers\DiretoresController;
 use App\Http\Controllers\RelatoriosController;
 use App\Http\Controllers\ProfessoresController;
@@ -50,7 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/Fornecedor/Usuarios',[UsuariosController::class,'fornecedoresIndex'])->name('Usuarios/indexFornecedor');
     });
     //CAMADA DE SEGURANÇA SECRETARIO E DIRETOR
-    Route::middleware('secretarioDiretor')->group(function () {
+    Route::middleware('secretarioDiretor')->group(function () {  
         //ESCOLAS
         Route::get('/Escolas/list',[EscolasController::class,'getEscolas'])->name('Escolas/list');
         Route::get('/Escolas',[EscolasController::class,'index'])->name('Escolas/index');
@@ -70,6 +71,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/Escolas/Turmas/Edit/{id}',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Cadastro');
         Route::post('/Escolas/Turmas/Save',[EscolasController::class,'saveTurmas'])->name('Escolas/Turmas/Save');
         //PROFESSORES
+        Route::get("Professores/Apoio/{IDProfessor}",[ApoioController::class,'index'])->name("Professores/Apoio");
+        Route::get("Professores/Apoio/list/{IDProfessor}",[ApoioController::class,'getApoio'])->name("Professores/Apoio/list");
+        Route::get("Professores/Apoio/evolucao/{id}",[ApoioController::class,'getEvolucao'])->name("Professores/Apoio/evolucao");
+        Route::get("Professores/{IDProfessor}/Apoio/Novo/{id}",[ApoioController::class,'cadastro'])->name("Professores/Apoio/Novo/");
+        Route::get("Professores/{IDProfessor}/Apoio/Edit/{id}",[ApoioController::class,'cadastro'])->name("Professores/Apoio/Edit");
+        Route::post("Professores/Apoio/Save",[ApoioController::class,'save'])->name("Professores/Apoio/Save");
+        Route::post("Professores/Apoio/NovaEvolucao",[ApoioController::class,'saveEvolucao'])->name("Professores/Apoio/NovaEvolucao");
+        //
         Route::get('/Professores/list',[ProfessoresController::class,'getProfessores'])->name('Professores/list');
         Route::get('/Professores',[ProfessoresController::class,'index'])->name('Professores/index');
         Route::get('/Professores/Cadastro/{id}',[ProfessoresController::class,'cadastro'])->name('Professores/Edit');
