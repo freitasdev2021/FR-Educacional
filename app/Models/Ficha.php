@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Ficha extends Model
 {
     use HasFactory;
+
+    protected $table = "ficha_avaliativa";
+
+    protected $fillable = [
+        "IDEscola",
+        "Titulo",
+        "Formulario"
+    ];
 }

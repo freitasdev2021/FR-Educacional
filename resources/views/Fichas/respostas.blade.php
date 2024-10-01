@@ -6,32 +6,29 @@
            @endforeach
         </div>
         <div class="fr-card-body">
-            @if(count($respostas) > 0)
-            <div style="width: 800px; height: 600px; margin: auto;">
-                <canvas id="myChart"></canvas> <!-- Elemento Canvas para o gráfico -->
+            <!--CABECALHO-->
+            <div class="col-sm-12 p-2 row">
+                <div class="col-auto">
+                    <a href="{{route('Fichas/index')}}" class="btn btn-fr">Voltar</a>
+                </div>
             </div>
-        
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const ctx = document.getElementById('myChart').getContext('2d');
-                    const chart = new Chart(ctx, {
-                        type: 'bar', // Tipo de gráfico
-                        data: {
-                            labels: @json($labels), // Labels das perguntas
-                            datasets: @json($datasets) // Dados para cada tipo de resposta
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                });
-            </script>
-            @endif
+            <!--LISTAS-->
+            <div class="col-sm-12 p-2">
+                <hr>
+                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Fichas/getRespostas',$id)}}">
+                    <thead>
+                      <tr>
+                        <th style="text-align:center;" scope="col">Nome</th>
+                        @foreach($respostas as $r)
+                        <th style="text-align:center;" scope="col">{{$r->Conteudo}}</th>
+                        @endforeach
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                    </tbody>
+                  </table>
+            </div>
             <!--//-->
         </div>
     </div>

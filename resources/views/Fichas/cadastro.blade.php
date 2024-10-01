@@ -1,7 +1,7 @@
 <x-educacional-layout>
-    {{-- <form action="{{route('Formularios/Save')}}" method="POST"> --}}
+    {{-- <form action="{{route('FichasSave')}}" method="POST"> --}}
         <div class="col-sm-12">
-            <div class="card bimestre">
+            <div class="card">
                 <div class="card-header bg-fr text-white">
                     <strong>Elaborar Formulário</strong>
                 </div>
@@ -13,6 +13,17 @@
                         <div class="col-sm-12">
                             <label>Titulo</label>
                             <input type="text" name="Titulo" class="form-control" value="{{isset($Registro) ? $Registro->Titulo : ''}}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Escola</label>
+                            <select name="IDEscola" class="form-control">
+                                <option value="">Selecione</option>
+                                @foreach($Escolas as $e)
+                                <option value="{{$e['IDEscola']}}" {{isset($Registro) && $Registro->IDEscola == $e['IDEscola'] ? 'selected' : ''}}>{{$e['Nome']}}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <br>
@@ -115,7 +126,7 @@
                     <br>
                     <div class="row">
                         <button class="btn btn-success saveEnunciado col-auto">Salvar</button>
-                        <a class="btn btn-light col-auto" href="{{route('Formularios/index')}}">Voltar</a>
+                        <a class="btn btn-light col-auto" href="{{route('Fichas/index')}}">Voltar</a>
                     </div>
                     <!---->
                 </div>
@@ -170,7 +181,7 @@
             
             var submit = {
                 Titulo : $("input[name=Titulo]").val(),
-                IDEvento : $("select[name=IDEvento]").val(),
+                IDEscola : $("select[name=IDEscola]").val(),
                 Formulario : JSON.stringify(enunciados)
             }
 
@@ -195,7 +206,7 @@
                 if(r.status == 'error'){
                     alert("Houve um erro: "+r.mensagem)
                 }else{
-                    alert("Formulário Salvo e Enviado aos participantes desse evento")
+                    alert("Ficha Avaliativa Salva")
                 }
             })
             //

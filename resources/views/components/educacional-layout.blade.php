@@ -18,6 +18,7 @@
                   <x-modulo nome="Aulas" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>
                   <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Planejamentos/index" endereco="Planejamentos"/>
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>
+                  <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
                   @endif
                   @if(Auth::user()->tipo == 2)
                   <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>

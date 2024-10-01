@@ -54,6 +54,23 @@ class ProfessoresController extends Controller
         return $IDEscolas;
     }
 
+    public static function getDadosEscolasProfessor($IDProfessor){
+        $SQL = "SELECT e.id as IDEscola,e.Nome FROM escolas e INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN professores p  ON(p.id = a.IDProfissional) WHERE p.id = $IDProfessor AND a.TPProfissional = 'PROF' ";
+        $IDEscolas = [];
+        foreach(DB::select($SQL) as $e){
+            $IDEscolas[] = array(
+                "IDEscola" => $e->IDEscola,
+                "Nome" => $e->Nome
+            );
+        }
+        return $IDEscolas;
+    }
+
+    public static function getAlunosProfessor($IDProfessor){
+        $SQL = "SELECT m.Nome as Aluno,a.id,t.Nome as Turma FROM alunos a INNER JOIN matriculas m on(a.IDMatricula = m.id) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(t.IDEscola = e.id) INNER JOIN alocacoes al ON(al.IDEscola = e.id) WHERE al.IDProfissional = $IDProfessor";
+        return DB::select($SQL);
+    }
+
 
     public function getProfessores(){
 

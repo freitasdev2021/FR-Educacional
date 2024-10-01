@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--CABECALHO-->
             <!--LISTAS-->
-            <form class="col-sm-12 p-2" action="{{route('Formularios/Responder')}}" method="POST">
+            <form class="col-sm-12 p-2" action="{{route('Fichas/Responder')}}" method="POST">
                 @csrf
                 @if(session('success'))
                 <div class="col-sm-12 shadow p-2 bg-success text-white">
@@ -20,8 +20,16 @@
                 </div>
                 <br>
                 @endif
-                <input type="hidden" value="{{$id}}" name="IDForm">
-                @foreach($Formulario as $fKey => $f)
+                <input type="hidden" value="{{$id}}" name="IDFicha">
+                <div class="col-sm-12">
+                    <label>Aluno</label>
+                    <select name="IDAluno" class="form-control">
+                        @foreach($Alunos as $a)
+                        <option value="{{$a->id}}">{{$a->Aluno}} - {{$a->Turma}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @foreach($Ficha as $fKey => $f)
                 <br>
                     @if(count($f->Conteudos) > 0)
                         <div class="col-sm-12">
@@ -42,7 +50,7 @@
                 <br>
                 <div>
                     <button class="btn btn-success col-auto">Enviar</button>
-                    <a href='{{route('Formularios/index')}}' class="btn btn-light col-auto">Voltar</a>
+                    <a href='{{route('Fichas/index')}}' class="btn btn-light col-auto">Voltar</a>
                 </div>
                 
             </form>

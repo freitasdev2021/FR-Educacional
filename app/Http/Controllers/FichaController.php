@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfessoresController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Ficha;
 use App\Models\Resposta;
 use App\Models\Escola;
@@ -38,14 +40,14 @@ class FichaController extends Controller
         $view = array(
             'id' => '',
             'submodulos' => self::submodulos,
-            'Escolas' => ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional)
+            'Escolas' => ProfessoresController::getDadosEscolasProfessor(Auth::user()->IDProfissional)
         );
 
         if($id){
             $view['id'] = $id;
             $view['Registro'] = Ficha::find($id);
             $view['submodulos'] = self::cadastroSubmodulos;
-            $view['Ficha'] = json_decode($view['Registro']->Formulario);
+            $view['Formulario'] = json_decode($view['Registro']->Formulario);
         }
 
         return view('Fichas.cadastro', $view);
@@ -54,62 +56,11 @@ class FichaController extends Controller
     public function respostas($id){
         // Consulta SQL para obter registros de respostas
         // Consulta SQL para obter registros de respostas
-        $registros = DB::select("
-            SELECT r.Respostas, r.id, u.name 
-            FROM respostas_ficha r 
-            INNER JOIN ficha_avaliativa f ON (f.id = r.IDForm) 
-            INNER JOIN users u ON (r.IDUser = u.id) 
-            WHERE f.id = :id", ['id' => $id]);
-
-        $respostaCount = [];
-
-        if (count($registros) > 0) {
-            foreach ($registros as $registro) {
-                // Decodifica as respostas JSON para um array associativo
-                $respostas = json_decode($registro->Respostas, true);
-
-                // Conta o número de respostas para cada pergunta
-                foreach ($respostas as $resposta) {
-                    $pergunta = $resposta['Conteudo']; // Supondo que a pergunta esteja no JSON
-                    $respostaTexto = isset($resposta['Resposta']) ? $resposta['Resposta'] : 'Sem Resposta';
-
-                    // Incrementa a contagem de respostas por pergunta e tipo de resposta
-                    if (!isset($respostaCount[$respostaTexto])) {
-                        $respostaCount[$respostaTexto] = [];
-                    }
-
-                    if (!isset($respostaCount[$respostaTexto][$pergunta])) {
-                        $respostaCount[$respostaTexto][$pergunta] = 0;
-                    }
-
-                    $respostaCount[$respostaTexto][$pergunta]++;
-                }
-            }
-        }
-
-        // Preparar os dados para passar para a view
-        if(!$respostaCount){
-            return false;
-        }
-        $labels = array_keys(reset($respostaCount)); // Usando as perguntas como labels
-        $datasets = [];
-
-        // Criar datasets para cada tipo de resposta
-        foreach ($respostaCount as $resposta => $contagem) {
-            $datasets[] = [
-                'label' => $resposta, // Nome da resposta (ex: "Bom", "Ruim")
-                'data' => array_values($contagem), // Valores de contagem de respostas
-                'backgroundColor' => 'rgba(54, 162, 235, 0.6)', // Defina a cor conforme necessário
-                'borderColor' => 'rgba(54, 162, 235, 1)',
-                'borderWidth' => 1,
-            ];
-        }
+        $Registro = DB::select("SELECT f.Formulario FROM ficha_avaliativa f WHERE f.id = $id")[0];
 
         return view('Fichas.respostas',array(
             "submodulos" => self::cadastroSubmodulos,
-            'labels' => $labels,
-            'datasets' => $datasets,
-            'respostas' => $respostas,
+            "respostas" => json_decode($Registro->Formulario),
             "id" => $id
         ));
     }
@@ -118,11 +69,12 @@ class FichaController extends Controller
     {
         // Consulta os registros
         $registros = DB::select("
-            SELECT r.Respostas, r.id, u.name 
-            FROM respostas_ficha r 
-            INNER JOIN ficha_avaliativa f ON (f.id = r.IDForm) 
-            INNER JOIN users u ON (r.IDUser = u.id) 
-            WHERE f.id = :id", ['id' => $id]);
+        SELECT r.Respostas, r.id, m.Nome 
+        FROM respostas_ficha r 
+        INNER JOIN ficha_avaliativa f ON (f.id = r.IDFicha) 
+        INNER JOIN alunos a ON (r.IDAluno = a.id)
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+        WHERE f.id = :id", ['id' => $id]);
 
         // Inicializa a planilha
         $spreadsheet = new Spreadsheet();
@@ -135,7 +87,7 @@ class FichaController extends Controller
         if (count($registros) > 0) {
             $primeiroRegistro = json_decode($registros[0]->Respostas, true);
             foreach ($primeiroRegistro as $r) {
-                $sheet->setCellValue($colIndex . '1', $r['Conteudo']);
+                $sheet->setCellValue($colIndex . '1', $r['Resposta']);
                 $colIndex++;
             }
         }
@@ -144,7 +96,7 @@ class FichaController extends Controller
         $row = 2; // Começa na segunda linha (a primeira é o cabeçalho)
         foreach ($registros as $registro) {
             $item = [];
-            $item[] = $registro->name;
+            $item[] = $registro->Nome;
             $respostas = json_decode($registro->Respostas, true);
             foreach ($respostas as $resposta) {
                 $item[] = $resposta['Resposta'];
@@ -173,10 +125,11 @@ class FichaController extends Controller
 
     public function getRespostas($id){
         $registros = DB::select("
-            SELECT r.Respostas, r.id, u.name 
+            SELECT r.Respostas, r.id, m.Nome 
             FROM respostas_ficha r 
-            INNER JOIN ficha_avaliativa f ON (f.id = r.IDForm) 
-            INNER JOIN users u ON (r.IDUser = u.id) 
+            INNER JOIN ficha_avaliativa f ON (f.id = r.IDFicha) 
+            INNER JOIN alunos a ON (r.IDAluno = a.id)
+            INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
             WHERE f.id = :id", ['id' => $id]);
 
             $itensJSON = [];
@@ -185,7 +138,7 @@ class FichaController extends Controller
                 foreach ($registros as $registro) {
                     $item = [];
                     // Adiciona o nome do usuário
-                    $item[] = $registro->name;
+                    $item[] = $registro->Nome;
                     
                     // Decodifica as respostas JSON para um array associativo
                     $respostas = json_decode($registro->Respostas, true);
@@ -212,9 +165,10 @@ class FichaController extends Controller
     }
 
     public function visualizar($id){
-        return view('Fichas.Ficha',array(
-           "Ficha" => json_decode(Ficha::find($id)->Ficha),
+        return view('Fichas.formulario',array(
+           "Ficha" => json_decode(Ficha::find($id)->Formulario),
            'id' => $id,
+           "Alunos" => ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional),
            'submodulos'=> self::submodulos
         ));
     }
@@ -222,10 +176,10 @@ class FichaController extends Controller
     public function responder(Request $request){
         try{
             $respostas = $request->all();
-            $Form = json_decode(Ficha::find($respostas['IDForm'])->Ficha,true);
+            $Form = json_decode(Ficha::find($respostas['IDFicha'])->Ficha,true);
             $respondidas = [];
             unset($respostas['_token']);
-            unset($respostas['IDForm']);
+            unset($respostas['IDFicha']);
             foreach($respostas as $rKey =>$rVal){
                 $Form[$rKey]['Resposta'] = $rVal;
             }
@@ -235,16 +189,16 @@ class FichaController extends Controller
             $Respostas = json_encode($respondidas);
             Resposta::create(array(
                 "Respostas" => $Respostas,
-                "IDForm" => $request->IDForm,
-                "IDUser" => Auth::user()->id
+                "IDFicha" => $request->IDFicha,
+                "IDAluno" => $request->IDAluno
             ));
             $rota = 'Fichas/Visualizar';
             $mensagem = "Sua Resposta foi Enviada por Email";
-            $aid = $request->IDForm;
+            $aid = $request->IDFicha;
             $status = 'success';
         }catch(\Throwable $th){
             $mensagem = 'Erro '. $th->getMessage();
-            $aid = $request->IDForm;
+            $aid = $request->IDFicha;
             $rota = 'Fichas/Visualizar';
             $status = 'error';
         }finally{
@@ -259,7 +213,7 @@ class FichaController extends Controller
             if(!empty($a['Conteudo'])){
                 return $a;
             }
-        },json_decode($data['Ficha'],true));
+        },json_decode($data['Formulario'],true));
 
         foreach($arrayForm as $af){
             if(!is_null($af)){
@@ -285,20 +239,21 @@ class FichaController extends Controller
 
     public function getFichas(){
         if(Auth::user()->tipo == 6){
-            $IDEscolas = ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional);
+            $IDEscolas = implode(',',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
         }else{
             $IDEscolas = Escola::select('id')->where('IDOrg',Auth::user()->org_id)->toArray();
         }
-        $registros = DB::select("SELECT f.Titulo,e.Titulo as Escola,f.id as IDForm FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
+        $registros = DB::select("SELECT f.Titulo,e.Nome as Escola,f.id as IDFicha FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
         if(count($registros) > 0){
             foreach($registros as $r){
                 $item = [];
                 $item[] = $r->Titulo;
                 $item[] = $r->Escola;
                 $item[] = "
-                <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDForm).">Abrir</a>&nbsp
-                <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDForm).">Visualizar</a>&nbsp
-                <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDForm).">Respostas</a>
+                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export',$r->IDFicha).">Exportar Respostas</a>&nbsp
+                <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Abrir</a>&nbsp
+                <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Visualizar</a>&nbsp
+                <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDFicha).">Respostas</a>
                 ";
                 $itensJSON[] = $item;
             }

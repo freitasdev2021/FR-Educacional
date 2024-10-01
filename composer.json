@@ -9,7 +9,8 @@
         "codedge/laravel-fpdf": "^1.12",
         "laravel/breeze": "^2.0",
         "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "phpoffice/phpspreadsheet": "^3.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
