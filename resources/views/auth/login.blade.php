@@ -32,7 +32,6 @@
                         </span>
                     @enderror
                 </div>
-
                 <!-- Password input -->
                 <div class="form-outline mb-3">
                     <input type="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror" required placeholder="Senha" />
@@ -51,7 +50,13 @@
                     <button type="submit" class="btn btn-lg col-sm-12 bt-login">Acessar</button>
                 </div>
                 <br>
-                <span class="error"></span>
+                <span class="error">
+                    @if ($errors->has('STAcesso'))
+                        <div class="alert alert-danger">
+                            {{ $errors->first('STAcesso') }}
+                        </div>
+                    @endif
+                </span>
                 <!-- <strong class="btcliente"><a href='#'>Quero ser cliente(31 Dias Grátis sem compromisso)</a></strong> -->
                 </form>
             </div>

@@ -71,7 +71,6 @@ class ProfessoresController extends Controller
         return DB::select($SQL);
     }
 
-
     public function getProfessores(){
 
         if(Auth::user()->tipo == 4){
@@ -275,12 +274,15 @@ class ProfessoresController extends Controller
             $escolasUm = Controller::array_associative_unique(DB::select($sqlScola));
             $SQL = <<<SQL
             SELECT 
-                p.*
+                p.*,
+                u.STAcesso,
+                u.id as IDUser
             FROM Professores p
             LEFT JOIN alocacoes a ON(a.IDProfissional = p.id)
             LEFT JOIN escolas e ON(e.id = a.IDEscola)
             INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-            WHERE o.id = $orgId AND p.id = $id
+            INNER JOIN users u ON(u.IDProfissional = p.id)
+            WHERE o.id = $orgId AND p.id = $id AND u.tipo = 6
             SQL;
 
             $Professor = DB::select($SQL);
@@ -308,6 +310,14 @@ class ProfessoresController extends Controller
 
         return view('Professores.cadastro',$view);
 
+    }
+
+    public function bloquearAcesso($IDUser,$STAcesso){
+        if($STAcesso == 1){
+            User::find($IDUser)->update(["STAcesso"=>0]);
+        }else{
+            User::find($IDUser)->update(["STAcesso"=>1]);
+        }
     }
 
     public function Turnos($idprofessor){

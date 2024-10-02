@@ -21,7 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'auxiliar' => \App\Http\Middleware\auxiliar::class,
             "diretor" => \App\Http\Middleware\diretor::class,
             "pedagogo" => \App\Http\Middleware\pedagogo::class,
-            "coordenador" => \App\Http\Middleware\coordenador::class
+            "coordenador" => \App\Http\Middleware\coordenador::class,
+            "STAcesso" => \App\Http\Middleware\STAcesso::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

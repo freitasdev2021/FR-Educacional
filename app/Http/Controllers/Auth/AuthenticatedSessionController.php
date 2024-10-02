@@ -24,6 +24,15 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        // Verifica se o STAcesso é 0
+        if ($user && $user->STAcesso == 0) {
+            return redirect()->back()->withErrors([
+                'STAcesso' => 'Seu acesso está bloqueado. Entre em contato com o administrador.',
+            ]);
+        }
+
         $request->authenticate();
 
         $request->session()->regenerate();

@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
 use App\Http\Controllers\VagasController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\AulasController;
 use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
@@ -31,7 +32,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','STAcesso'])->group(function () {
     Route::get('/',[DashboardController::class,'index'])->name('dashboard'); //DASHBOARD COMUM A TODOS
     //CAMADA DE SEGURANÇA FORNECEDOR DO SISTEMA
     Route::middleware('fornecedor')->group(function () {
@@ -52,7 +53,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/Fornecedor/Usuarios',[UsuariosController::class,'fornecedoresIndex'])->name('Usuarios/indexFornecedor');
     });
     //CAMADA DE SEGURANÇA SECRETARIO E DIRETOR
-    Route::middleware('secretarioDiretor')->group(function () {  
+    Route::middleware('secretarioDiretor')->group(function () {
+        //ACESSOS
+        Route::get("Acessos/Bloquear/{IDUser}/{STAcesso}",[ProfessoresController::class,'bloquearAcesso'])->name("Acessos/Bloquear");  
         //ESCOLAS
         Route::get('/Escolas/list',[EscolasController::class,'getEscolas'])->name('Escolas/list');
         Route::get('/Escolas',[EscolasController::class,'index'])->name('Escolas/index');

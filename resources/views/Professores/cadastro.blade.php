@@ -122,6 +122,10 @@
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         &nbsp;
+                        @if(isset($Registro->id))
+                        <button type="button" class="btn {{($Registro->STAcesso == 1) ? 'btn-danger' : 'btn-success'}} col-auto btnBloquear" data-rota="{{route("Acessos/Bloquear",["IDUser"=>$Registro->IDUser,"STAcesso"=>$Registro->STAcesso])}}">{{($Registro->STAcesso == 1) ? 'Bloquear' : 'Desbloquear'}}</button>
+                        @endif
+                        &nbsp;
                         <a class="btn btn-light col-auto" href="{{route('Professores/index')}}">Voltar</a>
                     </div>
                 </form>    
@@ -150,5 +154,18 @@
         //
         $("input[name=CEP]").inputmask('99999-999')
         $("input[name=Celular]").inputmask('(99) 9 9999-9999')
+        //
+        $(".btnBloquear").on("click",function(){
+            //AJAX QUE ENVIA OS DADOS PARA O SERVIDOR
+            $.ajax({
+                method : 'GET',
+                url : $(this).attr("data-rota")
+            }).done(function(resp){
+                console.log(resp)
+                window.location.reload()
+            })
+            //
+        })
+        //
     </script>
 </x-educacional-layout>

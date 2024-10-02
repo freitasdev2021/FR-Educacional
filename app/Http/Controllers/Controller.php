@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Diretor;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 abstract class Controller
