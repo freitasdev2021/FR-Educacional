@@ -14,17 +14,32 @@ use Illuminate\Support\Facades\Hash;
 class ApoioController extends Controller
 {
     public const submodulos = ProfessoresController::cadastroSubmodulos;
-    public function index($IDProfessor){
-        return view('Apoio.index',[
-            "submodulos" => self::submodulos,
-            'IDProfessor' => $IDProfessor
-        ]);
+
+    public const profSubmodulos = array([
+        "nome" => "Cadastro",
+        "endereco" => "Apoio",
+        "rota" => "Apoio/index"
+    ]);
+    public function index($IDProfessor=null){
+
+        if($IDProfessor){
+            $view = [
+                "submodulos" => self::submodulos,
+                'IDProfessor' => $IDProfessor
+            ];
+        }else{
+            $view = array(
+                "submodulos" => self::profSubmodulos,
+                "IDProfessor" => Auth::user()->IDProfissional
+            );
+        }
+        return view('Apoio.index',$view);
     }
 
     public function cadastro($IDProfessor,$id){
         $IDOrg = Auth::user()->id_org;
         $view = [
-            "submodulos" => self::submodulos,
+            "submodulos" => (Auth::user()->tipo == 6) ? self::profSubmodulos : self::submodulos,
             "IDProfessor" => $IDProfessor,
             "Alunos" => DB::select("SELECT 
                     a.id,

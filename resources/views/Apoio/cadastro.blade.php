@@ -56,7 +56,7 @@
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         &nbsp;
-                        <a class="btn btn-light col-auto" href="{{route('Professores/Apoio',$IDProfessor)}}">Voltar</a>
+                        <a class="btn btn-light col-auto" href="{{(Auth::user()->tipo == 6) ? route('Apoio/index') : route('Professores/Apoio',$IDProfessor)}}">Voltar</a>
                     </div>
                     <hr>
                 </form>
@@ -99,7 +99,7 @@
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Adicionar Evolução</button>
                         &nbsp;
-                        <a class="btn btn-light col-auto" href="{{route('Professores/Apoio',$IDProfessor)}}">Voltar</a>
+                        <a class="btn btn-light col-auto" href="{{(Auth::user()->tipo == 6) ? route('Apoio/index') : route('Professores/Apoio',$IDProfessor)}}">Voltar</a>
                     </div>
                     @endif
                 </form>    

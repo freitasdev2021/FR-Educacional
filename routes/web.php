@@ -5,7 +5,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
 use App\Http\Controllers\VagasController;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\AulasController;
 use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
@@ -75,14 +74,6 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Escolas/Turmas/Edit/{id}',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Cadastro');
         Route::post('/Escolas/Turmas/Save',[EscolasController::class,'saveTurmas'])->name('Escolas/Turmas/Save');
         //PROFESSORES
-        Route::get("Professores/Apoio/{IDProfessor}",[ApoioController::class,'index'])->name("Professores/Apoio");
-        Route::get("Professores/Apoio/list/{IDProfessor}",[ApoioController::class,'getApoio'])->name("Professores/Apoio/list");
-        Route::get("Professores/Apoio/evolucao/{id}",[ApoioController::class,'getEvolucao'])->name("Professores/Apoio/evolucao");
-        Route::get("Professores/{IDProfessor}/Apoio/Novo/{id}",[ApoioController::class,'cadastro'])->name("Professores/Apoio/Novo/");
-        Route::get("Professores/{IDProfessor}/Apoio/Edit/{id}",[ApoioController::class,'cadastro'])->name("Professores/Apoio/Edit");
-        Route::post("Professores/Apoio/Save",[ApoioController::class,'save'])->name("Professores/Apoio/Save");
-        Route::post("Professores/Apoio/NovaEvolucao",[ApoioController::class,'saveEvolucao'])->name("Professores/Apoio/NovaEvolucao");
-        //
         Route::get('/Professores/list',[ProfessoresController::class,'getProfessores'])->name('Professores/list');
         Route::get('/Professores',[ProfessoresController::class,'index'])->name('Professores/index');
         Route::get('/Professores/Cadastro/{id}',[ProfessoresController::class,'cadastro'])->name('Professores/Edit');
@@ -178,6 +169,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');
         Route::get('/Aulas/Atividades/Novo',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Novo')->middleware('professor');
         Route::get('/Aulas/Atividades/Cadastro/{id}',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Edit')->middleware('professor');
+        Route::get('/Aulas/Atividades/Exclusao/{id}',[AulasController::class,'excluirAtividade'])->name('Aulas/Atividades/Exclusao')->middleware('professor');
         Route::get('/Aulas/Atividades/Correcao/{id}',[AulasController::class,'correcaoAtividades'])->name('Aulas/Atividades/Correcao')->middleware('professor');
         Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save')->middleware('professor');
         Route::post('/Aulas/Atividades/setNota',[AulasController::class,'setNota'])->name('Aulas/Atividades/setNota')->middleware('professor');
@@ -199,10 +191,17 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Escolas/Salas/list',[SalasController::class,'getSalas'])->name('Escolas/Salas/list');
         Route::post('Escolas/Salas/Save',[SalasController::class,'save'])->name('Escolas/Salas/Save');
         //PAIS
-        Route::get('/Responsaveis',[ResponsaveisController::class,'index'])->name('Responsaveis/index');
-        Route::get('/Responsaveis/Novo',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Novo');
-        Route::get('/Responsaveis/Cadastro/{id}',[ResponsaveisController::class,'cadastro'])->name('Responsaveis/Edit');
-        Route::post('/Responsaveis/Save',[ResponsaveisController::class,'save'])->name('Responsaveis/Save');
+        Route::get('Responsaveis',[ResponsaveisController::class,'index'])->name('Responsaveis/index');
+        //PROFESSORES
+        Route::get("Apoio",[ApoioController::class,'index'])->name("Apoio/index");
+        Route::get("Professores/Apoio/list/{IDProfessor}",[ApoioController::class,'getApoio'])->name("Professores/Apoio/list");
+        Route::get("Professores/Apoio/{IDProfessor}",[ApoioController::class,'index'])->name("Professores/Apoio");
+        Route::get("Professores/Apoio/evolucao/{id}",[ApoioController::class,'getEvolucao'])->name("Professores/Apoio/evolucao");
+        Route::get("Professores/{IDProfessor}/Apoio/Novo/{id}",[ApoioController::class,'cadastro'])->name("Professores/Apoio/Novo/");
+        Route::get("Professores/{IDProfessor}/Apoio/Edit/{id}",[ApoioController::class,'cadastro'])->name("Professores/Apoio/Edit");
+        Route::post("Professores/Apoio/Save",[ApoioController::class,'save'])->name("Professores/Apoio/Save");
+        Route::post("Professores/Apoio/NovaEvolucao",[ApoioController::class,'saveEvolucao'])->name("Professores/Apoio/NovaEvolucao");
+        //
         //RELATORIOS
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
         Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');

@@ -11,6 +11,7 @@ class Atividade extends Model
 
     protected $fillable = [
         'IDAula',
+        'STDelete',
         'IDDisciplina',
         'DTEntrega',
         'TPConteudo',

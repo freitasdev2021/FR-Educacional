@@ -127,10 +127,15 @@ class AulasController extends Controller
             $view['id'] = $id;
             $view['submodulos'] = self::cadastroAtividades;
             $view['Alunos'] = $alunosAtividades;
-            $view['Registro'] = Atividade::find($id)->first();
+            $view['Registro'] = Atividade::find($id);
         }
 
         return view('Aulas.cadastroAtividades',$view);
+    }
+    //
+    public function excluirAtividade($id){
+        Atividade::find($id)->update(["STDelete"=>1]);
+        return redirect()->back();
     }
     //
     public function correcaoAtividades($id){
@@ -150,7 +155,6 @@ class AulasController extends Controller
             LEFT JOIN notas n ON atv.id = n.IDAtividade AND m.id = n.IDAluno
             WHERE t.id = au.IDTurma AND atv.id = $id
             GROUP BY m.Nome, m.id, n.IDAluno, n.Nota;
-
         SQL;
         //
         return view('Aulas.correcaoAtividades',[
@@ -358,7 +362,7 @@ class AulasController extends Controller
         INNER JOIN professores p ON(p.id = a.IDProfessor)
         INNER JOIN turmas t ON(t.id = a.IDProfessor)
         LEFT JOIN notas n ON(atv.id = n.IDAtividade)
-        WHERE a.IDProfessor = $IDProf GROUP BY atv.id
+        WHERE a.IDProfessor = $IDProf AND atv.STDelete = 0 GROUP BY atv.id
         SQL;
         $atividades = DB::select($SQL);
         if(count($atividades) > 0){
@@ -369,7 +373,8 @@ class AulasController extends Controller
                 $item[] = $a->Turma;
                 $item[] = $a->Aula;
                 $item[] = self::data($a->Aplicada,'d/m/Y');
-                $item[] = "<a href=".route('Aulas/Atividades/Edit',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a>";
+                $item[] = "<a href=".route('Aulas/Atividades/Edit',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a> 
+                <a href=".route('Aulas/Atividades/Exclusao',$a->IDAtividade)." class='btn btn-danger btn-xs'>Excluir</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -423,7 +428,7 @@ class AulasController extends Controller
 
                 $item = [];
                 $item[] = $f->Aluno;
-                $item[] = "<input type='checkbox' name='Presenca' $disabled onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked >";
+                $item[] = "<input type='checkbox' name='Presenca' onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked >";
                 $itensJSON[] = $item;
             }
         }else{

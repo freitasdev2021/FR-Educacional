@@ -19,6 +19,8 @@
                   <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Planejamentos/index" endereco="Planejamentos"/>
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
+                  <x-modulo nome="Responsáveis" icon="bx bx-body" rota="Responsaveis/index" endereco="Responsaveis"/>
+                  <x-modulo nome="Apoio" icon="bx bxs-universal-access" rota="Apoio/index" endereco="Apoio"/>
                   @endif
                   @if(Auth::user()->tipo == 2)
                   <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>

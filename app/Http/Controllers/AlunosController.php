@@ -80,6 +80,14 @@ class AlunosController extends Controller
         'nome' => 'Atividades Desenvolvidas',
         'endereco' => 'Atividades',
         'rota' => 'Alunos/Atividades'
+    ],[
+        'nome' => 'Boletim',
+        'endereco' => 'Boletim',
+        'rota' => 'Alunos/Boletim'
+    ],[
+        'nome' => 'Histórico',
+        'endereco' => 'Historico',
+        'rota' => 'Alunos/Historico'
     ]);
 
     public function index(){
@@ -482,18 +490,31 @@ class AlunosController extends Controller
         if(isset($_GET['Disciplina'])){
             $AND = " AND d.id=".$_GET['Disciplina']." AND a.Estagio='".$_GET['Estagio']."'";
             $idorg = Auth::user()->id_org;
-            $SQL = "SELECT at.TPConteudo, 
-                CASE WHEN att.IDAluno = n.IDAluno THEN n.Nota ELSE 0 END as Nota,
-                a.Estagio,
-                at.created_at as Data,
-                d.NMDisciplina as Disciplina
-                FROM atividades at
-                INNER JOIN aulas a ON(a.id = at.IDAula)
-                INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
-                INNER JOIN atividades_atribuicoes att ON(at.id = att.IDAtividade)
-                INNER JOIN notas n ON(att.IDAluno = n.IDAluno)
-                WHERE n.IDAluno = $IDAluno $AND
-            ";
+            $SQL = "
+                SELECT 
+                    at.TPConteudo, 
+                    a.Estagio,
+                    at.created_at as Data,
+                    d.NMDisciplina as Disciplina,
+                    MAX(CASE WHEN att.IDAluno = n.IDAluno THEN n.Nota ELSE 0 END) as Nota -- Pega a maior nota para evitar duplicações
+                FROM 
+                    atividades at
+                INNER JOIN 
+                    aulas a ON(a.id = at.IDAula)
+                INNER JOIN 
+                    disciplinas d ON(d.id = a.IDDisciplina)
+                INNER JOIN 
+                    atividades_atribuicoes att ON(at.id = att.IDAtividade)
+                LEFT JOIN 
+                    notas n ON(att.IDAluno = n.IDAluno AND att.IDAtividade = n.IDAtividade) -- Junta notas sem duplicar
+                WHERE 
+                    n.IDAluno = $IDAluno $AND
+                GROUP BY 
+                    at.TPConteudo, 
+                    a.Estagio,
+                    at.created_at,
+                    d.NMDisciplina
+            ";            
 
             $registros = DB::select($SQL);
         }
