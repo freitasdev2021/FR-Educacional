@@ -9,6 +9,7 @@ use App\Http\Controllers\AulasController;
 use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
 use App\Http\Controllers\EscolasController;
+use App\Http\Controllers\RecuperacaoController;
 use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\ApoioController;
 use App\Http\Controllers\DiretoresController;
@@ -150,9 +151,11 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Planejamentos/{id}/Componentes',[PlanejamentosController::class,'componentes'])->name('Planejamentos/Componentes')->middleware('professor');
         Route::get('/Planejamentos/Novo',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Novo')->middleware('professor');
         Route::get('/Planejamentos/Cadastro/{id}',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Cadastro')->middleware('professor');
-        Route::get('/Planejamentos/getConteudo/{IDDisciplina}',[PlanejamentosController::class,'getPlanejamentoByTurma'])->name('Planejamentos/getConteudo')->middleware('professor');
+        Route::get('/Planejamentos/getConteudo/{IDDisciplina}/{IDTurma}/{TPAula}',[PlanejamentosController::class,'getPlanejamentoByTurma'])->name('Planejamentos/getConteudo')->middleware('professor');
         Route::post('/Planejamentos/Save',[PlanejamentosController::class,'save'])->name('Planejamentos/Save')->middleware('professor');
         Route::post('/Planejamentos/Componentes/Save',[PlanejamentosController::class,'saveComponentes'])->name('Planejamentos/Componentes/Save')->middleware('professor');
+        //RECUPERAÇÃO
+        Route::get('Aulas/Recuperacao',[RecuperacaoController::class,'index'])->name("Aulas/Recuperacao/index");
         //AULAS
         Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca')->middleware('professor');
         Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list')->middleware('professor');

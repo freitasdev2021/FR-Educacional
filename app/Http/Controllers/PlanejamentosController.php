@@ -78,10 +78,15 @@ class PlanejamentosController extends Controller
         return DB::select($SQL);
     }
 
-    public function getPlanejamentoByTurma($IDDisciplina){
-        $SQL = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.id = pa.IDTurma) WHERE IDDisciplina = $IDDisciplina ")[0];
+    public function getPlanejamentoByTurma($IDDisciplina,$IDTurma,$TPAula){
+        $SQL = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamentoanual pa INNER JOIN turmas t ON(t.id = pa.IDTurma) WHERE IDDisciplina = $IDDisciplina AND IDTurma = $IDTurma ")[0];
         $Planejamento = json_decode(json_decode($SQL->PLConteudos,true),true);
         $DTHoje = date('Y-m-d');
+        if($TPAula == "Recuperacao"){
+            $rec = 1;
+        }else{
+            $rec = 0;
+        }
         switch($SQL->Periodo){
             case 'Bimestral':
                 //PRIMEIRO BIMESTRE
@@ -95,7 +100,7 @@ class PlanejamentosController extends Controller
                 if(count($ARRDatasPrimeiroB) > 0){
                     $INIPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[0]));
                     $TERPrimeiroB = Carbon::parse(self::alternativeUsData($ARRDatasPrimeiroB[count($ARRDatasPrimeiroB)-1]));
-                    if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje){
+                    if($INIPrimeiroB <= $DTHoje && $TERPrimeiroB >= $DTHoje && $rec == 1){
                         $return['Conteudo'] = $Planejamento['primeiroBimestre'];
                         $return['Estagio'] = "1º BIM";
                     }
@@ -253,7 +258,7 @@ class PlanejamentosController extends Controller
         ob_start();
         foreach($return['Conteudo'] as $r){
         ?>
-        <optgroup label="<?=$r['Conteudo']?>">
+        <optgroup label="<?=$r['Conteudo']." - ".$return['Estagio']?>">
         <?php
         foreach($r['Conteudos'] as $rc){
         ?>

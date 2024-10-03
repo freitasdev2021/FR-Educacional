@@ -741,13 +741,19 @@ class AlunosController extends Controller
     }
 
     public function recuperacao($IDAluno,$Estagio){
-        $SQL = "SELECT IDAtividade FROM notas n INNER JOIN atividades at ON(at.id = n.IDAtividade) INNER JOIN aulas a ON(a.id = at.IDAula) WHERE a.Estagio = '$Estagio' AND n.IDAluno = $IDAluno";
+        $SQL = "SELECT atv.id as IDAtividade 
+        FROM atividades atv 
+        INNER JOIN aulas a ON (a.id = atv.IDAula)
+        LEFT JOIN notas n ON(n.IDAtividade = atv.id) 
+        WHERE a.Estagio LIKE '$Estagio%' AND n.IDAluno = $IDAluno";
         $IDAtividades = DB::select($SQL);
         $IDAtividadesArray = array_map(function($item) {
             return $item->IDAtividade;
         }, $IDAtividades);
-        //dd($IDAtividades);
-        Nota::whereIn('IDAtividade',$IDAtividadesArray)->delete();
+        //dd($IDAtividadesArray);
+        //dd(Nota::whereIn('IDAtividade',$IDAtividadesArray)->where('IDAluno',$IDAluno)->get()->toArray());
+        Nota::whereIn('IDAtividade',$IDAtividadesArray)->where('IDAluno',$IDAluno)->delete();
+        return redirect()->back();
     }
 
     public function save(Request $request){

@@ -14,7 +14,7 @@
                     <select name="Disciplina" class="form-control" required>
                         <option value="">Selecione a Disciplina</option>
                         @foreach($Disciplinas as $d)
-                        <option value="{{$d['IDDisciplina']}}" {{isset($_GET['Disciplina']) && $_GET['Disciplina'] == $d['IDDisciplina'] ? 'selected' : ''}}>{{$d['Disciplina']}}</option>
+                        <option value="{{$d->IDDisciplina}}" {{isset($_GET['Disciplina']) && $_GET['Disciplina'] == $d->IDDisciplina ? 'selected' : ''}}>{{$d->Disciplina}}</option>
                         @endforeach
                     </select>
                 </div>

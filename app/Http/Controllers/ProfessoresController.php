@@ -71,6 +71,11 @@ class ProfessoresController extends Controller
         return DB::select($SQL);
     }
 
+    public static function getDisciplinasProfessor($IDProfessor){
+        $SQL = "SELECT d.NMDisciplina as Disciplina,d.id as IDDisciplina FROM disciplinas d INNER JOIN turnos t ON(d.id = t.IDDisciplina) WHERE t.IDProfessor = $IDProfessor GROUP BY d.id";
+        return DB::select($SQL);
+    }
+
     public function getProfessores(){
 
         if(Auth::user()->tipo == 4){

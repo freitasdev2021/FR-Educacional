@@ -32,13 +32,20 @@
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <label>Inicio</label>
                             <input type="time" name="INIAula" class="form-control" value="{{(isset($Registro->INIAula)) ? $Registro->INIAula : ''}}" {{(isset($Registro->INIAula)) ? 'disabled' : 'required'}}>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <label>Termino</label>
                             <input type="time" name="TERAula" class="form-control" value="{{(isset($Registro->TERAula)) ? $Registro->TERAula : ''}}" {{(isset($Registro->TERAula)) ? 'disabled' : 'required'}}>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Tipo de Aula</label>
+                            <select name="TPAula" class="form-control">
+                                <option value="Normal">Normal</option>
+                                <option value="Recuperacao">Recuperacao</option>
+                            </select>
                         </div>
                     </div>
                     <div class="row">
@@ -94,7 +101,7 @@
                     $("select[name=IDDisciplina]").on("change",function(){
                        $.ajax({
                           method : 'GET',
-                          url : "/Planejamentos/getConteudo/"+$(this).val()
+                          url : "/Planejamentos/getConteudo/"+$(this).val()+"/"+$("select[name=IDTurma]").val()+"/"+$("select[name=TPAula]").val()
                        }).done(function(response){
                           $("select[name=DSConteudo]").html(response)
                           $("input[name=Estagio]").val($("select[name=DSConteudo] option:selected").attr("data-estagio"))

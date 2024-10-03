@@ -23,6 +23,10 @@ class AulasController extends Controller
         'nome' => 'Atividades e Avaliações',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
+    ],[
+        'nome' => 'Recuperação',
+        'rota' => 'Aulas/Recuperacao/index',
+        'endereco' => 'Recuperacao'
     ]);
     //
     const cadastroSubmodulos = array([

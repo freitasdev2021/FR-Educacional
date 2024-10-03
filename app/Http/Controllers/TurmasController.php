@@ -46,7 +46,7 @@ class TurmasController extends Controller
         $view = [
             'submodulos' => self::professoresSubmodulos,
             'id' => $IDTurma,
-            'Disciplinas' => self::getFichaProfessor(Auth::user()->id,'Disciplinas'),
+            'Disciplinas' => ProfessoresController::getDisciplinasProfessor(Auth::user()->IDProfissional),
             'Estagios' => $Estagios
         ];
         if($IDTurma){
@@ -101,14 +101,19 @@ class TurmasController extends Controller
                     break;
                 }
 
+                $rota = route('Alunos/Recuperacao', ["IDAluno" => $r->IDAluno, "Estagio" => $r->Estagio]);
+
                 $item = [];
                 $item[] = $r->Aluno;
                 $item[] = $r->Total;
                 $item[] = $r->Estagio;
-                $item[] = ($r->Frequencia/$Estagios)*100.." %";
+                $item[] = ($r->Frequencia / $Estagios) * 100 . " %"; // Corrigido o uso de concatenação
                 $item[] = $r->Disciplina;
-                $item[] = ($r->Resultado == 'Reprovado') ? "<button onclick=\"recuperacao('" . route('Alunos/Recuperacao', ['IDAluno' => $r->IDAluno, 'Estagio' => $r->Estagio]) . "')\" class='btn btn-danger btn-xs'>Recuperação</button>" : 'Aprovado';
+                $item[] = ($r->Resultado == 'Reprovado') 
+                    ? "<strong class='text-danger'>Recuperação</strong> <a href='{$rota}'>Zerar Conceito</a>" 
+                    : "<strong class='text-success'>Aprovado</strong>";
                 $itensJSON[] = $item;
+
             }
         }else{
             $itensJSON = [];
