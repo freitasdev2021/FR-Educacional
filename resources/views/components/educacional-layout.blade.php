@@ -11,7 +11,7 @@
              <div>
                 <a href="{{route('dashboard')}}" class="nav_logo"><i class='bx bx-book-reader text-white'></i><span class="nav_logo-name">FR Educacional</span> </a>
                 <div class="nav_list"> 
-                  @if(Auth::user()->tipo == 6)
+                  @if(in_array(Auth::user()->tipo,[5,6]))
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Turmas" icon="bx bxs-graduation" rota="Turmas/index" endereco="Turmas"/>
