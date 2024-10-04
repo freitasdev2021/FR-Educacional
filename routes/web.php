@@ -156,6 +156,10 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post('/Planejamentos/Componentes/Save',[PlanejamentosController::class,'saveComponentes'])->name('Planejamentos/Componentes/Save')->middleware('professor');
         //RECUPERAÇÃO
         Route::get('Aulas/Recuperacao',[RecuperacaoController::class,'index'])->name("Aulas/Recuperacao/index");
+        Route::get('Aulas/Recuperacao/Novo',[RecuperacaoController::class,'cadastro'])->name("Aulas/Recuperacao/Novo");
+        Route::get('Aulas/Recuperacao/Edit/{id}',[RecuperacaoController::class,'cadastro'])->name("Aulas/Recuperacao/Edit");
+        Route::get('Aulas/Recuperacao/list',[RecuperacaoController::class,'getRecuperacoes'])->name("Aulas/Recuperacao/list");
+        Route::post('Aulas/Recuperacao/Save',[RecuperacaoController::class,'save'])->name("Aulas/Recuperacao/Save");
         //AULAS
         Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca')->middleware('professor');
         Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list')->middleware('professor');

@@ -332,6 +332,10 @@ class AlunosController extends Controller
                 $SQL = <<<SQL
                     SELECT 
                         d.NMDisciplina as Disciplina,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec1B,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec2B,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec3B,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec4B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' ) as Nota1B,
                         200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" ) as Faltas1B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' ) as Nota2B,
@@ -354,6 +358,9 @@ class AlunosController extends Controller
                 $SQL = <<<SQL
                     SELECT 
                         d.NMDisciplina as Disciplina,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º TRI" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec1B,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º TRI" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec2B,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º TRI" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec3B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º TRI' ) as Nota1B,
                         200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º TRI" ) as Faltas1B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º TRI' ) as Nota2B,
@@ -374,6 +381,8 @@ class AlunosController extends Controller
                 $SQL = <<<SQL
                     SELECT 
                         d.NMDisciplina as Disciplina,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º SEM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec1B,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º SEM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec2B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º SEM' ) as Nota1B,
                         200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º SEM" ) as Faltas1B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º SEM' ) as Nota2B,
@@ -392,6 +401,7 @@ class AlunosController extends Controller
                 $SQL = <<<SQL
                     SELECT 
                         d.NMDisciplina as Disciplina,
+                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º PER" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec1B,
                         (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º PER' ) as Nota1B,
                         200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º PER" ) as Faltas1B
                     FROM disciplinas d

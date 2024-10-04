@@ -14,6 +14,8 @@ class Recuperacao extends Model
     protected $fillable = [
         "IDAluno",
         "IDDisciplina",
-        "Estagio"  
+        "Estagio",
+        "Pontuacao",
+        "Nota"  
     ];
 }
