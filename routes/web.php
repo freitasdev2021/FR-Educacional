@@ -13,6 +13,7 @@ use App\Http\Controllers\RecuperacaoController;
 use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\ApoioController;
 use App\Http\Controllers\DiretoresController;
+use App\Http\Controllers\DiarioController;
 use App\Http\Controllers\RelatoriosController;
 use App\Http\Controllers\ProfessoresController;
 use App\Http\Controllers\CardapioController;
@@ -89,6 +90,10 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
+        //DIARIO
+        Route::get("Aulas/Diario",[DiarioController::class,'index'])->name("Aulas/Diario/index");
+        Route::post("Aulas/Diario/Comentar",[DiarioController::class,'comentar'])->name("Aulas/Diario/Comentar");
+        Route::get("Aulas/Diario/Exportar/{Professor}/{Estagio}/{Data}/{Comentario}",[DiarioController::class,'exportar'])->name('Aulas/Diario/Exportar');
         //GET BOLETIM
         Route::get("Turmas/Boletins/{id}",[TurmasController::class,'gerarBoletins'])->name("Turmas/Boletins");
         Route::get('/Turmas/Desempenho/{IDTurma}',[TurmasController::class,'desempenho'])->name('Turmas/Desempenho');

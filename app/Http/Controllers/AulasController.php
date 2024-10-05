@@ -27,6 +27,10 @@ class AulasController extends Controller
         'nome' => 'Recuperação',
         'rota' => 'Aulas/Recuperacao/index',
         'endereco' => 'Recuperacao'
+    ],[
+        'nome' => 'Diário',
+        'rota' => 'Aulas/Diario/index',
+        'endereco' => 'Diario'
     ]);
     //
     const cadastroSubmodulos = array([

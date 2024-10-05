@@ -9,6 +9,20 @@
 	overflow:hidden;
 } */
 
+.cardy{
+	width:100%;
+	display:flex;
+	justify-content:center;
+	flex-wrap:wrap;
+	flex-direction:row;
+}
+
+.cardy .card{
+	margin:5px;
+	width:500px;
+	height:500px;
+}
+
 .periudos{
 	margin:10px;
 }

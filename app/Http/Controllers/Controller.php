@@ -93,6 +93,10 @@ abstract class Controller
         return $return;
     }
 
+    public static function utfConvert($String){
+        return mb_convert_encoding($String,'ISO-8859-1', 'UTF-8');
+    }
+
     public static function alternativeUsData($dt){
         $dtExplode = explode('/',$dt);
         $data = $dtExplode[2]."-".$dtExplode[1]."-".$dtExplode[0];

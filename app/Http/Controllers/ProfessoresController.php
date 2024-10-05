@@ -6,6 +6,7 @@ use App\Models\Disciplina;
 use Illuminate\Http\Request;
 use App\Models\Professor;
 use App\Models\Turno;
+use App\Http\Controllers\PedagogosController;
 use App\Models\Alocacao;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,16 @@ class ProfessoresController extends Controller
     public static function getProfessorByUser($IDUser){
         $SQL = "SELECT IDProfissional FROM users u WHERE u.tipo = 6 AND u.id = $IDUser  ";
         return DB::select($SQL)[0]->IDProfissional;
+    }
+
+    public static function getEscolaProfessores(){
+        $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        $Escolas = array();
+        foreach(DB::select("SELECT al.IDProfissional FROM escolas e INNER JOIN alocacoes al ON(al.IDEscola = e.id) WHERE al.TPProfissional = 'PROF' AND al.IDEscola IN($IDEscolas) ") as $p){
+            array_push($Escolas,$p->IDProfissional);
+        }
+        
+        return $Escolas;
     }
 
     public static function getEscolasProfessor($IDProfessor){
