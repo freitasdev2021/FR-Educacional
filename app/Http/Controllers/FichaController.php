@@ -240,8 +240,10 @@ class FichaController extends Controller
     public function getFichas(){
         if(Auth::user()->tipo == 6){
             $IDEscolas = implode(',',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
-        }else{
-            $IDEscolas = Escola::select('id')->where('IDOrg',Auth::user()->org_id)->toArray();
+        }elseif(Auth::user()->tipo == 4){
+            $IDEscolas = implode(',',self::getEscolaDiretor(Auth::user()->id));
+        }elseif(Auth::user()->tipo == 5){
+            $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
         }
         $registros = DB::select("SELECT f.Titulo,e.Nome as Escola,f.id as IDFicha FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
         if(count($registros) > 0){

@@ -135,6 +135,15 @@ class PedagogosController extends Controller
 
     }
 
+    public static function getEscolasPedagogo($IDPedagogo){
+        $SQL = "SELECT e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(a.IDEscola = e.id) INNER JOIN pedagogos p  ON(p.id = a.IDProfissional) WHERE p.id = $IDPedagogo AND a.TPProfissional = 'PEDA' ";
+        $IDEscolas = [];
+        foreach(DB::select($SQL) as $e){
+            array_push($IDEscolas,$e->IDEscola);
+        }
+        return $IDEscolas;
+    }
+
     public function save(Request $request){
         try{
             $aid = '';
@@ -152,7 +161,7 @@ class PedagogosController extends Controller
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
-                        'tipo' => 6,
+                        'tipo' => 5,
                         'password' => Hash::make(rand(100000,999999))
                     ]);
                 }else{

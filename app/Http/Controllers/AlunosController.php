@@ -12,6 +12,7 @@ use App\Models\Renovacoes;
 use App\Models\Remanejo;
 use App\Models\Responsavel;
 use Illuminate\Support\Facades\Auth;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Facades\DB;
 use App\Models\Nota;
 use Carbon\Carbon;

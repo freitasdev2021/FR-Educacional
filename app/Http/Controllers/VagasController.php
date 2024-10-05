@@ -74,8 +74,12 @@ class VagasController extends Controller
                 WHERE e.IDOrg = $IDOrg
             SQL;
             $registros = DB::select($SQL);
-        }else{
-            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id));
+        }elseif(Auth::user()->tipo == 5){
+            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional))->get();
+        }elseif(Auth::user()->tipo == 6){
+            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
+        }elseif(Auth::user()->tipo == 4){
+            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
         }
         
         if(count($registros) > 0){

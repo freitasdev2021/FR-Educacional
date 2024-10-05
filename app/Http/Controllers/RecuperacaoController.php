@@ -71,7 +71,7 @@ class RecuperacaoController extends Controller
         $Alunos = implode(",",$arrAlunos);
 
         $SQL = <<<SQL
-            SELECT m.Nome as Aluno,d.NMDisciplina,r.Estagio,a.id as IDAluno FROM recuperacao r INNER JOIN alunos a ON(a.id = r.IDAluno) INNER JOIN disciplinas d ON(d.id = r.IDDisciplina) INNER JOIN matriculas m ON(a.IDMatricula = m.id) WHERE a.id IN($Alunos)  
+            SELECT m.Nome as Aluno,d.NMDisciplina,r.Estagio,a.id as IDAluno,r.Pontuacao,r.Nota FROM recuperacao r INNER JOIN alunos a ON(a.id = r.IDAluno) INNER JOIN disciplinas d ON(d.id = r.IDDisciplina) INNER JOIN matriculas m ON(a.IDMatricula = m.id) WHERE a.id IN($Alunos)  
         SQL;
         $registros = DB::select($SQL);
         if(count($registros) > 0){
@@ -80,6 +80,8 @@ class RecuperacaoController extends Controller
                 $item[] = $r->Aluno;
                 $item[] = $r->NMDisciplina;
                 $item[] = $r->Estagio;
+                $item[] = $r->Pontuacao;
+                $item[] = $r->Nota;
                 $item[] = "<a href='".route('Aulas/Recuperacao/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Abrir</a>";
                 $itensJSON[] = $item;
             }

@@ -32,6 +32,9 @@
                 <div class="col-auto">
                     <a href="{{route('Turmas/index')}}" class="btn btn-default">Voltar</a>
                 </div>
+                <div class="col-auto">
+                    <a href="{{route('Turmas/Boletins',$id)}}" class="btn btn-default">Gerar Boletins</a>
+                </div>
             </form>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">

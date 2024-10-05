@@ -45,6 +45,10 @@ class SecretariasController extends Controller
 
     }
 
+    public static function getInstituicao($ID){
+        return Organizacao::find($ID);
+    }
+
     public function cadastroAdministradores($id=null){
 
         $view = [

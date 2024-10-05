@@ -90,8 +90,10 @@
                     </div>
                     <br>
                     <div class="col-sm-12 text-left row">
+                        @if(Auth::user()->tipo == 6)
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         &nbsp;
+                        @endif
                         <a class="btn btn-light col-auto" href="{{route('Aulas/Atividades/index')}}">Voltar</a>
                     </div>
                 </form>    

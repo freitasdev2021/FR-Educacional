@@ -140,17 +140,47 @@ class ApoioController extends Controller
 
     public function getApoio($IDProfessor){
         $orgId = Auth::user()->id_org;
-        $SQL = <<<SQL
-        SELECT 
-            m.Nome as Aluno,
-            ap.id as IDApoio,
-            ap.DTInicio,
-            ap.DTTermino
-        FROM apoio ap 
-        INNER JOIN alunos a ON(ap.IDAluno = a.id)
-        INNER JOIN matriculas m ON(m.id = a.id)
-        WHERE ap.IDProfessor = $IDProfessor
-        SQL;
+        if(Auth::user()->tipo == 5){
+            $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+            $SQL = <<<SQL
+            SELECT 
+                m.Nome as Aluno,
+                ap.id as IDApoio,
+                ap.DTInicio,
+                ap.DTTermino
+            FROM apoio ap 
+            INNER JOIN alunos a ON(ap.IDAluno = a.id)
+            INNER JOIN matriculas m ON(m.id = a.id)
+            INNER JOIN turmas t ON(t.id = a.IDTurma)
+            WHERE t.IDEscola IN($IDEscolas)
+            SQL;
+        }elseif(Auth::user()->tipo == 6){
+            $SQL = <<<SQL
+            SELECT 
+                m.Nome as Aluno,
+                ap.id as IDApoio,
+                ap.DTInicio,
+                ap.DTTermino
+            FROM apoio ap 
+            INNER JOIN alunos a ON(ap.IDAluno = a.id)
+            INNER JOIN matriculas m ON(m.id = a.id)
+            WHERE ap.IDProfessor = $IDProfessor
+            SQL;
+        }elseif(Auth::user()->tipo == 4){
+            $IDEscolas = implode(',',self::getEscolaDiretor(Auth::user()->id));
+            $SQL = <<<SQL
+            SELECT 
+                m.Nome as Aluno,
+                ap.id as IDApoio,
+                ap.DTInicio,
+                ap.DTTermino
+            FROM apoio ap 
+            INNER JOIN alunos a ON(ap.IDAluno = a.id)
+            INNER JOIN matriculas m ON(m.id = a.id)
+            INNER JOIN turmas t ON(t.id = a.IDTurma)
+            WHERE t.IDEscola IN($IDEscolas)
+            SQL;
+        }
 
         $Professores = DB::select($SQL);
 

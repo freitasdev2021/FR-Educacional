@@ -7,14 +7,16 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
+            @if(Auth::user()->tipo == 6)
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
                     <a href="{{route('Fichas/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
+            <hr>
+            @endif
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
-                <hr>
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Fichas/list')}}">
                     <thead>
                       <tr>

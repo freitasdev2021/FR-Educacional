@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\EscolasController;
+use App\Http\Controllers\PedagogosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -74,8 +75,12 @@ class SalasController extends Controller
                 WHERE e.IDOrg = $IDOrg
             SQL;
             $registros = DB::select($SQL);
-        }else{
-            $registros = Sala::select('NMSala','TMSala','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id));
+        }elseif(Auth::user()->tipo == 4){
+            $registros = Sala::select('NMSala','TMSala','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
+        }elseif(Auth::user()->tipo == 5){
+            $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional))->get();
+        }elseif(Auth::user()->tipo == 5){
+            $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
         }
         
         if(count($registros) > 0){

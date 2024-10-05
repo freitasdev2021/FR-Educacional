@@ -38,7 +38,7 @@
                 </div>
                 <hr>
                 <button class="btn btn-primary col-auto">Gerar</button>
-                <a href="{{route('Escolas/Relatorios')}}" class="btn btn-light col-auto">Voltar</a>
+  
             </form>
         </div>
     </div>

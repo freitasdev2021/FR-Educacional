@@ -27,7 +27,7 @@
                         <th style="text-align:center;" scope="col">Alunos</th>
                         <th style="text-align:center;" scope="col">Faltas (Anual)</th>
                         <th style="text-align:center;" scope="col">Frequência (Anual)</th>
-                        @if(in_array(Auth::user()->tipo,[2,4,6])) <th style="text-align:center;" scope="col">Opções</th> @endif
+                        @if(in_array(Auth::user()->tipo,[2,4,6,5])) <th style="text-align:center;" scope="col">Opções</th> @endif
                       </tr>
                     </thead>
                     <tbody>
