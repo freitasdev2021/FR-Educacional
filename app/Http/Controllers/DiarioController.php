@@ -35,7 +35,8 @@ class DiarioController extends Controller
             "Professores" => array_unique($Professores),
             "Estagio" => array_unique($Estagio),
             "ProfessoresComentario" => array_map("unserialize", array_unique(array_map("serialize", $ProfComentarios))),
-            "ComentariosProfessor" => DB::select("SELECT c.id,c.created_at,p.Nome as Professor,c.Titulo,c.Comentario FROM comentarios c INNER JOIN professores p ON(c.IDProfessor = p.id) WHERE p.id IN($IDProfessores)")
+            "ComentariosProfessor" => DB::select("SELECT c.id,c.created_at,p.Nome as Professor,c.Titulo,c.Comentario FROM comentarios c INNER JOIN professores p ON(c.IDProfessor = p.id) WHERE p.id IN($IDProfessores)"),
+            "currentComentarios" => Comentario::all()->where('IDProfessor',Auth::user()->IDProfissional)
         ]);
     }
 

@@ -7,6 +7,7 @@
        </div>
        <div class="fr-card-body">
           <!--LISTAS-->
+          @if(Auth::user()->tipo == 5)
           <form action="{{route(Route::currentRouteName())}}" method="GET" class="row">
             <div class="col-sm-2">
                 <label>Professor</label>
@@ -126,6 +127,13 @@
                 </table>
             </div>
         </form>
+        @elseif(Auth::user()->tipo == 6)
+            @foreach($currentComentarios as $cc)
+                <div class="alert alert-primary" role="alert">
+                    {{$cc->Comentario}}
+                </div>
+            @endforeach
+        @endif
           <!--FIM DOS COMENTARIOS-->
         </div>
     </div>
