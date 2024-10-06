@@ -7,7 +7,7 @@
        </div>
        <div class="fr-card-body">
           <!--LISTAS-->
-          @if(Auth::user()->tipo == 5)
+          @if(in_array(Auth::user()->tipo ,[4,6]))
           <form action="{{route(Route::currentRouteName())}}" method="GET" class="row">
             <div class="col-sm-2">
                 <label>Professor</label>

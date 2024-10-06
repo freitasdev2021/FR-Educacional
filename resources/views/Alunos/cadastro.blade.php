@@ -170,29 +170,43 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Vencimento da Matrícula</label>
                             <input type="date" name="Vencimento" class="form-control" value="{{isset($Registro->Vencimento) ? $Registro->Vencimento : ''}}" required>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Tem Alergia?</label>
                             <select class="form-control" name="Alergia">
                                 <option value="1" {{isset($Registro->Alergia) && $Registro->Alergia == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Alergia) && $Registro->Alergia == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Utiliza Transporte Escolar?</label>
                             <select class="form-control" name="Transporte">
                                 <option value="1" {{isset($Registro->Transporte) && $Registro->Transporte == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Transporte) && $Registro->Transporte == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Recebe Bolsa Família?</label>
                             <select class="form-control" name="BolsaFamilia">
                                 <option value="1" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '0' ? 'selected' : ''}}>Não</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Quilombola</label>
+                            <select class="form-control" name="Quilombola">
+                                <option value="1" {{isset($Registro->Quilombola) && $Registro->Quilombola == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->Quilombola) && $Registro->Quilombola == '0' ? 'selected' : ''}}>Não</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>ensino religioso, Direito de uso de Imagens e educação física</label>
+                            <select class="form-control" name="Autorizacao">
+                                <option value="1" {{isset($Registro->Autorizacao) && $Registro->Autorizacao == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->Autorizacao) && $Registro->Autorizacao == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
                     </div>
@@ -202,7 +216,7 @@
                         <div class="col-auto">
                             <button class="btn btn-fr">Salvar</button>
                         </div>
-                        @if(isset($Registro) && $Vencimento->lt($Hoje))
+                        @if(isset($Registro) && $Vencimento->lt($Hoje) && $Registro->ANO <= date('Y'))
                         <div class="col-auto">
                             <button class="btn btn-warning text-white btn-renovar" type="button">Renovar</button>
                         </div>
@@ -358,7 +372,7 @@
                     @endif
                 </div>
             </form>
-            @if(isset($Registro) && $Vencimento->lt($Hoje))
+            @if(isset($Registro) && $Vencimento->lt($Hoje) && $Registro->ANO <= date('Y'))
             <form class="form-controls" id="formRenova" method="POST" action="{{route('Alunos/Renovar')}}" style="display:hidden">
                 @csrf
                 <input type="hidden" name="IDAluno" value="{{$Registro->IDAluno}}">  

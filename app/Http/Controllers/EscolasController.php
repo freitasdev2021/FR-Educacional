@@ -7,6 +7,7 @@ use App\Models\Escola;
 use App\Models\Calendario;
 use App\Models\Turma;
 use App\Models\Disciplina;
+use App\Models\Sala;
 use App\Models\alocacoesDisciplinas;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -523,12 +524,35 @@ class EscolasController extends Controller
         ]);
     }
 
+    public static function getAlunosEscola(){
+        $idorg = Auth::user()->id_org;
+        $IDAlunos = array();
+        $SQL = "SELECT
+            a.id as IDAluno
+        FROM matriculas m
+        INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+        INNER JOIN escolas e ON(t.IDEscola = e.id)
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+        WHERE o.id = $idorg GROUP BY a.id";
+        
+        foreach(DB::select($SQL) as $ds){
+            array_push($IDAlunos,$ds->IDAluno);
+        }
+
+        return $IDAlunos;
+    }
+
     public function cadastroTurmas($id=null){
 
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
-            'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org)
+            'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org),
+            "Salas" => Sala::all()->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))
         ];
 
         if($id){

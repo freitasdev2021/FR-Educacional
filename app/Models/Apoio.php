@@ -15,6 +15,7 @@ class Apoio extends Model
         'IDAluno',
         'DTInicio',
         'DSEvolucao',
+        'CID',
         'DSAcompanhamento',
         'DTTermino'
     ];

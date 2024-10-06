@@ -32,7 +32,7 @@ class CalendarioController extends Controller
         "endereco" => "FeriasAlunos",
         "rota" => "Calendario/FeriasAlunos"
     ],[
-        "nome" => "Ferias Profissionais",
+        "nome" => "Afastamentos",
         "endereco" => "FeriasProfissionais",
         "rota" => "Calendario/FeriasProfissionais"
     ],[
@@ -532,7 +532,7 @@ class CalendarioController extends Controller
 
         if($id){
             $view['id'] = $id;
-            $view['Registro'] = DB::select("SELECT e.id as IDEscola, p.id as IDProfessor,p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) WHERE fp.id = $id")[0];
+            $view['Registro'] = DB::select("SELECT e.id as IDEscola, p.id as IDProfessor,p.Nome as Professor,fp.DSAfastamento,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) WHERE fp.id = $id")[0];
         }
 
         return view('Calendario.cadastroFeriasProfissionais',$view);

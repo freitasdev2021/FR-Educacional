@@ -24,6 +24,8 @@ class Matriculas extends Model
         'Email',
         'Celular',
         'UF',
+        'Quilombola',
+        'Autorizacao',
         'Cidade',
         'AnoLetivo',
         'BolsaFamilia',

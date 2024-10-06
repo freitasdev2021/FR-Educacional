@@ -73,7 +73,10 @@
                         <div class="col-sm-3">
                             <label>Salas</label>
                             <select name="IDSala" class="form-control">
-                                <option name="">Selecione</option>
+                                <option value="">Selecione</option>
+                                @foreach($Salas as $s)
+                                <option value="{{$s->id}}">{{$s->NMSala}}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-sm-3">

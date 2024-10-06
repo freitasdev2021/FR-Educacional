@@ -46,7 +46,12 @@ class DiarioController extends Controller
     }
 
     public function getRelatoriosProfessor(){
-        $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        if(Auth::user()->tipo == 4){
+            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
+        }elseif(Auth::user()->tipo == 5){
+            $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        }
+
         $WHERE = "WHERE ";
         if(!isset($_GET['Professor'])){
             $WHERE .= " t.IDEscola IN($IDEscolas)";
@@ -113,7 +118,11 @@ class DiarioController extends Controller
 
 
     public function paraFiltros(){
-        $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        if(Auth::user()->tipo == 4){
+            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
+        }elseif(Auth::user()->tipo == 5){
+            $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        }
         $SQL = <<<SQL
             SELECT 
                 p.Nome as Professor,

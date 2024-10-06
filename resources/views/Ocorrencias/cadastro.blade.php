@@ -53,6 +53,39 @@
                         @endif
                         <a class="btn btn-light col-auto" href="{{route('Ocorrencias/index')}}">Voltar</a>
                     </div>
+                </form>
+                <br>
+                <form action="{{route("Ocorrencias/Responder")}}" method="POST">
+                    @csrf
+                    @if(Auth::user()->tipo == 4)
+                    <input type="hidden" name="IDOcorrencia" value="{{$id}}">
+                    <input type="hidden" name="IDUser" value="{{Auth::user()->id}}">
+                    <div class="col-sm-12">
+                        <label>Resposta</label>
+                        <textarea name="Resposta" class="form-control"></textarea>
+                    </div>
+                    <br>
+                    <div class="col-sm-4">
+                        <button class="btn btn-success">Responder</button>
+                    </div>
+                    @endif
+                    <br>
+                    @if(isset($Respostas))
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Resposta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($Respostas as $r)
+                            <tr>
+                                <td>{{$r->Resposta}}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @endif
                 </form>    
             </div>
             <!--//-->

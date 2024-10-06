@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Ocorrencia;
+use App\Models\ROcorrencia;
 use App\Http\Controllers\ProfessoresController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -44,9 +45,15 @@ class OcorrenciasController extends Controller
         if($id){
             $view['Registro'] = Ocorrencia::find($id);
             $view['id'] = $id;
+            $view['Respostas'] = ROcorrencia::all()->where("IDOcorrencia",$id);
         }
 
         return view('Ocorrencias.cadastro',$view);
+    }
+
+    public function responder(Request $request){
+        ROcorrencia::create($request->all());
+        return redirect()->back();
     }
 
     public function save(Request $request){

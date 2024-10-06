@@ -64,8 +64,14 @@ class RecuperacaoController extends Controller
 
     public function getRecuperacoes(){
         $arrAlunos = [];
-        foreach(ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional) as $a){
-            array_push($arrAlunos,$a->id);
+        if(Auth::user()->tipo == 4){
+            foreach(EscolasController::getAlunosEscola() as $a){
+                array_push($arrAlunos,$a);
+            }
+        }else{
+            foreach(ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional) as $a){
+                array_push($arrAlunos,$a->id);
+            }
         }
 
         $Alunos = implode(",",$arrAlunos);

@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--CABECALHO-->
             <div class="col-sm-12 p-2 row">
-                @if(Auth::user()->tipo == 2)
+                @if(in_array(Auth::user()->tipo,[2,4]))
                 <div class="col-auto">
                     <a href="{{route('Escolas/Salas/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>

@@ -313,19 +313,57 @@ class AulasController extends Controller
     //
     public function getAulas(){
         $IDProf = Auth::user()->IDProfissional;
-        $SQL = <<<SQL
-        SELECT
-            a.id as IDAula,
-            a.DSAula,
-            d.NMDisciplina,
-            a.DSConteudo,
-            a.created_at,
-            (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
-        FROM aulas a
-        INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
-        LEFT JOIN frequencia f ON(f.IDAula = a.id)
-        WHERE a.IDProfessor = $IDProf GROUP BY a.id
-        SQL;
+
+        if(Auth::user()->tipo == 6){
+            $SQL = <<<SQL
+            SELECT
+                a.id as IDAula,
+                a.DSAula,
+                d.NMDisciplina,
+                a.DSConteudo,
+                a.created_at,
+                (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
+            FROM aulas a
+            INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
+            LEFT JOIN frequencia f ON(f.IDAula = a.id)
+            WHERE a.IDProfessor = $IDProf GROUP BY a.id
+            SQL;
+        }elseif(Auth::user()->tipo == 5){
+            $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+            $SQL = <<<SQL
+            SELECT
+                a.id as IDAula,
+                a.DSAula,
+                d.NMDisciplina,
+                a.DSConteudo,
+                a.created_at,
+                (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
+            FROM aulas a
+            INNER JOIN turmas t ON(t.id = a.IDTurma)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
+            LEFT JOIN frequencia f ON(f.IDAula = a.id)
+            WHERE e.id IN($IDEscolas) GROUP BY a.id
+            SQL;
+        }elseif(Auth::user()->tipo == 4){
+            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
+            $SQL = <<<SQL
+            SELECT
+                a.id as IDAula,
+                a.DSAula,
+                d.NMDisciplina,
+                a.DSConteudo,
+                a.created_at,
+                (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
+            FROM aulas a
+            INNER JOIN turmas t ON(t.id = a.IDTurma)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
+            LEFT JOIN frequencia f ON(f.IDAula = a.id)
+            WHERE e.id IN($IDEscolas) GROUP BY a.id
+            SQL;
+        }
+
         $aulas = DB::select($SQL);
         if(count($aulas) > 0){
             foreach($aulas as $a){
@@ -353,6 +391,16 @@ class AulasController extends Controller
     //
     public function getAtividades(){
         $IDProf = Auth::user()->IDProfissional;
+        if(Auth::user()->tipo == 4){
+            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
+            $WHERE = "t.IDEscola IN($IDEscolas)";
+        }elseif(Auth::user()->tipo == 5){
+            $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+            $WHERE = "t.IDEscola IN($IDEscolas)";
+        }elseif(Auth::user()->tipo == 6){
+            $WHERE = "a.IDProfessor = $IDProf";
+        }
+
         $SQL = <<<SQL
         SELECT
             atv.DSAtividade,
@@ -370,7 +418,7 @@ class AulasController extends Controller
         INNER JOIN professores p ON(p.id = a.IDProfessor)
         INNER JOIN turmas t ON(t.id = a.IDProfessor)
         LEFT JOIN notas n ON(atv.id = n.IDAtividade)
-        WHERE a.IDProfessor = $IDProf AND atv.STDelete = 0 GROUP BY atv.id
+        WHERE $WHERE AND atv.STDelete = 0 GROUP BY atv.id
         SQL;
         $atividades = DB::select($SQL);
         if(count($atividades) > 0){

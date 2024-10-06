@@ -52,15 +52,15 @@
                 <div class="col-auto">
                     <input type="submit" value="Filtrar" class="form-control bg-fr text-white">
                 </div>
-                @endif
                 <div class="col-auto">
                     <label style="visibility: hidden">a</label>
                     <a href="{{route('Alunos/index')}}" class="btn btn-warning text-white">Limpar Filtros</a>
                 </div>
+                <hr>
+                @endif
             </form>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
-                <hr>
                 <table class="table table-sm tabela" id="escolas" data-rota="{{ route('Alunos/list') . (isset($_GET['Status']) ? '?Status=' . $_GET['Status'] : '') . (isset($_GET['Escola']) ? '&Escola=' . $_GET['Escola'] : '') }}">
                     <thead>
                       <tr>

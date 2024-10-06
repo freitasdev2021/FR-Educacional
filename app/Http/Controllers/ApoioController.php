@@ -167,7 +167,7 @@ class ApoioController extends Controller
             WHERE ap.IDProfessor = $IDProfessor
             SQL;
         }elseif(Auth::user()->tipo == 4){
-            $IDEscolas = implode(',',self::getEscolaDiretor(Auth::user()->id));
+            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
             $SQL = <<<SQL
             SELECT 
                 m.Nome as Aluno,

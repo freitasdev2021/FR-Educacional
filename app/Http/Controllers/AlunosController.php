@@ -11,6 +11,7 @@ use App\Models\FeedbackTransferencia;
 use App\Models\Renovacoes;
 use App\Models\Remanejo;
 use App\Models\Responsavel;
+use App\Models\Anexo;
 use Illuminate\Support\Facades\Auth;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,7 @@ class AlunosController extends Controller
         'endereco' => 'Ficha',
         'rota' => 'Alunos/Ficha'
     ],[
-        'nome' => 'Atividades Desenvolvidas',
+        'nome' => 'Atividades',
         'endereco' => 'Atividades',
         'rota' => 'Alunos/Atividades'
     ],[
@@ -71,6 +72,10 @@ class AlunosController extends Controller
         'nome' => 'Afastamento',
         'endereco' => 'Suspenso',
         'rota' => 'Alunos/Suspenso'
+    ],[
+        'nome' => 'Anexos',
+        'endereco' => 'Anexos',
+        'rota' => 'Alunos/Anexos'
     ]);
 
     public const professoresSubmodulos = array([
@@ -103,6 +108,24 @@ class AlunosController extends Controller
             'submodulos' => $modulos,
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
         ]);
+    }
+
+    public function anexos($IDAluno){
+        return view('Alunos.anexos',[
+            'submodulos' => self::cadastroSubmodulos,
+            'IDAluno' => $IDAluno,
+            "CDPasta" => DB::select("SELECT CDPasta FROM matriculas m INNER JOIN alunos a ON(m.id = a.IDMatricula) WHERE a.id = $IDAluno")[0]->CDPasta,
+            "Anexos" => DB::select("SELECT Anexo,DSAnexo,CDPasta FROM anexos_aluno aa INNER JOIN alunos a ON(aa.IDAluno = a.id) INNER JOIN matriculas m ON(a.IDMatricula = m.id) WHERE a.id =$IDAluno")
+        ]);
+    }
+
+    public function saveAnexo(Request $request){
+        $data = $request->all();
+        $Anexo = $request->file('Anexo')->getClientOriginalName();
+        $request->file('Anexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Anexo,'public');
+        $data['Anexo'] = $Anexo;
+        Anexo::create($data);
+        return redirect()->back();
     }
 
     public function suspenso($id){
@@ -721,7 +744,12 @@ class AlunosController extends Controller
                 m.AnexoRG,
                 re.RGPaisAnexo,
                 m.CResidencia,
-                m.Historico
+                m.Historico,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                r.ANO,
+                m.Autorizacao,
+                m.Quilombola
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -729,11 +757,12 @@ class AlunosController extends Controller
             INNER JOIN escolas e ON(t.IDEscola = e.id)
             INNER JOIN organizacoes o ON(e.IDOrg = o.id)
             INNER JOIN responsavel re ON(re.IDAluno = a.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
             WHERE o.id = $idorg AND a.id = $id  
             ";
 
             $Registro = DB::select($SQL)[0];
-            $Vencimento = Carbon::parse($Registro->Vencimento);
+            $Vencimento = Carbon::parse($Registro->INIRematricula);
             $Hoje = Carbon::parse(date('Y-m-d'));
             if(self::getDados()['tipo'] == 6){
                 $view['submodulos'] = self::professoresSubmodulos;
@@ -834,7 +863,9 @@ class AlunosController extends Controller
                     'Bairro' => $request->Bairro,
                     'Numero' => $request->Numero,
                     'Nascimento' => $request->Nascimento,
-                    'CDPasta' => $CDPasta
+                    'CDPasta' => $CDPasta,
+                    "Autorizacao" => $request->Autorizacao,
+                    "Quilombola" => $request->Quilombola
                 );
 
                 $createMatricula = Matriculas::create($matricula);
@@ -937,7 +968,9 @@ class AlunosController extends Controller
                     'Foto' => $Foto,
                     'Bairro' => $request->Bairro,
                     'Numero' => $request->Numero,
-                    'Nascimento' => $request->Nascimento
+                    'Nascimento' => $request->Nascimento,
+                    "Autorizacao" => $request->Autorizacao,
+                    "Quilombola" => $request->Quilombola
                 );
 
                 if(empty($Historico)){
@@ -1000,14 +1033,6 @@ class AlunosController extends Controller
                 }
 
                 Aluno::find($request->IDAluno)->update($aluno);
-
-                $renovacao = array(
-                    'Aprovado' => 1,
-                    'Vencimento' => $request->Vencimento,
-                    'ANO' => date('Y')
-                );
-
-                Renovacoes::where('IDAluno',$request->IDAluno)->update($renovacao);
 
                 $responsavel = array(
                     'RGPaisAnexo' => $request->RGPaisAnexo,
@@ -1203,8 +1228,12 @@ class AlunosController extends Controller
             $IDEscola = self::getEscolaDiretor(Auth::user()->id);
             $AND = ' AND e.id='.$IDEscola;
             //dd($AND);
+        }elseif(Auth::user()->tipo == 5){
+            $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+            $AND = " AND e.id IN($IDEscolas)";
         }else{
-            $AND = '';
+            $IDEscolas = implode(",",ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
+            $AND = " AND e.id IN($IDEscolas)";
         }
 
         if(Auth::user()->tipo == 6){
@@ -1232,7 +1261,12 @@ class AlunosController extends Controller
             a.STAluno,
             m.Foto,
             m.Email,
-            MAX(tr.Aprovado) as Aprovado
+            r.ANO,
+            MAX(tr.Aprovado) as Aprovado,
+            cal.INIRematricula,
+            cal.TERRematricula,
+            cal.INIAno,
+            cal.TERAno
         FROM matriculas m
         INNER JOIN alunos a ON(a.IDMatricula = m.id)
         LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
@@ -1240,6 +1274,7 @@ class AlunosController extends Controller
         INNER JOIN renovacoes r ON(r.IDAluno = a.id)
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
         WHERE o.id = $idorg $AND GROUP BY a.id    
         ";
         //dd($SQL);
@@ -1273,9 +1308,9 @@ class AlunosController extends Controller
                     $transferido = '';
                 }
 
-                $Vencimento = Carbon::parse($r->Vencimento);
+                $Vencimento = Carbon::parse($r->INIRematricula);
                 $Hoje = Carbon::parse(date('Y-m-d'));
-
+                $INIRematricula = Carbon::parse($r->INIRematricula);
                 $item = [];
                 $item[] = $r->Nome." ".$transferido;
                 $item[] = $r->Turma;
@@ -1283,7 +1318,7 @@ class AlunosController extends Controller
                 $item[] = $r->Serie;
                 $item[] = Controller::data($r->Nascimento,'d/m/Y');
                 $item[] = Controller::data($r->Vencimento,'d/m/Y');
-                $item[] = $Vencimento->lt($Hoje) ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";
+                $item[] = $Vencimento->lt($Hoje) && $r->ANO <= date('Y') ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";
                 $item[] = $Situacao;
                 $item[] = " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>";
                 $itensJSON[] = $item;

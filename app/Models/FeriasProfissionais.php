@@ -13,7 +13,8 @@ class FeriasProfissionais extends Model
         'IDEscola',
         'IDProfissional',
         'DTInicio',
-        'DTTermino'
+        'DTTermino',
+        "DSAfastamento"
     ];
 
     public function escola()

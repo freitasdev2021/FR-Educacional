@@ -52,6 +52,12 @@
                       <input type="date" class="form-control" name="DTTermino" value="{{isset($Registro) ? $Registro->Termino : ''}}" required>
                    </div>
                 </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                     <label>Motivo</label>
+                     <textarea class="form-control" name="DSAfastamento">{{isset($Registro) ? $Registro->DSAfastamento : ''}}</textarea>
+                  </div>
+                </div>
                 <br>
                 <div class="row">
                    <div class="col-auto">

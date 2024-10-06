@@ -43,11 +43,15 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label>Data de Início</label>
-                            <input type="date" name="DTInicio" class="form-control" maxlength="50" required value="{{isset($Registro->DTInicio) ? $Registro->DTTInicio : ''}}">
+                        <div class="col-sm-4">
+                            <label>CID</label>
+                            <input type="number" name="CID" class="form-control" value="{{isset($Registro->CID) ? $Registro->CID : ''}}">
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
+                            <label>Data de Início</label>
+                            <input type="date" name="DTInicio" class="form-control" maxlength="50" required value="{{isset($Registro->DTInicio) ? $Registro->DTInicio : ''}}">
+                        </div>
+                        <div class="col-sm-4">
                             <label>Término do Acompanhamento</label>
                             <input type="date" name="DTTermino" class="form-control" value="{{isset($Registro->DTTermino) ? $Registro->DTTermino : ''}}">
                         </div>

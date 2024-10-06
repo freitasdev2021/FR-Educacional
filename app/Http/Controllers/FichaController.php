@@ -241,7 +241,7 @@ class FichaController extends Controller
         if(Auth::user()->tipo == 6){
             $IDEscolas = implode(',',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
         }elseif(Auth::user()->tipo == 4){
-            $IDEscolas = implode(',',self::getEscolaDiretor(Auth::user()->id));
+            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
         }
