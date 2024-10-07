@@ -225,6 +225,14 @@
                             <a class="btn btn-light" href="{{route('Alunos/index')}}">Cancelar</a>
                         </div>
                         @endif
+                        @if(isset($Registro) && in_array(Auth::user()->tipo,[4]) && $Vencimento->lt($Hoje) && $Registro->ANO >= date('Y')) 
+                        <div class="col-auto">
+                            <a href="{{route('Alunos/Comprovante/Matricula',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Frequencia',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Frequência</a>
+                            <a href="{{route('Alunos/Comprovante/Filiacao',$Registro->IDAluno)}}" class="btn btn-fr">Relatório de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Conclusao',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Conclusão</a>
+                        </div>
+                        @endif
                     </div>
                     @elseif(in_array(Auth::user()->tipo,[5,6]))
                     <div>

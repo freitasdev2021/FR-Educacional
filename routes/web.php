@@ -127,6 +127,12 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
         Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
         //DADOS DO ALUNO
+        Route::get("Alunos/Comprovantes/Matricula/{id}",[AlunosController::class,'getComprovanteMatricula'])->name("Alunos/Comprovante/Matricula");
+        Route::get("Alunos/Comprovantes/Frequencia/{id}",[AlunosController::class,'getComprovanteFrequencia'])->name("Alunos/Comprovante/Frequencia");
+        Route::get("Alunos/Comprovantes/Filiacao/{id}",[AlunosController::class,'getRelatorioMatricula'])->name("Alunos/Comprovante/Filiacao");
+        Route::get("Alunos/Comprovantes/Conclusao/{id}",[AlunosController::class,'getComprovanteConclusao'])->name("Alunos/Comprovante/Conclusao");
+        Route::get("Alunos/Comprovantes/Transferencia/{id}",[AlunosController::class,'getDeclaracaoTransferencia'])->name("Alunos/Comprovante/Transferencia");
+        Route::get("Alunos/Ata/{id}",[AlunosController::class,'getAta'])->name("Alunos/Ata");
         Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico');
         Route::get('/Alunos/Boletim/{id}',[AlunosController::class,'boletim'])->name('Alunos/Boletim');
         Route::get('/Alunos/Suspenso/{id}',[AlunosController::class,'suspenso'])->name('Alunos/Suspenso');

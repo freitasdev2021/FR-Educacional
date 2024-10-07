@@ -277,6 +277,370 @@ class AlunosController extends Controller
         ]);
     }
 
+    public static function getComprovanteMatricula($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola 
+        FROM escolas e 
+        INNER JOIN turmas t ON(t.IDEscola = e.id) 
+        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+        WHERE a.id = $IDAluno")[0];
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
+        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        // Espaço após a logo
+        $pdf->Ln(40);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE MATRÍCULA"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
+        $nomeEscola = "Nome da Escola";
+        $nomeAluno = "Nome do Aluno";
+        $Ano = date('Y');
+        // Inserir o texto da declaração
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Escola->Aluno está regularmente matriculado(a) na $Escola->Escola, " .
+                    "no ano letivo de $Ano, conforme os registros escolares.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('D', 'Declaracao_Matricula.pdf');
+        exit;
+
+    }
+
+    public static function getComprovanteFrequencia($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola 
+        FROM escolas e 
+        INNER JOIN turmas t ON(t.IDEscola = e.id) 
+        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+        WHERE a.id = $IDAluno")[0];
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
+        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        // Espaço após a logo
+        $pdf->Ln(40);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE FREQUÊNCIA"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
+        $nomeEscola = "Nome da Escola";
+        $nomeAluno = "Nome do Aluno";
+        $Ano = date('Y');
+        // Inserir o texto da declaração
+        $declaracao = "Certificamos que o(a) aluno(a) $Escola->Aluno frequentou regularmente as aulas na $Escola->Escola, " .
+              "durante o ano letivo de $Ano, conforme os registros de frequência escolar.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('D', 'Declaracao_Frequencia.pdf');
+        exit;
+
+    }
+
+    public function getRelatorioMatricula($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Escola = DB::select("SELECT 
+            e.id,
+            e.Cidade,
+            e.UF, 
+            e.Foto,
+            m.Nome as Aluno,
+            e.Foto,
+            e.Nome as Escola,
+            m.Numero as Numero,
+            m.Bairro ,
+            r.NMResponsavel as Responsavel,
+            m.Rua
+        FROM escolas e 
+        INNER JOIN turmas t ON(t.IDEscola = e.id) 
+        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+        INNER JOIN responsavel r ON(r.IDAluno = a.id)
+        WHERE a.id = $IDAluno")[0];
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(50, 15); // Ajuste conforme necessário para centralizar
+        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+
+        // Espaço após o título
+        $pdf->Ln(20);
+
+        // Título do relatório
+        $pdf->Cell(0, 10, self::utfConvert('Relatório de Matrícula'), 0, 1, 'C');
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo do relatório
+        $pdf->SetFont('Arial', '', 12);
+
+        // Inserir as informações do relatório
+        $pdf->Cell(0, 10, self::utfConvert("Nome Completo: $Escola->Aluno"), 0, 1);
+        $pdf->Ln(5); // Espaço entre linhas
+
+        $pdf->MultiCell(0, 10, mb_convert_encoding("Filiação:\n$Escola->Responsavel", 'ISO-8859-1', 'UTF-8'));
+        $pdf->Ln(5); // Espaço entre linhas
+        $endereco = $Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." ".$Escola->Cidade.", ".$Escola->UF;
+        $pdf->MultiCell(0, 10, mb_convert_encoding("Endereço:\n$endereco", 'ISO-8859-1', 'UTF-8'));
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        //$pdf->Cell(0, 10, self::utfConvert("Assinatura do Responsável"), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('D', 'Relatorio_Matricula.pdf');
+        exit;
+    }
+
+    public function getComprovanteConclusao($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola,t.Serie 
+        FROM escolas e 
+        INNER JOIN turmas t ON(t.IDEscola = e.id) 
+        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+        WHERE a.id = $IDAluno")[0];
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
+        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        // Espaço após a logo
+        $pdf->Ln(40);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE CONCLUSÃO"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
+        $nomeEscola = "Nome da Escola";
+        $nomeAluno = "Nome do Aluno";
+        $Ano = date('Y');
+        // Inserir o texto da declaração
+        $declaracao = "Certificamos que o(a) aluno(a) $Escola->Aluno êxito o $Escola->Serie pela $Escola->Escola, " .
+              "no ano letivo de $Ano, estando apto(a) a seguir com seus estudos ou carreira conforme desejado.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('D', 'Declaracao_Conclusao.pdf');
+        exit;
+    }
+
+    public function getDeclaracaoTransferencia($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20);
+        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola,t.Serie 
+        FROM escolas e 
+        INNER JOIN turmas t ON(t.IDEscola = e.id) 
+        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+        WHERE a.id = $IDAluno")[0];
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+
+        // Espaço após o título
+        $pdf->Ln(20);
+
+        // Título da declaração
+        $pdf->Cell(0, 10, self::utfConvert('Declaração de Transferência Escolar'), 0, 1, 'C');
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        // Informações do aluno (exemplo de variáveis)
+        $dataTransferencia = date('d/m/Y'); // Data atual
+
+        // Texto da declaração de transferência
+        $declaracao = "Declaramos para os devidos fins que o(a) aluno(a) $Escola->Aluno está sendo transferido(a) " .
+                      "para outra instituição de ensino a partir da data de $dataTransferencia.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+
+        // Espaço antes das observações
+        $pdf->Ln(10);
+
+        // Observações
+        $observacoes = "Informamos que o histórico escolar do aluno será emitido dentro de 30 dias a partir da data desta declaração.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($observacoes, 'ISO-8859-1', 'UTF-8'));
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, self::utfConvert("Assinatura do Responsável"), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('D', 'Declaracao_Transferencia.pdf');
+        exit;
+    }
+    public function getAta(){
+        // Criar o PDF com FPDF
+        $pdf = new Fpdf('P', 'mm', 'A4');
+        $pdf->AddPage();
+
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5);
+
+        // Definir a fonte para o título
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->Cell(0, 10, 'ATA DE RESULTADOS FINAIS', 0, 1, 'C');
+
+        // Espaço após o título
+        $pdf->Ln(10);
+
+        // Informações adicionais (número de Ata, data, etc.)
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 10, 'A presenca de distribuicao das notas finais e nota global dos alunos do Curso...', 0, 1, 'C');
+        $pdf->Ln(5);
+
+        // Definir a fonte para as disciplinas (texto vertical)
+        $disciplinas = [
+            'Língua Portuguesa', 'Matemática', 'História', 'Geografia', 'Física', 'Química', 'Biologia',
+            'Inglês', 'Espanhol', 'Artes', 'Educação Física', 'Sociologia', 'Filosofia', 'Literatura', 'Final'
+        ];
+        $colWidth = 8; // Largura das colunas
+        $rowHeight = 7; // Altura das linhas
+
+        // Definir a altura inicial das colunas
+        $xPosInicial = 90;
+        $yPos = 85; // Posição Y para as disciplinas
+        $pdf->SetY($yPos); // Posição Y inicial
+        // Imprimir as disciplinas verticalmente com bordas
+        foreach ($disciplinas as $disciplina) {
+            $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
+            $pdf->SetFont('Arial', 'B', 10);
+
+            // Desenhar a borda da célula
+            $pdf->Rect($xPosInicial - 5, $yPos - 30, $colWidth, 50); // Tamanho da célula vertical
+
+            // Rotacionar o texto para ficar vertical
+            $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
+
+            // Imprimir o nome da disciplina com borda preta
+            $pdf->Cell(45, $colWidth, mb_convert_encoding($disciplina, 'ISO-8859-1', 'UTF-8'), 0, 1, 'L');
+
+            // Voltar à rotação normal
+            $pdf->Rotate(0);
+
+            // Mover para a próxima coluna
+            $xPosInicial += $colWidth;
+        }
+
+        // Voltar para a rotação normal do texto e definir nova posição Y para a tabela
+        $pdf->SetY($yPos + 20);
+
+        // Criar linhas da tabela (para alunos)
+        $pdf->SetFont('Arial', '', 12);
+        for ($i = 0; $i < 20; $i++) {
+            // Imprimir uma célula para o nome do aluno
+            $pdf->Cell(80, $rowHeight, 'NOME DO ALUNO', 1);
+
+            // Imprimir células em branco para as disciplinas
+            for ($j = 0; $j < count($disciplinas); $j++) {
+                $pdf->Cell($colWidth, $rowHeight, '', 1);
+            }
+
+            // Pular para a próxima linha
+            $pdf->Ln();
+        }
+
+        // Saída do PDF
+        $pdf->Output('I', 'Ata_de_Resultados_Finais.pdf');
+        exit;
+    }
+
     public function historico($id){
         // Primeiro, obtenha todos os anos em que o aluno tem registros
         $anos = DB::table('aulas')

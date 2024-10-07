@@ -12,6 +12,9 @@
                 <div class="col-auto">
                     <a href="{{route('Alunos/Transferencias/Novo',$id)}}" class="btn btn-fr">Adicionar</a>
                 </div>
+                <div class="col-auto">
+                    <a href="{{route('Alunos/Comprovante/Transferencia',$id)}}" class="btn btn-fr">Declaração de Transferência</a>
+                </div>
             </div>
             <hr>
             @endif

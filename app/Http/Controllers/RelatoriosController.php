@@ -30,6 +30,15 @@ class RelatoriosController extends Controller
             case 'Responsaveis':
                 $view = 'Escolas.Relatorios.responsaveis';
             break;
+            case 'TurmaFaixa':
+                $view = 'Escolas.Relatorios.turmaFaixa';
+            break;
+            case 'QTTransporte':
+                $view = 'Escolas.Relatorios.quantidadeTransporte';
+            break;
+            case 'NMTransporte':
+                $view = 'Escolas.Relatorios.usuariosTransporte';
+            break;
         }
         return view($view,[
             'submodulos' => self::submodulos,
@@ -55,12 +64,147 @@ class RelatoriosController extends Controller
                 case 'Responsaveis':
                     self::Responsaveis($request->Conteudo);
                 break;
+                case 'TurmaFaixa':
+                    self::QTTurmaFaixa($request->Conteudo);
+                break;
+                case 'QTTransporte':
+                    self::QTTransporte($request->Conteudo);
+                break;
+                case 'NMTransporte':
+                    self::getTransporte($request->Conteudo);
+                break;
             }
         }catch(\Throwable $th){
 
         }finally{
 
         }
+    }
+
+    public function getTransporte($Conteudo){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+
+        // Definir margens
+        $pdf->SetMargins(10, 10, 10);
+
+        // Definir cabeçalho do relatório
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("Alunos Usuários de Transporte"), 0, 1, 'C');
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo do relatório
+        $pdf->SetFont('Arial', '', 12);
+        $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+        $Transporte = DB::select("SELECT 
+            m.Nome,
+            t.Nome as Turma
+        FROM alunos a 
+        INNER JOIN matriculas m ON(a.IDMatricula = m.id) 
+        INNER JOIN turmas t ON(a.IDTurma = t.id) 
+        INNER JOIN escolas e ON(e.id = t.IDEscola) 
+        WHERE e.id = $IDEscola");
+
+        // Exibir o cabeçalho escolhido
+        foreach($Conteudo as $c){
+            $pdf->Cell(80, 10, mb_convert_encoding($c, 'ISO-8859-1', 'UTF-8'), 1);
+        }
+        $pdf->Ln(); // Adicionar linha nova após o cabeçalho
+
+        // Preencher a tabela com os dados das escolas
+        $pdf->SetFont('Arial', '', 12);
+        foreach ($Transporte as $escola) {
+            // Verifica e imprime as células de acordo com os valores selecionados em $Conteudo
+            if (in_array('Nome', $Conteudo)) {
+                $pdf->Cell(80, 10, mb_convert_encoding($escola->Nome, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            }
+            if (in_array('Turma', $Conteudo)) {
+                $pdf->Cell(50, 10, mb_convert_encoding($escola->Turma, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            }
+
+            // Adicionar nova linha após a célula
+            $pdf->Ln();
+        }
+
+        $pdf->Output('D', 'Usuarios_Transporte.pdf');
+        exit;
+    }
+
+    public function QTTransporte($Conteudo){
+       // Criar o PDF com FPDF
+       $pdf = new FPDF();
+       $pdf->AddPage(); // Adiciona uma página
+
+       // Definir margens
+       $pdf->SetMargins(10, 10, 10);
+
+       // Definir cabeçalho do relatório
+       $pdf->SetFont('Arial', 'B', 16);
+       $pdf->Cell(0, 10, self::utfConvert(self::utfConvert("Relatório sobre usuários de Transporte")), 0, 1, 'C');
+       $pdf->Ln(10); // Espaço após o título
+
+       // Definir fonte para o corpo do relatório
+       $pdf->SetFont('Arial', '', 12);
+       $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+       $Quantidade = DB::select("SELECT 
+            COUNT(a.id) as Quantidade 
+        FROM alunos a
+        INNER JOIN matriculas m ON(a.IDMatricula = m.id) 
+        INNER JOIN turmas t ON(a.IDTurma = t.id) 
+        INNER JOIN escolas e ON(e.id = t.IDEscola) WHERE e.id = $IDEscola ")[0]->Quantidade;
+       // CONTEÚDO DO PDF
+       $pdf->Cell(0, 10, 'Atualmente Há' . $Quantidade. " Alunos Utilizando Transporte nessa Instituição", 0, 1);
+       $pdf->Ln(5); // Espaço após as informações da aula
+
+       // HORÁRIO
+       $pdf->Cell(0, 10, date('d/m/Y - H:i:s'), 0, 1, 'L');
+
+       // Gera o PDF para saída
+       $pdf->Output('D','Quantidade Transporte.pdf');
+       exit;
+   }
+
+
+    public function QTTurmaFaixa($Conteudo){
+         // Criar instância do FPDF
+         $pdf = new Fpdf();
+
+         // Adicionar uma página
+         $pdf->AddPage();
+ 
+         // Definir o papel timbrado da escola (descomente se necessário)
+         //$this->adicionarPapelTimbrado($pdf);
+ 
+         // Definir título
+         $pdf->SetFont('Arial', 'B', 14);
+         $pdf->Cell(0, 10, mb_convert_encoding('Alunos por Turma e Faixa', 'ISO-8859-1', 'UTF-8'), 0, 1, 'C');
+ 
+         // Espaçamento
+         $pdf->Ln(10);
+ 
+         // Cabeçalho da tabela
+         $pdf->SetFont('Arial', 'B', 12);
+         foreach($Conteudo as $c){
+             $pdf->Cell(80, 10, mb_convert_encoding($c, 'ISO-8859-1', 'UTF-8'), 1);
+         }
+         $pdf->Ln();
+         $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+         // Recuperar lista de escolas e quantidade de alunos transferidos
+         $IDOrg = Auth::user()->id_org;
+         $escolas = DB::select("SELECT COUNT(m.Nome) as QTSerie,t.Serie FROM alunos a INNER JOIN matriculas m ON(a.IDMatricula = m.id) INNER JOIN turmas t ON(a.IDTurma = t.id) INNER JOIN escolas e ON(e.id = t.IDEscola) = e.IDOrg = $IDEscola GROUP BY t.Serie");
+ 
+         // Preencher a tabela com os dados das escolas
+         $pdf->SetFont('Arial', '', 12);
+         foreach ($escolas as $escola) {
+             in_array('Serie',$Conteudo) ? $pdf->Cell(80, 10, mb_convert_encoding($escola->Serie, 'ISO-8859-1', 'UTF-8'), 1) : '';
+             in_array('QTSerie',$Conteudo) ? $pdf->Cell(50, 10, $escola->QTSerie, 1) : '';
+             // Adicionar espaço após cada linha
+             $pdf->Ln(0); // Não adicionar nova linha, pois o MultiCell já faz isso
+         }
+ 
+         // Saída do PDF
+         $pdf->Output('D', 'relatorio_turmafaixa.pdf');
     }
 
     public function QTTransferidos($Conteudo){

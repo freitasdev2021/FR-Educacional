@@ -13,7 +13,6 @@
                       <tr>
                         <th style="text-align:center;" scope="col">Relatorio</th>
                         <th style="text-align:center;" scope="col">Tipo</th>
-                        <th style="text-align:center;" scope="col">Ultima Emissão</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>
@@ -21,32 +20,42 @@
                       <tr>
                         <td>Ocorrências</td>
                         <td>Quantitativo</td>
-                        <td>28/09/2024</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Ocorrencias')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Transferidos</td>
                         <td>Quantitativo</td>
-                        <td>28/09/2024</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Transferidos')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Remanejados</td>
                         <td>Quantitativo</td>
-                        <td>28/09/2024</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Remanejados')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Evadidos</td>
                         <td>Quantitativo</td>
-                        <td>28/09/2024</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Evadidos')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Responsaveis</td>
                         <td>Nominal</td>
-                        <td>28/09/2024</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Responsaveis')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos por Turma e Faixa</td>
+                        <td>Quantitativo</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','TurmaFaixa')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos por Turma e Faixa</td>
+                        <td>Quantitativo</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','QTTransporte')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Usuários Transporte</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','NMTransporte')}}">Imprimir</a></td>
                       </tr>
                     </tbody>
                   </table>
