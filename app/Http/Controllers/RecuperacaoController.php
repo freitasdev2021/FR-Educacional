@@ -68,9 +68,13 @@ class RecuperacaoController extends Controller
             foreach(EscolasController::getAlunosEscola() as $a){
                 array_push($arrAlunos,$a);
             }
-        }else{
+        }elseif(Auth::user()->tipo == 6){
             foreach(ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional) as $a){
                 array_push($arrAlunos,$a->id);
+            }
+        }elseif(Auth::user()->tipo == 2){
+            foreach(SecretariasController::getEscolasRede(Auth::user()->id_org) as $a){
+                array_push($arrAlunos,$a);
             }
         }
 

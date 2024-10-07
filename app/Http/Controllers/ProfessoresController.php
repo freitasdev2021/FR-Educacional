@@ -51,7 +51,10 @@ class ProfessoresController extends Controller
             $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        }elseif(Auth::user()->tipo == 2){
+            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
         }
+
         $Escolas = array();
         foreach(DB::select("SELECT al.IDProfissional FROM escolas e INNER JOIN alocacoes al ON(al.IDEscola = e.id) WHERE al.TPProfissional = 'PROF' AND al.IDEscola IN($IDEscolas) ") as $p){
             array_push($Escolas,$p->IDProfissional);

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Http\Requests\secretariasRequest;
 use App\Http\Requests\AdministradoresRequest;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 class SecretariasController extends Controller
 {
@@ -47,6 +48,36 @@ class SecretariasController extends Controller
 
     public static function getInstituicao($ID){
         return Organizacao::find($ID);
+    }
+
+    public static function getEscolasRede($IDOrg){
+        $IDEscolas = array();
+        foreach(DB::select("SELECT id FROM escolas e WHERE e.IDOrg = $IDOrg ") as $e){
+            array_push($IDEscolas,$e->id);
+        }
+        return $IDEscolas;
+    }
+
+    public static function getAlunosRede($IDOrg){
+        $IDAlunos = array();
+        $SQL = "SELECT
+            a.id as IDAluno 
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            WHERE o.id = $IDOrg GROUP BY a.id    
+        ";
+
+        foreach(DB::select($SQL) as $a){
+            array_push($IDAlunos,$a);
+        }
+
+        return $IDAlunos;
     }
 
     public function cadastroAdministradores($id=null){

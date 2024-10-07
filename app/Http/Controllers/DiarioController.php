@@ -50,6 +50,8 @@ class DiarioController extends Controller
             $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        }elseif(Auth::user()->tipo == 2){
+            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
         }
 
         $WHERE = "WHERE ";
@@ -122,7 +124,10 @@ class DiarioController extends Controller
             $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
+        }elseif(Auth::user()->tipo == 2){
+            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
         }
+
         $SQL = <<<SQL
             SELECT 
                 p.Nome as Professor,

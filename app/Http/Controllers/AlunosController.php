@@ -1595,8 +1595,11 @@ class AlunosController extends Controller
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
             $AND = " AND e.id IN($IDEscolas)";
-        }else{
+        }elseif(Auth::user()->tipo == 6){
             $IDEscolas = implode(",",ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
+            $AND = " AND e.id IN($IDEscolas)";
+        }elseif(Auth::user()->tipo == 2){
+            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
             $AND = " AND e.id IN($IDEscolas)";
         }
 

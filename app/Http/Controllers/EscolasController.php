@@ -494,8 +494,8 @@ class EscolasController extends Controller
                 $item[] = $t->QTAlunos;
                 $item[] = 200 - $t->Frequencia;
                 $item[] = ($t->Frequencia/$Estagios)*100.." %";
-                (in_array(Auth::user()->tipo,[2,4])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
-                (in_array(Auth::user()->tipo,[2,4,6,3,5])) ? $item[] = "<a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
+                (in_array(Auth::user()->tipo,[4])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                (in_array(Auth::user()->tipo,[4,6,3,5])) ? $item[] = "<a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
