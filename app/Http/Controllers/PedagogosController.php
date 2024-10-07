@@ -157,7 +157,7 @@ class PedagogosController extends Controller
                 $aid = $request->id;
                 if($request->credenciais){
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
-                    $Usuario = User::where('IDProfissional',$request->id)->where('id_org',Auth::user()->id_org);
+                    $Usuario = User::find($request->IDUser);
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
@@ -210,7 +210,7 @@ class PedagogosController extends Controller
             }else{
                 $alocacoes = [];
 
-                $profId = Pedagogo::create($dir);
+                $pedaId = Pedagogo::create($dir);
 
 
                 function filterNull($var){
@@ -236,7 +236,7 @@ class PedagogosController extends Controller
                 for($i=0; $i<count($escolas);$i++){
                     $alocacoes[] = [
                         'IDEscola' => $escolas[$i],
-                        'IDProfissional' => $profId->id,
+                        'IDProfissional' => $pedaId->id,
                         "INITurno" => $iniTurno[$i],
                         "TERTurno" => $terTurno[$i],
                         'TPProfissional' => 'PEDA'
@@ -247,20 +247,23 @@ class PedagogosController extends Controller
                     Alocacao::create($al);
                 }
 
-                User::create([
+                $usId = User::create([
                     'name' => $request->Nome,
                     'email' => $request->Email,
                     'tipo' => 6,
                     'password' => Hash::make(rand(100000,999999)),
-                    'IDProfissional' => $profId->id,
+                    'IDProfissional' => $pedaId->id,
                     'id_org' => Auth::user()->id_org
                 ]);
+
+                Pedagogo::find($pedaId->id)->update(["IDUser"=>$usId->id]);
                 $rout = 'Pedagogos/Novo';
                 $mensagem = 'Salvamento Feito com Sucesso! as Credenciais de Login foram Enviadas no Email Cadastrado';
             }
             $status = 'success';
         }catch(\Throwable $th){
             $status = 'error';
+            $rout = 'Pedagogos/Novo';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);

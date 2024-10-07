@@ -22,6 +22,7 @@
                   <x-modulo nome="Responsáveis" icon="bx bx-body" rota="Responsaveis/index" endereco="Responsaveis"/>
                   @if(Auth::user()->tipo == 6)
                   <x-modulo nome="Apoio" icon="bx bxs-universal-access" rota="Apoio/index" endereco="Apoio"/>
+                  <x-modulo nome="Funcionários" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
                   @endif
                   @endif
                   @if(Auth::user()->tipo == 2)
@@ -39,7 +40,7 @@
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
                   {{-- <x-modulo nome="Responsaveis" icon="bx bx-male-female" rota="Responsaveis/index" endereco="Responsaveis"/> --}}
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
-                  @if(Auth::user()->tipo == 4)<x-modulo nome="Auxiliares" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>@endif
+                  <x-modulo nome="Funcionários" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Endereços" icon="bx bx-street-view" rota="Enderecos/index" endereco="Enderecos"/>
                   @if(in_array(Auth::user()->tipo,[3,4]))<x-modulo nome="Merenda" icon="bx bx-fork" rota="Merenda/index" endereco="Merenda"/>@endif

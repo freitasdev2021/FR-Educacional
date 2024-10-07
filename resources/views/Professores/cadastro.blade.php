@@ -23,6 +23,7 @@
                     @endif
                     @if(isset($Registro->id))
                     <input type="hidden" name="id" value="{{$Registro->id}}">
+                    <input type="hidden" name="IDUser" value="{{$Registro->IDUser}}">
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">

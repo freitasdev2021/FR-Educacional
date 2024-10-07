@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--LISTAS-->
             <div class="col-sm-12 p-2 center-form">
-                <form action="{{route('Diretores/Save')}}" method="POST">
+                <form action="{{route('Auxiliares/Save')}}" method="POST">
                     @csrf
                     @method("POST")
                     @if(session('success'))
@@ -23,16 +23,30 @@
                     @endif
                     @if(isset($Registro->id))
                     <input type="hidden" name="id" value="{{$Registro->id}}">
+                    <input type="hidden" name="IDUser" value="{{$Registro->IDUser}}">
                     @endif
-                    <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-12">
-                            <label>Escola</label>
-                            <select name="IDEscola" class="form-control">
-                                <option>Selecione</option>
+                        <div class="col-sm-9">
+                            <label>Local de Trabalho</label>
+                            <select name="IDEscola" class="form-control" required>
+                                <option value="">Selecione</option>
+                                <option value="0">Secretaría Municipal de Educação</option>
                                 @foreach($Escolas as $e)
                                     <option value="{{$e->id}}" {{(isset($Registro->IDEscola) && $Registro->IDEscola == $e->id) ? 'selected' : ''}}>{{$e->Nome}}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Cargo</label>
+                            <select name="Tipo" class="form-control" required>
+                                <option value="">Selecione</option>
+                                <optgroup label="Escolas">
+                                    <option value="5.5" {{isset($Registro) && $Registro->Tipo == "5.5" ? 'selected' : ''}}>Auxiliar Educacional</option>
+                                    <option value="4.5" {{isset($Registro) && $Registro->Tipo == "4.5" ? 'selected' : ''}}>Auxiliar Administrativo</option>
+                                </optgroup>
+                                <optgroup label="Secretaría">
+                                    <option value="2.5" {{isset($Registro) && $Registro->Tipo == "2.5" ? 'selected' : ''}}>Auxiliar Administrativo</option>
+                                </optgroup>
                             </select>
                         </div>
                     </div>
@@ -56,7 +70,7 @@
                             <input type="date" name="Admissao" class="form-control" required value="{{isset($Registro->Admissao) ? $Registro->Admissao : ''}}">
                         </div>
                         <div class="col-sm-4">
-                            <label>Término do Mandato</label>
+                            <label>Término do Contrato</label>
                             <input type="date" name="TerminoContrato" class="form-control" required value="{{isset($Registro->TerminoContrato) ? $Registro->TerminoContrato : ''}}">
                         </div>
                         <div class="col-sm-4">
@@ -108,7 +122,7 @@
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         &nbsp;
-                        <a class="btn btn-light col-auto" href="{{route('Diretores/index')}}">Voltar</a>
+                        <a class="btn btn-light col-auto" href="{{route('Auxiliares/index')}}">Voltar</a>
                     </div>
                 </form>    
             </div>
@@ -132,6 +146,16 @@
                     }
                 })
             }            
+        })
+        //
+        $("select[name=IDEscola]").on("change",function(){
+            if($(this).val() == 0){
+                $("select[name=Tipo]").find("optgroup[label=Escolas]").hide()
+                $("select[name=Tipo]").find("optgroup[label=Secretaría]").show()
+            }else{
+                $("select[name=Tipo]").find("optgroup[label=Secretaría]").hide()
+                $("select[name=Tipo]").find("optgroup[label=Escolas]").show()
+            }
         })
         //
         $("input[name=CEP]").inputmask('99999-999')

@@ -78,11 +78,11 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Pedagogos',[PedagogosController::class,'index'])->name('Pedagogos/index');
         Route::get('/Pedagogos/Cadastro/{id}',[PedagogosController::class,'cadastro'])->name('Pedagogos/Edit');
         //AUXILIARES
-        Route::get('/Auxiliares/list',[AuxiliaresController::class,'getAuxiliares'])->name('Auxiliares/list');
-        Route::get('/Auxiliares',[AuxiliaresController::class,'index'])->name('Auxiliares/index');
-        Route::get('/Auxiliares/Novo',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Novo');
-        Route::get('/Auxiliares/Cadastro/{id}',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Edit');
-        Route::post('/Auxiliares/Save',[AuxiliaresController::class,'save'])->name('Auxiliares/Save');
+        Route::get('Auxiliares/list',[AuxiliaresController::class,'getAuxiliares'])->name('Auxiliares/list');
+        Route::get('Auxiliares',[AuxiliaresController::class,'index'])->name('Auxiliares/index');
+        Route::get('Auxiliares/Novo',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Novo');
+        Route::get('Auxiliares/Cadastro/{id}',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Edit');
+        Route::post('Auxiliares/Save',[AuxiliaresController::class,'save'])->name('Auxiliares/Save');
         //ANEXOS
         Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
         Route::post('Alunos/Anexos/Save',[AlunosController::class,'saveAnexo'])->name("Alunos/Anexos/Save");

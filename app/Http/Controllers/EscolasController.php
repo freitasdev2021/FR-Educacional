@@ -290,7 +290,7 @@ class EscolasController extends Controller
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
-            'escolas' => DB::select("SELECT e.Nome,e.id FROM escolas e LEFT JOIN alocacoes_disciplinas ad ON(ad.IDEscola = e.id) WHERE e.IDOrg = $idorg")
+            'escolas' => DB::select("SELECT e.Nome,e.id FROM escolas e LEFT JOIN alocacoes_disciplinas ad ON(ad.IDEscola = e.id) WHERE e.IDOrg = $idorg GROUP BY e.id")
         ];
 
         if($id){
@@ -298,12 +298,17 @@ class EscolasController extends Controller
             SELECT 
                 e.Nome,
                 e.id,
-                CASE WHEN d.id IS NOT NULL THEN 1 ELSE 0 END as Alocado
-            FROM escolas e 
-            LEFT JOIN alocacoes_disciplinas ad ON e.id = ad.IDEscola AND ad.IDDisciplina = $id
-            LEFT JOIN disciplinas d ON d.id = ad.IDDisciplina
-            WHERE e.IDOrg = 1
-            GROUP BY e.Nome, e.id;
+                MAX(CASE WHEN d.id IS NOT NULL THEN 1 ELSE 0 END) AS Alocado
+            FROM 
+                escolas e 
+            LEFT JOIN 
+                alocacoes_disciplinas ad ON e.id = ad.IDEscola AND ad.IDDisciplina = $id
+            LEFT JOIN 
+                disciplinas d ON d.id = ad.IDDisciplina
+            WHERE 
+                e.IDOrg = $idorg
+            GROUP BY 
+                e.Nome, e.id;
             SQL;
 
 
@@ -440,7 +445,7 @@ class EscolasController extends Controller
 
         $idorg = Auth::user()->id_org;
 
-        if(Auth::user()->tipo == 6){
+        if(Auth::user()->tipo == 5){
             $AND = ' AND t.id IN('.implode(',',self::getFichaProfessor(Auth::user()->id,'Turmas')).')';
         }elseif(Auth::user()->tipo == 4){
             $AND = ' AND t.IDEscola = '.self::getEscolaDiretor(Auth::user()->id);

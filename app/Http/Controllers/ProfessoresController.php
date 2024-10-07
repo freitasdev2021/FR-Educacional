@@ -222,7 +222,7 @@ class ProfessoresController extends Controller
                 "rota" => "Professores/Apoio"
             ]),
             'IDProfessor' => $idprofessor,
-            'Escolas' => DB::select("SELECT e.Nome as Escola, e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(e.id = a.IDEscola) INNER JOIN professores p ON(p.id = a.IDProfissional) WHERE p.id = $idprofessor "),
+            'Escolas' => DB::select("SELECT e.Nome as Escola, e.id as IDEscola FROM escolas e INNER JOIN alocacoes a ON(e.id = a.IDEscola) INNER JOIN professores p ON(p.id = a.IDProfissional) WHERE p.id = $idprofessor GROUP BY e.id "),
             'Disciplinas' => DB::select("SELECT 
                 d.NMDisciplina as Disciplina,
                 d.id as IDDisciplina
@@ -457,7 +457,7 @@ class ProfessoresController extends Controller
                 $aid = $request->id;
                 if($request->credenciais){
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
-                    $Usuario = User::where('IDProfissional',$request->id)->where('id_org',Auth::user()->id_org);
+                    $Usuario = User::find($request->IDUser);
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
@@ -543,7 +543,7 @@ class ProfessoresController extends Controller
                     Alocacao::create($al);
                 }
 
-                User::create([
+                $usId = User::create([
                     'name' => $request->Nome,
                     'email' => $request->Email,
                     'tipo' => 6,
@@ -551,6 +551,8 @@ class ProfessoresController extends Controller
                     'IDProfissional' => $profId->id,
                     'id_org' => Auth::user()->id_org
                 ]);
+
+                Professor::find($profId->id)->update(["IDUser"=>$usId->id]);
                 $rout = 'Professores/Novo';
                 $mensagem = 'Salvamento Feito com Sucesso! as Credenciais de Login foram Enviadas no Email Cadastrado';
             }

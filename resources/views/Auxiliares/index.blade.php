@@ -9,7 +9,7 @@
             <!--CABECALHO-->
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
-                    <a href="{{route('Diretores/Novo')}}" class="btn btn-fr">Adicionar</a>
+                    <a href="{{route('Auxiliares/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
             </div>
             <!--LISTAS-->

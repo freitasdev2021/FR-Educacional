@@ -16,6 +16,7 @@ class Pedagogo extends Model
         'Admissao',
         'Email',
         'Celular',
+        'IDUser',
         'TerminoContrato',
         'CEP',
         'Rua',

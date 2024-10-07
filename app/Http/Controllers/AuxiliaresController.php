@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Auxiliar;
 use App\Models\Escola;
+use App\Http\Controllers\PedagogosController;
+use App\Http\Controllers\EscolasController;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +27,37 @@ class AuxiliaresController extends Controller
 
 
     public function getAuxiliares(){
-        $Auxiliares = DB::select("SELECT d.id as IDDiretor,e.Nome as Escola,d.Nome as Auxiliar,d.Admissao,d.TerminoContrato,d.CEP,d.Rua,d.UF,d.Cidade,d.Bairro,d.Numero FROM Auxiliares d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' ");
+        switch(Auth::user()->tipo){
+            case 2:
+                $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
+                $WHERE = "WHERE e.id IN('".$IDEscolas."')";
+            break;
+            case 4:
+                $IDEscolas = implode(',',EscolasController::getEscolaDiretor(Auth::user()->id_org));
+                $WHERE = "WHERE e.id IN('".$IDEscolas."')";
+            break;
+            case 5:
+                $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->id_org));
+                $WHERE = "WHERE e.id IN('".$IDEscolas."')";
+            break;
+        }
+        $Auxiliares = DB::select("SELECT 
+                a.id as IDDiretor,
+                a.Nome as Escola,
+                a.Nome as Auxiliar,
+                a.Admissao,
+                a.TerminoContrato,
+                a.CEP,
+                a.Rua,
+                a.UF,
+                a.Cidade,
+                a.Bairro,
+                a.Numero 
+            FROM Auxiliares a 
+            INNER JOIN escolas e ON(a.IDEscola = e.id) 
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id) 
+            $WHERE
+            ");
         if(count($Auxiliares) > 0){
             foreach($Auxiliares as $d){
                 $item = [];
@@ -52,8 +84,6 @@ class AuxiliaresController extends Controller
 
     public function cadastro($id=null){
 
-        $Auxiliar = DB::select("SELECT e.Nome as Escola,d.*,e.id as IDEscola FROM Auxiliares d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' AND d.id = '$id' ");
-
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
@@ -61,14 +91,11 @@ class AuxiliaresController extends Controller
         ];
 
         if($id){
-            $view['submodulos'][0]['endereco'] = "Edit";
-            $view['submodulos'][0]['rota'] = "Auxiliares/Edit";
             $view['id'] = $id;
-            $view['Registro'] = $Auxiliar[0];
+            $view['Registro'] = Auxiliar::find($id);
         }
 
         return view('Auxiliares.cadastro',$view);
-
     }
 
     public function save(Request $request){
@@ -82,15 +109,19 @@ class AuxiliaresController extends Controller
                 $Auxiliar->update($dir);
                 $rout = 'Auxiliares/Edit';
                 $aid = $request->id;
+                $userTipo = User::find($request->IDUser);
+                $userTipo->update(array("tipo"=>$request->Tipo));
                 if($request->credenciais){
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
-                    $Usuario = User::where('IDProfissional',$request->id)->where('id_org',Auth::user()->id_org);
+                    $Usuario = User::find($request->IDUser);
+                    //dd($Usuario->toArray());
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
-                        'tipo' => 6,
+                        'tipo' => $request->Tipo,
                         'password' => Hash::make(rand(100000,999999))
                     ]);
+                    //dd("aqui");
                 }else{
                     $mensagem = 'Salvamento Feito com Sucesso!';
                 }
@@ -99,7 +130,7 @@ class AuxiliaresController extends Controller
                 User::create([
                     'name' => $request->Nome,
                     'email' => $request->Email,
-                    'tipo' => 4,
+                    'tipo' => $dir['Tipo'],
                     'password' => Hash::make(rand(100000,999999)),
                     'IDProfissional' => $dirId->id,
                     'id_org' => Auth::user()->id_org
@@ -109,6 +140,7 @@ class AuxiliaresController extends Controller
             }
             $status = 'success';
         }catch(\Throwable $th){
+            $rout = 'Auxiliares/Novo';
             $status = 'error';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
         }finally{

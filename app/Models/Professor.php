@@ -16,6 +16,7 @@ class Professor extends Model
         'Admissao',
         'Email',
         'Celular',
+        'IDUser',
         'TerminoContrato',
         'CEP',
         'Rua',

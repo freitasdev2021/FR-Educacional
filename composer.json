@@ -10,6 +10,7 @@
         "laravel/breeze": "^2.0",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
+        "phpmailer/phpmailer": "*",
         "phpoffice/phpspreadsheet": "^3.3"
     },
     "require-dev": {
