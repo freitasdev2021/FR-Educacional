@@ -39,10 +39,16 @@ class VagasController extends Controller
             $data = $request->all();
 
             if($request->id){
+                Escola::find($request->IDEscola)->update([
+                    "QTVagas" => Escola::find($request->IDEscola)->QTVagas + $request->QTVagas
+                ]);
                 Vaga::find($request->id)->update($data);
                 $mensagem = "Vaga Editada com Sucesso!";
                 $aid = $request->id;
             }else{
+                Escola::find($request->IDEscola)->update([
+                    "QTVagas" => Escola::find($request->IDEscola)->QTVagas + $request->QTVagas
+                ]);
                 Vaga::create($data);
                 $mensagem = "Vaga cadastrada com Sucesso!";
                 $aid = '';

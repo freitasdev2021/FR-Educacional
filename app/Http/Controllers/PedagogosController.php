@@ -156,13 +156,15 @@ class PedagogosController extends Controller
                 $rout = 'Pedagogos/Edit';
                 $aid = $request->id;
                 if($request->credenciais){
+                    $rnd = rand(100000,999999);
+                    SMTPController::send($request->email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->email));
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
                     $Usuario = User::find($request->IDUser);
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
                         'tipo' => 5,
-                        'password' => Hash::make(rand(100000,999999))
+                        'password' => Hash::make($rnd)
                     ]);
                 }else{
                     $mensagem = 'Salvamento Feito com Sucesso!';
@@ -210,6 +212,9 @@ class PedagogosController extends Controller
             }else{
                 $alocacoes = [];
 
+                $rnd = rand(100000,999999);
+                SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
+
                 $pedaId = Pedagogo::create($dir);
 
 
@@ -251,7 +256,7 @@ class PedagogosController extends Controller
                     'name' => $request->Nome,
                     'email' => $request->Email,
                     'tipo' => 6,
-                    'password' => Hash::make(rand(100000,999999)),
+                    'password' => Hash::make($rnd),
                     'IDProfissional' => $pedaId->id,
                     'id_org' => Auth::user()->id_org
                 ]);

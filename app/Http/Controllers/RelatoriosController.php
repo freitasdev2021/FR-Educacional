@@ -391,7 +391,7 @@ class RelatoriosController extends Controller
 
         // Definir o papel timbrado da escola (descomente se necessário)
         //$this->adicionarPapelTimbrado($pdf);
-
+        $pdf->SetMargins(5, 5, 5);
         // Definir título
         $pdf->SetFont('Arial', 'B', 14);
         $pdf->Cell(0, 10, mb_convert_encoding('Lista de Responsaveis', 'ISO-8859-1', 'UTF-8'), 0, 1, 'C');
@@ -402,7 +402,7 @@ class RelatoriosController extends Controller
         // Cabeçalho da tabela
         $pdf->SetFont('Arial', 'B', 12);
         foreach($Conteudo as $c){
-            $pdf->Cell(80, 10, mb_convert_encoding($c, 'ISO-8859-1', 'UTF-8'), 1);
+            $pdf->Cell(50, 7, mb_convert_encoding($c, 'ISO-8859-1', 'UTF-8'), 1);
         }
         $pdf->Ln();
 
@@ -422,14 +422,14 @@ class RelatoriosController extends Controller
             ");
 
         // Preencher a tabela com os dados das escolas
-        $pdf->SetFont('Arial', '', 12);
+        $pdf->SetFont('Arial', '', 8);
         foreach ($escolas as $escola) {
-            in_array('Escola',$Conteudo) ? $pdf->Cell(80, 10, mb_convert_encoding($escola->Escola, 'ISO-8859-1', 'UTF-8'), 1) : '';
-            in_array('Aluno',$Conteudo) ? $pdf->Cell(50, 10, $escola->Aluno, 1) : '';
-            in_array('Responsavel',$Conteudo) ? $pdf->Cell(50, 10, $escola->Responsavel, 1) : '';
-            in_array('Telefone',$Conteudo) ? $pdf->Cell(50, 10, $escola->Telefone, 1) : '';
+            in_array('Escola',$Conteudo) ? $pdf->Cell(50, 7, mb_convert_encoding($escola->Escola, 'ISO-8859-1', 'UTF-8'), 1) : '';
+            in_array('Aluno',$Conteudo) ? $pdf->Cell(50, 7, $escola->Aluno, 1) : '';
+            in_array('Responsavel',$Conteudo) ? $pdf->Cell(50, 7, $escola->Responsavel, 1) : '';
+            in_array('Telefone',$Conteudo) ? $pdf->Cell(50, 7, $escola->Telefone, 1) : '';
             // Adicionar espaço após cada linha
-            $pdf->Ln(0); // Não adicionar nova linha, pois o MultiCell já faz isso
+            $pdf->Ln(); // Não adicionar nova linha, pois o MultiCell já faz isso
         }
 
         // Saída do PDF

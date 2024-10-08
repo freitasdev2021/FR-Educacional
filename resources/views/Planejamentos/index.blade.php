@@ -21,7 +21,7 @@
                <thead>
                  <tr>
                    <th style="text-align:center;" scope="col">Planejamento</th>
-                   <th style="text-align:center;" scope="col">Turmas</th>
+                   {{-- <th style="text-align:center;" scope="col">Turmas</th> --}}
                    <th style="text-align:center;" scope="col">Opções</th>
                  </tr>
                </thead>

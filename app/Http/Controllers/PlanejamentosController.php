@@ -338,6 +338,7 @@ class PlanejamentosController extends Controller
             array_push($arrTurmasT,$gt->IDDisciplina);
         }
         $turmas = implode(",",$arrTurmasT);
+        //dd($turmas);
         $orgId = Auth::user()->id_org;
         $SQL = <<<SQL
          SELECT 
@@ -363,7 +364,7 @@ class PlanejamentosController extends Controller
             foreach($Planejamentos as $p){
                 $item = [];
                 $item[] = $p->NMPlanejamento;
-                $item[] = implode(",",json_decode($p->Turmas));
+                // $item[] = json_decode($p->Turmas);
                 $item[] = "<a href='".route('Planejamentos/Cadastro',$p->IDPlanejamento)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }

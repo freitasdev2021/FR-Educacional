@@ -1,0 +1,1 @@
+Olá! os Seus dados para o FR Educacional é: Senha: {{$Senha}} e E-mail: {{$Email}}

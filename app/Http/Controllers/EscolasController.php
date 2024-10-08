@@ -117,7 +117,6 @@ class EscolasController extends Controller
             $esc['Telefone'] = preg_replace('/\D/', '', $request->Telefone);
             if($request->id){
                 $Escola = Escola::find($request->id);
-                $Escola->update($esc);
                 if($request->file('Foto')){
                     Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_escolas/escola_'. $request->id . '/' . $request->oldFoto);
                     $Foto = $request->file('Foto')->getClientOriginalName();
@@ -126,6 +125,7 @@ class EscolasController extends Controller
                     $Foto = '';
                 }
                 $esc['Foto'] = $Foto;
+                $Escola->update($esc);
                 $rout = 'Escolas/Edit';
                 $aid = $request->id;
             }else{
@@ -134,13 +134,14 @@ class EscolasController extends Controller
                     $esc['Foto'] = $Foto;
                 }
                 $IDEscola = Escola::create($esc);
-                $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_escolas/escola_'.$IDEscola,$Foto,'public');
+                $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_escolas/escola_'.$IDEscola->id,$Foto,'public');
                 $rout = 'Escolas/Novo';
             }
             $status = 'success';
             $mensagem = 'Salvamento Feito com Sucesso';
         }catch(\Throwable $th){
             $status = 'error';
+            $rout = 'Escolas/Novo';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
@@ -445,8 +446,9 @@ class EscolasController extends Controller
 
         $idorg = Auth::user()->id_org;
 
-        if(Auth::user()->tipo == 5){
-            $AND = ' AND t.id IN('.implode(',',self::getFichaProfessor(Auth::user()->id,'Turmas')).')';
+        if(Auth::user()->tipo == 6){
+            $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY')).')';
+            //dd(ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY'));
         }elseif(Auth::user()->tipo == 4){
             $AND = ' AND t.IDEscola = '.self::getEscolaDiretor(Auth::user()->id);
         }else{

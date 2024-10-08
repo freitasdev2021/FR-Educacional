@@ -200,7 +200,9 @@ class TurmasController extends Controller
                 GROUP BY d.id 
             SQL;
             $queryBoletim = DB::select($SQL)[0];
+            $queryAluno = DB::select("SELECT m.Nome as Aluno,t.Nome as Turma,e.Nome as Escola FROM alunos a INNER JOIN matriculas m ON(m.id = a.IDMatricula) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(t.IDEscola = e.id) WHERE a.id = $a")[0];
             array_push($boletins,array("Disciplina" => $queryBoletim->Disciplina,
+                "DadosAluno" => $queryAluno,
                 "Rec1B"=> $queryBoletim->Rec1B,
                 "Rec2B"=> $queryBoletim->Rec2B,
                 "Rec3B"=> $queryBoletim->Rec3B,
@@ -238,11 +240,11 @@ class TurmasController extends Controller
             //CABECALHO DO BOLETIM
             $pdf->SetFont('Arial', 'B', 12);
             $pdf->Ln(3);
-            $pdf->Cell(66, 7, mb_convert_encoding("Escola", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-            $pdf->Cell(66, 7, mb_convert_encoding("Turma", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-            $pdf->Cell(66, 7, mb_convert_encoding("Ano Letivo", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            $pdf->Cell(66, 7, mb_convert_encoding("Escola: " . $row['DadosAluno']->Escola, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            $pdf->Cell(66, 7, mb_convert_encoding("Turma: " . $row['DadosAluno']->Turma, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            $pdf->Cell(66, 7, mb_convert_encoding("Ano Letivo: ". date('Y'), 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
             $pdf->Ln();
-            $pdf->Cell(198, 7, mb_convert_encoding("Aluno:", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            $pdf->Cell(198, 7, mb_convert_encoding("Aluno: " . $row['DadosAluno']->Aluno , 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
             $pdf->Ln();
             //ETAPAS
             $pdf->SetFont('Arial', 'B', 10);
@@ -267,17 +269,17 @@ class TurmasController extends Controller
             $pdf->SetFont('Arial', '', 10);
             $pdf->Cell(30, 7, mb_convert_encoding($row['Disciplina'],'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
             $pdf->Cell(21, 7, $row['Nota1B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas1B'], 1, 0, 'C');
+            $pdf->Cell(21, 7, $row['Faltas1B']/4, 1, 0, 'C');
             $pdf->Cell(21, 7, $row['Nota2B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas2B'], 1, 0, 'C');
+            $pdf->Cell(21, 7, $row['Faltas2B']/4, 1, 0, 'C');
             $pdf->Cell(21, 7, $row['Nota3B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas3B'], 1, 0, 'C');
+            $pdf->Cell(21, 7, $row['Faltas3B']/4, 1, 0, 'C');
             $pdf->Cell(21, 7, $row['Nota4B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas4B'], 1, 1, 'C');
+            $pdf->Cell(21, 7, $row['Faltas4B']/4, 1, 1, 'C');
             //RODAPÉ
             $pdf->Ln(1);
             $pdf->Cell(0, 10, 'Assinatura do Professor(a): _______________________', 0, 1, 'L');
-            $pdf->Cell(0, 10, 'Assinatura da Família: ____________________________', 0, 1, 'L');
+            $pdf->Cell(0, 10, self::utfConvert('Assinatura da Família: ____________________________'), 0, 1, 'L');
             $pdf->Ln(1);
             //CONTADOR DE BOLETINS
             $boletimCount++;

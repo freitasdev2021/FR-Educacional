@@ -83,24 +83,27 @@ class DiretoresController extends Controller
                 $rout = 'Diretores/Edit';
                 $aid = $request->id;
                 if($request->credenciais){
+                    $rnd = rand(100000,999999);
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
                     $Usuario = User::where('IDProfissional',$request->id)->where('id_org',Auth::user()->id_org);
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
                         'tipo' => 4,
-                        'password' => Hash::make(rand(100000,999999))
+                        'password' => Hash::make($rnd)
                     ]);
                 }else{
                     $mensagem = 'Salvamento Feito com Sucesso!';
                 }
             }else{
                 $dirId = Diretor::create($dir);
+                $rnd = rand(100000,999999);
+                SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
                 User::create([
                     'name' => $request->Nome,
                     'email' => $request->Email,
                     'tipo' => 4,
-                    'password' => Hash::make(rand(100000,999999)),
+                    'password' => Hash::make($rnd),
                     'IDProfissional' => $dirId->id,
                     'id_org' => Auth::user()->id_org
                 ]);
@@ -110,6 +113,7 @@ class DiretoresController extends Controller
             $status = 'success';
         }catch(\Throwable $th){
             $status = 'error';
+            $rout = 'Diretores/Novo';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);

@@ -47,7 +47,7 @@
                     background-color: #f2f2f2;
                 }
             </style>
-            <table>
+            {{-- <table>
                 <tr>
                     <th>Nome</th>
                     <td>João da Silva</td>
@@ -60,7 +60,7 @@
                     <th>Data de Nascimento</th>
                     <td>15/03/2005</td>
                 </tr>
-            </table>
+            </table> --}}
             <table>
                 @switch($Periodo)
                     @case('Bimestral')

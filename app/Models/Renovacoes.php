@@ -12,8 +12,7 @@ class Renovacoes extends Model
     protected $fillable = [
         'IDAluno',
         'Aprovado',
-        'ANO',
-        'Vencimento'
+        'ANO'
     ];
 
     public function aluno()

@@ -31,6 +31,7 @@
                 </div>
                 @foreach($Ficha as $fKey => $f)
                 <br>
+                @if(!empty($f->Conteudo))
                     @if(count($f->Conteudos) > 0)
                         <div class="col-sm-12">
                             <label>{{$f->Conteudo}}</label>
@@ -46,6 +47,7 @@
                             <input type="text" name="{{$fKey}}" class="form-control">
                         </div>
                     @endif
+                @endif
                 @endforeach
                 <br>
                 <div>

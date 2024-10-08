@@ -60,12 +60,13 @@ class OcorrenciasController extends Controller
         try{
             $data = $request->all();
             $data['IDEmissor'] = Auth::user()->id;
-            $data['IDEscola'] = DB::select("SELECT IDEscola FROM turmas t INNER JOIN alunos a ON(a.IDTurma = t.id) WHERE a.id = $request->IDAlvo");
+            $data['IDEscola'] = DB::select("SELECT IDEscola FROM turmas t INNER JOIN alunos a ON(a.IDTurma = t.id) WHERE a.id = $request->IDAlvo")[0]->IDEscola;
             if($request->id){
                 Ocorrencia::find($request->id)->update($data);
                 $mensagem = "Ocorrencia Editada com Sucesso!";
                 $aid = $request->id;
             }else{
+                //dd($data);
                 Ocorrencia::create($data);
                 $mensagem = "Ocorrencia cadastrada com Sucesso!";
                 $aid = '';

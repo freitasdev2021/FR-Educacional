@@ -171,10 +171,6 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-2">
-                            <label>Vencimento da Matrícula</label>
-                            <input type="date" name="Vencimento" class="form-control" value="{{isset($Registro->Vencimento) ? $Registro->Vencimento : ''}}" required>
-                        </div>
-                        <div class="col-sm-2">
                             <label>Tem Alergia?</label>
                             <select class="form-control" name="Alergia">
                                 <option value="1" {{isset($Registro->Alergia) && $Registro->Alergia == '1' ? 'selected' : ''}}>Sim</option>
@@ -202,7 +198,7 @@
                                 <option value="0" {{isset($Registro->Quilombola) && $Registro->Quilombola == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                             <label>ensino religioso, Direito de uso de Imagens e educação física</label>
                             <select class="form-control" name="Autorizacao">
                                 <option value="1" {{isset($Registro->Autorizacao) && $Registro->Autorizacao == '1' ? 'selected' : ''}}>Sim</option>
@@ -351,25 +347,21 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-3">
-                            <label>Vencimento da Matrícula</label>
-                            <input type="date" name="Vencimento" class="form-control" value="{{isset($Registro->Vencimento) ? $Registro->Vencimento : ''}}" disabled>
-                        </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label>Tem Alergia?</label>
                             <select class="form-control" name="Alergia" disabled>
                                 <option value="1" {{isset($Registro->Alergia) && $Registro->Alergia == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Alergia) && $Registro->Alergia == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label>Utiliza Transporte Escolar?</label>
                             <select class="form-control" name="Transporte" disabled>
                                 <option value="1" {{isset($Registro->Transporte) && $Registro->Transporte == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Transporte) && $Registro->Transporte == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label>Recebe Bolsa Família?</label>
                             <select class="form-control" name="BolsaFamilia" disabled>
                                 <option value="1" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '1' ? 'selected' : ''}}>Sim</option>

@@ -44,10 +44,11 @@ class FichaController extends Controller
         );
 
         if($id){
+            $rsp = Resposta::all()->where('IDForm',$id)->first();
             $view['id'] = $id;
             $view['Registro'] = Ficha::find($id);
             $view['submodulos'] = self::cadastroSubmodulos;
-            $view['Formulario'] = json_decode($view['Registro']->Formulario);
+            $view['Formulario'] = json_decode($rsp);
         }
 
         return view('Fichas.cadastro', $view);
@@ -56,11 +57,11 @@ class FichaController extends Controller
     public function respostas($id){
         // Consulta SQL para obter registros de respostas
         // Consulta SQL para obter registros de respostas
-        $Registro = DB::select("SELECT f.Formulario FROM ficha_avaliativa f WHERE f.id = $id")[0];
+        $Registro = DB::select("SELECT r.Respostas FROM respostas_ficha r WHERE r.IDFicha = $id")[0];
 
         return view('Fichas.respostas',array(
             "submodulos" => self::cadastroSubmodulos,
-            "respostas" => json_decode($Registro->Formulario),
+            "respostas" => json_decode($Registro->Respostas),
             "id" => $id
         ));
     }
@@ -87,7 +88,7 @@ class FichaController extends Controller
         if (count($registros) > 0) {
             $primeiroRegistro = json_decode($registros[0]->Respostas, true);
             foreach ($primeiroRegistro as $r) {
-                $sheet->setCellValue($colIndex . '1', $r['Resposta']);
+                $sheet->setCellValue($colIndex . '1', $r['Conteudo']);
                 $colIndex++;
             }
         }
@@ -176,24 +177,34 @@ class FichaController extends Controller
     public function responder(Request $request){
         try{
             $respostas = $request->all();
-            $Form = json_decode(Ficha::find($respostas['IDFicha'])->Ficha,true);
+            $Form = json_decode(Ficha::find($respostas['IDFicha'])->Formulario,true);
+            
             $respondidas = [];
             unset($respostas['_token']);
             unset($respostas['IDFicha']);
             foreach($respostas as $rKey =>$rVal){
                 $Form[$rKey]['Resposta'] = $rVal;
             }
+            
             foreach($Form as $f){
-                array_push($respondidas,$f);
+                if(!empty($f['Conteudo'])){
+                    array_push($respondidas,$f);
+                }
             }
-            $Respostas = json_encode($respondidas);
+            
+            $Rsp = array_map(function($ar){
+                if(!is_null($ar)){
+                    return $ar;
+                }
+            },$respondidas);
+            
             Resposta::create(array(
-                "Respostas" => $Respostas,
+                "Respostas" => json_encode($Rsp),
                 "IDFicha" => $request->IDFicha,
                 "IDAluno" => $request->IDAluno
             ));
             $rota = 'Fichas/Visualizar';
-            $mensagem = "Sua Resposta foi Enviada por Email";
+            $mensagem = "Ficha Respondida!";
             $aid = $request->IDFicha;
             $status = 'success';
         }catch(\Throwable $th){
@@ -207,22 +218,26 @@ class FichaController extends Controller
     }
 
     public function save(Request $request){
-        $data = $request->all();
-        $arrayFormParsed = [];
-        $arrayForm = array_map(function($a){
-            if(!empty($a['Conteudo'])){
-                return $a;
-            }
-        },json_decode($data['Formulario'],true));
-
-        foreach($arrayForm as $af){
-            if(!is_null($af)){
-                array_push($arrayFormParsed,$af);
-            }
-        }
-        $data['Formulario'] = json_encode($arrayFormParsed);
         try{
+            $data = $request->all();
+            $arrayFormParsed = [];
+            
+            $arrayForm = array_map(function($a){
+                if(!empty($a['Conteudo'])){
+                    return $a;
+                }
+            },json_decode($data['Formulario'],true));
+            
+            foreach($arrayForm as $af){
+                if(!is_null($af)){
+                    array_push($arrayFormParsed,$af);
+                }
+            }
+            
+            $data['Ficha'] = json_encode($arrayFormParsed);
+            
             if(!$request->id){
+                //MailController::send($request->email,'Confirmação - Organizador','Mail.cadastroorganizador',array('Senha'=> $RandPW,'Email'=> $request->email));
                 Ficha::create($data);
             }else{
                 Ficha::find($request->id)->update($data);

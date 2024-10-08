@@ -7,6 +7,7 @@ use App\Models\Organizacao;
 use App\Models\User;
 use App\Http\Requests\secretariasRequest;
 use App\Http\Requests\AdministradoresRequest;
+use App\Http\Controllers\SMTPController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -142,7 +143,10 @@ class SecretariasController extends Controller
                 $rout = 'Secretarias/Administradores/Edit';
                 $aid = $request->id;
             }else{
-                $adm['password'] = Hash::make(rand(100000,999999));
+                $rnd = rand(100000,999999);
+                $adm['password'] = Hash::make($rnd);
+                SMTPController::send($adm['email'],"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$adm['email']));
+                //dd("Enviou");
                 User::create($adm);
                 $rout = 'Secretarias/Administradores/Novo';
             }
@@ -150,6 +154,7 @@ class SecretariasController extends Controller
             $mensagem = 'Salvamento Feito com Sucesso';
         }catch(\Throwable $th){
             $status = 'error';
+            $rout = 'Secretarias/Administradores/Novo';
             $mensagem = "Erro ao Salvar o Administrador: ".$th;
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);

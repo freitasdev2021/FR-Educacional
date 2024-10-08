@@ -219,7 +219,6 @@ class AlunosController extends Controller
             t.Serie as Serie,
             t.id as IDTurma,
             m.Nascimento as Nascimento,
-            r.Vencimento as Vencimento,
             a.STAluno,
             m.Foto,
             m.Email,
@@ -667,30 +666,34 @@ class AlunosController extends Controller
                 END) as Frequencia_{$ano}
             ";
         }
+        
         $selectYears = rtrim($selectYears, ', ');
-
+        if(!empty($selectYears)){
+            $historico = DB::select("
+                SELECT 
+                    d.NMDisciplina as Disciplina,
+                    {$selectYears}
+                FROM 
+                    disciplinas d
+                INNER JOIN 
+                    aulas au ON(d.id = au.IDDisciplina)
+                INNER JOIN 
+                    frequencia f ON(au.id = f.IDAula)
+                INNER JOIN 
+                    alunos a ON(a.id = f.IDAluno)
+                INNER JOIN 
+                    atividades at ON(at.IDAula = au.id)
+                INNER JOIN 
+                    notas n ON(at.id = n.IDAtividade)
+                WHERE 
+                    a.id = :aluno_id
+                GROUP BY 
+                    d.id;
+            ", ['aluno_id' => $id]);
+        }else{
+            $historico = [];
+        }
         // Consulta SQL dinâmica
-        $historico = DB::select("
-            SELECT 
-                d.NMDisciplina as Disciplina,
-                {$selectYears}
-            FROM 
-                disciplinas d
-            INNER JOIN 
-                aulas au ON(d.id = au.IDDisciplina)
-            INNER JOIN 
-                frequencia f ON(au.id = f.IDAula)
-            INNER JOIN 
-                alunos a ON(a.id = f.IDAluno)
-            INNER JOIN 
-                atividades at ON(at.IDAula = au.id)
-            INNER JOIN 
-                notas n ON(at.id = n.IDAtividade)
-            WHERE 
-                a.id = :aluno_id
-            GROUP BY 
-                d.id;
-        ", ['aluno_id' => $id]);
 
         
         if(self::getDados()['tipo'] == 6){
@@ -872,11 +875,9 @@ class AlunosController extends Controller
         INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina)
         INNER JOIN escolas e ON(e.id = ad.IDDisciplina)
         WHERE e.IDOrg = $IDOrg GROUP BY d.id"));
-
         return view('Alunos.atividades',[
             'submodulos' => $submodulos,
             'id' => $id,
-            'IDEscola' => self::getEscolaDiretor(Auth::user()->id),
             'Disciplinas' => (Auth::user()->tipo == 6) ? self::getFichaProfessor(Auth::user()->id,'Disciplinas') : json_decode($Disciplinas,true),
             "Estagios" => $Estagios
         ]);
@@ -1078,7 +1079,6 @@ class AlunosController extends Controller
                 e.Nome as Escola,
                 t.Serie as Serie,
                 m.Nascimento as Nascimento,
-                r.Vencimento as Vencimento,
                 a.STAluno,
                 m.Foto,
                 m.Email,
@@ -1426,7 +1426,7 @@ class AlunosController extends Controller
 
     public function renovar(Request $request){
         try{
-            DB::update("UPDATE renovacoes SET ANO = ANO + 1,Vencimento = DATE_ADD(Vencimento,INTERVAL 1 YEAR) WHERE IDAluno = '$request->IDAluno'");
+            DB::update("UPDATE renovacoes SET ANO = ANO + 1 WHERE IDAluno = '$request->IDAluno'");
             $rout = 'Alunos/Edit';
             $aid = $request->IDAluno;
             $status = 'success';
@@ -1603,12 +1603,6 @@ class AlunosController extends Controller
             $AND = " AND e.id IN($IDEscolas)";
         }
 
-        if(Auth::user()->tipo == 6){
-            $AND .= " AND t.IDEscola IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
-        }else{
-            $AND .=' ';
-        }
-
         if(isset($_GET['Status']) && !empty($_GET['Status'])){
             $AND .= " AND a.STAluno=".$_GET['Status'];
         }
@@ -1624,7 +1618,6 @@ class AlunosController extends Controller
             e.Nome as Escola,
             t.Serie as Serie,
             m.Nascimento as Nascimento,
-            MAX(r.Vencimento) as Vencimento,
             a.STAluno,
             m.Foto,
             m.Email,
@@ -1642,9 +1635,9 @@ class AlunosController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
-        WHERE o.id = $idorg $AND GROUP BY a.id    
+        WHERE o.id = $idorg $AND GROUP BY a.id 
         ";
-        //dd($SQL);
+        
         $registros = DB::select($SQL);
         if(count($registros) > 0){
             foreach($registros as $r){
@@ -1684,7 +1677,6 @@ class AlunosController extends Controller
                 (Auth::user()->tipo == 2) ? $item[] = $r->Escola : '';
                 $item[] = $r->Serie;
                 $item[] = Controller::data($r->Nascimento,'d/m/Y');
-                $item[] = Controller::data($r->Vencimento,'d/m/Y');
                 $item[] = $Vencimento->lt($Hoje) && $r->ANO <= date('Y') ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";
                 $item[] = $Situacao;
                 $item[] = " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>";

@@ -79,7 +79,7 @@ class SalasController extends Controller
             $registros = Sala::select('NMSala','TMSala','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
         }elseif(Auth::user()->tipo == 5){
             $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional))->get();
-        }elseif(Auth::user()->tipo == 5){
+        }elseif(Auth::user()->tipo == 6){
             $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
         }
         

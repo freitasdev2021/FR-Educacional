@@ -29,15 +29,15 @@ class AuxiliaresController extends Controller
     public function getAuxiliares(){
         switch(Auth::user()->tipo){
             case 2:
-                $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
+                $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->IDProfissional));
                 $WHERE = "WHERE e.id IN('".$IDEscolas."')";
             break;
             case 4:
-                $IDEscolas = implode(',',EscolasController::getEscolaDiretor(Auth::user()->id_org));
+                $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
                 $WHERE = "WHERE e.id IN('".$IDEscolas."')";
             break;
             case 5:
-                $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->id_org));
+                $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
                 $WHERE = "WHERE e.id IN('".$IDEscolas."')";
             break;
         }

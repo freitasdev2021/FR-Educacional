@@ -202,6 +202,8 @@
                     'X-CSRF-TOKEN' : '{{csrf_token()}}'
                 }
             }).done(function(resp){
+                // console.log(resp)
+                // return false
                 r = JSON.parse(resp)
                 if(r.status == 'error'){
                     alert("Houve um erro: "+r.mensagem)
