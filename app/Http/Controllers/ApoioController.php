@@ -154,7 +154,7 @@ class ApoioController extends Controller
             INNER JOIN turmas t ON(t.id = a.IDTurma)
             WHERE t.IDEscola IN($IDEscolas)
             SQL;
-        }elseif(Auth::user()->tipo == 6){
+        }elseif(in_array(Auth::user()->tipo,[2,6])){
             $SQL = <<<SQL
             SELECT 
                 m.Nome as Aluno,

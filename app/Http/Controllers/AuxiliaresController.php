@@ -29,7 +29,7 @@ class AuxiliaresController extends Controller
     public function getAuxiliares(){
         switch(Auth::user()->tipo){
             case 2:
-                $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->IDProfissional));
+                $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
                 $WHERE = "WHERE e.id IN('".$IDEscolas."')";
             break;
             case 4:

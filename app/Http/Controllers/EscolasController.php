@@ -66,7 +66,7 @@ class EscolasController extends Controller
     }
 
     public function getEscolas(){
-        if(Escola::count() > 0){
+        if(Escola::where('IDOrg',Auth::user()->id_org)->count() > 0){
             foreach(Escola::all()->where('IDOrg',Auth::user()->id_org) as $e){
                 $item = [];
                 $item[] = $e->Nome;
