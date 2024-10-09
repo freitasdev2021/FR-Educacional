@@ -53,7 +53,7 @@ class AuxiliaresController extends Controller
                 a.Cidade,
                 a.Bairro,
                 a.Numero 
-            FROM Auxiliares a 
+            FROM auxiliares a 
             INNER JOIN escolas e ON(a.IDEscola = e.id) 
             INNER JOIN organizacoes o ON(e.IDOrg = o.id) 
             $WHERE
