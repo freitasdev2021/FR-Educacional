@@ -40,7 +40,7 @@ class submodulo extends Component
             $active = "active-submodulo";
         }
 
-        return view('components.submodulo',[
+        return view('components.Submodulo',[
             "active" => $active
         ]);
     }
