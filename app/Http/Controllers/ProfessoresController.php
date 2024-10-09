@@ -132,7 +132,7 @@ class ProfessoresController extends Controller
             p.Cidade,
             p.Bairro,
             p.Numero
-        FROM Professores p
+        FROM professores p
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
@@ -314,7 +314,7 @@ class ProfessoresController extends Controller
                 p.*,
                 u.STAcesso,
                 u.id as IDUser
-            FROM Professores p
+            FROM professores p
             LEFT JOIN alocacoes a ON(a.IDProfissional = p.id)
             LEFT JOIN escolas e ON(e.id = a.IDEscola)
             INNER JOIN organizacoes o ON(e.IDOrg = o.id)
