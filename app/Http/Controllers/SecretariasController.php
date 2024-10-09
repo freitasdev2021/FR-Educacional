@@ -101,7 +101,7 @@ class SecretariasController extends Controller
 
     }
 
-    public function save(SecretariasRequest $request){
+    public function save(Request $request){
         try{
             $org = $request->all();
             $org['Endereco'] = json_encode(array(
