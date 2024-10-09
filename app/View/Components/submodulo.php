@@ -43,5 +43,6 @@ class submodulo extends Component
         return view('components.Submodulo',[
             "active" => $active
         ]);
+        
     }
 }
