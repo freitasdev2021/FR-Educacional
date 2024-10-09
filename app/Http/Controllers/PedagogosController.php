@@ -49,7 +49,7 @@ class PedagogosController extends Controller
             p.Cidade,
             p.Bairro,
             p.Numero
-        FROM Pedagogos p
+        FROM pedagogos p
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
@@ -114,7 +114,7 @@ class PedagogosController extends Controller
             $SQL = <<<SQL
             SELECT 
                 p.*
-            FROM Pedagogos p
+            FROM pedagogos p
             LEFT JOIN alocacoes a ON(a.IDProfissional = p.id)
             LEFT JOIN escolas e ON(e.id = a.IDEscola)
             INNER JOIN organizacoes o ON(e.IDOrg = o.id)
