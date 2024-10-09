@@ -132,6 +132,7 @@ class SecretariasController extends Controller
         }
     }
 
+    
     public function saveAdm(AdministradoresRequest $request){
         try{
             $adm = $request->all();
