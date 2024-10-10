@@ -49,7 +49,7 @@ class EscolasController extends Controller
     ]);
 
     public function relatorios(){
-        return view('escolas.relatorios',[
+        return view('Escolas.relatorios',[
             "submodulos" => self::submodulos
         ]);
     }
