@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Auxiliar;
 use App\Models\Escola;
 use App\Http\Controllers\PedagogosController;
-use App\Http\Controllers\EscolasController;
+use App\Http\Controllers\SMTPController;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -25,20 +25,28 @@ class AuxiliaresController extends Controller
         ]);
     }
 
+    public static function getEscolaAdm($IDUser){
+        return Auxiliar::select('IDEscola')->where('IDUser',$IDUser)->first()->IDEscola;
+    }
+
 
     public function getAuxiliares(){
         switch(Auth::user()->tipo){
             case 2:
                 $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
-                $WHERE = "WHERE e.id IN('".$IDEscolas."')";
+                $WHERE = "WHERE u.id_org=".Auth::user()->id_org;
+            break;
+            case 2.5:
+                $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
+                $WHERE = "WHERE u.id_org=".Auth::user()->id_org;
             break;
             case 4:
                 $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
                 $WHERE = "WHERE e.id IN('".$IDEscolas."')";
             break;
-            case 5:
-                $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-                $WHERE = "WHERE e.id IN('".$IDEscolas."')";
+            case 4.5:
+                $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+                $WHERE = 'WHERE e.id='.$IDEscola;
             break;
         }
         $Auxiliares = DB::select("SELECT 
@@ -53,11 +61,13 @@ class AuxiliaresController extends Controller
                 a.Cidade,
                 a.Bairro,
                 a.Numero 
-            FROM auxiliares a 
-            INNER JOIN escolas e ON(a.IDEscola = e.id) 
-            INNER JOIN organizacoes o ON(e.IDOrg = o.id) 
-            $WHERE
+            FROM auxiliares a
+            LEFT JOIN users u ON(u.IDProfissional = a.id) 
+            LEFT JOIN escolas e ON(a.IDEscola = e.id) 
+            LEFT JOIN organizacoes o ON(e.IDOrg = o.id) 
+            $WHERE GROUP BY a.id
             ");
+
         if(count($Auxiliares) > 0){
             foreach($Auxiliares as $d){
                 $item = [];
@@ -112,29 +122,35 @@ class AuxiliaresController extends Controller
                 $userTipo = User::find($request->IDUser);
                 $userTipo->update(array("tipo"=>$request->Tipo));
                 if($request->credenciais){
+                    $rnd = rand(100000,999999);
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
                     $Usuario = User::find($request->IDUser);
+                    SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
                     //dd($Usuario->toArray());
                     $Usuario->update([
                         'name' => $request->Nome,
                         'email' => $request->Email,
                         'tipo' => $request->Tipo,
-                        'password' => Hash::make(rand(100000,999999))
+                        'password' => Hash::make($rnd)
                     ]);
                     //dd("aqui");
                 }else{
                     $mensagem = 'Salvamento Feito com Sucesso!';
                 }
             }else{
-                $dirId = Auxiliar::create($dir);
-                User::create([
+                $rnd = rand(100000,999999);
+                SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
+                $auxId = Auxiliar::create($dir);
+                $usId = User::create([
                     'name' => $request->Nome,
                     'email' => $request->Email,
                     'tipo' => $dir['Tipo'],
-                    'password' => Hash::make(rand(100000,999999)),
-                    'IDProfissional' => $dirId->id,
+                    'password' => Hash::make($rnd),
+                    'IDProfissional' => $auxId->id,
                     'id_org' => Auth::user()->id_org
                 ]);
+
+                Auxiliar::find($auxId->id)->update(["IDUser"=>$usId->id]);
                 $rout = 'Auxiliares/Novo';
                 $mensagem = 'Salvamento Feito com Sucesso! as Credenciais de Login foram Enviadas no Email Cadastrado';
             }

@@ -269,7 +269,7 @@ class CalendarioController extends Controller
         if(count($feriasAlunos) > 0){
             foreach($feriasAlunos as $fa){
                 $item = [];
-                (Auth::user()->tipo == 2) ? $item[] = $fa->Escola : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fa->Escola : '';
                 $item[] = Controller::data($fa->Inicio,'d/m/Y');
                 $item[] = Controller::data($fa->Termino,'d/m/Y');
                 (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/FeriasAlunos/Edit',$fa->IDFerias)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
@@ -310,7 +310,7 @@ class CalendarioController extends Controller
         if(count($feriasProfissionais) > 0){
             foreach($feriasProfissionais as $fp){
                 $item = [];
-                (Auth::user()->tipo == 2) ? $item[] = $fp->Escola : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fp->Escola : '';
                 $item[] = $fp->Professor;
                 $item[] = Controller::data($fp->Inicio,'d/m/Y');
                 $item[] = Controller::data($fp->Termino,'d/m/Y');
@@ -402,7 +402,7 @@ class CalendarioController extends Controller
         if(count($sabados) > 0){
             foreach($sabados as $s){
                 $item = [];
-                (Auth::user()->tipo == 2) ? $item[] = $s->Escola : '' ;
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $s->Escola : '' ;
                 $item[] = Controller::data($s->Sabado,'d/m/Y');
                 (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Sabados/Edit',$s->IDSabado)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;

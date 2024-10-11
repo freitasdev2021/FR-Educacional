@@ -7,7 +7,7 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
-            @if(Auth::user()->tipo == 2)
+            @if(in_array(Auth::user()->tipo,[2,2.5]))
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
                     <a href="{{route('Pedagogos/Novo')}}" class="btn btn-fr">Adicionar</a>
@@ -23,7 +23,7 @@
                         <th style="text-align:center;" scope="col">Nome</th>
                         <th style="text-align:center;" scope="col">Admissão</th>
                         <th style="text-align:center;" scope="col">Contrato</th>
-                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escola</th> @endif
+                        @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th> @endif
                         <th style="text-align:center;" scope="col">Endereço</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>

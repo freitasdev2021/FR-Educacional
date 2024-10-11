@@ -25,7 +25,7 @@
                     <input type="hidden" name="id" value="{{$id}}">
                     @endif
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
-                    @if(Auth::user()->tipo == 2)
+                    @if(in_array(Auth::user()->tipo,[2,2.5]))
                     <div class="row">
                         <div class="col-sm-12">
                             <label>Escola</label>

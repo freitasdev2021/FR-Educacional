@@ -66,7 +66,7 @@ class VagasController extends Controller
     }
 
     public function getVagas(){
-        if(Auth::user()->tipo == 2){
+        if(in_array(Auth::user()->tipo,[2,2.5])){
             $IDOrg = Auth::user()->id_org;
             $SQL = <<<SQL
                 SELECT 
@@ -86,6 +86,8 @@ class VagasController extends Controller
             $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
         }elseif(Auth::user()->tipo == 4){
             $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
+        }elseif(Auth::user()->tipo == 4.5){
+            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',AuxiliaresController::getEscolaAdm(Auth::user()->id))->get();
         }
         
         if(count($registros) > 0){

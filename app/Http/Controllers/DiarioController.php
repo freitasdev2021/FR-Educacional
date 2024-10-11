@@ -50,8 +50,11 @@ class DiarioController extends Controller
             $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-        }elseif(Auth::user()->tipo == 2){
+        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
             $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
+        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
+            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            //dd($IDEscolas);
         }
 
         $WHERE = "WHERE ";
@@ -124,8 +127,11 @@ class DiarioController extends Controller
             $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-        }elseif(Auth::user()->tipo == 2){
+        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
             $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
+        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
+            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            //dd($IDEscolas);
         }
 
         $SQL = <<<SQL
@@ -163,7 +169,7 @@ class DiarioController extends Controller
                 aulas au 
             INNER JOIN professores p ON(p.id = au.IDProfessor)
             INNER JOIN turmas t ON(t.id = au.IDTurma)
-            WHERE t.IDEscola IN($IDEscolas)
+            WHERE t.IDEscola IN(1)
         SQL;
 
         return DB::select($SQL);

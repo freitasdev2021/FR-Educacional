@@ -238,6 +238,9 @@ class EscolasController extends Controller
             $IDEscola = self::getEscolaDiretor(Auth::user()->id);
             $AND = ' AND ad.IDEscola='.$IDEscola;
             //dd($AND);
+        }elseif(Auth::user()->tipo == 4.5){
+            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            $AND = ' AND a.IDEscola='.$IDEscola;
         }else{
             $AND = '';
         }
@@ -261,8 +264,8 @@ class EscolasController extends Controller
             foreach($disciplinas as $d){
                 $item = [];
                 $item[] = $d->NMDisciplina;
-                (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
-                $item[] = (Auth::user()->tipo == 2) ? "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
+                $item[] = (in_array(Auth::user()->tipo,[2,2.5])) ? "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -451,6 +454,9 @@ class EscolasController extends Controller
             //dd(ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY'));
         }elseif(Auth::user()->tipo == 4){
             $AND = ' AND t.IDEscola = '.self::getEscolaDiretor(Auth::user()->id);
+        }elseif(Auth::user()->tipo == 4.5){
+            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            $AND = ' AND t.IDEscola='.$IDEscola;
         }else{
             $AND = '';
         }
@@ -496,7 +502,7 @@ class EscolasController extends Controller
                 $item = [];
                 $item[] = $t->Turma;
                 $item[] = $t->Serie;
-                (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $t->Escola : '';
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = $t->INITurma." - ".$t->TERTurma : '';
                 $item[] = $t->QTAlunos;
                 $item[] = 200 - $t->Frequencia;
@@ -551,6 +557,17 @@ class EscolasController extends Controller
         }
 
         return $IDAlunos;
+    }
+
+    public static function getTurmasEscola(){
+        $id = Auth::user()->id;
+        $IDTurmas = [];
+        $turmas = DB::select("SELECT t.id FROM turmas t INNER JOIN auxiliares a ON(a.IDEscola = t.IDEscola) WHERE a.IDUser = $id");
+        foreach($turmas as $t){
+            array_push($IDTurmas,$t->id);
+        }
+
+        return $IDTurmas;
     }
 
     public function cadastroTurmas($id=null){

@@ -13,7 +13,7 @@
                     <a href="{{route('Alunos/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
                 @endif
-                @if((Auth::user()->tipo == 2))
+                @if((in_array(Auth::user()->tipo,[2,2.5])))
                 <div class="col-auto">
                     <select name="Status" class="form-control" >
                         <option value="">Selecione o Status</option>
@@ -66,7 +66,7 @@
                       <tr>
                         <th style="text-align:center;" scope="col">Nome</th>
                         <th style="text-align:center;" scope="col">Turma</th>
-                        @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escola</th>@endif
+                        @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th>@endif
                         <th style="text-align:center;" scope="col">Serie</th>
                         <th style="text-align:center;" scope="col">Data de Nascimento</th>
                         <th style="text-align:center;" scope="col">Matrícula</th>

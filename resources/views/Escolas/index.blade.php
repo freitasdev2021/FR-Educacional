@@ -7,7 +7,7 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
-            @if(Auth::user()->tipo == 2)
+            @if(in_array(Auth::user()->tipo,[2,2.5]))
             <hr>
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
@@ -17,7 +17,7 @@
             @endif
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
-                @if(Auth::user()->tipo == 2)
+                @if(in_array(Auth::user()->tipo,[2,2.5]))
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Escolas/list')}}">
                     <thead>
                       <tr>

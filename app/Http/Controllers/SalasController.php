@@ -65,7 +65,7 @@ class SalasController extends Controller
     }
 
     public function getSalas(){
-        if(Auth::user()->tipo == 2){
+        if(in_array(Auth::user()->tipo,[2,2.5])){
             $IDOrg = Auth::user()->id_org;
             $SQL = <<<SQL
                 SELECT 
@@ -81,6 +81,8 @@ class SalasController extends Controller
             $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional))->get();
         }elseif(Auth::user()->tipo == 6){
             $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
+        }elseif(Auth::user()->tipo == 4.5){
+            $registros = Sala::select('NMSala','TMSala','id')->where('IDEscola',AuxiliaresController::getEscolaAdm(Auth::user()->id))->get();
         }
         
         if(count($registros) > 0){

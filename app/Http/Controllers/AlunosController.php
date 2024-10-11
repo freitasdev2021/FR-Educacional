@@ -1598,9 +1598,12 @@ class AlunosController extends Controller
         }elseif(Auth::user()->tipo == 6){
             $IDEscolas = implode(",",ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
             $AND = " AND e.id IN($IDEscolas)";
-        }elseif(Auth::user()->tipo == 2){
+        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
             $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
             $AND = " AND e.id IN($IDEscolas)";
+        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
+            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
         }
 
         if(isset($_GET['Status']) && !empty($_GET['Status'])){
@@ -1674,7 +1677,7 @@ class AlunosController extends Controller
                 $item = [];
                 $item[] = $r->Nome." ".$transferido;
                 $item[] = $r->Turma;
-                (Auth::user()->tipo == 2) ? $item[] = $r->Escola : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $r->Escola : '';
                 $item[] = $r->Serie;
                 $item[] = Controller::data($r->Nascimento,'d/m/Y');
                 $item[] = $Vencimento->lt($Hoje) && $r->ANO <= date('Y') ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";

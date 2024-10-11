@@ -31,6 +31,9 @@ class PedagogosController extends Controller
             $IDEscola = self::getEscolaDiretor(Auth::user()->id);
             $AND = ' AND a.IDEscola='.$IDEscola;
             //dd($AND);
+        }elseif(Auth::user()->tipo == 4.5){
+            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            $AND = ' AND a.IDEscola='.$IDEscola;
         }else{
             $AND = '';
         }
@@ -65,7 +68,7 @@ class PedagogosController extends Controller
                 $item[] = $d->Pedagogo;
                 $item[] = Controller::data($d->Admissao,'d/m/Y');
                 $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
-                (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
                 $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
                 $item[] = "<a href='".route('Pedagogos/Edit',1)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;

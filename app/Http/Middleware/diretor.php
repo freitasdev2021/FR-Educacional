@@ -17,7 +17,7 @@ class diretor
     public function handle(Request $request, Closure $next): Response
     {
 
-        if (Auth::user()->tipo > 4) {
+        if (Auth::user()->tipo > 4 && Auth::user()->tipo > 4.5) {
             return redirect()->route('dashboard');
         }
 

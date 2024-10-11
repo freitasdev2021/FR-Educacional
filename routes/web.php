@@ -196,10 +196,10 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //DISCIPLINAS
         Route::get('/Escolas/Disciplinas/list',[EscolasController::class,'getDisciplinas'])->name('Escolas/Disciplinas/list');
         Route::get('/Escolas/Disciplinas',[EscolasController::class,'Disciplinas'])->name('Escolas/Disciplinas');
-        Route::get('/Escolas/Disciplinas/Novo',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Novo')->middleware(['secretario']);
-        Route::get('/Escolas/Disciplinas/Edit/{id}',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Cadastro')->middleware(['secretario']);
-        Route::post('/Escolas/Disciplinas/Save',[EscolasController::class,'saveDisciplinas'])->name('Escolas/Disciplinas/Save')->middleware(['secretario']);
-        Route::get('/Escolas/Disciplinas/Get/{IDEscola}',[EscolasController::class,'getDisciplinasEscola'])->name('Escolas/Disciplinas/Get')->middleware(['secretario']);
+        Route::get('/Escolas/Disciplinas/Novo',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Novo');
+        Route::get('/Escolas/Disciplinas/Edit/{id}',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Cadastro');
+        Route::post('/Escolas/Disciplinas/Save',[EscolasController::class,'saveDisciplinas'])->name('Escolas/Disciplinas/Save');
+        Route::get('/Escolas/Disciplinas/Get/{IDEscola}',[EscolasController::class,'getDisciplinasEscola'])->name('Escolas/Disciplinas/Get');
         Route::post('/Escolas/Anosletivos/Save',[EscolasController::class,'saveAnosLetivos'])->name('Escolas/Anosletivos/Save');
         //TURMAS
         Route::get('/Escolas/Turmas/Novo',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Novo');

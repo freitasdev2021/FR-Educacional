@@ -22,7 +22,7 @@
              <input type="hidden" value="{{$Registro->IDFerias}}" name="id">
              @endif
              <div class="col-sm-12 p-2">
-               @if(Auth::user()->tipo == 2)
+               @if(in_array(Auth::user()->tipo,[2,2.5]))
                 <div class="col-sm-12">
                    <label>Escola</label>
                    <select class="form-control" name="IDEscola" required>

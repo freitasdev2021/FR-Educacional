@@ -16,7 +16,7 @@ class secretarioDiretor
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!in_array(Auth::user()->tipo,[2,4])) {
+        if (!in_array(Auth::user()->tipo,[2,4,4.5,2.5])) {
             return redirect()->route('dashboard');
         }
         return $next($request);

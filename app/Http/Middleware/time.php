@@ -16,7 +16,7 @@ class time
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!in_array(Auth::user()->tipo,[2,4,3,6,5])) {
+        if (!in_array(Auth::user()->tipo,[2,4,2.5,4.5,5.5,6,5])) {
             return redirect()->route('dashboard');
         }
 

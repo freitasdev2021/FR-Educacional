@@ -334,11 +334,15 @@ class PlanejamentosController extends Controller
 
     public function getPlanejamentos(){
         $arrTurmasT = [];
-        foreach(EscolasController::getDisciplinasProfessor(Auth::user()->id) as $gt){
-            array_push($arrTurmasT,$gt->IDDisciplina);
+        if(Auth::user()->tipo == 6){
+            foreach(EscolasController::getDisciplinasProfessor(Auth::user()->id) as $gt){
+                array_push($arrTurmasT,$gt->IDDisciplina);
+            }
+            $turmas = implode(",",$arrTurmasT);
+        }else{
+            $turmas  = implode(",",EscolasController::getTurmasEscola());
         }
-        $turmas = implode(",",$arrTurmasT);
-        //dd($turmas);
+        
         $orgId = Auth::user()->id_org;
         $SQL = <<<SQL
          SELECT 

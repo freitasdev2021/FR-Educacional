@@ -20,7 +20,7 @@
            <table class="table table-sm tabela" id="escolas" data-rota="{{route('Calendario/Paralizacoes/list')}}">
              <thead>
                <tr>
-                  @if(Auth::user()->tipo == 2)<th style="text-align:center;" scope="col">Escola</th>@endif
+                  @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th>@endif
                  <th style="text-align:center;" scope="col">Motivo</th>
                  <th style="text-align:center;" scope="col">Inicio</th>
                  <th style="text-align:center;" scope="col">Término</th>

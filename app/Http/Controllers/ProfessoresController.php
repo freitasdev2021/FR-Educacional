@@ -51,8 +51,10 @@ class ProfessoresController extends Controller
             $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
         }elseif(Auth::user()->tipo == 5){
             $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-        }elseif(Auth::user()->tipo == 2){
+        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
             $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
+        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
+            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
         }
 
         $Escolas = array();
@@ -114,6 +116,9 @@ class ProfessoresController extends Controller
             $IDEscola = self::getEscolaDiretor(Auth::user()->id);
             $AND = ' AND a.IDEscola='.$IDEscola;
             //dd($IDEscola);
+        }elseif(Auth::user()->tipo == 4.5){
+            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
+            $AND = ' AND a.IDEscola='.$IDEscola;
         }else{
             $AND = '';
         }
@@ -148,7 +153,7 @@ class ProfessoresController extends Controller
                 $item[] = $d->Professor;
                 $item[] = Controller::data($d->Admissao,'d/m/Y');
                 $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
-                (Auth::user()->tipo == 2) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
                 $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
                 $item[] = "<a href='".route('Professores/Edit',$d->IDProfessor)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
@@ -197,7 +202,7 @@ class ProfessoresController extends Controller
         if(count($Turnos) > 0){
             foreach($Turnos as $t){
                 $item = [];
-                (Auth::user()->tipo == 2) ? $item[] = $t->Escola : '';
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $t->Escola : '';
                 $item[] = $t->Turma;
                 $item[] = $t->Disciplina;
                 $item[] = Controller::data($t->Inicio,'d/m/Y');

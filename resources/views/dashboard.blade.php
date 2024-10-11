@@ -70,7 +70,7 @@
           </div>
        </div>
     </div>
-    @elseif(in_array(Auth::user()->tipo,[2,4]))
+    @elseif(in_array(Auth::user()->tipo,[2,4,2.5]))
     <div class="shadow p-3 dashboard">
       <div class="col-sm-12 row">
          <div class="col-sm-4">
