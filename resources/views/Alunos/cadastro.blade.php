@@ -183,7 +183,7 @@
                         </div>
                         <div class="col-sm-3">
                             <label>RG do Aluno*</label>
-                            <input type="file" class="form-control" name="AnexoRG" accept="application/pdf" {{!isset($Registro) ? 'required' : ''}}>
+                            <input type="file" class="form-control" name="AnexoRG" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
                         </div>
                         <div class="col-sm-3">
                             <label>Comprovante de Residência*</label>
