@@ -217,10 +217,11 @@ class AlunosController extends Controller
             t.Nome as Turma,
             e.Nome as Escola,
             t.Serie as Serie,
-            t.id as IDTurma,
             m.Nascimento as Nascimento,
             a.STAluno,
             m.Foto,
+            re.Escolaridade,
+            re.Profissao,
             m.Email,
             m.RG,
             m.CPF,
@@ -246,9 +247,15 @@ class AlunosController extends Controller
             m.APsicologico,
             m.CDPasta,
             m.AnexoRG,
-            m.RGPaisAnexo,
+            re.RGPaisAnexo,
             m.CResidencia,
-            m.Historico
+            m.Historico,
+            re.RGPaisAnexo,
+            cal.INIRematricula,
+            cal.TERRematricula,
+            r.ANO,
+            m.PaisJSON,
+            m.Quilombola
         FROM matriculas m
         INNER JOIN alunos a ON(a.IDMatricula = m.id)
         INNER JOIN turmas t ON(a.IDTurma = t.id)
