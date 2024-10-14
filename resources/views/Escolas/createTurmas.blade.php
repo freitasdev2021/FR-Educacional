@@ -47,10 +47,9 @@
                                     <option value="Educação de Jovens e Adultos (EJA)" {{(isset($Registro->Serie) && $Registro->Serie == "Educação de Jovens e Adultos (EJA)" ) ? 'selected' : ''}}>Educação de Jovens e Adultos (EJA)</option>
                                 </optgroup>
                                 <optgroup label="Ensino Infantil: 1º ao 4º Periodo">
+                                    <option value="Creche" {{(isset($Registro->Serie) && $Registro->Serie == "Creche" ) ? 'selected' : ''}}>Creche</option>
                                     <option value="1º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie == "1º Periodo E.INFANTIL" ) ? 'selected' : ''}}>1º Periodo E.INFANTIL</option>
                                     <option value="2º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie =="2º Periodo E.INFANTIL") ? 'selected' : ''}}>2º Periodo E.INFANTIL</option>
-                                    <option value="3º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie =="3º Periodo E.INFANTIL") ? 'selected' : ''}}>3º Periodo E.INFANTIL</option>
-                                    <option value="4º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie =="4º Periodo E.INFANTIL") ? 'selected' : ''}}>4º Periodo E.INFANTIL</option>
                                 </optgroup>
                                 <optgroup label="Ensino Fundamental: 1º ao 9º Ano">
                                     <option value="1º Ano E.FUNDAMENTAL" {{(isset($Registro->Serie) && $Registro->Serie == "1º Ano E.FUNDAMENTAL" ) ? 'selected' : ''}}>1º Ano E.FUNDAMENTAL</option>
