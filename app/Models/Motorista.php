@@ -20,6 +20,7 @@ class Motorista extends Model
         'CEP',
         'Rua',
         'UF',
+        'CPF',
         'Cidade',
         'Bairro',
         'Numero',

@@ -153,6 +153,7 @@ class PedagogosController extends Controller
             $dir = $request->all();
             $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
             $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            $dir['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 $Pedagogo = Pedagogo::find($request->id);
                 $Pedagogo->update($dir);

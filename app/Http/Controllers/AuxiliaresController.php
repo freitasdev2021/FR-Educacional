@@ -114,6 +114,7 @@ class AuxiliaresController extends Controller
             $dir = $request->all();
             $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
             $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            $dir['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 $Auxiliar = Auxiliar::find($request->id);
                 $Auxiliar->update($dir);

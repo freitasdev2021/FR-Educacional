@@ -1248,7 +1248,9 @@ class AlunosController extends Controller
                     "EFisica" => $request->EFisica,
                     "EReligioso" => $request->EReligioso,
                     "DireitoImagem" => $request->DireitoImagem,
-                    "Quilombola" => $request->Quilombola
+                    "Quilombola" => $request->Quilombola,
+                    "Cor" => $request->Cor,
+                    "Sexo" => $request->Sexo
                 );
 
                 $matricula['PaisJSON'] = json_encode($Pais);
@@ -1375,6 +1377,8 @@ class AlunosController extends Controller
                     "EFisica" => $request->EFisica,
                     "EReligioso" => $request->EReligioso,
                     "DireitoImagem" => $request->DireitoImagem,
+                    "Cor" => $request->Cor,
+                    "Sexo" => $request->Sexo
                 );
 
                 $matricula['PaisJSON'] = json_encode($Pais);

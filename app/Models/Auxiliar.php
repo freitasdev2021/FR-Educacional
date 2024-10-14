@@ -17,6 +17,7 @@ class Auxiliar extends Model
         'Tipo',
         'IDUser',
         'Email',
+        'CPF',
         'Celular',
         'TerminoContrato',
         'CEP',

@@ -20,6 +20,7 @@ class Diretor extends Model
         'Email',
         'Celular',
         'TerminoContrato',
+        'CPF',
         'CEP',
         'Rua',
         'UF',

@@ -204,6 +204,23 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-sm-1">
+                            <label>Cor</label>
+                            <select name="Cor" class="form-control">
+                                <option value="branco" {{isset($Registro->Cor) && $Registro->Cor == "branco" ? 'selected' : ''}}>Branco</option>
+                                <option value="preto" {{isset($Registro->Cor) && $Registro->Cor == "preto" ? 'selected' : ''}}>Preto</option>
+                                <option value="pardo" {{isset($Registro->Cor) && $Registro->Cor == "pardo" ? 'selected' : ''}}>Pardo</option>
+                                <option value="amarelo" {{isset($Registro->Cor) && $Registro->Cor == "amarelo" ? 'selected' : ''}}>Amarelo</option>
+                                <option value="indigena" {{isset($Registro->Cor) && $Registro->Cor == "indigena" ? 'selected' : ''}}>Indígena</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <label>Sexo</label>
+                            <select name="Sexo" class="form-control">
+                                <option value="M" {{isset($Registro->Cor) && $Registro->Cor == "M" ? 'selected' : ''}}>Masculino</option>
+                                <option value="F" {{isset($Registro->Cor) && $Registro->Cor == "F" ? 'selected' : ''}}>Feminino</option>
+                            </select>
+                        </div>
                         <div class="col-sm-3">
                             <label>Necessidades Especiais</label>
                             <select class="form-control" name="NEE" >
@@ -211,14 +228,14 @@
                                 <option value="0" {{isset($Registro->NEE) && $Registro->NEE == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Acompanhamento Médico</label>
                             <select class="form-control" name="AMedico">
                                 <option value="1" {{isset($Registro->AMedico) && $Registro->AMedico == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->AMedico) && $Registro->AMedico == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Acompanhamento Psicológico</label>
                             <select class="form-control" name="APsicologico">
                                 <option value="1" {{isset($Registro->APsicologico) && $Registro->APsicologico == '1' ? 'selected' : ''}}>Sim</option>

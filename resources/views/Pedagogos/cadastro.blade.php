@@ -46,8 +46,8 @@
                             <input type="date" name="Admissao" class="form-control" required value="{{isset($Registro->Admissao) ? $Registro->Admissao : ''}}">
                         </div>
                         <div class="col-sm-4">
-                            <label>Término do Mandato</label>
-                            <input type="date" name="TerminoContrato" class="form-control" required value="{{isset($Registro->TerminoContrato) ? $Registro->TerminoContrato : ''}}">
+                            <label>Término do Contrato</label>
+                            <input type="date" name="TerminoContrato" class="form-control" value="{{isset($Registro->TerminoContrato) ? $Registro->TerminoContrato : ''}}">
                         </div>
                         <div class="col-sm-4">
                             <label>Data de Nascimento</label>
@@ -55,6 +55,10 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-sm-2">
+                            <label>CPF</label>
+                            <input type="text" name="CPF" class="form-control" required value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}">
+                        </div>
                         <div class="col-sm-2">
                             <label>CEP</label>
                             <input type="text" name="CEP" class="form-control" required value="{{isset($Registro->Cidade) ? $Registro->CEP : ''}}">
@@ -149,6 +153,7 @@
             }            
         })
         //
+        $("input[name=CPF]").inputmask('999.999.999-99')
         $("input[name=CEP]").inputmask('99999-999')
         $("input[name=Celular]").inputmask('(99) 9 9999-9999')
     </script>

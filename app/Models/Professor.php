@@ -25,6 +25,7 @@ class Professor extends Model
         'Bairro',
         'Numero',
         'Ativo',
+        'CPF'
     ];
 
 }

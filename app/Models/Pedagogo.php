@@ -20,6 +20,7 @@ class Pedagogo extends Model
         'TerminoContrato',
         'CEP',
         'Rua',
+        'CPF',
         'UF',
         'Cidade',
         'Bairro',

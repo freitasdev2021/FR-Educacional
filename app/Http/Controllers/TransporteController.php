@@ -418,6 +418,7 @@ class TransporteController extends Controller
             $ter = $request->all();
             $ter['CEP'] = preg_replace('/\D/', '', $request->CEP);
             $ter['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            $ter['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 Motorista::find($request->id)->update($ter);
                 $aid = $request->id;

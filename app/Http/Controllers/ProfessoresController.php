@@ -469,6 +469,7 @@ class ProfessoresController extends Controller
             $dir = $request->all();
             $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
             $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
+            $dir['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 $Professor = Professor::find($request->id);
                 $Professor->update($dir);
