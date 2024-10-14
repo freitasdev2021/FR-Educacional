@@ -263,6 +263,7 @@ class AlunosController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         INNER JOIN responsavel re ON(re.IDAluno = a.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
         WHERE o.id = $idorg AND a.id = $id  
         ";
         $Ficha = DB::select($SQL)[0];
