@@ -38,98 +38,155 @@
                         <div class="d-flex justify-content-center">
                             <div data-mdb-ripple-init class="btn btn-primary btn-rounded">
                                 <label class="form-label text-white m-1" for="customFile2">Upload Foto 3x4</label>
-                                <input type="file" name="Foto" class="form-control d-none" id="customFile2" onchange="displaySelectedImage(event, 'selectedAvatar')" accept="image/jpg,image/png,image/jpeg" {{!isset($Registro) ? 'required' : ''}} />
+                                <input type="file" name="Foto" class="form-control d-none" id="customFile2" onchange="displaySelectedImage(event, 'selectedAvatar')" accept="image/jpg,image/png,image/jpeg" {{!isset($Registro) ? '' : ''}} />
                             </div>
                         </div>
                     </div>
                     <hr>
                     <div class="row">
                         <div class="col-sm-4">
-                            <label>Nome completo do Aluno</label>
+                            <label>Nome*</label>
                             <input type="text" class="form-control" name="Nome" value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}" {{isset($Registro->Nome) ? 'disabled' : 'required'}}> 
                         </div>
                         <div class="col-sm-2">
-                            <label>RG do Aluno</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->RG) ? $Registro->RG : ''}}" {{isset($Registro->RG) ? 'disabled' : 'required'}} name="RG"> 
+                            <label>RG</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->RG) ? $Registro->RG : ''}}" {{isset($Registro->RG) ? 'disabled' : ''}} name="RG"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>CPF do Aluno</label>
+                            <label>CPF*</label>
                             <input type="text" class="form-control" value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}" name="CPF" {{isset($Registro->CPF) ? 'disabled' : 'required'}}> 
                         </div>
                         <div class="col-sm-2">
-                            <label>Email do Aluno</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->Email) ? $Registro->Email : ''}}" name="Email" required> 
+                            <label>Email</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->Email) ? $Registro->Email : ''}}" name="Email"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>Nascimento do Aluno</label>
+                            <label>Nascimento*</label>
                             <input type="date" class="form-control" value="{{isset($Registro->Nascimento) ? $Registro->Nascimento : ''}}" name="Nascimento" {{isset($Registro->Nascimento) ? 'disabled' : 'required'}}> 
                         </div>
                     </div>
+                    <hr>
+                    <h5>Dados do Responsável</h5>
                     <div class="row">
-                        <div class="col-sm-3">
-                        <label>Nome completo do Responsavel</label>
+                        <div class="col-sm-2">
+                        <label>Responsavel*</label>
                         <input type="text" class="form-control" value="{{isset($Registro->NMResponsavel) ? $Registro->NMResponsavel : ''}}" name="NMResponsavel" required> 
                         </div>
-                        <div class="col-sm-3">
-                            <label>RG do Responsavel</label>
+                        <div class="col-sm-2">
+                            <label>RG*</label>
                             <input type="text" class="form-control" value="{{isset($Registro->RGPais) ? $Registro->RGPais : ''}}" name="RGPais" required> 
                         </div>
-                        <div class="col-sm-3">
-                            <label>CPF do Responsavel</label>
+                        <div class="col-sm-2">
+                            <label>CPF*</label>
                             <input type="text" class="form-control" value="{{isset($Registro->CPFResponsavel) ? $Registro->CPFResponsavel : ''}}" name="CPFResponsavel" required> 
                         </div>
+                        <div class="col-sm-2">
+                            <label>Email</label>
+                            <input type="email" class="form-control" value="{{isset($Registro->EmailResponsavel) ? $Registro->EmailResponsavel : ''}}" name="EmailResponsavel"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Profissão*</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->Profissao) ? $Registro->Profissao : ''}}" name="Profissao" required> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Escolaridade*</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->Escolaridade) ? $Registro->Escolaridade : ''}}" name="Escolaridade" required> 
+                        </div>
+                    </div>
+                    <hr>
+                    <h5>Dados dos Pais</h5>
+                    <div class="row">
                         <div class="col-sm-3">
-                            <label>Email do Responsavel</label>
-                            <input type="email" class="form-control" value="{{isset($Registro->EmailResponsavel) ? $Registro->EmailResponsavel : ''}}" name="EmailResponsavel" required> 
+                            <label>Pai</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->Pai) ? $Pais->Pai : ''}}" name="Pai"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>RG</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->RGPai) ? $Pais->RGPai : ''}}" name="RGPai"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>CPF</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->CPFPai) ? $Pais->CPFPai : ''}}" name="CPFPai"> 
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Profissão</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->ProfissaoPai) ? $Pais->ProfissaoPai : ''}}" name="ProfissaoPai"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Escolaridade</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->EscolaridadePai) ? $Pais->EscolaridadePai : ''}}" name="EscolaridadePai"> 
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-sm-3">
+                            <label>Mãe*</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->Mae) ? $Pais->Mae : ''}}" name="Mae" required> 
+                        </div>
                         <div class="col-sm-2">
-                            <label>CEP</label>
-                            <input type="text" name="CEP" class="form-control" required value="{{isset($Registro->CEP) ? $Registro->CEP : ''}}">
+                            <label>RG*</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->RGMae) ? $Pais->RGMae : ''}}" name="RGMae" required> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>CPF*</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->CPFMae) ? $Pais->CPFMae : ''}}" name="CPFMae" required> 
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Profissão*</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->ProfissaoMae) ? $Pais->ProfissaoMae : ''}}" name="ProfissaoMae" required> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Escolaridade*</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->EscolaridadeMae) ? $Pais->EscolaridadeMae : ''}}" name="EscolaridadeMae" required> 
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label>CEP*</label>
+                            <input type="text" name="CEP" class="form-control" required value="{{isset($Registro->CEP) ? $Registro->CEP : ''}}" required>
                         </div>
                         <div class="col-sm-5">
-                            <label>Rua</label>
+                            <label>Rua*</label>
                             <input type="text" name="Rua" class="form-control" maxlength="50" value="{{isset($Registro->Rua) ? $Registro->Rua : ''}}" required>
                         </div>
                         <div class="col-sm-3">
-                            <label>Bairro</label>
+                            <label>Bairro*</label>
                             <input type="text" name="Bairro" class="form-control" maxlength="50" value="{{isset($Registro->Bairro) ? $Registro->Bairro : ''}}" minlength="2" required>
                         </div>
                         <div class="col-sm-1">
-                            <label>UF</label>
+                            <label>UF*</label>
                             <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Registro->UF) ? $Registro->UF : ''}}" required>
                         </div>
                         <div class="col-sm-1">
                             <label>Numero</label>
-                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}" required>
+                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-4">
-                            <label>Cidade</label>
+                            <label>Cidade*</label>
                             <input type="text" name="Cidade" class="form-control" maxlength="50" value="{{isset($Registro->Cidade) ? $Registro->Cidade : ''}}" minlength="3" required>
                         </div>
                         <div class="col-sm-4">
-                            <label>Celular Responsavel</label>
+                            <label>Celular Responsavel*</label>
                             <input type="text" name="CLResponsavel" class="form-control" maxlength="50" value="{{isset($Registro->CLResponsavel) ? $Registro->CLResponsavel : ''}}" minlength="3" required>
                         </div>
                         <div class="col-sm-4">
-                            <label>Celular Aluno</label>
+                            <label>Celular Aluno*</label>
                             <input type="text" name="Celular" class="form-control" maxlength="50" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}" minlength="3" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-3">
-                            <label>RG dos Pais</label>
+                            <label>RG do Responsavel*</label>
                             <input type="file" class="form-control" name="RGPaisAnexo" accept="application/pdf" {{!isset($Registro) ? 'required' : ''}}>
                         </div>
                         <div class="col-sm-3">
-                            <label>RG do Aluno</label>
+                            <label>RG do Aluno*</label>
                             <input type="file" class="form-control" name="AnexoRG" accept="application/pdf" {{!isset($Registro) ? 'required' : ''}}>
                         </div>
                         <div class="col-sm-3">
-                            <label>Comprovante de Residência</label>
+                            <label>Comprovante de Residência*</label>
                             <input type="file" class="form-control" name="CResidencia" accept="application/pdf" {{!isset($Registro) ? 'required' : ''}}>
                         </div>
                         <div class="col-sm-3">
@@ -139,7 +196,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-3">
-                            <label>Turma</label>
+                            <label>Turma*</label>
                             <select class="form-control" name="IDTurma" required>
                                 <option value="">Selecione</option>
                                 @foreach($Turmas as $t)
@@ -148,7 +205,7 @@
                             </select>
                         </div>
                         <div class="col-sm-3">
-                            <label>Possui NEE</label>
+                            <label>Necessidades Especiais</label>
                             <select class="form-control" name="NEE" >
                                 <option value="1" {{isset($Registro->NEE) && $Registro->NEE == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->NEE) && $Registro->NEE == '0' ? 'selected' : ''}}>Não</option>
@@ -177,14 +234,14 @@
                                 <option value="0" {{isset($Registro->Alergia) && $Registro->Alergia == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                             <label>Utiliza Transporte Escolar?</label>
                             <select class="form-control" name="Transporte">
                                 <option value="1" {{isset($Registro->Transporte) && $Registro->Transporte == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Transporte) && $Registro->Transporte == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                             <label>Recebe Bolsa Família?</label>
                             <select class="form-control" name="BolsaFamilia">
                                 <option value="1" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '1' ? 'selected' : ''}}>Sim</option>
@@ -198,11 +255,25 @@
                                 <option value="0" {{isset($Registro->Quilombola) && $Registro->Quilombola == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
-                        <div class="col-sm-4">
-                            <label>ensino religioso, Direito de uso de Imagens e educação física</label>
-                            <select class="form-control" name="Autorizacao">
-                                <option value="1" {{isset($Registro->Autorizacao) && $Registro->Autorizacao == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->Autorizacao) && $Registro->Autorizacao == '0' ? 'selected' : ''}}>Não</option>
+                        <div class="col-sm-3">
+                            <label>Ensino Religioso</label>
+                            <select class="form-control" name="EReligioso">
+                                <option value="1" {{isset($Registro->EReligioso) && $Registro->EReligioso == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->EReligioso) && $Registro->EReligioso == '0' ? 'selected' : ''}}>Não</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Educação Física</label>
+                            <select class="form-control" name="EFisica">
+                                <option value="1" {{isset($Registro->EFisica) && $Registro->EFisica == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->EFisica) && $Registro->EFisica == '0' ? 'selected' : ''}}>Não</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Permite Utilização da Imagem</label>
+                            <select class="form-control" name="DireitoImagem">
+                                <option value="1" {{isset($Registro->DireitoImagem) && $Registro->DireitoImagem == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->DireitoImagem) && $Registro->DireitoImagem == '0' ? 'selected' : ''}}>Não</option>
                             </select>
                         </div>
                     </div>

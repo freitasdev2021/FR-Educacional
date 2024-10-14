@@ -13,8 +13,8 @@ class Matriculas extends Model
 
     protected $fillable = [
         'AnexoRG',
-        'RGPaisAnexo',
         'CResidencia',
+        'RGPaisAnexo',
         'Historico',
         'Nome',
         'CPF',
@@ -24,10 +24,7 @@ class Matriculas extends Model
         'Email',
         'Celular',
         'UF',
-        'Quilombola',
-        'Autorizacao',
         'Cidade',
-        'AnoLetivo',
         'BolsaFamilia',
         'Alergia',
         'Transporte',
@@ -37,9 +34,17 @@ class Matriculas extends Model
         'Aprovado',
         'Nascimento',
         'Foto',
-        'Numero',
         'Bairro',
-        'CDPasta'
+        'Numero',
+        'CDPasta',
+        'Quilombola',
+        'Autorizacao',
+        'DireitoImagem',
+        'EReligioso',
+        'EFisica',
+        'PaisJSON',
+        'Sexo',
+        'Cor'
     ];
 
     public function escola()

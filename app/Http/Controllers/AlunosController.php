@@ -1081,6 +1081,8 @@ class AlunosController extends Controller
                 m.Nascimento as Nascimento,
                 a.STAluno,
                 m.Foto,
+                re.Escolaridade,
+                re.Profissao,
                 m.Email,
                 m.RG,
                 m.CPF,
@@ -1109,9 +1111,11 @@ class AlunosController extends Controller
                 re.RGPaisAnexo,
                 m.CResidencia,
                 m.Historico,
+                re.RGPaisAnexo,
                 cal.INIRematricula,
                 cal.TERRematricula,
                 r.ANO,
+                m.PaisJSON,
                 m.Autorizacao,
                 m.Quilombola
             FROM matriculas m
@@ -1137,6 +1141,7 @@ class AlunosController extends Controller
             $view['id'] = $id;
             $view['IDOrg'] = Auth::user()->id_org;
             $view['Registro'] = $Registro;
+            $view['Pais'] = json_decode($Registro->PaisJSON);
             $view['Vencimento'] = $Vencimento;
             $view['Hoje'] = $Hoje;
         }
@@ -1201,6 +1206,19 @@ class AlunosController extends Controller
                 }else{
                     $Foto = '';
                 }
+
+                $Pais = array(
+                    "Mae" => $request->Mae,
+                    "Pai" => $request->Pai,
+                    "ProfissaoMae" => $request->ProfissaoMae,
+                    "ProfissaoPai" => $request->ProfissaoPai,
+                    "RGMae" => $request->RGMae,
+                    "RGPai" => $request->RGPai,
+                    "CPFMae" => $request->CPFMae,
+                    "CPFPai" => $request->CPFPai,
+                    "EscolaridadeMae" => $request->EscolaridadeMae,
+                    "EscolaridadePai" => $request->EscolaridadePai
+                );
     
                 $matricula = array(
                     'AnexoRG' => $AnexoRG,
@@ -1223,14 +1241,17 @@ class AlunosController extends Controller
                     'APsicologico' => $request->APsicologico,
                     'Aprovado' => 1,
                     'Foto' => $Foto,
-                    'RGPaisAnexo' => $RGPaisAnexo,
                     'Bairro' => $request->Bairro,
                     'Numero' => $request->Numero,
                     'Nascimento' => $request->Nascimento,
                     'CDPasta' => $CDPasta,
-                    "Autorizacao" => $request->Autorizacao,
+                    "EFisica" => $request->EFisica,
+                    "EReligioso" => $request->EReligioso,
+                    "DireitoImagem" => $request->DireitoImagem,
                     "Quilombola" => $request->Quilombola
                 );
+
+                $matricula['PaisJSON'] = json_encode($Pais);
 
                 $createMatricula = Matriculas::create($matricula);
 
@@ -1253,12 +1274,14 @@ class AlunosController extends Controller
 
                 $responsavel = array(
                     'IDAluno' => $createAluno->id,
-                    'RGPaisAnexo' => $request->RGPaisAnexo,
+                    'RGPaisAnexo' => $RGPaisAnexo,
                     'RGPais' => preg_replace('/\D/', '', $request->RGPais),
                     'NMResponsavel' => $request->NMResponsavel,
                     'EmailResponsavel' => $request->EmailResponsavel,
                     'CLResponsavel' => preg_replace('/\D/', '', $request->CLResponsavel),
-                    'CPFResponsavel' => preg_replace('/\D/', '', $request->CPFResponsavel)
+                    'CPFResponsavel' => preg_replace('/\D/', '', $request->CPFResponsavel),
+                    'Profissao' => $request->Profissao,
+                    'Escolaridade' => $request->Escolaridade
                 );
 
                 Responsavel::create($responsavel);
@@ -1283,6 +1306,8 @@ class AlunosController extends Controller
                 }else{
                     $RGPaisAnexo = '';
                 }
+
+                //dd($RGPaisAnexo);
     
                 if($request->file('AnexoRG')){
                     $AnexoRG = $request->file('AnexoRG')->getClientOriginalName();
@@ -1307,6 +1332,19 @@ class AlunosController extends Controller
                 }else{
                     $Foto = '';
                 }
+
+                $Pais = array(
+                    "Mae" => $request->Mae,
+                    "Pai" => $request->Pai,
+                    "ProfissaoMae" => $request->ProfissaoMae,
+                    "ProfissaoPai" => $request->ProfissaoPai,
+                    "RGMae" => $request->RGMae,
+                    "RGPai" => $request->RGPai,
+                    "CPFMae" => $request->CPFMae,
+                    "CPFPai" => $request->CPFPai,
+                    "EscolaridadeMae" => $request->EscolaridadeMae,
+                    "EscolaridadePai" => $request->EscolaridadePai
+                );
     
                 $matricula = array(
                     'AnexoRG' => $AnexoRG,
@@ -1328,14 +1366,18 @@ class AlunosController extends Controller
                     'AMedico' => $request->AMedico,
                     'APsicologico' => $request->APsicologico,
                     'Aprovado' => 1,
-                    'RGPaisAnexo' => $RGPaisAnexo,
                     'Foto' => $Foto,
                     'Bairro' => $request->Bairro,
                     'Numero' => $request->Numero,
                     'Nascimento' => $request->Nascimento,
                     "Autorizacao" => $request->Autorizacao,
-                    "Quilombola" => $request->Quilombola
+                    "Quilombola" => $request->Quilombola,
+                    "EFisica" => $request->EFisica,
+                    "EReligioso" => $request->EReligioso,
+                    "DireitoImagem" => $request->DireitoImagem,
                 );
+
+                $matricula['PaisJSON'] = json_encode($Pais);
 
                 if(empty($Historico)){
                     unset($matricula['Historico']);
@@ -1399,12 +1441,14 @@ class AlunosController extends Controller
                 Aluno::find($request->IDAluno)->update($aluno);
 
                 $responsavel = array(
-                    'RGPaisAnexo' => $request->RGPaisAnexo,
+                    'RGPaisAnexo' => $RGPaisAnexo,
                     'RGPais' => preg_replace('/\D/', '', $request->RGPais),
                     'NMResponsavel' => $request->NMResponsavel,
                     'EmailResponsavel' => $request->EmailResponsavel,
                     'CLResponsavel' => preg_replace('/\D/', '', $request->CLResponsavel),
-                    'CPFResponsavel' => preg_replace('/\D/', '', $request->CPFResponsavel)
+                    'CPFResponsavel' => preg_replace('/\D/', '', $request->CPFResponsavel),
+                    'Profissao' => $request->Profissao,
+                    'Escolaridade' => $request->Escolaridade
                 );
 
                 Responsavel::where('IDAluno',$request->IDAluno)->update($responsavel);
