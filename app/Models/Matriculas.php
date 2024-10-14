@@ -38,7 +38,6 @@ class Matriculas extends Model
         'Numero',
         'CDPasta',
         'Quilombola',
-        'Autorizacao',
         'DireitoImagem',
         'EReligioso',
         'EFisica',
