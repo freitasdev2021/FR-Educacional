@@ -172,8 +172,8 @@
                             <input type="text" name="CLResponsavel" class="form-control" maxlength="50" value="{{isset($Registro->CLResponsavel) ? $Registro->CLResponsavel : ''}}" minlength="3" required>
                         </div>
                         <div class="col-sm-4">
-                            <label>Celular Aluno*</label>
-                            <input type="text" name="Celular" class="form-control" maxlength="50" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}" minlength="3" required>
+                            <label>Celular Aluno</label>
+                            <input type="text" name="Celular" class="form-control" maxlength="50" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}" minlength="3">
                         </div>
                     </div>
                     <div class="row">

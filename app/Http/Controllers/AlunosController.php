@@ -1116,7 +1116,6 @@ class AlunosController extends Controller
                 cal.TERRematricula,
                 r.ANO,
                 m.PaisJSON,
-                m.Autorizacao,
                 m.Quilombola
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
