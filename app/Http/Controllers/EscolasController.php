@@ -572,7 +572,7 @@ class EscolasController extends Controller
 
     public function cadastroTurmas($id=null){
         if(in_array(Auth::user()->tipo,[2.5,2])){
-            $Salas = Sala::all()->where('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org));
+            $Salas = SecretariasController::getEscolasRede(Auth::user()->id_org);
         }else{
             $Salas = self::getEscolaDiretor(Auth::user()->id);
         }
@@ -581,9 +581,9 @@ class EscolasController extends Controller
             "submodulos" => self::submodulos,
             'id' => '',
             'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org),
-            "Salas" => Sala::all()->where('IDEscola',$Salas)->toArray()
+            "Salas" => Sala::all()->whereIn('IDEscola',$Salas)
         ];
-        
+        //dd($view['Salas']);
         if($id){
             $SQL = <<<SQL
             SELECT t.id as IDTurma,t.Periodo, t.Nome as Turma,t.INITurma,t.TERTurma,e.id as IDEscola,t.Serie,t.NotaPeriodo,t.MediaPeriodo,t.TotalAno
