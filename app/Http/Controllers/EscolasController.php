@@ -608,7 +608,12 @@ class EscolasController extends Controller
         try{
             $aid = '';
             $turma = $request->all();
-            $turma['IDEscola'] = $request->IDEscola;
+            if(in_array(Auth::user()->tipo,[2.5,2])){
+                $turma['IDEscola'] = $request->IDEscola;
+            }else{
+                $turma['IDEscola'] = self::getEscolaDiretor(Auth::user()->id);
+            }
+            
             if($request->id){
                 $Turma = Turma::find($request->id);
                 $Turma->update($turma);
