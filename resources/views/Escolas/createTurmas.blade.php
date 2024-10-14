@@ -46,7 +46,7 @@
                                 <optgroup label="Supletivo">
                                     <option value="Educação de Jovens e Adultos (EJA)" {{(isset($Registro->Serie) && $Registro->Serie == "Educação de Jovens e Adultos (EJA)" ) ? 'selected' : ''}}>Educação de Jovens e Adultos (EJA)</option>
                                 </optgroup>
-                                <optgroup label="Ensino Infantil: 1º ao 4º Periodo">
+                                <optgroup label="Ensino Infantil">
                                     <option value="Creche" {{(isset($Registro->Serie) && $Registro->Serie == "Creche" ) ? 'selected' : ''}}>Creche</option>
                                     <option value="1º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie == "1º Periodo E.INFANTIL" ) ? 'selected' : ''}}>1º Periodo E.INFANTIL</option>
                                     <option value="2º Periodo E.INFANTIL" {{(isset($Registro->Serie) && $Registro->Serie =="2º Periodo E.INFANTIL") ? 'selected' : ''}}>2º Periodo E.INFANTIL</option>

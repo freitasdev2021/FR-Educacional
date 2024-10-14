@@ -46,7 +46,7 @@
                             <input type="date" name="Admissao" class="form-control" required value="{{isset($Registro->Admissao) ? $Registro->Admissao : ''}}">
                         </div>
                         <div class="col-sm-4">
-                            <label>Término do Mandato</label>
+                            <label>Término do Contrato</label>
                             <input type="date" name="TerminoContrato" class="form-control" required value="{{isset($Registro->TerminoContrato) ? $Registro->TerminoContrato : ''}}">
                         </div>
                         <div class="col-sm-4">
