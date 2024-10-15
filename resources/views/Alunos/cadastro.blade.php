@@ -53,8 +53,8 @@
                             <input type="text" class="form-control" value="{{isset($Registro->RG) ? $Registro->RG : ''}}" {{isset($Registro->RG) ? 'disabled' : ''}} name="RG"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>CPF*</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}" name="CPF" {{isset($Registro->CPF) ? 'disabled' : 'required'}}> 
+                            <label>CPF</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}" name="CPF" {{isset($Registro->CPF) ? 'disabled' : ''}}> 
                         </div>
                         <div class="col-sm-2">
                             <label>Email</label>
@@ -73,8 +73,8 @@
                         <input type="text" class="form-control" value="{{isset($Registro->NMResponsavel) ? $Registro->NMResponsavel : ''}}" name="NMResponsavel" required> 
                         </div>
                         <div class="col-sm-2">
-                            <label>RG*</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->RGPais) ? $Registro->RGPais : ''}}" name="RGPais" required> 
+                            <label>RG</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->RGPais) ? $Registro->RGPais : ''}}" name="RGPais"> 
                         </div>
                         <div class="col-sm-2">
                             <label>CPF*</label>
@@ -123,12 +123,12 @@
                             <input type="text" class="form-control" value="{{isset($Pais->Mae) ? $Pais->Mae : ''}}" name="Mae" required> 
                         </div>
                         <div class="col-sm-2">
-                            <label>RG*</label>
-                            <input type="text" class="form-control" value="{{isset($Pais->RGMae) ? $Pais->RGMae : ''}}" name="RGMae" required> 
+                            <label>RG</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->RGMae) ? $Pais->RGMae : ''}}" name="RGMae"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>CPF*</label>
-                            <input type="text" class="form-control" value="{{isset($Pais->CPFMae) ? $Pais->CPFMae : ''}}" name="CPFMae" required> 
+                            <label>CPF</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->CPFMae) ? $Pais->CPFMae : ''}}" name="CPFMae"> 
                         </div>
                         <div class="col-sm-3">
                             <label>Profissão*</label>
@@ -178,20 +178,20 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-3">
-                            <label>RG do Responsavel*</label>
-                            <input type="file" class="form-control" name="RGPaisAnexo" accept="application/pdf" {{!isset($Registro) ? 'required' : ''}}>
+                            <label>RG do Responsavel</label>
+                            <input type="file" class="form-control" name="RGPaisAnexo" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
                         </div>
                         <div class="col-sm-3">
-                            <label>RG do Aluno*</label>
+                            <label>RG do Aluno</label>
                             <input type="file" class="form-control" name="AnexoRG" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
                         </div>
                         <div class="col-sm-3">
-                            <label>Comprovante de Residência*</label>
-                            <input type="file" class="form-control" name="CResidencia" accept="application/pdf" {{!isset($Registro) ? 'required' : ''}}>
+                            <label>Comprovante de Residência</label>
+                            <input type="file" class="form-control" name="CResidencia" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
                         </div>
                         <div class="col-sm-3">
                             <label>Histórico Escolar</label>
-                            <input type="file" class="form-control" name="Historico" accept="application/pdf">
+                            <input type="file" class="form-control" name="Historico" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
                         </div>
                     </div>
                     <div class="row">
