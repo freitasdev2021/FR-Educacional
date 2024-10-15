@@ -158,8 +158,8 @@
                             <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Registro->UF) ? $Registro->UF : ''}}" required>
                         </div>
                         <div class="col-sm-1">
-                            <label>Numero</label>
-                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}">
+                            <label>Numero*</label>
+                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : '0'}}">
                         </div>
                     </div>
                     <div class="row">

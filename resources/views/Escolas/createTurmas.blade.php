@@ -125,7 +125,24 @@
                         &nbsp;
                         <a class="btn btn-light col-auto" href="{{route('Escolas/Turmas')}}">Voltar</a>
                     </div>
-                </form>    
+                </form> 
+                @if(isset($id) && !empty($id))
+                <h5>Importar Alunos</h5>
+                <form action="{{route('Alunos/Importar',$id)}}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method("PATCH")
+                    <div class="row">
+                        <div class="col-sm-11">
+                            <label>Arquivo</label>
+                            <input type="file" class="form-control" name="Alunos" accept=".xlsx, .xls, .ods">
+                        </div>
+                        <div class="col-sm-1">
+                            <label style="visibility:hidden;">a</label>
+                            <input type="submit" name="Enviar" value="Upload" class="btn btn-success form-control">
+                        </div>
+                    </div>
+                </form>  
+                @endif 
             </div>
             <!--//-->
         </div>

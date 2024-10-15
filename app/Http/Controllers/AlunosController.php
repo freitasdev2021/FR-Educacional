@@ -8,6 +8,7 @@ use App\Models\Matriculas;
 use App\Models\Escola;
 use App\Models\Turma;
 use App\Models\FeedbackTransferencia;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Renovacoes;
 use App\Models\Remanejo;
 use App\Models\Responsavel;
@@ -1172,6 +1173,48 @@ class AlunosController extends Controller
         return redirect()->back();
     }
 
+    public function importarAlunos(Request $request, $IDTurma){
+        if($request->file('Alunos')){
+            $planilha = $request->file("Alunos");
+            $spreadsheet = IOFactory::load($planilha->getRealPath());
+            $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+            // Processa os dados da planilha
+            $count = 0;
+            foreach ($sheetData as $key => $row) {
+                if($key > 1){
+                    $matricula = Matriculas::create(array(
+                        "Nome" => $row['A'],
+                        "Sexo" => $row['B'],
+                        "Nascimento" => date('Y-m-d',strtotime($row['C'])),
+                        "CPF" => preg_replace('/\D/','',$row['D']),
+                        "Observacoes" => $row['G'],
+                        "Cor" => "pardo"
+                    ));
+
+                    $aluno = Aluno::create(array(
+                        "IDMatricula" => $matricula->id,
+                        "STAluno" => 0,
+                        "IDTurma" => $IDTurma
+                    ));
+
+                    Responsavel::create(array(
+                        "IDAluno" => $aluno->id,
+                        "CLResponsavel" => preg_replace('/\D/','',$row['E']),
+                        "NMResponsavel" => $row['F'],
+                    ));
+
+                    Renovacoes::create(array(
+                        "IDAluno" => $aluno->id,
+                        "Aprovado" => 1,
+                        "ANO" => date('Y')
+                    ));
+                }
+            }
+
+            return redirect()->back();
+        }
+    }
+
     public function save(Request $request){
         try{
             $CDPasta = rand(0,99999999999);
@@ -1695,6 +1738,8 @@ class AlunosController extends Controller
         INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
         WHERE o.id = $idorg $AND GROUP BY a.id 
         ";
+        
+        //dd($SQL);
         
         $registros = DB::select($SQL);
         if(count($registros) > 0){
