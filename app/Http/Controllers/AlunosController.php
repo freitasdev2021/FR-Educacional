@@ -22,6 +22,7 @@ use App\Models\Suspenso;
 use App\Models\Situacao;
 use App\Models\Transferencia;
 use Storage;
+use DateTime;
 
 class AlunosController extends Controller
 {
@@ -1175,41 +1176,56 @@ class AlunosController extends Controller
 
     public function importarAlunos(Request $request, $IDTurma){
         if($request->file('Alunos')){
-            $planilha = $request->file("Alunos");
-            $spreadsheet = IOFactory::load($planilha->getRealPath());
-            $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+            $arquivo = $request->file("Alunos");
+            // Lê o conteúdo do arquivo
+            $conteudo = file_get_contents($arquivo->getRealPath());
+
+            // Decodifica o JSON para um array associativo
+            $sheetData = json_decode($conteudo, true);
             // Processa os dados da planilha
-            $count = 0;
+            //dd($sheetData);
             foreach ($sheetData as $key => $row) {
-                if($key > 1){
-                    $matricula = Matriculas::create(array(
-                        "Nome" => $row['A'],
-                        "Sexo" => $row['B'],
-                        "Nascimento" => date('Y-m-d',strtotime($row['C'])),
-                        "CPF" => preg_replace('/\D/','',$row['D']),
-                        "Observacoes" => $row['G'],
-                        "Cor" => "pardo"
-                    ));
-
-                    $aluno = Aluno::create(array(
-                        "IDMatricula" => $matricula->id,
-                        "STAluno" => 0,
-                        "IDTurma" => $IDTurma
-                    ));
-
-                    Responsavel::create(array(
-                        "IDAluno" => $aluno->id,
-                        "CLResponsavel" => preg_replace('/\D/','',$row['E']),
-                        "NMResponsavel" => $row['F'],
-                    ));
-
-                    Renovacoes::create(array(
-                        "IDAluno" => $aluno->id,
-                        "Aprovado" => 1,
-                        "ANO" => date('Y')
-                    ));
+                // Verifica se a linha tem os dados necessários
+                if (!empty($row['Nome'])) {
+                    // Criar a matrícula              
+                    $matricula = Matriculas::create([
+                        "Nome" => $row['Nome'],
+                        "Sexo" => $row['Sexo'],
+                        "Nascimento" => (DateTime::createFromFormat('d/m/Y', $row['Nascimento'])) ? DateTime::createFromFormat('d/m/Y', $row['Nascimento'])->format('Y-m-d') : null,
+                        "CPF" => preg_replace('/\D/', '', $row['CPF']),
+                        "Observacoes" => $row['Observacoes'],
+                        "Cor" => "pardo",
+                        "CDPasta" => rand(0, 99999999999) // Adiciona o campo CDPasta
+                    ]);
+            
+                    // Verifica se a matrícula foi criada
+                    if ($matricula) {
+                        // Criar aluno
+                        $aluno = Aluno::create([
+                            "IDMatricula" => $matricula->id,
+                            "STAluno" => 0,
+                            "IDTurma" => $IDTurma
+                        ]);
+            
+                        // Verifica se o aluno foi criado
+                        if ($aluno) {
+                            // Criar responsável
+                            Responsavel::create([
+                                "IDAluno" => $aluno->id,
+                                "CLResponsavel" => preg_replace('/\D/', '', $row['CLResponsavel']),
+                                "NMResponsavel" => $row['NMResponsavel'],
+                            ]);
+            
+                            // Criar renovações
+                            Renovacoes::create([
+                                "IDAluno" => $aluno->id,
+                                "Aprovado" => 1,
+                                "ANO" => date('Y')
+                            ]);
+                        }
+                    }
                 }
-            }
+            }            
 
             return redirect()->back();
         }
