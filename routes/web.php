@@ -267,6 +267,24 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Calendario/Sabados/Cadastro/{id}',[CalendarioController::class,'cadastroSabados'])->name('Calendario/Sabados/Edit');
         Route::post('/Calendario/Sabados/Save',[CalendarioController::class,'saveSabados'])->name('Calendario/Sabados/Save');
         //
+        Route::get('/Calendario/Recuperacoes/list',[CalendarioController::class,'getRecuperacoes'])->name('Calendario/Recuperacoes/list');
+        Route::get('/Calendario/Recuperacoes',[CalendarioController::class,'recuperacoesIndex'])->name('Calendario/Recuperacoes');
+        Route::get('/Calendario/Recuperacoes/Novo',[CalendarioController::class,'cadastroRecuperacoes'])->name('Calendario/Recuperacoes/Novo');
+        Route::get('/Calendario/Recuperacoes/Cadastro/{id}',[CalendarioController::class,'cadastroRecuperacoes'])->name('Calendario/Recuperacoes/Edit');
+        Route::post('/Calendario/Recuperacoes/Save',[CalendarioController::class,'saveRecuperacoes'])->name('Calendario/Recuperacoes/Save');
+        //
+        Route::get('/Calendario/Feriados/list',[CalendarioController::class,'getFeriados'])->name('Calendario/Feriados/list');
+        Route::get('/Calendario/Feriados',[CalendarioController::class,'FeriadosIndex'])->name('Calendario/Feriados');
+        Route::get('/Calendario/Feriados/Novo',[CalendarioController::class,'cadastroFeriados'])->name('Calendario/Feriados/Novo');
+        Route::get('/Calendario/Feriados/Cadastro/{id}',[CalendarioController::class,'cadastroFeriados'])->name('Calendario/Feriados/Edit');
+        Route::post('/Calendario/Feriados/Save',[CalendarioController::class,'saveFeriados'])->name('Calendario/Feriados/Save');
+        //
+        Route::get('/Calendario/Planejamentos/list',[CalendarioController::class,'getPlanejamentos'])->name('Calendario/Planejamentos/list');
+        Route::get('/Calendario/Planejamentos',[CalendarioController::class,'PlanejamentosIndex'])->name('Calendario/Planejamentos');
+        Route::get('/Calendario/Planejamentos/Novo',[CalendarioController::class,'cadastroPlanejamentos'])->name('Calendario/Planejamentos/Novo');
+        Route::get('/Calendario/Planejamentos/Cadastro/{id}',[CalendarioController::class,'cadastroPlanejamentos'])->name('Calendario/Planejamentos/Edit');
+        Route::post('/Calendario/Planejamentos/Save',[CalendarioController::class,'savePlanejamentos'])->name('Calendario/Planejamentos/Save');
+        //
         Route::get('/Calendario/Paralizacoes/list',[CalendarioController::class,'getParalizacoes'])->name('Calendario/Paralizacoes/list');
         Route::get('/Calendario/Paralizacoes',[CalendarioController::class,'paralizacoesIndex'])->name('Calendario/Paralizacoes');
         Route::get('/Calendario/Paralizacoes/Novo',[CalendarioController::class,'cadastroParalizacao'])->name('Calendario/Paralizacoes/Novo');

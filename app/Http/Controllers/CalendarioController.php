@@ -8,6 +8,9 @@ use App\Models\SabadoLetivo;
 use App\Models\participacoesEvento;
 use App\Models\Evento;
 use App\Models\Calendario;
+use App\Models\CalendarioPlanejamento;
+use App\Models\CalendarioRecuperacao;
+use App\Models\CalendarioFeriado;
 use App\Models\Paralizacao;
 use App\Models\FeriasProfissionais;
 use Carbon\Carbon;
@@ -43,6 +46,18 @@ class CalendarioController extends Controller
         "nome" => "Recessos",
         "endereco" => "Paralizacoes",
         "rota" => "Calendario/Paralizacoes"
+    ],[
+        "nome" => "Recuperações",
+        "endereco" => "Recuperacoes",
+        "rota" => "Calendario/Recuperacoes"
+    ],[
+        "nome" => "Feriados",
+        "endereco" => "Feriados",
+        "rota" => "Calendario/Feriados"
+    ],[
+        "nome" => "Planejamento/Reuniões",
+        "endereco" => "Planejamentos",
+        "rota" => "Calendario/Planejamentos"
     ]);
 
     public function umAnoDepois()
@@ -79,6 +94,188 @@ class CalendarioController extends Controller
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get(),
             "AnoLetivo" => DB::select("SELECT INIAno,TERAno,id as IDAno,INIRematricula,TERRematricula FROM calendario WHERE IDOrg = $idorg ")
         ]);
+    }
+
+    public function feriadosIndex(){
+        return view('Calendario.feriados',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+    public function recuperacoesIndex(){
+        return view('Calendario.recuperacoes',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+    public function planejamentosIndex(){
+        return view('Calendario.planejamentos',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+    public function getRecuperacoes(){
+        $idorg = Auth::user()->id_org;
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
+        $feriasAlunos = DB::select("SELECT re.Recuperacao,e.Nome as Escola, DTInicio,DTTermino,re.id as IDReco FROM calendario_recuperacoes re INNER JOIN escolas e ON(e.id = re.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
+
+        if(count($feriasAlunos) > 0){
+            foreach($feriasAlunos as $fa){
+                $item = [];
+                $item[] = $fa->Recuperacao;
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fa->Escola : '';
+                $item[] = Controller::data($fa->DTInicio,'d/m/Y');
+                $item[] = Controller::data($fa->DTTermino,'d/m/Y');
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Recuperacoes/Edit',$fa->IDReco)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($feriasAlunos)),
+            "recordsFiltered" => intval(count($feriasAlunos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function getFeriados(){
+        $idorg = Auth::user()->id_org;
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
+        $feriasAlunos = DB::select("SELECT fe.Feriado,e.Nome as Escola, DTInicio,DTTermino,fe.id as IDFer FROM calendario_feriados fe INNER JOIN escolas e ON(e.id = fe.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
+
+        if(count($feriasAlunos) > 0){
+            foreach($feriasAlunos as $fa){
+                $item = [];
+                $item[] = $fa->Feriado;
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fa->Escola : '';
+                $item[] = Controller::data($fa->DTInicio,'d/m/Y');
+                $item[] = Controller::data($fa->DTTermino,'d/m/Y');
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Feriados/Edit',$fa->IDFer)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($feriasAlunos)),
+            "recordsFiltered" => intval(count($feriasAlunos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    
+    public function getPlanejamentos(){
+        $idorg = Auth::user()->id_org;
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
+        $feriasAlunos = DB::select("SELECT pl.Assunto,e.Nome as Escola, DTInicio,DTTermino,pl.id as IDPla FROM calendario_planejamentos pl INNER JOIN escolas e ON(e.id = pl.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
+
+        if(count($feriasAlunos) > 0){
+            foreach($feriasAlunos as $fa){
+                $item = [];
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fa->Escola : '';
+                $item[] = $fa->Assunto;
+                $item[] = Controller::data($fa->DTInicio,'d/m/Y');
+                $item[] = Controller::data($fa->DTTermino,'d/m/Y');
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Planejamentos/Edit',$fa->IDPla)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($feriasAlunos)),
+            "recordsFiltered" => intval(count($feriasAlunos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function cadastroFeriados($id=null){
+        $orgId = Auth::user()->id_org;
+
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::all()->where('IDOrg',$orgId)
+        ];
+
+        if($id){
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Calendario/Feriados/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = CalendarioFeriado::find($id);
+        }
+
+        return view('Calendario.cadastroFeriados',$view);
+
+    }
+
+    public function cadastroPlanejamentos($id=null){
+        $orgId = Auth::user()->id_org;
+
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::all()->where('IDOrg',$orgId)
+        ];
+
+        if($id){
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Calendario/Planejamentos/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = CalendarioPlanejamento::find($id);
+        }
+
+        return view('Calendario.cadastroPlanejamentos',$view);
+    }
+
+    public function cadastroRecuperacoes($id=null){
+        $orgId = Auth::user()->id_org;
+
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::all()->where('IDOrg',$orgId)
+        ];
+
+        if($id){
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Calendario/Recuperacoes/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = CalendarioRecuperacao::find($id);
+        }
+
+        return view('Calendario.cadastroRecuperacoes',$view);
     }
 
     public function eventosCadastro($id=null){
@@ -201,6 +398,83 @@ class CalendarioController extends Controller
         }catch(\Throwable $th){
             $status = 'error';
             $mensagem = "Erro ao Salvar a Escola: ".$th;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function saveFeriados(Request $request){
+        try{
+            $aid = '';
+            if($request->id){
+                $Evento = CalendarioFeriado::find($request->id);
+                $Evento->update($request->all());
+                $rout = 'Calendario/Feriados/Edit';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+                $aid = $request->id;
+                ///
+            }else{
+                CalendarioFeriado::create($request->all());
+                $aid = '';
+                $rout = 'Calendario/Feriados/Novo';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $rout = 'Calendario/Feriados/Novo';
+            $mensagem = "Erro ao Salvar: ".$th;
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function saveRecuperacoes(Request $request){
+        try{
+            $aid = '';
+            if($request->id){
+                $Evento = CalendarioRecuperacao::find($request->id);
+                $Evento->update($request->all());
+                $rout = 'Calendario/Recuperacoes/Edit';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+                $aid = $request->id;
+                ///
+            }else{
+                CalendarioRecuperacao::create($request->all());
+                $aid = '';
+                $rout = 'Calendario/Recuperacoes/Novo';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = "Erro ao Salvar: ".$th;
+            $rout = 'Calendario/Feriados/Novo';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function savePlanejamentos(Request $request){
+        try{
+            $aid = '';
+            if($request->id){
+                $Evento = CalendarioPlanejamento::find($request->id);
+                $Evento->update($request->all());
+                $rout = 'Calendario/Planejamentos/Edit';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+                $aid = $request->id;
+                ///
+            }else{
+                CalendarioPlanejamento::create($request->all());
+                $aid = '';
+                $rout = 'Calendario/Planejamentos/Novo';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = "Erro ao Salvar: ".$th;
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
