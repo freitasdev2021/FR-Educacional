@@ -70,7 +70,7 @@ class PedagogosController extends Controller
                 $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
                 $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
-                $item[] = "<a href='".route('Pedagogos/Edit',1)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = "<a href='".route('Pedagogos/Edit',$d->IDPedagogo)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
         }else{
