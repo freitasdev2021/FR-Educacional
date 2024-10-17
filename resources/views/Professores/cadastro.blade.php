@@ -116,9 +116,9 @@
                                 {{$e['Nome']}}
                                 |
                                 <b>De</b>
-                                <input type="time" name="INITur[]" value="{{!empty($e['INITurno']) ? $e['INITurno'] : ''}}">
+                                <input type="time" name="INITur[]" value="{{isset($e['Alocado']) && $e['Alocado'] == 1 && !empty($e['INITurno']) ? $e['INITurno'] : ''}}">
                                 <b>Até</b>
-                                <input  type="time" name="TERTur[]" value="{{!empty($e['TERTurno']) ? $e['TERTurno'] : ''}}">
+                                <input  type="time" name="TERTur[]" value="{{isset($e['Alocado']) && $e['Alocado'] == 1 && !empty($e['TERTurno']) ? $e['TERTurno'] : ''}}">
                                 </label>
                             </div>
                         @endforeach
