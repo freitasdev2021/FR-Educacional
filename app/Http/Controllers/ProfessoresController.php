@@ -308,7 +308,7 @@ class ProfessoresController extends Controller
             LEFT JOIN alocacoes a ON e.id = a.IDEscola
             LEFT JOIN professores p ON p.id = a.IDProfissional
             INNER JOIN organizacoes o ON e.IDOrg = o.id  
-            WHERE o.id = $orgId AND a.TPProfissional = "PROF"
+            WHERE o.id = $orgId 
             GROUP BY e.Nome ORDER BY e.Nome
             SQL;
 
