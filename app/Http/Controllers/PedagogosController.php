@@ -56,7 +56,7 @@ class PedagogosController extends Controller
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
-        WHERE o.id = $orgId $AND
+        WHERE o.id = $orgId $AND AND a.TPProfissional = "PEDA"
         GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
         SQL;
 
