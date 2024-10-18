@@ -158,7 +158,8 @@
                         </tbody>
                     </table>
                 </div>
-                {{-- <h5>Importar Alunos</h5>
+                @if(Auth::user()->email == "turruchel7320@uorak.com")
+                <h5>Importar Alunos</h5>
                 <form action="{{route('Alunos/Importar',$id)}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method("PATCH")
@@ -172,7 +173,7 @@
                             <input type="submit" name="Enviar" value="Upload" class="btn btn-success form-control">
                         </div>
                     </div>
-                </form>   --}}
+                </form>  
                 @endif 
             </div>
             <!--//-->
