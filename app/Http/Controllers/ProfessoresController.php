@@ -186,7 +186,7 @@ class ProfessoresController extends Controller
             tur.id as IDTurno,
             e.Nome as Escola,
             t.Nome as Turma,
-            t.DiaSemana,
+            tur.DiaSemana,
             d.NMDisciplina as Disciplina,
             tur.INITur as Inicio,
             tur.TERTur as Termino
