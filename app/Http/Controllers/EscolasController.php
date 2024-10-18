@@ -571,8 +571,9 @@ class EscolasController extends Controller
     }
 
     public function cadastroTurmas($id=null){
+        $idorg = Auth::user()->id_org;
         if(in_array(Auth::user()->tipo,[2.5,2])){
-            $Salas = SecretariasController::getEscolasRede(Auth::user()->id_org);
+            $Salas = SecretariasController::getEscolasRede($idorg);
         }else{
             $Salas = self::getEscolaDiretor(Auth::user()->id);
         }
@@ -580,7 +581,7 @@ class EscolasController extends Controller
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
-            'escolas' => Escola::all()->where('IDOrg',Auth::user()->id_org),
+            'escolas' => Escola::all()->where('IDOrg',$idorg),
             "Salas" => Sala::all()->whereIn('IDEscola',$Salas)
         ];
         //dd($view['Salas']);
@@ -592,11 +593,43 @@ class EscolasController extends Controller
             INNER JOIN organizacoes o on(e.IDOrg = o.id)
             WHERE t.id = $id
             SQL;
+            //
+            $Alunos = "SELECT
+                a.id as IDAluno, 
+                m.Nome as Nome,
+                t.Nome as Turma,
+                e.Nome as Escola,
+                t.Serie as Serie,
+                m.Nascimento as Nascimento,
+                a.STAluno,
+                m.Foto,
+                m.Email,
+                m.CPF,
+                resp.NMResponsavel,
+                r.ANO,
+                resp.CLResponsavel,
+                MAX(tr.Aprovado) as Aprovado,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                cal.INIAno,
+                cal.TERAno
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE o.id = $idorg AND t.id = $id GROUP BY a.id 
+            ";
 
             $turmas = DB::select($SQL);
             $view['submodulos'][0]['endereco'] = "Edit";
             $view['submodulos'][0]['rota'] = "Escolas/Turmas/Cadastro";
             $view['id'] = $id;
+            $view['Alunos'] = DB::select($Alunos);
             $view['Registro'] = $turmas[0];
         }
 

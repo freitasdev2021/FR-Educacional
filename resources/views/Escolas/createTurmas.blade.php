@@ -126,8 +126,39 @@
                         <a class="btn btn-light col-auto" href="{{route('Escolas/Turmas')}}">Voltar</a>
                     </div>
                 </form> 
+                <hr>
                 @if(isset($id) && !empty($id))
-                <h5>Importar Alunos</h5>
+                <h5>Alunos</h5>
+                <div style="width:90%">
+                    <div style="margin-bottom:20px;">
+                        <a href="{{route('Turmas/Alunos/Exportar',$id)}}" class="btn btn-default">Imprimir</a>
+                    </div>
+                    <table class="table table-striped text-center">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            @if(in_array(Auth::user()->tipo,[2,2.5]))<th>Escola</th>@endif
+                            <th>Data de Nascimento</th>
+                            <th>CPF</th>
+                            <th>Responsável</th>
+                            <th>Telefone Responsavel</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($Alunos as $a)
+                                <tr>
+                                    <td>{{$a->Nome}}</td>
+                                    @if(in_array(Auth::user()->tipo,[2,2.5]))<td>{{$a->Escola}}</td>@endif
+                                    <td>{{date('d/m/Y', strtotime($a->Nascimento))}}</td>
+                                    <td>{{$a->CPF}}</td>
+                                    <th>{{$a->NMResponsavel}}</th>
+                                    <th>{{$a->CLResponsavel}}</th>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                {{-- <h5>Importar Alunos</h5>
                 <form action="{{route('Alunos/Importar',$id)}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method("PATCH")
@@ -141,7 +172,7 @@
                             <input type="submit" name="Enviar" value="Upload" class="btn btn-success form-control">
                         </div>
                     </div>
-                </form>  
+                </form>   --}}
                 @endif 
             </div>
             <!--//-->

@@ -37,6 +37,81 @@ class TurmasController extends Controller
         return view('Escolas.turmas',$view);
     }
 
+    public function exportaAlunosTurma($id){
+        $idorg = Auth::user()->id_org;
+        $Alunos = "SELECT
+            a.id as IDAluno, 
+            m.Nome as Nome,
+            t.Nome as Turma,
+            e.Nome as Escola,
+            t.Serie as Serie,
+            m.Nascimento as Nascimento,
+            a.STAluno,
+            m.Foto,
+            m.Email,
+            m.CPF,
+            resp.NMResponsavel,
+            r.ANO,
+            resp.CLResponsavel,
+            MAX(tr.Aprovado) as Aprovado,
+            cal.INIRematricula,
+            cal.TERRematricula,
+            cal.INIAno,
+            cal.TERAno
+        FROM matriculas m
+        INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+        INNER JOIN escolas e ON(t.IDEscola = e.id)
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+        INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+        WHERE o.id = $idorg AND t.id = $id GROUP BY a.id 
+        ";
+        $Turma = Turma::find($id);
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        
+        // Definir margens
+        $pdf->SetMargins(25, 25, 25); // Margens esquerda, superior e direita
+        $pdf->SetAutoPageBreak(true, 25); // Margem inferior
+        
+        // Definir cabeçalho do relatório
+        $pdf->SetFont('Arial', 'B', 16);
+        
+        // Largura total da tabela (soma das larguras das colunas)
+        $larguraTotalTabela = 160; 
+        
+        // Centralizar o cabeçalho com base na largura da tabela
+        $pdf->SetX((210 - $larguraTotalTabela) / 2); // 210 é a largura da página A4 em mm
+        $pdf->Cell($larguraTotalTabela, 10, self::utfConvert("Turma ") . $Turma->Nome, 0, 1, 'C');
+        $pdf->Ln(10); // Espaço após o título
+        
+        // Definir cabeçalhos da tabela
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(100, 10, 'Nome', 1);
+        $pdf->Cell(30, 10, 'Nascimento', 1);
+        $pdf->Cell(30, 10, 'CPF', 1);
+        $pdf->Ln(); // Pular linha após cabeçalho
+        
+        // Definir fonte para o corpo do relatório
+        $pdf->SetFont('Arial', '', 12);
+        
+        // Loop através dos alunos para exibir os dados em células
+        foreach (DB::select($Alunos) as $a) {
+            $pdf->Cell(100, 10, self::utfConvert($a->Nome), 1);
+            $pdf->Cell(30, 10, date('d/m/Y', strtotime($a->Nascimento)), 1);
+            $pdf->Cell(30, 10, $a->CPF, 1);
+            $pdf->Ln(); // Pular linha após cada aluno
+        }
+
+        // Gera o PDF para saída
+        $pdf->Output('I',$Turma->Nome.'.pdf');
+        exit;
+
+    }
+
     public function desempenho($IDTurma){
         $Turma = Turma::find($IDTurma);
         switch($Turma->Periodo){

@@ -208,6 +208,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Escolas/Turmas/Edit/{id}',[EscolasController::class,'cadastroTurmas'])->name('Escolas/Turmas/Cadastro');
         Route::post('/Escolas/Turmas/Save',[EscolasController::class,'saveTurmas'])->name('Escolas/Turmas/Save');
         //TURMAS
+        Route::get('Turmas/Alunos/Exportar/{IDTurma}',[TurmasController::class,'exportaAlunosTurma'])->name('Turmas/Alunos/Exportar');
         Route::get('/Escolas/Turmas/{IDDisciplina}/getTurmasDisciplina/{TPRetorno}',[EscolasController::class,'getTurmasDisciplinas']);
         Route::get('/Escolas/Turmas/list',[EscolasController::class,'getTurmas'])->name('Escolas/Turmas/list');
         Route::get('/Escolas/Turmas',[EscolasController::class,'Turmas'])->name('Escolas/Turmas');
