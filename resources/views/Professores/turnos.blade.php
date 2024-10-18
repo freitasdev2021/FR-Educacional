@@ -21,6 +21,7 @@
                         @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th>@endif
                         <th style="text-align:center;" scope="col">Turma</th>
                         <th style="text-align:center;" scope="col">Disciplina</th>
+                        <th style="text-align:center;" scope="col">Dia</th>
                         <th style="text-align:center;" scope="col">Inicio</th>
                         <th style="text-align:center;" scope="col">Termino</th>
                         <th style="text-align:center;" scope="col">Opções</th>

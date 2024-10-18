@@ -186,6 +186,7 @@ class ProfessoresController extends Controller
             tur.id as IDTurno,
             e.Nome as Escola,
             t.Nome as Turma,
+            t.DiaSemana,
             d.NMDisciplina as Disciplina,
             tur.INITur as Inicio,
             tur.TERTur as Termino
@@ -203,10 +204,11 @@ class ProfessoresController extends Controller
             foreach($Turnos as $t){
                 $item = [];
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $t->Escola : '';
-                $item[] = $t->Turma;
+                $item[] = $t->Serie." - ".$t->Turma;
                 $item[] = $t->Disciplina;
-                $item[] = Controller::data($t->Inicio,'d/m/Y');
-                $item[] = Controller::data($t->Termino,'d/m/Y');
+                $item[] = $t->DiaSemana;
+                $item[] = Controller::data($t->Inicio,'H:i');
+                $item[] = Controller::data($t->Termino,'H:i');
                 $item[] = "<a href='".route('Professores/Turnos/Edit',['idprofessor' => $idprofessor,'id' => $t->IDTurno])."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
