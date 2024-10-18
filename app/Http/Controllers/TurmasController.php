@@ -85,7 +85,7 @@ class TurmasController extends Controller
         
         // Centralizar o cabeçalho com base na largura da tabela
         $pdf->SetX((210 - $larguraTotalTabela) / 2); // 210 é a largura da página A4 em mm
-        $pdf->Cell($larguraTotalTabela, 10, self::utfConvert("Turma ") . $Turma->Nome, 0, 1, 'C');
+        $pdf->Cell($larguraTotalTabela, 10, self::utfConvert("Turma ") .$Turma->Serie." ".$Turma->Nome, 0, 1, 'C');
         $pdf->Ln(10); // Espaço após o título
         
         // Definir cabeçalhos da tabela
