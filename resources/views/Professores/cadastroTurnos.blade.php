@@ -71,7 +71,7 @@
                             <label>Turma</label>
                             <select name="IDTurma" class="form-control">
                                 @foreach($Turmas as $t)
-                                <option value="{{$t->IDTurma}}" {{isset($Registro) && $t->Turma == $Registro->Turma ? 'selected' : ''}}>{{$t->Turma}} | {{$t->Serie}} | {{$t->Escola}} </option>
+                                <option value="{{$t->IDTurma}}" {{isset($Registro) && $t->IDTurma == $Registro->IDTurma ? 'selected' : ''}}>{{$t->Turma}} | {{$t->Serie}} | {{$t->Escola}} </option>
                                 @endforeach
                             </select>
                         </div>
