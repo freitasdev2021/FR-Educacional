@@ -312,7 +312,7 @@ class ProfessoresController extends Controller
                     ELSE 0 
                 END AS Alocado
             FROM escolas e 
-            LEFT JOIN alocacoes a ON e.id = a.IDEscola AND a.IDProfissional = 16 AND a.TPProfissional = 'PROF'
+            LEFT JOIN alocacoes a ON e.id = a.IDEscola AND a.IDProfissional = $id AND a.TPProfissional = 'PROF'
             INNER JOIN organizacoes o ON e.IDOrg = o.id
             WHERE o.id = $orgId
             GROUP BY e.id, e.Nome, a.INITurno, a.TERTurno
