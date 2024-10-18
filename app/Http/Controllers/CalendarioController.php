@@ -7,6 +7,7 @@ use App\Models\Reuniao;
 use App\Models\SabadoLetivo;
 use App\Models\participacoesEvento;
 use App\Models\Evento;
+use App\Models\Periodo;
 use App\Models\Calendario;
 use App\Models\CalendarioPlanejamento;
 use App\Models\CalendarioRecuperacao;
@@ -58,6 +59,10 @@ class CalendarioController extends Controller
         "nome" => "Planejamento/Reuniões",
         "endereco" => "Planejamentos",
         "rota" => "Calendario/Planejamentos"
+    ],[
+        "nome" => "Periodos",
+        "endereco" => "Periodos",
+        "rota" => "Calendario/Periodos"
     ]);
 
     public function umAnoDepois()
@@ -98,6 +103,12 @@ class CalendarioController extends Controller
 
     public function feriadosIndex(){
         return view('Calendario.feriados',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+    public function periodosIndex(){
+        return view('Calendario.periodos',[
             "submodulos" => self::submodulos
         ]);
     }
@@ -184,6 +195,41 @@ class CalendarioController extends Controller
         echo json_encode($resultados);
     }
 
+    public function getPeriodos(){
+        $idorg = Auth::user()->id_org;
+        if(Auth::user()->tipo == 4){
+            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+            $AND = ' AND e.id='.$IDEscola;
+            //dd($AND);
+        }else{
+            $AND = '';
+        }
+
+        $periodos = DB::select("SELECT pe.Periodo,e.Nome as Escola, DTInicio,DTTermino,pe.id as IDPer FROM periodos pe INNER JOIN escolas e ON(e.id = pe.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
+
+        if(count($periodos) > 0){
+            foreach($periodos as $fa){
+                $item = [];
+                $item[] = $fa->Periodo;
+                (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fa->Escola : '';
+                $item[] = Controller::data($fa->DTInicio,'d/m/Y');
+                $item[] = Controller::data($fa->DTTermino,'d/m/Y');
+                (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Periodos/Edit',$fa->IDPer)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($periodos)),
+            "recordsFiltered" => intval(count($periodos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
     
     public function getPlanejamentos(){
         $idorg = Auth::user()->id_org;
@@ -257,6 +303,25 @@ class CalendarioController extends Controller
         }
 
         return view('Calendario.cadastroPlanejamentos',$view);
+    }
+
+    public function cadastroPeriodos($id=null){
+        $orgId = Auth::user()->id_org;
+
+        $view = [
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Escolas' => Escola::all()->where('IDOrg',$orgId)
+        ];
+
+        if($id){
+            $view['submodulos'][0]['endereco'] = "Edit";
+            $view['submodulos'][0]['rota'] = "Calendario/Periodos/Edit";
+            $view['id'] = $id;
+            $view['Registro'] = Periodo::find($id);
+        }
+
+        return view('Calendario.cadastroPeriodos',$view);
     }
 
     public function cadastroRecuperacoes($id=null){
@@ -449,7 +514,33 @@ class CalendarioController extends Controller
         }catch(\Throwable $th){
             $status = 'error';
             $mensagem = "Erro ao Salvar: ".$th;
-            $rout = 'Calendario/Feriados/Novo';
+            $rout = 'Calendario/Recuperacoes/Novo';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function savePeriodos(Request $request){
+        try{
+            $aid = '';
+            if($request->id){
+                $Evento = Periodo::find($request->id);
+                $Evento->update($request->all());
+                $rout = 'Calendario/Periodos/Edit';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+                $aid = $request->id;
+                ///
+            }else{
+                Periodo::create($request->all());
+                $aid = '';
+                $rout = 'Calendario/Periodos/Novo';
+                $mensagem = 'Salvamento Feito com Sucesso!';
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $status = 'error';
+            $mensagem = "Erro ao Salvar: ".$th;
+            $rout = 'Calendario/Periodos/Novo';
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }

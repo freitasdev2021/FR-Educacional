@@ -255,6 +255,12 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Calendario/Alunos/Ferias/Cadastro/{id}',[CalendarioController::class,'cadastroFeriasAlunos'])->name('Calendario/FeriasAlunos/Edit');
         Route::post('/Calendario/Alunos/Ferias/Save',[CalendarioController::class,'saveFeriasAlunos'])->name('Calendario/Alunos/Ferias/Save');
         //
+        Route::get('/Calendario/Alunos/Periodos/list',[CalendarioController::class,'getPeriodos'])->name('Calendario/Periodos/list');
+        Route::get('/Calendario/Alunos/Periodos',[CalendarioController::class,'periodosIndex'])->name('Calendario/Periodos');
+        Route::get('/Calendario/Alunos/Periodos/Novo',[CalendarioController::class,'cadastroPeriodos'])->name('Calendario/Periodos/Novo');
+        Route::get('/Calendario/Alunos/Periodos/Cadastro/{id}',[CalendarioController::class,'cadastroPeriodos'])->name('Calendario/Periodos/Edit');
+        Route::post('/Calendario/Alunos/Periodos/Save',[CalendarioController::class,'savePeriodos'])->name('Calendario/Periodos/Save');
+        //
         Route::get('/Calendario/Profissionais/Ferias/list',[CalendarioController::class,'getFeriasProfissionais'])->name('Calendario/FeriasProfissionais/list');
         Route::get('/Calendario/Profissionais/Ferias',[CalendarioController::class,'feriasProfissionaisIndex'])->name('Calendario/FeriasProfissionais');
         Route::get('/Calendario/Profissionais/Ferias/Novo',[CalendarioController::class,'cadastroFeriasProfissionais'])->name('Calendario/FeriasProfissionais/Novo');

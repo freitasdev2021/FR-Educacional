@@ -103,13 +103,20 @@ class PedagogosController extends Controller
                 e.Nome,
                 a.INITurno,
                 a.TERTurno,
-                CASE WHEN (SELECT COUNT(IDEscola) FROM alocacoes WHERE IDProfissional = $id AND IDEscola = e.id AND TPProfissional = 'PEDA') THEN 1 ELSE 0 END AS Alocado
+                CASE 
+                    WHEN (SELECT COUNT(IDEscola) 
+                        FROM alocacoes a2 
+                        WHERE a2.IDProfissional = $id 
+                            AND a2.IDEscola = e.id 
+                            AND a2.TPProfissional = 'PEDA') > 0 THEN 1 
+                    ELSE 0 
+                END AS Alocado
             FROM escolas e 
-            LEFT JOIN alocacoes a ON e.id = a.IDEscola
-            LEFT JOIN pedagogos p ON p.id = a.IDProfissional
-            INNER JOIN organizacoes o ON e.IDOrg = o.id  
+            LEFT JOIN alocacoes a ON e.id = a.IDEscola AND a.IDProfissional = $id AND a.TPProfissional = 'PEDA'
+            INNER JOIN organizacoes o ON e.IDOrg = o.id
             WHERE o.id = $orgId
-            GROUP BY e.Nome ORDER BY e.Nome
+            GROUP BY e.id, e.Nome, a.INITurno, a.TERTurno
+            ORDER BY e.Nome;
             SQL;
 
            
