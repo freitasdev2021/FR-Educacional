@@ -33,6 +33,20 @@ class AulasController extends Controller
         'endereco' => 'Diario'
     ]);
     //
+    const submodulosProfessor = array([
+        'nome' => 'Aulas',
+        'rota' => 'Aulas/index',
+        'endereco' => 'index'
+    ],[
+        'nome' => 'Atividades e Avaliações',
+        'rota' => 'Aulas/Atividades/index',
+        'endereco' => 'Atividades'
+    ],[
+        'nome' => 'Recuperação',
+        'rota' => 'Aulas/Recuperacao/index',
+        'endereco' => 'Recuperacao'
+    ]);
+    //
     const cadastroSubmodulos = array([
         'nome' => 'Aulas',
         'rota' => 'Aulas/Edit',
@@ -60,21 +74,40 @@ class AulasController extends Controller
     ]);
     //LISTAGEM PRINCIPAL
     public function index(){
+        if(in_array(Auth::user()->tipo,[6,6.5])){
+            $submodulos = self::submodulosProfessor;
+        }else{
+            $submodulos = self::submodulos;
+        }
+
         return view('Aulas.index',[
-            'submodulos' => self::submodulos
+            'submodulos' => $submodulos
         ]);
     }
     //ATIVIDADES
     public function atividades(){
+        if(in_array(Auth::user()->tipo,[6,6.5])){
+            $submodulos = self::submodulosProfessor;
+        }else{
+            $submodulos = self::submodulos;
+        }
+
         return view('Aulas.atividades',[
-            'submodulos' => self::submodulos
+            'submodulos' => $submodulos
         ]);
     }
     //CADASTRO DE AULAS
     public function cadastro($id=null){
+
+        if(in_array(Auth::user()->tipo,[6,6.5])){
+            $submodulos = self::submodulosProfessor;
+        }else{
+            $submodulos = self::submodulos;
+        }
+
         $view = [
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
-            'submodulos' => self::submodulos,
+            'submodulos' => $submodulos,
             'id' => ''
         ];
 
@@ -107,8 +140,15 @@ class AulasController extends Controller
 
     //CADASTRO DE ATIVIDADES
     public function cadastroAtividades($id=null){
+
+        if(in_array(Auth::user()->tipo,[6,6.5])){
+            $submodulos = self::submodulosProfessor;
+        }else{
+            $submodulos = self::submodulos;
+        }
+
         $view = [
-            'submodulos' => self::submodulos,
+            'submodulos' => $submodulos,
             'id' => '',
             'Aulas' => Aulas::select('id','DSAula')->where('IDProfessor',Auth::user()->IDProfissional)->get() 
         ];
@@ -176,13 +216,12 @@ class AulasController extends Controller
         $SQL = <<<SQL
             SELECT 
                 m.Nome AS Aluno,
-                m.id AS IDAluno,
-                CASE WHEN f.IDAluno IS NOT NULL THEN 'Presente' ELSE 'Falta' END AS Presente
+                m.id AS IDAluno
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
             INNER JOIN turmas t ON a.IDTurma = t.id
             INNER JOIN aulas au ON t.id = au.IDTurma
-            LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
+            INNER JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
             WHERE t.id = au.IDTurma AND au.id = $request->IDAula
             GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
         SQL;
@@ -193,7 +232,7 @@ class AulasController extends Controller
         foreach($alunosAtividades as $at){
         ?>
             <tr>
-                <td><?=$at->Aluno ." (".$at->Presente.")"?></td>
+                <td><?=$at->Aluno?></td>
                 <td><input type="checkbox" value="<?=$at->IDAluno?>" name="Aluno[]"></td>
             </tr>
         <?php
@@ -451,12 +490,13 @@ class AulasController extends Controller
             SUM(atv.Pontuacao) as Pontuacao,
             SUM(n.Nota) as Nota
         FROM atividades atv
-        INNER JOIN aulas a ON(a.id = atv.IDAula)
-        INNER JOIN professores p ON(p.id = a.IDProfessor)
-        INNER JOIN turmas t ON(t.id = a.IDProfessor)
+        LEFT JOIN aulas a ON(a.id = atv.IDAula)
+        LEFT JOIN professores p ON(p.id = a.IDProfessor)
+        LEFT JOIN turmas t ON(t.id = a.IDProfessor)
         LEFT JOIN notas n ON(atv.id = n.IDAtividade)
         WHERE $WHERE AND atv.STDelete = 0 GROUP BY atv.id
         SQL;
+        //dd($SQL);
         $atividades = DB::select($SQL);
         if(count($atividades) > 0){
             foreach($atividades as $a){

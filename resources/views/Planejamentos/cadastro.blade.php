@@ -39,6 +39,7 @@
                      @endforeach
                   </select>
                </div>
+               {{-- @if(!isset($id)) --}}
                <div class="col-sm-12">
                   <br>
                   <table class="table">
@@ -49,19 +50,11 @@
                         <th>Escola</th>
                      </thead>
                      <tbody id="turmasTable">
-                        @if($id)
-                           @foreach($Turmas as $t)
-                              <tr>
-                                 <td><input type="checkbox" value="{{$t->IDTurma}}" {{$t->Checked}} name="Turma[]"></td>
-                                 <td>{{$t->Turma}}</td>
-                                 <td>{{$t->Serie}}</td>
-                                 <td>{{$t->Escola}}</td>
-                              </tr>
-                           @endforeach
-                        @endif
+                        
                      </tbody>
                   </table>
                </div>
+               {{-- @endif --}}
             </div>
             <br>
             <div class="col-sm-12 text-left row">

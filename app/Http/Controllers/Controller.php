@@ -62,6 +62,7 @@ abstract class Controller
             tn.TERTur Termino,
             e.Nome as Escola,
             t.Nome as Turma,
+            t.Serie as Serie,
             tn.DiaSemana as Dia,
             d.NMDisciplina as Disciplina
         FROM turnos tn
@@ -71,7 +72,7 @@ abstract class Controller
         INNER JOIN professores p ON(p.id = tn.IDProfessor)
         INNER JOIN users us ON(us.IDProfissional = p.id)
         INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
-        WHERE us.id = $id GROUP BY tn.INITur,tn.TERTur,tn.DiaSemana
+        WHERE us.id = $id GROUP BY tn.INITur,tn.TERTur,tn.DiaSemana ORDER BY tn.DiaSemana
         SQL;
 
         if($TipoFicha == 'Horarios'){

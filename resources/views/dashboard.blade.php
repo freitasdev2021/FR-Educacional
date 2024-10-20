@@ -228,7 +228,7 @@
              <td class="bg-primary text-white" align="center"><strong>{{$f->Dia}}</strong></td>
              <td>{{$f->Inicio}} - {{$f->Termino}}</td>
              <td>{{$f->Escola}}</td>
-             <td>{{$f->Turma}}</td>
+             <td>{{$f->Serie}} - {{$f->Turma}}</td>
              <td>{{$f->Disciplina}}</td>
            </tr>
          @endforeach

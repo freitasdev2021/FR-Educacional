@@ -420,7 +420,7 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id) 
         LEFT JOIN turnos tur ON(t.id = tur.IDTurma) 
         LEFT JOIN planejamentoanual pa ON(pa.id = t.IDPlanejamento) 
-        WHERE tur.IDDisciplina = $IDDisciplina and t.id IN($TurmasP)";
+        WHERE tur.IDDisciplina = $IDDisciplina and t.id IN($TurmasP) GROUP BY t.Nome,t.Serie";
         if($TPRetorno == "ARRAY"){
             return DB::select($SQL);
             //echo $SQL;

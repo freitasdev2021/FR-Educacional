@@ -263,8 +263,9 @@ class FichaController extends Controller
             $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
         }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
             $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            $registros = DB::select("SELECT f.Titulo,e.Nome as Escola,f.id as IDFicha FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
         }
+
+        $registros = DB::select("SELECT f.Titulo,e.Nome as Escola,f.id as IDFicha FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
         
         if(count($registros) > 0){
             foreach($registros as $r){

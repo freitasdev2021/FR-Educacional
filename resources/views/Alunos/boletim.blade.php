@@ -86,16 +86,16 @@
                                 <td>{{$b->Disciplina}}</td>
                                 <td>{{$b->Nota1B}}</td>
                                 <td>{{$b->Faltas1B}}</td>
-                                <td>{{$b->Rec1B}}</td>
+                                
                                 <td>{{$b->Nota2B}}</td>
                                 <td>{{$b->Faltas2B}}</td>
-                                <td>{{$b->Rec2B}}</td>
+                                
                                 <td>{{$b->Nota3B}}</td>
                                 <td>{{$b->Faltas3B}}</td>
-                                <td>{{$b->Rec3B}}</td>
+                                
                                 <td>{{$b->Nota4B}}</td>
                                 <td>{{$b->Faltas4B}}</td>
-                                <td>{{$b->Rec4B}}</td>
+                                
                                 <td>{{$MediaPeriodo}}</td>
                                 <td>{{($b->Nota1B + $b->Nota2B + $b->Nota3B + $b->Nota4B >= $MediaPeriodo*4) ? 'Aprovado' : 'Reprovado'}}</td>
                             </tr>
@@ -107,13 +107,13 @@
                                 <td>{{$b->Disciplina}}</td>
                                 <td>{{$b->Nota1B}}</td>
                                 <td>{{$b->Faltas1B}}</td>
-                                <td>{{$b->Rec1B}}</td>
+                                
                                 <td>{{$b->Nota2B}}</td>
                                 <td>{{$b->Faltas2B}}</td>
-                                <td>{{$b->Rec2B}}</td>
+                                
                                 <td>{{$b->Nota3B}}</td>
                                 <td>{{$b->Faltas3B}}</td>
-                                <td>{{$b->Rec3B}}</td>
+                                
                                 <td>{{$MediaPeriodo}}</td>
                                 <td>{{($b->Nota1B + $b->Nota2B + $b->Nota3B >= $MediaPeriodo*3) ? 'Aprovado' : 'Reprovado'}}</td>
                             </tr>
@@ -125,10 +125,10 @@
                                 <td>{{$b->Disciplina}}</td>
                                 <td>{{$b->Nota1B}}</td>
                                 <td>{{$b->Faltas1B}}</td>
-                                <td>{{$b->Rec1B}}</td>
+                                
                                 <td>{{$b->Nota2B}}</td>
                                 <td>{{$b->Faltas2B}}</td>
-                                <td>{{$b->Rec2B}}</td>
+                                
                                 <td>{{$MediaPeriodo}}</td>
                                 <td>{{($b->Nota1B + $b->Nota2B >= $MediaPeriodo*3) ? 'Aprovado' : 'Reprovado'}}</td>
                             </tr>
@@ -139,7 +139,7 @@
                             <tr>
                                 <td>{{$b->Disciplina}}</td>
                                 <td>{{$b->Nota1B}}</td>
-                                <td>{{$b->Rec1B}}</td>
+                                
                                 <td>{{$MediaPeriodo}}</td>
                                 <td>{{($b->Nota1B >= $MediaPeriodo*3) ? 'Aprovado' : 'Reprovado'}}</td>
                             </tr>

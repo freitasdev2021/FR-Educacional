@@ -574,81 +574,6 @@ class AlunosController extends Controller
         $pdf->Output('D', 'Declaracao_Transferencia.pdf');
         exit;
     }
-    public function getAta(){
-        // Criar o PDF com FPDF
-        $pdf = new Fpdf('P', 'mm', 'A4');
-        $pdf->AddPage();
-
-        // Definir margens
-        $pdf->SetMargins(5, 5, 5);
-
-        // Definir a fonte para o título
-        $pdf->SetFont('Arial', 'B', 14);
-        $pdf->Cell(0, 10, 'ATA DE RESULTADOS FINAIS', 0, 1, 'C');
-
-        // Espaço após o título
-        $pdf->Ln(10);
-
-        // Informações adicionais (número de Ata, data, etc.)
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(0, 10, 'A presenca de distribuicao das notas finais e nota global dos alunos do Curso...', 0, 1, 'C');
-        $pdf->Ln(5);
-
-        // Definir a fonte para as disciplinas (texto vertical)
-        $disciplinas = [
-            'Língua Portuguesa', 'Matemática', 'História', 'Geografia', 'Física', 'Química', 'Biologia',
-            'Inglês', 'Espanhol', 'Artes', 'Educação Física', 'Sociologia', 'Filosofia', 'Literatura', 'Final'
-        ];
-        $colWidth = 8; // Largura das colunas
-        $rowHeight = 7; // Altura das linhas
-
-        // Definir a altura inicial das colunas
-        $xPosInicial = 90;
-        $yPos = 85; // Posição Y para as disciplinas
-        $pdf->SetY($yPos); // Posição Y inicial
-        // Imprimir as disciplinas verticalmente com bordas
-        foreach ($disciplinas as $disciplina) {
-            $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
-            $pdf->SetFont('Arial', 'B', 10);
-
-            // Desenhar a borda da célula
-            $pdf->Rect($xPosInicial - 5, $yPos - 30, $colWidth, 50); // Tamanho da célula vertical
-
-            // Rotacionar o texto para ficar vertical
-            $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
-
-            // Imprimir o nome da disciplina com borda preta
-            $pdf->Cell(45, $colWidth, mb_convert_encoding($disciplina, 'ISO-8859-1', 'UTF-8'), 0, 1, 'L');
-
-            // Voltar à rotação normal
-            $pdf->Rotate(0);
-
-            // Mover para a próxima coluna
-            $xPosInicial += $colWidth;
-        }
-
-        // Voltar para a rotação normal do texto e definir nova posição Y para a tabela
-        $pdf->SetY($yPos + 20);
-
-        // Criar linhas da tabela (para alunos)
-        $pdf->SetFont('Arial', '', 12);
-        for ($i = 0; $i < 20; $i++) {
-            // Imprimir uma célula para o nome do aluno
-            $pdf->Cell(80, $rowHeight, 'NOME DO ALUNO', 1);
-
-            // Imprimir células em branco para as disciplinas
-            for ($j = 0; $j < count($disciplinas); $j++) {
-                $pdf->Cell($colWidth, $rowHeight, '', 1);
-            }
-
-            // Pular para a próxima linha
-            $pdf->Ln();
-        }
-
-        // Saída do PDF
-        $pdf->Output('I', 'Ata_de_Resultados_Finais.pdf');
-        exit;
-    }
 
     public function historico($id){
         // Primeiro, obtenha todos os anos em que o aluno tem registros
@@ -671,7 +596,8 @@ class AlunosController extends Controller
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                      WHERE f2.IDAluno = a.id 
-                     AND au2.IDDisciplina = d.id 
+                     AND au2.IDDisciplina = d.id
+                     AND au2.id = au.id 
                      AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
                 END) as Frequencia_{$ano}
             ";
@@ -733,18 +659,38 @@ class AlunosController extends Controller
                 $SQL = <<<SQL
                     SELECT 
                         d.NMDisciplina as Disciplina,
-                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec1B,
-                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec2B,
-                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec3B,
-                        (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id) as Rec4B,
-                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' ) as Nota1B,
-                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" ) as Faltas1B,
-                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' ) as Nota2B,
-                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" ) as Faltas2B,
-                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' ) as Nota3B,
-                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" ) as Faltas3B,
-                        (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' ) as Nota4B,
-                        200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" ) as Faltas4B
+                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
+                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
+                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
+                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
+                        CASE WHEN 
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                        THEN
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                        ELSE 
+                            (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                        END as Nota1B,
+                        CASE WHEN 
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                        THEN
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                        ELSE 
+                            (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                        END as Nota2B,
+                        CASE WHEN 
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                        THEN
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                        ELSE 
+                            (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                        END as Nota3B,
+                        CASE WHEN 
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                        THEN
+                            (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                        ELSE 
+                            (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                        END as Nota4B
                     FROM disciplinas d
                     INNER JOIN aulas au ON(d.id = au.IDDisciplina)
                     INNER JOIN frequencia f ON(au.id = f.IDAula)
@@ -888,7 +834,7 @@ class AlunosController extends Controller
         return view('Alunos.atividades',[
             'submodulos' => $submodulos,
             'id' => $id,
-            'Disciplinas' => (Auth::user()->tipo == 6) ? self::getFichaProfessor(Auth::user()->id,'Disciplinas') : json_decode($Disciplinas,true),
+            'Disciplinas' => (Auth::user()->tipo == 6) ? ProfessoresController::getNomeDisiciplinasProfessor(Auth::user()->id) : json_decode($Disciplinas,true),
             "Estagios" => $Estagios
         ]);
     }
@@ -1011,7 +957,7 @@ class AlunosController extends Controller
             $rout = 'Alunos/Transferidos/Transferido';
             $aid = $request->IDTransferencia;
             $status = 'error';
-            $mensagem = 'Transferência Realizada com Sucesso!';
+            $mensagem = 'Erro ao Transferir '.$th->getMessage();
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
@@ -1663,18 +1609,24 @@ class AlunosController extends Controller
                         $st = "<strong class='text-secondary'>Transferido Para Fora da Rede</strong>";
                     break;
                 }
+                $opcoes = "<form id='formCancelaTransferencia' style='display:none' method='POST' action=".route('Alunos/Transferencias/Cancela').">
+                    <input type='hidden' name='_token' value=".csrf_token().">
+                    <input type='hidden' name='IDAluno' value='$r->IDAluno'>
+                    <input type='hidden' name='IDTransferencia' value='$r->IDTransferencia'>
+                </form>
+                ";
+
+                if($r->Aprovado != 1){
+                    $opcoes .="<button class='btn btn-xs btn-danger' onclick='cancelarTransferencia($r->IDTransferencia)'>Cancelar Transferencia</button>";
+                }
+
                 $item = [];
                 $item[] = $r->EscolaOrigem;
                 $item[] = $r->Destino;
                 $item[] = Controller::data($r->DTTransferencia,'d/m/Y');
                 $item[] = $r->Justificativa;
                 $item[] = $st;
-                $item[] = "<form id='formCancelaTransferencia' style='display:none' method='POST' action=".route('Alunos/Transferencias/Cancela').">
-                    <input type='hidden' name='_token' value=".csrf_token().">
-                    <input type='hidden' name='IDAluno' value='$r->IDAluno'>
-                    <input type='hidden' name='IDTransferencia' value='$r->IDTransferencia'>
-                </form>
-                <button class='btn btn-xs btn-danger' onclick='cancelarTransferencia($r->IDTransferencia)'>Cancelar Transferencia</button>";
+                $item[] = $opcoes;
                 $itensJSON[] = $item;
             }
         }else{

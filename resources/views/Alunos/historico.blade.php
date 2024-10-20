@@ -47,7 +47,7 @@
                     background-color: #f2f2f2;
                 }
             </style>
-            <table>
+            {{-- <table>
                 <tr>
                     <th>Nome</th>
                     <td>João da Silva</td>
@@ -60,7 +60,7 @@
                     <th>Data de Nascimento</th>
                     <td>15/03/2005</td>
                 </tr>
-            </table>
+            </table> --}}
             <table>
                 <thead>
                     <tr>
@@ -82,7 +82,7 @@
                             <td>{{ $linha->Disciplina }}</td>
                             @foreach ($anos as $ano)
                                 <td>{{ $linha->{'Total_' . $ano} }}</td>
-                                <td>{{ number_format(($linha->{'Frequencia_' . $ano} * 50) / 60, 2) }}</td>
+                                <td>{{ number_format(($linha->{'Frequencia_' . $ano} * 50), 2) }}</td>
                             @endforeach
                         </tr>
                     @endforeach

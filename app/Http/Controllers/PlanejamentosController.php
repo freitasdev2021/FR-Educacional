@@ -358,7 +358,7 @@ class PlanejamentosController extends Controller
         INNER JOIN disciplinas d ON(d.id = pa.IDDisciplina)
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        WHERE o.id = $orgId AND pa.id IN($turmas) GROUP BY pa.id
+        WHERE o.id = $orgId AND pa.IDDisciplina IN($turmas) GROUP BY pa.id
         SQL;
         //dd($SQL);
 

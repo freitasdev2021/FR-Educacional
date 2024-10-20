@@ -14,16 +14,28 @@ use Illuminate\Http\Request;
 class RecuperacaoController extends Controller
 {
     const submodulos = AulasController::submodulos;
+    const submodulosProfessor = AulasController::submodulosProfessor;
 
     public function index(){
+        if(in_array(Auth::user()->tipo,[6,6.5])){
+            $submodulos = self::submodulosProfessor;
+        }else{
+            $submodulos = self::submodulos;
+        }
         return view("Recuperacao.index",[
-            "submodulos" => self::submodulos
+            "submodulos" => $submodulos
         ]);
     }
 
     public function cadastro($id = null){
+        if(in_array(Auth::user()->tipo,[6,6.5])){
+            $submodulos = self::submodulosProfessor;
+        }else{
+            $submodulos = self::submodulos;
+        }
+
         $view = [
-            "submodulos"=>self::submodulos,
+            "submodulos"=>$submodulos,
             'id' => '',
             'alunos' => ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional),
             'disciplinas' => EscolasController::getDisciplinasProfessor(Auth::user()->id)

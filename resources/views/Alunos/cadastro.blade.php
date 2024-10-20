@@ -309,7 +309,7 @@
                             <a class="btn btn-light" href="{{route('Alunos/index')}}">Cancelar</a>
                         </div>
                         @endif
-                        @if(isset($Registro) && in_array(Auth::user()->tipo,[4]) && $Vencimento->lt($Hoje) && $Registro->ANO >= date('Y')) 
+                        @if(isset($Registro) && in_array(Auth::user()->tipo,[4])) 
                         <div class="col-auto">
                             <a href="{{route('Alunos/Comprovante/Matricula',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Matrícula</a>
                             <a href="{{route('Alunos/Comprovante/Frequencia',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Frequência</a>

@@ -37,4 +37,52 @@ class DashboardController extends Controller
         }
         return DB::select("SELECT COUNT(m.id) as Quantidade FROM matriculas m INNER JOIN alunos a ON(m.id = a.IDMatricula) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(e.id = t.IDEscola) WHERE e.IDOrg = $IDOrg $WHERE ")[0];
     }
+
+    public function horariosProfessor($IDProf){
+        $dias = [];
+        $horarios = [];
+        $SQL = <<<SQL
+            SELECT
+                CONCAT(
+                    '[',
+                    GROUP_CONCAT(
+                        '{'
+                        ,'"Inicio":"', tn.INITur, '"'
+                        ,',"Termino":"', tn.TERTur, '"'
+                        ,',"Turma":"', t.Nome, '"'
+                        ,',"Disciplina":"', d.NMDisciplina, '"'
+                        ,',"Escola":"', e.Nome, '"'
+                        ,'}'
+                        SEPARATOR ','
+                    ),
+                    ']'
+                ) as Horarios,
+                tn.DiaSemana as Dia
+            FROM turnos tn
+            INNER JOIN turmas t ON(tn.IDTurma = t.id)
+            INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+            INNER JOIN escolas e ON(al.IDEscola = e.id)
+            INNER JOIN professores p ON(p.id = tn.IDProfessor)
+            INNER JOIN users us ON(us.IDProfissional = p.id)
+            INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+            WHERE us.id = $IDProf 
+            GROUP BY DiaSemana
+        SQL;
+
+        DB::statement("SET SESSION group_concat_max_len = 1000000");
+
+        $turnos = DB::select($SQL);
+
+        foreach($turnos as $t){
+            // Adiciona os dias e os horários no array
+            array_push($dias, $t->Dia);
+            array_push($horarios, json_decode($t->Horarios));
+        }
+
+        return array(
+            "Dias" => $dias,
+            "Horarios" => $horarios
+        );
+
+    }
 }

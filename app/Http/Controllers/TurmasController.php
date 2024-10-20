@@ -244,6 +244,142 @@ class TurmasController extends Controller
         echo json_encode($resultados);
     }
 
+    public function getDisciplinasTurma($IDTurma){
+        $disciplinas = [];
+        $SQL = <<<SQL
+            SELECT
+                d.NMDisciplina as Disciplina
+            FROM turnos tn
+            INNER JOIN turmas t ON(tn.IDTurma = t.id)
+            INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+            INNER JOIN escolas e ON(al.IDEscola = e.id)
+            INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+            WHERE tn.IDTurma = $IDTurma GROUP BY d.id
+        SQL;
+
+        foreach(DB::select($SQL) as $s){
+            array_push($disciplinas,$s->Disciplina);
+        }
+        return $disciplinas;
+    }
+
+    public function getAta($IDTurma){
+        /////////////////////
+        // Exemplo de dados da consulta SQL que serão usados para gerar o boletim 
+        
+        $ata = array();
+
+        // Obter dados dos alunos e suas notas
+        foreach (self::getAlunosByTurma($IDTurma) as $a) {
+            $SQL = <<<SQL
+               SELECT 
+                    d.NMDisciplina as Disciplina,
+                    m.Nome,
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Rec,
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Nota
+                FROM disciplinas d
+                INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+                INNER JOIN frequencia f ON(au.id = f.IDAula)
+                INNER JOIN alunos a ON(a.id = f.IDAluno)
+                INNER JOIN matriculas m ON(m.id = a.IDMatricula)
+                INNER JOIN atividades at ON(at.IDAula = au.id)
+                INNER JOIN notas n ON(at.id = n.IDAtividade)
+                WHERE a.id = $a AND DATE_FORMAT(f.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
+                GROUP BY m.Nome, m.id, d.id
+            SQL;
+        
+            $queryBoletim = DB::select($SQL);
+        
+            // Verificar se o aluno tem notas lançadas
+            if (!empty($queryBoletim)) {
+                foreach ($queryBoletim as $boletim) {
+                    // Se o aluno já existe no array $ata, apenas adiciona as notas da nova disciplina
+                    if (!isset($ata[$boletim->Nome])) {
+                        $ata[$boletim->Nome] = array(); // Inicializa o array para o aluno
+                    }
+                    // Adiciona a nota da disciplina no array do aluno
+                    $ata[$boletim->Nome][$boletim->Disciplina] = $boletim->Nota;
+                }
+            }
+        }
+        
+        // Criar o PDF com FPDF
+        $pdf = new Fpdf('P', 'mm', 'A4');
+        $pdf->AddPage();
+        
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5);
+        
+        // Definir a fonte para o título
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->Cell(0, 10, 'ATA DE RESULTADOS FINAIS', 0, 1, 'C');
+        
+        // Espaço após o título
+        $pdf->Ln(10);
+        
+        // Informações adicionais (número de Ata, data, etc.)
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 10, 'A presenca de distribuicao das notas finais e nota global dos alunos do Curso...', 0, 1, 'C');
+        $pdf->Ln(5);
+        
+        // Definir a fonte para as disciplinas (texto vertical)
+        $disciplinas = self::getDisciplinasTurma($IDTurma);
+        $colWidth = 8; // Ajuste para a largura das colunas
+        $rowHeight = 7; // Altura das linhas
+        
+        // Definir a altura inicial das colunas
+        $xPosInicial = 90;
+        $yPos = 85; // Posição Y para as disciplinas
+        $pdf->SetY($yPos); // Posição Y inicial
+        
+        // Imprimir as disciplinas verticalmente com bordas
+        foreach ($disciplinas as $disciplina) {
+            $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
+            $pdf->SetFont('Arial', 'B', 10);
+        
+            // Desenhar a borda da célula
+            $pdf->Rect($xPosInicial - 5, $yPos - 30, $colWidth, 50); // Tamanho da célula vertical
+        
+            // Rotacionar o texto para ficar vertical
+            $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
+        
+            // Imprimir o nome da disciplina com borda preta
+            $pdf->Cell(45, $colWidth, mb_convert_encoding($disciplina, 'ISO-8859-1', 'UTF-8'), 0, 1, 'L');
+        
+            // Voltar à rotação normal
+            $pdf->Rotate(0);
+        
+            // Mover para a próxima coluna
+            $xPosInicial += $colWidth;
+        }
+        
+        // Voltar para a rotação normal do texto e definir nova posição Y para a tabela
+        $pdf->SetY($yPos + 20);
+        
+        // Criar linhas da tabela (para alunos)
+        $pdf->SetFont('Arial', '', 12);
+        
+        // Para cada aluno e suas notas
+        foreach ($ata as $aluno => $notas) {
+            // Imprimir uma célula para o nome do aluno
+            $pdf->Cell(80, $rowHeight, mb_convert_encoding($aluno, 'ISO-8859-1', 'UTF-8'), 1);
+        
+            // Para cada disciplina, imprime a nota, ou espaço vazio se o aluno não tiver nota para a disciplina
+            foreach ($disciplinas as $disciplina) {
+                $nota = isset($notas[$disciplina]) ? $notas[$disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio
+                $pdf->Cell($colWidth, $rowHeight, $nota, 1);
+            }
+        
+            // Pular para a próxima linha
+            $pdf->Ln();
+        }
+        
+        // Saída do PDF
+        $pdf->Output('I', 'Ata_de_Resultados_Finais.pdf');
+        exit;
+        
+    }
+
     public function gerarBoletins($turmaId)
     {
         // Exemplo de dados da consulta SQL que serão usados para gerar o boletim
@@ -252,49 +388,76 @@ class TurmasController extends Controller
         foreach(self::getAlunosByTurma($turmaId) as $a){
             $SQL = <<<SQL
             SELECT 
-                    d.NMDisciplina as Disciplina,
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id) as Rec1B,
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id) as Rec2B,
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id) as Rec3B,
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id) as Rec4B,
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' ) as Nota1B,
-                    200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" ) as Faltas1B,
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' ) as Nota2B,
-                    200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" ) as Faltas2B,
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' ) as Nota3B,
-                    200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" ) as Faltas3B,
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' ) as Nota4B,
-                    200 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" ) as Faltas4B
-                FROM disciplinas d
-                INNER JOIN aulas au ON(d.id = au.IDDisciplina)
-                INNER JOIN frequencia f ON(au.id = f.IDAula)
-                INNER JOIN alunos a ON(a.id = f.IDAluno)
-                INNER JOIN atividades at ON(at.IDAula = au.id)
-                INNER JOIN notas n ON(at.id = n.IDAtividade)
-                WHERE a.id = $a
-                GROUP BY d.id 
-            SQL;
-            $queryBoletim = DB::select($SQL)[0];
+                d.NMDisciplina as Disciplina,
+                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
+                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
+                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
+                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = a.id AND au2.id = au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Nota1B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Nota2B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Nota3B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Nota4B
+            FROM disciplinas d
+            INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+            INNER JOIN frequencia f ON(au.id = f.IDAula)
+            INNER JOIN alunos a ON(a.id = f.IDAluno)
+            INNER JOIN atividades at ON(at.IDAula = au.id)
+            INNER JOIN notas n ON(at.id = n.IDAtividade)
+            WHERE a.id = $a
+            GROUP BY d.id 
+        SQL;
+        $queryBoletim = DB::select($SQL);
+        
+        // Verificar se o aluno tem notas lançadas
+        if (!empty($queryBoletim)) {
             $queryAluno = DB::select("SELECT m.Nome as Aluno,t.Nome as Turma,e.Nome as Escola FROM alunos a INNER JOIN matriculas m ON(m.id = a.IDMatricula) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(t.IDEscola = e.id) WHERE a.id = $a")[0];
-            array_push($boletins,array("Disciplina" => $queryBoletim->Disciplina,
+            $boletins[$a] = array(
                 "DadosAluno" => $queryAluno,
-                "Rec1B"=> $queryBoletim->Rec1B,
-                "Rec2B"=> $queryBoletim->Rec2B,
-                "Rec3B"=> $queryBoletim->Rec3B,
-                "Rec4B"=> $queryBoletim->Rec4B,
-                "Nota1B"=> $queryBoletim->Nota1B,
-                "Nota2B"=> $queryBoletim->Nota2B,
-                "Nota3B"=> $queryBoletim->Nota3B,
-                "Nota4B"=> $queryBoletim->Nota4B,
-                "Faltas1B"=> $queryBoletim->Faltas1B,
-                "Faltas2B"=> $queryBoletim->Faltas2B,
-                "Faltas3B"=> $queryBoletim->Faltas3B,
-                "Faltas4B"=> $queryBoletim->Faltas4B,
-            ));
+                "Disciplinas" => []
+            );
+            // Adicionar ao boletim somente se há dados
+            foreach ($queryBoletim as $boletim) {
+                $boletins[$a]['Disciplinas'][] = array(
+                    "Disciplina" => $boletim->Disciplina,
+                    "Nota1B"=> $boletim->Nota1B,
+                    "Nota2B"=> $boletim->Nota2B,
+                    "Nota3B"=> $boletim->Nota3B,
+                    "Nota4B"=> $boletim->Nota4B,
+                    "Faltas1B"=> $boletim->Faltas1B,
+                    "Faltas2B"=> $boletim->Faltas2B,
+                    "Faltas3B"=> $boletim->Faltas3B,
+                    "Faltas4B"=> $boletim->Faltas4B,
+                );
+            }
+        }
+                
         }
         //dd($boletins);
         //RESGATAR DADOS DA ORGANIZACAO
-        $Organizacao = SecretariasController::getInstituicao(Auth::user()->id_org);
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona a página antes do loop
@@ -313,7 +476,7 @@ class TurmasController extends Controller
             }
 
             //CABECALHO DO BOLETIM
-            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->SetFont('Arial', 'B', 6);
             $pdf->Ln(3);
             $pdf->Cell(66, 7, mb_convert_encoding("Escola: " . $row['DadosAluno']->Escola, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
             $pdf->Cell(66, 7, mb_convert_encoding("Turma: " . $row['DadosAluno']->Turma, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
@@ -341,16 +504,18 @@ class TurmasController extends Controller
             $pdf->Cell(21, 7, 'Nota', 1, 0, 'C');
             $pdf->Cell(21, 7, 'Falta', 1, 1, 'C');
             //DADOS DO BOLETIM
-            $pdf->SetFont('Arial', '', 10);
-            $pdf->Cell(30, 7, mb_convert_encoding($row['Disciplina'],'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Nota1B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas1B']/4, 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Nota2B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas2B']/4, 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Nota3B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas3B']/4, 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Nota4B'], 1, 0, 'C');
-            $pdf->Cell(21, 7, $row['Faltas4B']/4, 1, 1, 'C');
+            foreach($row['Disciplinas'] as $d){
+                $pdf->SetFont('Arial', '', 10);
+                $pdf->Cell(30, 7, mb_convert_encoding($d['Disciplina'],'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Nota1B'], 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas1B']/4, 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Nota2B'], 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas2B']/4, 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Nota3B'], 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas3B']/4, 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Nota4B'], 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas4B'], 1, 1, 'C');
+            }
             //RODAPÉ
             $pdf->Ln(1);
             $pdf->Cell(0, 10, 'Assinatura do Professor(a): _______________________', 0, 1, 'L');
@@ -366,7 +531,7 @@ class TurmasController extends Controller
     }
 
 
-    public function getAlunosByTurma($IDTurma){
+    public static function getAlunosByTurma($IDTurma){
         $arrId = array();
         foreach(Aluno::select("id")->where("IDTurma",$IDTurma)->get() as $a){
             array_push($arrId,$a->id);

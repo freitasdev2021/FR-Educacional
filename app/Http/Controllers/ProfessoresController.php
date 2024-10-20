@@ -394,6 +394,30 @@ class ProfessoresController extends Controller
         return view('Professores.turnos',$view);
     }
 
+    public static function getNomeDisiciplinasProfessor($IDUser){
+        $arr = array();
+        $SQL = <<<SQL
+        SELECT 
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        WHERE us.id = $IDUser GROUP BY d.id
+        SQL;
+        foreach(DB::select($SQL) as $s){
+            array_push($arr,array(
+                "IDDisciplina" => $s->IDDisciplina,
+                "Disciplina" => $s->Disciplina,
+            ));
+        }
+        return $arr;
+    }
+
     public static function getTurmasProfessor($id){
         $SQL = <<<SQL
         SELECT 
@@ -408,7 +432,7 @@ class ProfessoresController extends Controller
         INNER JOIN professores p ON(p.id = tn.IDProfessor)
         INNER JOIN users us ON(us.IDProfissional = p.id)
         INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
-        WHERE us.id = $id GROUP BY tn.INITur,tn.TERTur,tn.DiaSemana
+        WHERE us.id = $id GROUP BY t.Nome,t.Serie
         SQL;
 
         return DB::select($SQL);
