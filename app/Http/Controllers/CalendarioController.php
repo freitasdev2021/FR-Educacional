@@ -82,7 +82,7 @@ class CalendarioController extends Controller
         // Armazena as datas em um array
         $dates = [];
         foreach ($period as $date) {
-            if($date->format('D') == 'Sat' && Carbon::parse($date) > Carbon::now()){
+            if($date->format('D') == 'Sat' && Carbon::parse($date)){
                 $dates[] = $date->format('d/m/Y');
             }
         }
