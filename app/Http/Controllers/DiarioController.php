@@ -169,7 +169,7 @@ class DiarioController extends Controller
                 aulas au 
             INNER JOIN professores p ON(p.id = au.IDProfessor)
             INNER JOIN turmas t ON(t.id = au.IDTurma)
-            WHERE t.IDEscola IN(1)
+            WHERE t.IDEscola IN($IDEscolas)
         SQL;
 
         return DB::select($SQL);

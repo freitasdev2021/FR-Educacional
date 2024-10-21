@@ -26,7 +26,7 @@
                     @endif
                     <div class="row">
                         <div class="col-sm-6">
-                            <label>Alvo</label>
+                            <label>Aluno</label>
                             <select name="IDAlvo" class="form-control">
                                 <option value="">Selecione</option>
                                 @foreach($Alvos as $a)

@@ -590,6 +590,9 @@ class AlunosController extends Controller
         $selectYears = '';
         foreach ($anos as $ano) {
             $selectYears .= "
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecBim_{$ano},
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecAn_{$ano},
+            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as PontRec_{$ano},
             MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id ) END) as Total_{$ano}, 
             MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
                     (SELECT COUNT(f2.id) 

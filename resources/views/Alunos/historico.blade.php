@@ -6,6 +6,7 @@
            @endforeach
         </div>
         <div class="fr-card-body">
+            {{-- {{dd($historico)}} --}}
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -81,8 +82,8 @@
                         <tr>
                             <td>{{ $linha->Disciplina }}</td>
                             @foreach ($anos as $ano)
-                                <td>{{ $linha->{'Total_' . $ano} }}</td>
-                                <td>{{ number_format(($linha->{'Frequencia_' . $ano} * 50), 2) }}</td>
+                                <td>{{ ($linha->{'RecAn_'.$ano} > 0) ? $linha->RecAn : $linha->{'Total_' . $ano} - $linha->{'PontRec_'.$ano} + $linha->{'RecBim_'.$ano} }}</td>
+                                <td>{{ number_format(($linha->{'Frequencia_' . $ano} ), 2) }}</td>
                             @endforeach
                         </tr>
                     @endforeach

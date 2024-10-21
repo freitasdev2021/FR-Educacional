@@ -46,34 +46,43 @@
                         <div class="col-sm-4">
                             <label>Estágio</label>
                             <select name="Estagio" class="form-control" required>
+                                <option value="ANUAL" {{isset($Registro) && $Registro->Estagio == "ANUAL" ? 'selected' : ''}}>Anual</option>
+                                
                                 <optgroup label="Bimestre">
-                                    <option value="1º BIM">1º Bimestre</option>
-                                    <option value="2º BIM">2º Bimestre</option>
-                                    <option value="3º BIM">3º Bimestre</option>
-                                    <option value="4º BIM">4º Bimestre</option>
+                                    <option value="1º BIM" {{isset($Registros) && $Registros->Estagio == "1º BIM" ? 'selected' : ''}}>1º Bimestre</option>
+                                    <option value="2º BIM" {{isset($Registros) && $Registros->Estagio == "2º BIM" ? 'selected' : ''}}>2º Bimestre</option>
+                                    <option value="3º BIM" {{isset($Registros) && $Registros->Estagio == "3º BIM" ? 'selected' : ''}}>3º Bimestre</option>
+                                    <option value="4º BIM" {{isset($Registros) && $Registros->Estagio == "4º BIM" ? 'selected' : ''}}>4º Bimestre</option>
                                 </optgroup>
+                                
                                 <optgroup label="Trimestre">
-                                    <option value="1º TRI">1º Trimestre</option>
-                                    <option value="2º TRI">2º Trimestre</option>
-                                    <option value="3º TRI">3º Trimestre</option>
+                                    <option value="1º TRI" {{isset($Registros) && $Registros->Estagio == "1º TRI" ? 'selected' : ''}}>1º Trimestre</option>
+                                    <option value="2º TRI" {{isset($Registro) && $Registros->Estagio == "2º TRI" ? 'selected' : ''}}>2º Trimestre</option>
+                                    <option value="3º TRI" {{isset($Registro) && $Registros->Estagio == "3º TRI" ? 'selected' : ''}}>3º Trimestre</option>
                                 </optgroup>
+                                
                                 <optgroup label="Semestre">
-                                    <option value="1º SEM">1º Semestre</option>
-                                    <option value="2º SEM">2º Semestre</option>
+                                    <option value="1º SEM" {{isset($Registros) && $Registros->Estagio == "1º SEM" ? 'selected' : ''}}>1º Semestre</option>
+                                    <option value="2º SEM" {{isset($Registros) && $Registros->Estagio == "2º SEM" ? 'selected' : ''}}>2º Semestre</option>
                                 </optgroup>
+                                
                                 <optgroup label="Periodo">
-                                    <option value="1º PER">1º Periodo</option>
+                                    <option value="1º PER" {{isset($Registros) && $Registros->Estagio == "1º PER" ? 'selected' : ''}}>1º Período</option>
                                 </optgroup>
-                            </select>
+                            </select>                            
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label>Pontuação</label>
+                        <div class="col-sm-4">
+                            <label>Pontuação do aluno no Estágio</label>
+                            <input type="number" name="PontuacaoPeriodo" class="form-control" value="{{(isset($Registros->PontuacaoPeriodo)) ? $Registros->PontuacaoPeriodo : ''}}" required>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Pontuação do Trabalho</label>
                             <input type="number" name="Pontuacao" class="form-control" value="{{(isset($Registros->Pontuacao)) ? $Registros->Pontuacao : ''}}" required>
                         </div>
-                        <div class="col-sm-6">
-                            <label>Nota</label>
+                        <div class="col-sm-4">
+                            <label>Nota do Aluno</label>
                             <input type="number" name="Nota" class="form-control" value="{{(isset($Registros->Nota)) ? $Registros->Nota : ''}}">
                         </div>
                     </div>

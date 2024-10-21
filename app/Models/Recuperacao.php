@@ -16,6 +16,7 @@ class Recuperacao extends Model
         "IDDisciplina",
         "Estagio",
         "Pontuacao",
+        "PontuacaoPeriodo",
         "Nota"  
     ];
 }

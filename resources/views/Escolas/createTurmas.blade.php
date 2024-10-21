@@ -43,6 +43,7 @@
                             <label>Série</label>
                             <select name="Serie" class="form-control">
                                 <option value="">Selecione</option>
+                                <option value="Multiserie" {{(isset($Registro->Serie) && $Registro->Serie == "Multiserie" ) ? 'selected' : ''}}>Multiserie</option>
                                 <optgroup label="Supletivo">
                                     <option value="Educação de Jovens e Adultos (EJA)" {{(isset($Registro->Serie) && $Registro->Serie == "Educação de Jovens e Adultos (EJA)" ) ? 'selected' : ''}}>Educação de Jovens e Adultos (EJA)</option>
                                 </optgroup>
