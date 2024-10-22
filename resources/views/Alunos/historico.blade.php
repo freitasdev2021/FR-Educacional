@@ -73,7 +73,7 @@
                     <tr>
                         @foreach ($anos as $ano)
                             <th>Nota</th>
-                            <th>Frequência</th>
+                            <th>Carga Horária</th>
                         @endforeach
                     </tr>
                 </thead>
@@ -83,12 +83,21 @@
                             <td>{{ $linha->Disciplina }}</td>
                             @foreach ($anos as $ano)
                                 <td>{{ ($linha->{'RecAn_'.$ano} > 0) ? $linha->RecAn : $linha->{'Total_' . $ano} - $linha->{'PontRec_'.$ano} + $linha->{'RecBim_'.$ano} }}</td>
-                                <td>{{ number_format(($linha->{'Frequencia_' . $ano} ), 2) }}</td>
+                                <td>{{ $linha->{'CargaDisciplina_' . $ano} }} </td>
                             @endforeach
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            <hr>
+            <ul>
+                
+            @foreach ($cargas as $kh => $linha)
+                @foreach ($anos as $ano)
+                    <li><strong>{{$ano}}</strong> - {{ $linha->{'CargaTotal_' . $ano} }} </li>
+                @endforeach
+            @endforeach
+            </ul>
         </div>
     </div>
 </x-educacional-layout>

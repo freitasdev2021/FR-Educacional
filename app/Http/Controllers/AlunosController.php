@@ -586,7 +586,10 @@ class AlunosController extends Controller
             ->pluck('ano')
             ->toArray();
 
+            //dd($anos);
+
         // Crie a parte dinâmica da consulta para as colunas de anos
+        $selectCargas = "";
         $selectYears = '';
         foreach ($anos as $ano) {
             $selectYears .= "
@@ -600,18 +603,43 @@ class AlunosController extends Controller
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                      WHERE f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
-                     AND au2.id = au.id 
                      AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
-                END) as Frequencia_{$ano}
+                END) as Frequencia_{$ano},
+                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND au2.IDDisciplina = d.id
+                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                END) as CargaDisciplina_{$ano},
+                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                END) as CargaTotal_{$ano},
+            ";
+
+            $selectCargas .="
+            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+            (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                WHERE f2.IDAluno = a.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+            END) as CargaTotal_{$ano},
             ";
         }
         
-        $selectYears = rtrim($selectYears, ', ');
+
         if(!empty($selectYears)){
             $historico = DB::select("
                 SELECT 
                     d.NMDisciplina as Disciplina,
                     {$selectYears}
+                    COUNT(d.id)
                 FROM 
                     disciplinas d
                 INNER JOIN 
@@ -632,6 +660,28 @@ class AlunosController extends Controller
         }else{
             $historico = [];
         }
+
+        if(!empty($selectCargas)){
+            $cargas = DB::select("
+                SELECT 
+                    {$selectCargas}
+                    COUNT(au.id)
+                FROM 
+                    aulas au
+                INNER JOIN 
+                    frequencia f ON(au.id = f.IDAula)
+                INNER JOIN 
+                    alunos a ON(a.id = f.IDAluno)
+                INNER JOIN 
+                    atividades at ON(at.IDAula = au.id)
+                INNER JOIN 
+                    notas n ON(at.id = n.IDAtividade)
+                WHERE 
+                    a.id = :aluno_id
+            ", ['aluno_id' => $id]);
+        }else{
+            $cargas = [];
+        }
         // Consulta SQL dinâmica
 
         
@@ -645,6 +695,7 @@ class AlunosController extends Controller
             'submodulos' => $submodulos,
             'id' => $id,
             'historico' => $historico,
+            'cargas' => $cargas,
             'anos' => $anos
         ]);
     }
@@ -1751,8 +1802,8 @@ class AlunosController extends Controller
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $r->Escola : '';
                 $item[] = $r->Serie;
                 $item[] = Controller::data($r->Nascimento,'d/m/Y');
-                $item[] = $Vencimento->lt($Hoje) && $r->ANO <= date('Y') ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>EM DIA</strong>";
-                $item[] = $Situacao;
+                $item[] = $Vencimento->lt($Hoje) && $r->ANO <= date('Y') ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>RENOVADA</strong>";
+                $item[] = "<strong>".$Situacao."</strong>";
                 $item[] = " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>";
                 $itensJSON[] = $item;
             }

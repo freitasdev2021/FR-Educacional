@@ -101,7 +101,7 @@ class ProfessoresController extends Controller
     }
 
     public static function getAlunosProfessor($IDProfessor){
-        $SQL = "SELECT m.Nome as Aluno,a.id,t.Nome as Turma FROM alunos a INNER JOIN matriculas m on(a.IDMatricula = m.id) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(t.IDEscola = e.id) INNER JOIN alocacoes al ON(al.IDEscola = e.id) WHERE al.IDProfissional = $IDProfessor";
+        $SQL = "SELECT m.Nome as Aluno,a.id,t.Nome as Turma FROM alunos a INNER JOIN matriculas m on(a.IDMatricula = m.id) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(t.IDEscola = e.id) INNER JOIN alocacoes al ON(al.IDEscola = e.id) WHERE al.IDProfissional = $IDProfessor AND STAluno = 0";
         return DB::select($SQL);
     }
 

@@ -550,7 +550,7 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
-        WHERE o.id = $idorg GROUP BY a.id";
+        WHERE o.id = $idorg AND STAluno = 0 GROUP BY a.id";
         
         foreach(DB::select($SQL) as $ds){
             array_push($IDAlunos,$ds->IDAluno);

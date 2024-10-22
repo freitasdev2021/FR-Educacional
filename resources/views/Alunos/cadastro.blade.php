@@ -46,15 +46,15 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <label>Nome*</label>
-                            <input type="text" class="form-control" name="Nome" value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}" {{isset($Registro->Nome) ? 'disabled' : 'required'}}> 
+                            <input type="text" class="form-control" name="Nome" value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}" required> 
                         </div>
                         <div class="col-sm-2">
                             <label>RG</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->RG) ? $Registro->RG : ''}}" {{isset($Registro->RG) ? 'disabled' : ''}} name="RG"> 
+                            <input type="text" class="form-control" value="{{isset($Registro->RG) ? $Registro->RG : ''}}" name="RG"> 
                         </div>
                         <div class="col-sm-2">
                             <label>CPF</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}" name="CPF" {{isset($Registro->CPF) ? 'disabled' : ''}}> 
+                            <input type="text" class="form-control" value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}" name="CPF"> 
                         </div>
                         <div class="col-sm-2">
                             <label>Email</label>
@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-sm-2">
                             <label>Nascimento*</label>
-                            <input type="date" class="form-control" value="{{isset($Registro->Nascimento) ? $Registro->Nascimento : ''}}" name="Nascimento" {{isset($Registro->Nascimento) ? 'disabled' : 'required'}}> 
+                            <input type="date" class="form-control" value="{{isset($Registro->Nascimento) ? $Registro->Nascimento : ''}}" name="Nascimento" required> 
                         </div>
                     </div>
                     <hr>
@@ -296,7 +296,7 @@
                     </div>
                     <br>
                     <div class="row">
-                        @if(in_array(Auth::user()->tipo,[4]))
+                        @if(in_array(Auth::user()->tipo,[4,4.5,2,2.5]))
                         <div class="col-auto">
                             <button class="btn btn-fr">Salvar</button>
                         </div>

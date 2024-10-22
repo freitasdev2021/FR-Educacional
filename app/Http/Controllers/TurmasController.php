@@ -533,7 +533,7 @@ class TurmasController extends Controller
 
     public static function getAlunosByTurma($IDTurma){
         $arrId = array();
-        foreach(Aluno::select("id")->where("IDTurma",$IDTurma)->get() as $a){
+        foreach(Aluno::select("id")->where("IDTurma",$IDTurma)->where('STAluno',0)->get() as $a){
             array_push($arrId,$a->id);
         }
         return $arrId;

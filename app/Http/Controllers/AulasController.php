@@ -542,7 +542,7 @@ class AulasController extends Controller
             INNER JOIN turmas t ON a.IDTurma = t.id
             INNER JOIN aulas au ON t.id = au.IDTurma
             LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
-            WHERE t.id = au.IDTurma AND au.id = $IDAula
+            WHERE t.id = au.IDTurma AND au.id = $IDAula AND STAluno = 0
             GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
         SQL;
         $frequencia = DB::select($SQL);
