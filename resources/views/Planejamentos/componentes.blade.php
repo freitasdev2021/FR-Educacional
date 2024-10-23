@@ -315,7 +315,7 @@
                             <!--QUARTO BIMESTRE PHP-->
                             @if(isset($Curriculo->quartoBimestre))
                                 @foreach($Curriculo->quartoBimestre as $qb)
-                                <table class="table table-bordered border-primary text-center bimestri segundoBimestre bimestral" data-periodo='segundoBimestre'>
+                                <table class="table table-bordered border-primary text-center bimestri quartoBimestre bimestral" data-periodo='quartoBimestre'>
                                     <thead>
                                         <tr>
                                             <th colspan="2"><strong contenteditable="true" style="padding:5px;" class="componente">{{$qb->Conteudo}}</strong></th>
