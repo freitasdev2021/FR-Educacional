@@ -1077,7 +1077,9 @@ class AlunosController extends Controller
         $view = [
             'submodulos' => $submodulos,
             'id' => '',
-            'Turmas' => (Auth::user()->tipo == 4) ? Turma::where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get() : Turma::all()
+            'Turmas' => (Auth::user()->tipo == 4) ? Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get() : Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
+            ->get()
         ];
 
         if($id){
@@ -1353,7 +1355,7 @@ class AlunosController extends Controller
                 );
 
                 Responsavel::create($responsavel);
-                $IDEscola = self::getEscolaDiretor(Auth::user()->id);
+                $IDEscola = Turma::find($request->IDTurma)->IDEscola;
                 DB::update("UPDATE escolas SET QTVagas = QTVagas-1 WHERE id = $IDEscola");
                 $aid = '';
                 $rout = 'Alunos/Novo';

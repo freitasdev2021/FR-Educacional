@@ -200,7 +200,7 @@
                             <select class="form-control" name="IDTurma" required>
                                 <option value="">Selecione</option>
                                 @foreach($Turmas as $t)
-                                <option value="{{$t->id}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Nome." (".$t->Serie.")"}}</option>
+                                <option value="{{$t->IDTurma}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->IDTurma ? 'selected' : ''}}>{{$t->Turma." (".$t->Serie.") - ". $t->Escola}}</option>
                                 @endforeach
                             </select>
                         </div>
