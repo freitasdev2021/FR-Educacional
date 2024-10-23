@@ -453,7 +453,6 @@ class ProfessoresController extends Controller
         ob_start();
         foreach(DB::select($SQL) as $tp){
         ?>
-        <option value="">Selecione</option>
         <option value="<?=$tp->IDDisciplina?>"><?=$tp->Disciplina?></option>
         <?php
         }
