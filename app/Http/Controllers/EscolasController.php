@@ -240,7 +240,7 @@ class EscolasController extends Controller
             //dd($AND);
         }elseif(Auth::user()->tipo == 4.5){
             $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            $AND = ' AND a.IDEscola='.$IDEscola;
+            $AND = ' AND ad.IDEscola='.$IDEscola;
         }else{
             $AND = '';
         }

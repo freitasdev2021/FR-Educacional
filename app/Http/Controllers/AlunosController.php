@@ -1077,7 +1077,7 @@ class AlunosController extends Controller
         $view = [
             'submodulos' => $submodulos,
             'id' => '',
-            'Turmas' => (Auth::user()->tipo == 4) ? Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get() : Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            'Turmas' => (in_array(Auth::user()->tipo,[4,4.5])) ? Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get() : Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
             ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
             ->get()
         ];
