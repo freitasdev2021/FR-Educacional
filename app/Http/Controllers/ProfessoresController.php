@@ -276,12 +276,7 @@ class ProfessoresController extends Controller
 
             $view['Registro'] = DB::select($SQL)[0];
             $IDEscola = $view['Registro']->IDEscola;
-            $view['Disciplinas'] = DB::select("SELECT 
-                d.NMDisciplina as Disciplina,
-                d.id as IDDisciplina
-            FROM disciplinas d
-            INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
-            WHERE ad.IDEscola = $IDEscola");
+            $view['IDEscola'] = $IDEscola;
 
             $view[1]['nome'] = 'Cadastro Turno';
             $view[1]['endereco'] = 'Cadastro Turno';
@@ -468,7 +463,8 @@ class ProfessoresController extends Controller
     public function saveTurno(Request $request){
         try{
             if($request->id){
-                // dd(Turno::find($request->id)->first());
+                //dd(Turno::find($request->id)->toArray());
+                //dd($request->all());
                 Turno::find($request->id)->update($request->all());
                 $aid = array(
                     'idprofessor' => $request->IDProfessor,

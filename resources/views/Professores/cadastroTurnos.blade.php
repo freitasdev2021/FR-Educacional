@@ -26,6 +26,7 @@
                     @endif
                     @if(isset($Registro->IDTurno))
                     <input type="hidden" name="id" value="{{$Registro->IDTurno}}">
+                    {{-- {{dd($Escolas[0])}} --}}
                     @endif
                     <input type="hidden" name="IDProfessor" value="{{$IDProfessor}}">
                     <div class="row">
@@ -34,7 +35,7 @@
                             <select class="form-control" name="IDEscola">
                                 <option value="">Selecione</option>
                                 @foreach($Escolas as $e)
-                                <option value="{{$e->IDEscola}}" {{isset($Registro) && $Registro->Escola == $e->Escola ? 'selected' : ''}}>{{$e->Escola}}</option>
+                                <option value="{{$e->IDEscola}}" {{isset($Registro) && $Registro->IDEscola == $IDEscola ? 'selected' : ''}}>{{$e->Escola}}</option>
                                 @endforeach
                             </select>
                         </div>
