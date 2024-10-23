@@ -318,7 +318,7 @@
                         </div>
                         @endif
                     </div>
-                    @elseif(in_array(Auth::user()->tipo,[5,6]))
+                    @elseif(in_array(Auth::user()->tipo,[5.5,6.5]))
                     <div>
                         <div class="d-flex justify-content-center mb-4">
                             <img id="selectedAvatar" src="{{!isset($Registro->Foto) ? asset('img/kidAvatar.png') : url("storage/organizacao_".Auth::user()->id_org."alunos/aluno_$Registro->CDPasta/$Registro->Foto")}}"
