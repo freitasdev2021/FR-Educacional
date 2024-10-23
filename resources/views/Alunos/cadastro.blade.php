@@ -29,7 +29,7 @@
                 <input type="hidden" name="CDPasta" value="{{$Registro->CDPasta}}">
                 @endif
                 <div class="col-sm-12 p-2">
-                @if(in_array(Auth::user()->tipo,[4,2]))
+                @if(in_array(Auth::user()->tipo,[4,4.5,2,2.5]))
                     <div>
                         <div class="d-flex justify-content-center mb-4">
                             <img id="selectedAvatar" src="{{ isset($Registro->Foto) ? url('storage/organizacao_' . Auth::user()->id_org . '_alunos/aluno_' . $Registro->CDPasta . '/' . $Registro->Foto) : asset('img/kidAvatar.png') }}"
