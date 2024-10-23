@@ -1077,10 +1077,24 @@ class AlunosController extends Controller
         $view = [
             'submodulos' => $submodulos,
             'id' => '',
-            'Turmas' => (in_array(Auth::user()->tipo,[4,4.5])) ? Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get() : Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            'Turmas' => (in_array(Auth::user()->tipo,[4,4.5])) ?  : Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
             ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
             ->get()
         ];
+
+        if(Auth::user()->tipo == 4){
+            $view['Turmas'] = Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
+        }elseif(Auth::user()->tipo == 4.5){
+            $view['Turmas'] = Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',AuxiliaresController::getEscolaAdm(Auth::user()->id))->get();
+        }elseif(Auth::user()->tipo == 2){
+            $view['Turmas'] = Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
+            ->get();
+        }elseif(Auth::user()->tipo == 2.5){
+            $view['Turmas'] = Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
+            ->get();
+        }
 
         if($id){
             $SQL = "SELECT 
