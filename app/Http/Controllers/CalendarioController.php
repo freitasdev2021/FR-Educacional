@@ -127,13 +127,8 @@ class CalendarioController extends Controller
 
     public function getRecuperacoes(){
         $idorg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+
 
         $feriasAlunos = DB::select("SELECT re.Recuperacao,e.Nome as Escola, DTInicio,DTTermino,re.id as IDReco FROM calendario_recuperacoes re INNER JOIN escolas e ON(e.id = re.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
@@ -162,13 +157,7 @@ class CalendarioController extends Controller
 
     public function getFeriados(){
         $idorg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $feriasAlunos = DB::select("SELECT fe.Feriado,e.Nome as Escola, DTInicio,DTTermino,fe.id as IDFer FROM calendario_feriados fe INNER JOIN escolas e ON(e.id = fe.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
@@ -197,13 +186,7 @@ class CalendarioController extends Controller
 
     public function getPeriodos(){
         $idorg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $periodos = DB::select("SELECT pe.Periodo,e.Nome as Escola, DTInicio,DTTermino,pe.id as IDPer FROM periodos pe INNER JOIN escolas e ON(e.id = pe.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
@@ -233,13 +216,7 @@ class CalendarioController extends Controller
     
     public function getPlanejamentos(){
         $idorg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $feriasAlunos = DB::select("SELECT pl.Assunto,e.Nome as Escola, DTInicio,DTTermino,pl.id as IDPla FROM calendario_planejamentos pl INNER JOIN escolas e ON(e.id = pl.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
@@ -389,19 +366,7 @@ class CalendarioController extends Controller
     public function getEventos(){
         $idorg = Auth::user()->id_org;
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND es.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
-
-        if(Auth::user()->tipo == 6){
-            $AND .= " AND es.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
-        }else{
-            $AND .=' ';
-        }
+        $AND = " AND es.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $SQL = <<<SQL
             SELECT 
@@ -615,19 +580,7 @@ class CalendarioController extends Controller
 
     public function getFeriasAlunos(){
         $idorg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
-
-        if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
-        }else{
-            $AND .=' ';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $feriasAlunos = DB::select("SELECT e.Nome as Escola, fa.DTInicio as Inicio, fa.DTTermino as Termino, fa.id as IDFerias FROM ferias_alunos fa INNER JOIN escolas e ON(e.id = fa.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
 
@@ -655,19 +608,7 @@ class CalendarioController extends Controller
 
     public function getFeriasProfissionais(){
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
-
-        if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
-        }else{
-            $AND .=' ';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $idorg = Auth::user()->id_org;
         $feriasProfissionais = DB::select("SELECT e.Nome as Escola, p.Nome as Professor,fp.DTInicio as Inicio, fp.DTTermino as Termino, fp.id as IDFerias FROM ferias_profissionais as fp INNER JOIN professores as p ON(fp.IDProfissional = p.id ) INNER JOIN escolas e ON(e.id = fp.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND");
@@ -747,19 +688,7 @@ class CalendarioController extends Controller
 
     public function getSabados(){
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
-
-        if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
-        }else{
-            $AND .=' ';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $idorg = Auth::user()->id_org;
         $sabados = DB::select("SELECT e.Nome as Escola, s.Data as Sabado, s.id as IDSabado FROM sabados_letivos s INNER JOIN escolas e ON(e.id = s.IDEscola) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg $AND ");
@@ -807,17 +736,7 @@ class CalendarioController extends Controller
     public function getParalizacoes(){
         $idorg = Auth::user()->id_org;
 
-        if(Auth::user()->tipo == 4){
-            $AND = " AND e.id =".self::getEscolaDiretor(Auth::user()->id);
-        }else{
-            $AND =' ';
-        }
-
-        if(Auth::user()->tipo == 6){
-            $AND .= " AND e.id IN(".implode(',',self::getCurrentEscolasProfessor(Auth::user()->id)).")";
-        }else{
-            $AND .=' ';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $paralizacao = DB::select("SELECT p.id as IDParalizacao, e.Nome as Escola, p.DTInicio as Inicio, p.DTTermino as Termino,p.DSMotivo FROM paralizacoes p INNER JOIN escolas e ON(e.id = p.IDEscola) INNER JOIN organizacoes o ON(o.id = e.IDOrg) WHERE o.id = $idorg $AND");
         if(count($paralizacao) > 0){

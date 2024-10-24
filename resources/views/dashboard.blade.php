@@ -70,7 +70,7 @@
           </div>
        </div>
     </div>
-    @elseif(in_array(Auth::user()->tipo,[2,4,2.5]))
+    @elseif(in_array(Auth::user()->tipo,[2,4,2.5,4.5]))
     <div class="shadow p-3 dashboard">
       <div class="col-sm-12 row">
          <div class="col-sm-4">
@@ -234,36 +234,6 @@
          @endforeach
          </tbody>
        </table>
-    </div>
-    @elseif(Auth::user()->tipo == 5)
-    <div class="row">
-      <div class="shadow col-sm-6 p-3">
-         <h5>Diário do professor</h5>
-         <form class="d-flex">
-            <button class="btn btn-success">Filtrar</button>
-         </form>
-         <hr>
-         <table class="table">
-            <thead class="bg-fr text-white">
-              <tr>
-                <th scope="col">Professor</th>
-                <th scope="col">Turma</th>
-                <th scope="col">Serie</th>
-                <th scope="col">Aula</th>
-              </tr>
-            </thead>
-            <tbody>
-            @foreach($relatoriosProfessor as $rp)
-              <tr>
-                <td>{{$rp->Professor}}</td>
-                <td>{{$rp->Turma}}</td>
-                <td>{{$rp->Serie}}</td>
-                <td>{{$rp->Aula}}</td>
-              </tr>
-            @endforeach
-            </tbody>
-          </table>
-      </div>
     </div>
     @endif
  </x-educacional-layout>

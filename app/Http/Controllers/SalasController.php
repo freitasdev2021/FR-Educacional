@@ -75,14 +75,8 @@ class SalasController extends Controller
                 WHERE e.IDOrg = $IDOrg
             SQL;
             $registros = DB::select($SQL);
-        }elseif(Auth::user()->tipo == 4){
-            $registros = Sala::select('NMSala','TMSala','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
-        }elseif(Auth::user()->tipo == 5){
-            $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional))->get();
-        }elseif(Auth::user()->tipo == 6){
-            $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
-        }elseif(Auth::user()->tipo == 4.5){
-            $registros = Sala::select('NMSala','TMSala','id')->where('IDEscola',AuxiliaresController::getEscolaAdm(Auth::user()->id))->get();
+        }else{
+            $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->get();
         }
         
         if(count($registros) > 0){

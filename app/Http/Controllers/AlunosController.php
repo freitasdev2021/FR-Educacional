@@ -1018,14 +1018,8 @@ class AlunosController extends Controller
     }
 
     public function getTransferidos(){
-
         $idorg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = " AND eDestino.id=".$IDEscola;
-        }else{
-            $AND = "";
-        }
+        $AND = " AND eDestino.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $SQL = "SELECT
             tr.id as IDTransferencia,
@@ -1077,24 +1071,10 @@ class AlunosController extends Controller
         $view = [
             'submodulos' => $submodulos,
             'id' => '',
-            'Turmas' => (in_array(Auth::user()->tipo,[4,4.5])) ?  : Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
-            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
+            'Turmas' => Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')->whereIn('turmas.IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
             ->get()
         ];
-
-        if(Auth::user()->tipo == 4){
-            $view['Turmas'] = Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
-        }elseif(Auth::user()->tipo == 4.5){
-            $view['Turmas'] = Turma::select('Nome as Turma','Serie','id as IDTurma')->where('IDEscola',AuxiliaresController::getEscolaAdm(Auth::user()->id))->get();
-        }elseif(Auth::user()->tipo == 2){
-            $view['Turmas'] = Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
-            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
-            ->get();
-        }elseif(Auth::user()->tipo == 2.5){
-            $view['Turmas'] = Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
-            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')
-            ->get();
-        }
 
         if($id){
             $SQL = "SELECT 
@@ -1724,23 +1704,7 @@ class AlunosController extends Controller
     public function getAlunos(){
         $idorg = Auth::user()->id_org;
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }elseif(Auth::user()->tipo == 5){
-            $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-            $AND = " AND e.id IN($IDEscolas)";
-        }elseif(Auth::user()->tipo == 6){
-            $IDEscolas = implode(",",ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
-            $AND = " AND e.id IN($IDEscolas)";
-        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
-            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
-            $AND = " AND e.id IN($IDEscolas)";
-        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
-            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         if(isset($_GET['Status']) && !empty($_GET['Status'])){
             $AND .= " AND a.STAluno=".$_GET['Status'];
@@ -1839,13 +1803,7 @@ class AlunosController extends Controller
     public function getSituacao($id){
         $idorg = Auth::user()->id_org;
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND e.id='.$IDEscola;
-            //dd($AND);
-        }else{
-            $AND = '';
-        }
+        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $SQL = "SELECT
             a.id as IDAluno, 

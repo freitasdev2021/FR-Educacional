@@ -80,14 +80,8 @@ class VagasController extends Controller
                 WHERE e.IDOrg = $IDOrg
             SQL;
             $registros = DB::select($SQL);
-        }elseif(Auth::user()->tipo == 5){
-            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional))->get();
-        }elseif(Auth::user()->tipo == 6){
-            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional))->get();
-        }elseif(Auth::user()->tipo == 4){
-            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',self::getEscolaDiretor(Auth::user()->id))->get();
-        }elseif(Auth::user()->tipo == 4.5){
-            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->where('IDEscola',AuxiliaresController::getEscolaAdm(Auth::user()->id))->get();
+        }else{
+            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->whereIn('IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->get();
         }
         
         if(count($registros) > 0){

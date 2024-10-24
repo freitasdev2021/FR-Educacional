@@ -59,11 +59,35 @@ class EscolasController extends Controller
             "submodulos" => self::submodulos,
             'id' => ''
         ];
-        if(Auth::user()->tipo == 4){
-            $view['Registro'] = Escola::where('id',self::getEscolaDiretor(Auth::user()->id))->first();
+        //dd(Auth::user()->IDProfissional);
+        //dd(self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+        if(in_array(Auth::user()->tipo,[4,4.5])){
+            $view['Registro'] = Escola::where('id',self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->first();
         }
         return view('Escolas.index',$view);
     }
+
+    public static function getIdEscolas($Tipo,$ID,$IDOrg = null,$IDProfissional = null) {
+        if ($Tipo == 4.0) {
+            $return = array(self::getEscolaDiretor($ID));
+        } elseif ($Tipo == 4.5) {
+            $return = array(AuxiliaresController::getEscolaAdm($ID));
+        } elseif ($Tipo == 2.0 || $Tipo == 2.5) {
+            $return = SecretariasController::getEscolasRede($IDOrg);
+        } elseif ($Tipo == 5.0) {
+            $return = PedagogosController::getEscolasPedagogo($IDProfissional);
+        } elseif ($Tipo == 5.5) {
+            $return = array(AuxiliaresController::getEscolaAdm($ID));
+        } elseif ($Tipo == 6.0) {
+            $return = ProfessoresController::getEscolasProfessor($IDProfissional);
+        } elseif ($Tipo == 6.5) {
+            $return = array(AuxiliaresController::getEscolaAdm($ID));
+        } else {
+            $return = "Este usuário não Pertence a nenhuma Escola"; // Caso o valor de $Tipo não se encaixe em nenhuma condição
+        }
+    
+        return $return;
+    }    
 
     public function getEscolas(){
         if(Escola::where('IDOrg',Auth::user()->id_org)->count() > 0){
@@ -234,16 +258,7 @@ class EscolasController extends Controller
     ///////////////////////////////////////////DISCIPLINAS
     public function getDisciplinas(){
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND ad.IDEscola='.$IDEscola;
-            //dd($AND);
-        }elseif(Auth::user()->tipo == 4.5){
-            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            $AND = ' AND ad.IDEscola='.$IDEscola;
-        }else{
-            $AND = '';
-        }
+        $AND = " AND ad.IDEscola IN(".implode(",",self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $idorg = Auth::user()->id_org;
 
@@ -346,17 +361,23 @@ class EscolasController extends Controller
         return DB::select($SQL);
     }
 
-    public function getDisciplinasEscola($IDEscola){
+    public static function getDisciplinasEscola(){
+        $IDDisciplinas = array();
+        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+
         $SQL = <<<SQL
         SELECT 
-            d.NMDisciplina as Disciplina,
             d.id as IDDisciplina
         FROM disciplinas d
         INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
-        WHERE ad.IDEscola = $IDEscola
+        WHERE ad.IDEscola IN($IDEscolas)
         SQL;
 
-        return json_encode(DB::select($SQL),JSON_UNESCAPED_UNICODE);
+        foreach(DB::select($SQL) as $d){
+            array_push($IDDisciplinas,$d->IDDisciplina);
+        }
+
+        return $IDDisciplinas;
     }
 
     public function saveDisciplinas(Request $request){
@@ -452,13 +473,8 @@ class EscolasController extends Controller
         if(Auth::user()->tipo == 6){
             $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY')).')';
             //dd(ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY'));
-        }elseif(Auth::user()->tipo == 4){
-            $AND = ' AND t.IDEscola = '.self::getEscolaDiretor(Auth::user()->id);
-        }elseif(Auth::user()->tipo == 4.5){
-            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            $AND = ' AND t.IDEscola='.$IDEscola;
         }else{
-            $AND = '';
+            $AND = " AND t.IDEscola IN(".implode(",",self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
         }
 
         $SQL = <<<SQL
@@ -507,7 +523,7 @@ class EscolasController extends Controller
                 $item[] = $t->QTAlunos;
                 $item[] = 200 - $t->Frequencia;
                 $item[] = ($t->Frequencia/$Estagios)*100.." %";
-                (in_array(Auth::user()->tipo,[4,2,2.5,4.5])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
+                (in_array(Auth::user()->tipo,[4,2,2.5,4.5])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a>" : '';
                 (in_array(Auth::user()->tipo,[4,6,3,5])) ? $item[] = "<a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
                 $itensJSON[] = $item;
             }
@@ -572,11 +588,7 @@ class EscolasController extends Controller
 
     public function cadastroTurmas($id=null){
         $idorg = Auth::user()->id_org;
-        if(in_array(Auth::user()->tipo,[2.5,2])){
-            $Salas = SecretariasController::getEscolasRede($idorg);
-        }else{
-            $Salas = self::getEscolaDiretor(Auth::user()->id);
-        }
+        $Salas = self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
         
         $view = [
             "submodulos" => self::submodulos,
@@ -622,7 +634,7 @@ class EscolasController extends Controller
             INNER JOIN organizacoes o ON(e.IDOrg = o.id)
             INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
             INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
-            WHERE o.id = $idorg AND t.id = $id GROUP BY a.id 
+            WHERE o.id = $idorg AND t.id = $id GROUP BY a.id ORDER BY m.Nome ASC 
             ";
 
             $turmas = DB::select($SQL);

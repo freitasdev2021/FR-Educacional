@@ -340,7 +340,7 @@ class PlanejamentosController extends Controller
             }
             $turmas = implode(",",$arrTurmasT);
         }else{
-            $turmas  = implode(",",EscolasController::getTurmasEscola());
+            $turmas  = implode(",",EscolasController::getDisciplinasEscola());
         }
         
         $orgId = Auth::user()->id_org;

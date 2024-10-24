@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
 
     public function index(){
-        
+       
         $IDOrg = Auth::user()->id_org;
         return view('dashboard',[
             'ficha' => self::getFichaProfessor(Auth::user()->id,'Horarios'),

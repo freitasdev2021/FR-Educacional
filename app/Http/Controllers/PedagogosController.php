@@ -27,16 +27,7 @@ class PedagogosController extends Controller
 
     public function getPedagogos(){
 
-        if(Auth::user()->tipo == 4){
-            $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-            $AND = ' AND a.IDEscola='.$IDEscola;
-            //dd($AND);
-        }elseif(Auth::user()->tipo == 4.5){
-            $IDEscola = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            $AND = ' AND a.IDEscola='.$IDEscola;
-        }else{
-            $AND = '';
-        }
+        $AND = " AND a.IDEscola IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
         
         $orgId = Auth::user()->id_org;
         $SQL = <<<SQL

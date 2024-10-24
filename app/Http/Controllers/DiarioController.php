@@ -46,16 +46,7 @@ class DiarioController extends Controller
     }
 
     public function getRelatoriosProfessor(){
-        if(Auth::user()->tipo == 4){
-            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
-        }elseif(Auth::user()->tipo == 5){
-            $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
-            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
-        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
-            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            //dd($IDEscolas);
-        }
+        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
 
         $WHERE = "WHERE ";
         if(!isset($_GET['Professor'])){
@@ -123,16 +114,7 @@ class DiarioController extends Controller
 
 
     public function paraFiltros(){
-        if(Auth::user()->tipo == 4){
-            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
-        }elseif(Auth::user()->tipo == 5){
-            $IDEscolas = implode(",",PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
-            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
-        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
-            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-            //dd($IDEscolas);
-        }
+        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
 
         $SQL = <<<SQL
             SELECT 

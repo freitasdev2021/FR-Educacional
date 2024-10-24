@@ -137,6 +137,7 @@
                     <table class="table table-striped text-center">
                         <thead>
                         <tr>
+                            <th>Número</th>
                             <th>Nome</th>
                             @if(in_array(Auth::user()->tipo,[2,2.5]))<th>Escola</th>@endif
                             <th>Data de Nascimento</th>
@@ -146,8 +147,9 @@
                         </tr>
                         </thead>
                         <tbody>
-                            @foreach($Alunos as $a)
+                            @foreach($Alunos as $k => $a)
                                 <tr>
+                                    <td>{{$k+1}}</td>
                                     <td>{{$a->Nome}}</td>
                                     @if(in_array(Auth::user()->tipo,[2,2.5]))<td>{{$a->Escola}}</td>@endif
                                     <td>{{date('d/m/Y', strtotime($a->Nascimento))}}</td>

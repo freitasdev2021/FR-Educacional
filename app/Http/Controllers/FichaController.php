@@ -253,17 +253,7 @@ class FichaController extends Controller
     }
 
     public function getFichas(){
-        if(Auth::user()->tipo == 6){
-            $IDEscolas = implode(',',ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
-        }elseif(Auth::user()->tipo == 4){
-            $IDEscolas = self::getEscolaDiretor(Auth::user()->id);
-        }elseif(Auth::user()->tipo == 5){
-            $IDEscolas = implode(',',PedagogosController::getEscolasPedagogo(Auth::user()->IDProfissional));
-        }elseif(in_array(Auth::user()->tipo,[2,2.5])){
-            $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
-        }elseif(in_array(Auth::user()->tipo,[4.5,5.5])){
-            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-        }
+        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
 
         $registros = DB::select("SELECT f.Titulo,e.Nome as Escola,f.id as IDFicha FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
         

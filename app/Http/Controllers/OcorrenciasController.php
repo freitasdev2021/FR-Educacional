@@ -24,11 +24,7 @@ class OcorrenciasController extends Controller
     }
 
     public function cadastro($id = null){
-        if(Auth::user()->tipo == 4.5){
-            $IDEscolas = AuxiliaresController::getEscolaAdm(Auth::user()->id);
-        }else{
-            $IDEscolas = implode(",",ProfessoresController::getEscolasProfessor(Auth::user()->IDProfissional));
-        }
+        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
         $IDOrg = Auth::user()->id_org;
         $SQL = "SELECT
         m.Nome as Alvo,

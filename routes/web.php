@@ -83,9 +83,6 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Auxiliares/Novo',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Novo');
         Route::get('Auxiliares/Cadastro/{id}',[AuxiliaresController::class,'cadastro'])->name('Auxiliares/Edit');
         Route::post('Auxiliares/Save',[AuxiliaresController::class,'save'])->name('Auxiliares/Save');
-        //ANEXOS
-        Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
-        Route::post('Alunos/Anexos/Save',[AlunosController::class,'saveAnexo'])->name("Alunos/Anexos/Save");
         //OCORRENCIAS
         Route::post("Ocorrencias/Responder",[OcorrenciasController::class,'responder'])->name("Ocorrencias/Responder");
         //
@@ -96,6 +93,9 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
+        //ANEXOS
+        Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
+        Route::post('Alunos/Anexos/Save',[AlunosController::class,'saveAnexo'])->name("Alunos/Anexos/Save");
         //DIARIO
         Route::get("Aulas/Diario",[DiarioController::class,'index'])->name("Aulas/Diario/index");
         Route::post("Aulas/Diario/Comentar",[DiarioController::class,'comentar'])->name("Aulas/Diario/Comentar");
