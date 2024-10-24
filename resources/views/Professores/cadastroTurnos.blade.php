@@ -61,6 +61,7 @@
                         <div class="col-sm-4">
                             <label>Dia da Semana</label>
                             <select name="DiaSemana" class="form-control">
+                                <option value="Todos">Todos (Regente)</option>
                                 <option value="Segunda"  {{isset($Registro) && $Registro->DiaSemana == "Segunda" ? 'selected' : ''}}>Segunda</option>
                                 <option value="Terça"  {{isset($Registro) && $Registro->DiaSemana == "Terça" ? 'selected' : ''}}>Terça</option>
                                 <option value="Quarta"  {{isset($Registro) && $Registro->DiaSemana == "Quarta" ? 'selected' : ''}}>Quarta</option>
