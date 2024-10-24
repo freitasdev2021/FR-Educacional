@@ -275,9 +275,14 @@ class PlanejamentosController extends Controller
     public function cadastro($id=null){
         $view = [
             'submodulos' => self::submodulos,
-            'id' => '',
-            'Disciplinas' => EscolasController::getDisciplinasProfessor(Auth::user()->id)
+            'id' => ''
         ];
+
+        if(Auth::user()->tipo == 6){
+            $view['Disciplinas'] = EscolasController::getDisciplinasProfessor(Auth::user()->id);
+        }else{
+            $view['Disciplinas'] = EscolasController::getNomeDisciplinasEscola();
+        }
 
         if($id){
             $rgs = self::getPlanejamento($id);
@@ -296,7 +301,7 @@ class PlanejamentosController extends Controller
                 PlanejamentoAnual::where('IDDisciplina',$request->IDDisciplina)->delete();
                 foreach($request->Turma as $t){
                     PlanejamentoAnual::create([
-                        'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
+                        'IDProfessor' => 0,
                         'IDDisciplina' => $request->IDDisciplina,
                         'NMPlanejamento' => $request->NMPlanejamento,
                         'IDTurma' => $t
@@ -310,7 +315,7 @@ class PlanejamentosController extends Controller
                 
                 foreach($request->Turma as $t){
                     $Planejamento = PlanejamentoAnual::create([
-                        'IDProfessor' => ProfessoresController::getProfessorByUser(Auth::user()->id),
+                        'IDProfessor' => 0,
                         'IDDisciplina' => $request->IDDisciplina,
                         'NMPlanejamento' => $request->NMPlanejamento,
                         'IDTurma' => $t

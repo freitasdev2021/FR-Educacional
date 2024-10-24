@@ -361,6 +361,21 @@ class EscolasController extends Controller
         return DB::select($SQL);
     }
 
+    public static function getNomeDisciplinasEscola(){
+        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+
+        $SQL = <<<SQL
+        SELECT 
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
+        FROM disciplinas d
+        INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
+        WHERE ad.IDEscola IN($IDEscolas)
+        SQL;
+
+        return DB::select($SQL);
+    }
+
     public static function getDisciplinasEscola(){
         $IDDisciplinas = array();
         $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
@@ -426,8 +441,12 @@ class EscolasController extends Controller
 
     public function getTurmasDisciplinas($IDDisciplina,$TPRetorno,$IDPlanejamento = null){
         $arrTurmasT = [];
-        foreach(ProfessoresController::getTurmasProfessor(Auth::user()->id) as $art){
-            array_push($arrTurmasT,$art->IDTurma);
+        if(Auth::user()->tipo == 6){
+            foreach(ProfessoresController::getTurmasProfessor(Auth::user()->id) as $art){
+                array_push($arrTurmasT,$art->IDTurma);
+            }
+        }else{
+            $arrTurmasT = self::getCurrentTurmasEscola();
         }
 
         $TurmasP = implode(',',$arrTurmasT);
@@ -579,6 +598,18 @@ class EscolasController extends Controller
         $id = Auth::user()->id;
         $IDTurmas = [];
         $turmas = DB::select("SELECT t.id FROM turmas t INNER JOIN auxiliares a ON(a.IDEscola = t.IDEscola) WHERE a.IDUser = $id");
+        foreach($turmas as $t){
+            array_push($IDTurmas,$t->id);
+        }
+
+        return $IDTurmas;
+    }
+
+    public function getCurrentTurmasEscola(){
+        $id = Auth::user()->id;
+        $idorg = Auth::user()->id_org;
+        $IDTurmas = [];
+        $turmas = DB::select("SELECT t.id FROM turmas t INNER JOIN escolas e ON(t.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = $idorg");
         foreach($turmas as $t){
             array_push($IDTurmas,$t->id);
         }

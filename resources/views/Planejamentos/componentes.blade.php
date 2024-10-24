@@ -7,14 +7,12 @@
        </div>
        <div class="fr-card-body">
         <input type='hidden' name="Periodo" value="{{$Registro->Periodo}}">
-        @if(Auth::user()->tipo == 6)
         <div class="row">
             <div class="col-sm-4">
                 <button class="btn bg-fr text-white savePlanejamento">Salvar</button>
             </div>
         </div>
         <hr>
-        @endif
         {{-- <pre>
             {{print_r($Curriculo)}}
         </pre> --}}
