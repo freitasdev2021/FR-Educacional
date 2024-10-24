@@ -146,6 +146,7 @@ class PedagogosController extends Controller
     }
 
     public function save(Request $request){
+        dd("AQUI");
         try{
             $aid = '';
             $dir = $request->all();
@@ -257,7 +258,7 @@ class PedagogosController extends Controller
                 $usId = User::create([
                     'name' => $request->Nome,
                     'email' => $request->Email,
-                    'tipo' => 6,
+                    'tipo' => 5,
                     'password' => Hash::make($rnd),
                     'IDProfissional' => $pedaId->id,
                     'id_org' => Auth::user()->id_org
