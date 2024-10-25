@@ -292,6 +292,7 @@ class AulasController extends Controller
             }else{
                 $AulaData = $request->all();
                 $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
+                $AulaData['DSConteudo'] = ($request->DSConteudo == "PDF") ? $request->ConteudoPDF : $request->DSConteudo;
                 $Aula = Aulas::create($AulaData);
                 $rout = 'Aulas/Edit';
                 $aid = $Aula->id;

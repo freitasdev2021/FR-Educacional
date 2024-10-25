@@ -30,22 +30,16 @@
                     @if(isset($Registro->IDAula))
                     <input type="hidden" name="id" value="{{$Registro->IDAula}}">
                     @endif
+                    <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <label>Inicio</label>
                             <input type="time" name="INIAula" class="form-control" value="{{(isset($Registro->INIAula)) ? $Registro->INIAula : ''}}" {{(isset($Registro->INIAula)) ? 'disabled' : 'required'}}>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-6">
                             <label>Termino</label>
                             <input type="time" name="TERAula" class="form-control" value="{{(isset($Registro->TERAula)) ? $Registro->TERAula : ''}}" {{(isset($Registro->TERAula)) ? 'disabled' : 'required'}}>
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Tipo de Aula</label>
-                            <select name="TPAula" class="form-control">
-                                <option value="Normal">Normal</option>
-                                <option value="Recuperacao">Recuperacao</option>
-                            </select>
                         </div>
                     </div>
                     <div class="row">
@@ -72,6 +66,12 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-sm-12 externo">
+                            <label>Conteúdo do Planejamento Externo</label>
+                            <input type="text" name="DSConteudo" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-sm-12">
                             <label>Descrição da Aula</label>
                             <textarea name="DSAula" class="form-control" {{(isset($Registro->DSAula)) ? 'disabled' : 'required'}}>{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
@@ -88,6 +88,7 @@
                     </div>
                 </form>
                 <script>
+                    $(".externo").hide()
                     //SELECIONA AS DISCIPLINAS
                     $("select[name=IDTurma]").on("change",function(){
                        $.ajax({
@@ -110,8 +111,12 @@
                     //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
                     $("select[name=DSConteudo]").on("change",function(){
                         $("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
+                        if($(this).val() == "PDF"){
+                            $(".externo").show()
+                        }else{
+                            $(".externo").hide()
+                        }
                     })
-                    
                     //
                 </script>    
             </div>
