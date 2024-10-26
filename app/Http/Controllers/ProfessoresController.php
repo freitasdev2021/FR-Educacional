@@ -201,7 +201,10 @@ class ProfessoresController extends Controller
                 $item[] = $t->DiaSemana;
                 $item[] = Controller::data($t->Inicio,'H:i');
                 $item[] = Controller::data($t->Termino,'H:i');
-                $item[] = "<a href='".route('Professores/Turnos/Edit',['idprofessor' => $idprofessor,'id' => $t->IDTurno])."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = "
+                <a href='".route('Professores/Turnos/Edit',['idprofessor' => $idprofessor,'id' => $t->IDTurno])."' class='btn btn-primary btn-xs'>Editar</a>
+                <a href='".route('Professores/Turnos/Remove',$t->IDTurno)."' class='btn btn-danger btn-xs'>Excluir</a>
+                ";
                 $itensJSON[] = $item;
             }
         }else{
@@ -483,6 +486,13 @@ class ProfessoresController extends Controller
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
+    }
+    
+    public function removeTurno($IDTurno){
+        $status = 0;
+        Turno::find($IDTurno)->delete();
+        $status = 1;
+        return redirect()->back();
     }
 
     public function save(Request $request){

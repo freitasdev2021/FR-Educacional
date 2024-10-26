@@ -68,6 +68,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Professores',[ProfessoresController::class,'index'])->name('Professores/index');
         Route::get('/Professores/Cadastro/{id}',[ProfessoresController::class,'cadastro'])->name('Professores/Edit');
         //TURNOS
+        Route::get('Professores/Turnos/Remove/{IDTurno}',[ProfessoresController::class,'removeTurno'])->name('Professores/Turnos/Remove');
         Route::get('/Professores/Turnos/list/{idprofessor}',[ProfessoresController::class,'getTurnosProfessor'])->name('Professores/Turnos/list');
         Route::get('/Professores/Turnos/{idprofessor}',[ProfessoresController::class,'Turnos'])->name('Professores/Turnos');
         Route::get('/Professores/{idprofessor}/Turnos/Novo',[ProfessoresController::class,'cadastroTurnoProfessor'])->name('Professores/Turnos/Novo');
