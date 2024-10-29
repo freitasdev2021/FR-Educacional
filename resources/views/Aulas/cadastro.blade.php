@@ -116,6 +116,8 @@
                         }else{
                             $(".externo").hide()
                         }
+
+                        $("input[name=DSConteudo]").val($(this).val())
                     })
                     //
                 </script>    
