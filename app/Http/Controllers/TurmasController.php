@@ -67,7 +67,7 @@ class TurmasController extends Controller
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
         INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
-        WHERE o.id = $idorg AND t.id = $id GROUP BY a.id ORDER BY m.Nome ASC 
+        WHERE o.id = $idorg AND t.id = $id AND STAluno = 0 GROUP BY a.id ORDER BY m.Nome ASC 
         ";
         $Turma = Turma::find($id);
         $Escola = Escola::find($Turma->IDEscola);
