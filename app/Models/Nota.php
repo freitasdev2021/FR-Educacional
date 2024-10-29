@@ -10,6 +10,11 @@ class Nota extends Model
     use HasFactory;
     protected $table = 'notas';
 
+    protected $casts = [
+        'Nota' => 'decimal',
+    ];
+    
+
     protected $fillable = [
         'IDAtividade',
         'IDAluno',

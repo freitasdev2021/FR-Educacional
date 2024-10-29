@@ -246,12 +246,12 @@ class AulasController extends Controller
             $Aluno = [];
             foreach($request->Pontuacao as $nt){
                 if(!is_null($nt)){
-                    array_push($Notas,intval($nt));
+                    array_push($Notas,$nt);
                 }
             }
             //
             foreach($request->Aluno as $al){
-                array_push($Aluno,intval($al));
+                array_push($Aluno,$al);
             }
             //
             for($i=0;$i<count($Notas);$i++){
