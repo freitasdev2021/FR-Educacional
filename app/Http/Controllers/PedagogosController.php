@@ -146,7 +146,7 @@ class PedagogosController extends Controller
     }
 
     public function save(Request $request){
-        dd("AQUI");
+        //dd("AQUI");
         try{
             $aid = '';
             $dir = $request->all();
