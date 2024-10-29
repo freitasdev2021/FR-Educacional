@@ -118,6 +118,7 @@
                         }
 
                         $("input[name=DSConteudo]").val($(this).val())
+                        $("input[name=DSConteudo]").attr("value",$(this).val())
                     })
                     //
                 </script>    
