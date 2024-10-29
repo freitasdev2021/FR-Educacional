@@ -302,8 +302,8 @@ class AulasController extends Controller
         }catch(\Throwable $th){
             $rout = 'Aulas/Novo';
             $aid = '';
-            $status = 'success';
-            $mensagem = 'Suspensão Realizada';
+            $status = 'error';
+            $mensagem = "Erro ".$th->getMessage();
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
