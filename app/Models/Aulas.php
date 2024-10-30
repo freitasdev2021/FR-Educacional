@@ -16,8 +16,6 @@ class Aulas extends Model
         'DSAula',
         'IDProfessor',
         'IDDisciplina',
-        'INIAula',
-        'TERAula',
         'STAula',
         'Estagio'
     ];

@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Ficha;
 use App\Models\Resposta;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Models\Escola;
 
 class FichaController extends Controller
@@ -123,6 +124,75 @@ class FichaController extends Controller
             'Cache-Control' => 'max-age=0',
         ]);
     }
+
+    public function exportarRespostasPDF($id)
+    {
+        // Consulta os dados dos registros
+        $registros = DB::select("
+            SELECT r.Respostas, r.id, m.Nome 
+            FROM respostas_ficha r 
+            INNER JOIN ficha_avaliativa f ON (f.id = r.IDFicha) 
+            INNER JOIN alunos a ON (r.IDAluno = a.id)
+            INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+            WHERE f.id = :id", ['id' => $id]);
+
+        // Inicializa o PDF
+        $pdf = new Fpdf();
+        $pdf->SetMargins(20, 20, 20); // Margens de 20 em todos os lados
+
+        // Obtém informações da escola
+        $IDAluno = Resposta::where('IDFicha', $id)->first()->IDAluno;
+        $Escola = DB::select("
+            SELECT e.id, e.Cidade, e.UF, e.Foto, m.Nome as Aluno, e.Foto, e.Nome as Escola 
+            FROM escolas e 
+            INNER JOIN turmas t ON(t.IDEscola = e.id) 
+            INNER JOIN alunos a ON(t.id = a.IDTurma ) 
+            INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
+            WHERE a.id = :IDAluno", ['IDAluno' => $IDAluno])[0];
+
+        // Cabeçalho com a logo e nome da escola (uma vez)
+        $pdf->AddPage();
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Logo da escola
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->SetXY(50, 15);
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Escola), 0, 1, 'C'); // Nome da escola
+        $pdf->Ln(30);
+
+        $boletinsPorPagina = 0;
+
+        foreach ($registros as $registro) {
+            // Adiciona nova página a cada dois boletins
+            if ($boletinsPorPagina % 2 == 0 && $boletinsPorPagina > 0) {
+                $pdf->AddPage();
+            }
+
+            // Exibe o nome do aluno em uma célula destacada
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 10, 'Aluno: ' . self::utfConvert($registro->Nome), 1, 1, 'L');
+            $pdf->Ln(5);
+
+            // Cabeçalho da tabela para cada aluno
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(140, 8, 'Conteudo', 1, 0, 'C');
+            $pdf->Cell(30, 8, 'Resposta', 1, 1, 'C');
+
+            // Adiciona as respostas
+            $pdf->SetFont('Arial', '', 10);
+            $respostas = json_decode($registro->Respostas, true);
+            foreach ($respostas as $resposta) {
+                $pdf->Cell(140, 8, self::utfConvert($resposta['Conteudo']), 1, 0);
+                $pdf->Cell(30, 8, self::utfConvert($resposta['Resposta']), 1, 1);
+            }
+
+            $pdf->Ln(10); // Espaço entre os boletins
+            $boletinsPorPagina++;
+        }
+
+        // Saída do PDF
+        $pdf->Output();
+        exit;
+    }
+
 
     public function getRespostas($id){
         $registros = DB::select("
@@ -264,6 +334,7 @@ class FichaController extends Controller
                 $item[] = $r->Escola;
                 $item[] = "
                 <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export',$r->IDFicha).">Exportar Respostas</a>&nbsp
+                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',$r->IDFicha).">Exportar PDF</a>&nbsp
                 <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Abrir</a>&nbsp
                 <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Visualizar</a>&nbsp
                 <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDFicha).">Respostas</a>

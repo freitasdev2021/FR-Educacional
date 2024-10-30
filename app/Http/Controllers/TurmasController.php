@@ -140,6 +140,8 @@ class TurmasController extends Controller
                 $Estagios = array("1º PER");
             break;
         }
+
+        array_push($Estagios,'Ano');
         $view = [
             'submodulos' => self::professoresSubmodulos,
             'id' => $IDTurma,
@@ -157,33 +159,63 @@ class TurmasController extends Controller
         if(isset($_GET['Disciplina']) && !empty($_GET['Disciplina']) && isset($_GET['Estagio']) && !empty($_GET['Estagio'])){
             $Disciplina = $_GET['Disciplina'];
             $Estagio = $_GET['Estagio'];
+
+            if($Estagio == "Ano"){
+                $andAno = "";
+                $select = <<<SQL
+                    (SELECT COUNT(f2.id) 
+                    FROM frequencia f2 
+                    INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                    WHERE f2.IDAluno = a.id 
+                    AND au2.IDDisciplina = d.id 
+                    AND DATE_FORMAT(au2.created_at, '%Y') = $NOW
+                    ) as FrequenciaAno,
+                    
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE au3.IDDisciplina = d.id 
+                    AND n2.IDAluno = a.id 
+                    AND DATE_FORMAT(au3.created_at, '%Y') = $NOW
+                    ) as TotalAno,
+                SQL;
+            }else{
+                $andAno = "AND au.Estagio = '".$Estagio."'";
+                
+                $select = <<<SQL
+                -- Soma das Notas do Aluno para a Disciplina e Estágio específicos
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE au3.IDDisciplina = d.id 
+                    AND n2.IDAluno = a.id 
+                    AND au3.Estagio = '$Estagio'
+                    AND DATE_FORMAT(au3.created_at, '%Y') = $NOW
+                    ) as Total,
+
+                    -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
+                    (SELECT COUNT(f2.id) 
+                    FROM frequencia f2 
+                    INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                    WHERE f2.IDAluno = a.id 
+                    AND au2.IDDisciplina = d.id 
+                    AND au2.Estagio = '$Estagio'
+                    AND DATE_FORMAT(au2.created_at, '%Y') = $NOW
+                    ) as Frequencia,
+                SQL;
+            }
+
             $SQL = <<<SQL
             SELECT 
+                $select
+                CASE WHEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $Disciplina AND n2.IDAluno = a.id ) < t.MediaPeriodo THEN 'Reprovado' ELSE 'Aprovado' END as Resultado,
                 m.Nome as Aluno,         -- Nome do Aluno
                 a.id as IDAluno,         -- ID do Aluno
                 t.Periodo,               -- Período do Aluno
                 d.NMDisciplina as Disciplina, -- Nome da Disciplina
-                au.Estagio,              -- Estágio (Bimestre)
-                
-                -- Soma das Notas do Aluno para a Disciplina e Estágio específicos
-                (SELECT SUM(n2.Nota) 
-                FROM notas n2 
-                INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
-                INNER JOIN aulas au3 ON at2.IDAula = au3.id 
-                WHERE au3.IDDisciplina = d.id 
-                AND n2.IDAluno = a.id 
-                AND au3.Estagio = '$Estagio'
-                ) as Total,
-
-                -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
-                (SELECT COUNT(f2.id) 
-                FROM frequencia f2 
-                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
-                WHERE f2.IDAluno = a.id 
-                AND au2.IDDisciplina = d.id 
-                AND au2.Estagio = '$Estagio'
-                ) as Frequencia,
-                CASE WHEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $Disciplina AND n2.IDAluno = a.id ) < t.MediaPeriodo THEN 'Reprovado' ELSE 'Aprovado' END as Resultado
+                au.Estagio              -- Estágio (Bimestre)
             FROM 
                 alunos a
             INNER JOIN 
@@ -200,7 +232,7 @@ class TurmasController extends Controller
             WHERE 
                 a.IDTurma = $IDTurma                          -- Filtro para turma específica
                 AND au.IDDisciplina = $Disciplina                -- Filtro para disciplina específica
-                AND au.Estagio = '$Estagio'              -- Filtro para estágio (4º Bimestre)
+                $andAno             -- Filtro para estágio (4º Bimestre)
                 AND DATE_FORMAT(au.created_at, '%Y') = $NOW -- Filtro para o ano de 2024
 
             GROUP BY 
@@ -231,14 +263,22 @@ class TurmasController extends Controller
 
                 $rota = route('Alunos/Recuperacao', ["IDAluno" => $r->IDAluno, "Estagio" => $r->Estagio]);
 
+                if($Estagio == "Ano"){
+                    $Frequencia = ($r->FrequenciaAno / $Estagios) * 100 . " %";
+                    $Total = $r->TotalAno;
+                }else{
+                    $Frequencia = ($r->Frequencia / $Estagios) * 100 . " %";
+                    $Total = $r->Total;
+                }
+
                 $item = [];
                 $item[] = $r->Aluno;
-                $item[] = $r->Total;
-                $item[] = $r->Estagio;
-                $item[] = ($r->Frequencia / $Estagios) * 100 . " %"; // Corrigido o uso de concatenação
+                $item[] = $Total;
+                $item[] = $Estagio;
+                $item[] = $Frequencia; // Corrigido o uso de concatenação
                 $item[] = $r->Disciplina;
                 $item[] = ($r->Resultado == 'Reprovado') 
-                    ? "<strong class='text-danger'>Recuperação</strong> <a href='{$rota}'>Zerar Conceito</a>" 
+                    ? "<strong class='text-danger'>Recuperação</strong>" 
                     : "<strong class='text-success'>Aprovado</strong>";
                 $itensJSON[] = $item;
 

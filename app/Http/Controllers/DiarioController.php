@@ -78,8 +78,6 @@ class DiarioController extends Controller
                 t.Serie as Serie,
                 au.DSAula as Aula,
                 au.created_at,
-                au.INIAula,
-                au.TERAula,
                 au.Estagio,
                 (
                     SELECT
@@ -124,8 +122,6 @@ class DiarioController extends Controller
                 t.Serie as Serie,
                 au.DSAula as Aula,
                 au.created_at,
-                au.INIAula,
-                au.TERAula,
                 au.Estagio,
                 (
                     SELECT
@@ -169,8 +165,6 @@ class DiarioController extends Controller
                 t.Serie as Serie,
                 au.DSAula as Aula,
                 au.created_at,
-                au.INIAula,
-                au.TERAula,
                 au.Estagio,
                 (
                     SELECT
@@ -231,7 +225,6 @@ class DiarioController extends Controller
             $pdf->Cell(0, 10, self::utfConvert("Série: ") . self::utfConvert($aula->Serie), 0, 1);
             $pdf->Cell(0, 10, 'Aula: ' . self::utfConvert($aula->Aula), 0, 1);
             $pdf->Cell(0, 10, 'Data: ' . self::data($aula->created_at,'d/m/Y'), 0, 1);
-            $pdf->Cell(0, 10, self::utfConvert("Horário: ") . $aula->INIAula . ' - ' . $aula->TERAula, 0, 1);
             $pdf->Cell(0, 10, self::utfConvert("Estágio: ") . self::utfConvert($aula->Estagio), 0, 1);
             $pdf->Ln(5); // Espaço após as informações da aula
 

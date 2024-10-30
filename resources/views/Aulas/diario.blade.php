@@ -60,7 +60,7 @@
           @foreach($relatorios as $r)
           <div class="card">
              <div class="card-header bg-fr text-white">
-                {{$r->Professor}} - {{$r->Turma." (".$r->Serie.")"}} - {{date('d/m/Y', strtotime($r->created_at))}} - {{$r->INIAula}} - {{$r->TERAula}}
+                {{$r->Professor}} - {{$r->Turma." (".$r->Serie.")"}} - {{date('d/m/Y', strtotime($r->created_at))}}
              </div>
              <div class="card-body">
                 {{-- <h5 class="card-title">{{$r->Aula}}</h5> --}}

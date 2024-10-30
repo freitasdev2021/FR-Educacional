@@ -33,16 +33,6 @@
                     <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label>Inicio</label>
-                            <input type="time" name="INIAula" class="form-control" value="{{(isset($Registro->INIAula)) ? $Registro->INIAula : ''}}" {{(isset($Registro->INIAula)) ? 'disabled' : 'required'}}>
-                        </div>
-                        <div class="col-sm-6">
-                            <label>Termino</label>
-                            <input type="time" name="TERAula" class="form-control" value="{{(isset($Registro->TERAula)) ? $Registro->TERAula : ''}}" {{(isset($Registro->TERAula)) ? 'disabled' : 'required'}}>
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-sm-4">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma" {{(isset($Registro->IDTurma)) ? 'disabled' : 'required'}}>

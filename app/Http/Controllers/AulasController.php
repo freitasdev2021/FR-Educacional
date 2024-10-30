@@ -120,9 +120,7 @@ class AulasController extends Controller
                 d.NMDisciplina,
                 a.IDTurma,
                 d.id as IDDisciplina,
-                a.DSConteudo,
-                a.INIAula,
-                a.TERAula
+                a.DSConteudo
             FROM aulas a
             INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
             INNER JOIN turmas t ON(t.id = a.IDTurma)
@@ -336,8 +334,8 @@ class AulasController extends Controller
                         "IDAluno" => $a
                     ]);
                 }
-                $rout = 'Aulas/Atividades/Novo';
-                $aid = '';
+                $rout = 'Aulas/Atividades/Correcao';
+                $aid = $Atividade->id;
                 $status = 'success';
                 $mensagem = 'Atividade Cadastrada com Sucesso!';
             }
