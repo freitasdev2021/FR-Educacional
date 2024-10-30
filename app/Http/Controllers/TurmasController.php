@@ -170,7 +170,7 @@ class TurmasController extends Controller
                     AND au2.IDDisciplina = d.id 
                     AND DATE_FORMAT(au2.created_at, '%Y') = $NOW
                     ) as FrequenciaAno,
-                    
+                    (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecAno,
                     (SELECT SUM(n2.Nota) 
                     FROM notas n2 
                     INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
@@ -194,7 +194,7 @@ class TurmasController extends Controller
                     AND au3.Estagio = '$Estagio'
                     AND DATE_FORMAT(au3.created_at, '%Y') = $NOW
                     ) as Total,
-
+                    (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = '$Estagio' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
                     -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
                     (SELECT COUNT(f2.id) 
                     FROM frequencia f2 
@@ -215,7 +215,8 @@ class TurmasController extends Controller
                 a.id as IDAluno,         -- ID do Aluno
                 t.Periodo,               -- Período do Aluno
                 d.NMDisciplina as Disciplina, -- Nome da Disciplina
-                au.Estagio              -- Estágio (Bimestre)
+                au.Estagio,              -- Estágio (Bimestre)
+                t.MediaPeriodo
             FROM 
                 alunos a
             INNER JOIN 
@@ -245,30 +246,40 @@ class TurmasController extends Controller
         
         if(count($resultados) > 0){
             foreach($resultados as $r){
-
-                switch($r->Periodo){
-                    case 'Bimestral':
-                        $Estagios = 200/4;
-                    break;
-                    case 'Trimestral':
-                        $Estagios = 200/3;
-                    break;
-                    case 'Semestral':
-                        $Estagios = 200/2;
-                    break;
-                    case 'Anual':
-                        $Estagios = 200/1;
-                    break;
+                if($Estagio == "Ano"){
+                    $Estagios = 200;
+                }else{
+                    switch($r->Periodo){
+                        case 'Bimestral':
+                            $Estagios = 200/4;
+                        break;
+                        case 'Trimestral':
+                            $Estagios = 200/3;
+                            $MediaTotal = $r->MediaPeriodo * 3;
+                        break;
+                        case 'Semestral':
+                            $Estagios = 200/2;
+                            $MediaTotal = $r->MediaPeriodo * 2;
+                        break;
+                        case 'Anual':
+                            $Estagios = 200/1;
+                            $MediaTotal = $r->MediaPeriodo;
+                        break;
+                    }
                 }
+
+                $MediaTotal = $r->MediaPeriodo * 4;
 
                 $rota = route('Alunos/Recuperacao', ["IDAluno" => $r->IDAluno, "Estagio" => $r->Estagio]);
 
                 if($Estagio == "Ano"){
                     $Frequencia = ($r->FrequenciaAno / $Estagios) * 100 . " %";
-                    $Total = $r->TotalAno;
+                    $Total = ($r->RecAno > 0) ? $r->RecAno : $r->TotalAno ;
+                    $Resultado = ($Total > $MediaTotal) ? 'Aprovado' : 'Reprovado';
                 }else{
                     $Frequencia = ($r->Frequencia / $Estagios) * 100 . " %";
-                    $Total = $r->Total;
+                    $Total = ($r->RecBim > 0) ? $r->RecBim : $r->Total;
+                    $Resultado = ($Total > $r->MediaPeriodo) ? 'Aprovado' : 'Reprovado';
                 }
 
                 $item = [];
@@ -277,8 +288,8 @@ class TurmasController extends Controller
                 $item[] = $Estagio;
                 $item[] = $Frequencia; // Corrigido o uso de concatenação
                 $item[] = $r->Disciplina;
-                $item[] = ($r->Resultado == 'Reprovado') 
-                    ? "<strong class='text-danger'>Recuperação</strong>" 
+                $item[] = ($Resultado == 'Reprovado') 
+                    ? "<strong class='text-danger'>Reprovado</strong>" 
                     : "<strong class='text-success'>Aprovado</strong>";
                 $itensJSON[] = $item;
 
@@ -370,13 +381,13 @@ class TurmasController extends Controller
         $pdf->Ln(10);
         
         // Informações adicionais (número de Ata, data, etc.)
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(0, 10, 'A presenca de distribuicao das notas finais e nota global dos alunos do Curso...', 0, 1, 'C');
-        $pdf->Ln(5);
+        // $pdf->SetFont('Arial', '', 10);
+        // $pdf->Cell(0, 10, 'A presenca de distribuicao das notas finais e nota global dos alunos do Curso...', 0, 1, 'C');
+        // $pdf->Ln(5);
         
         // Definir a fonte para as disciplinas (texto vertical)
         $disciplinas = self::getDisciplinasTurma($IDTurma);
-        $colWidth = 8; // Ajuste para a largura das colunas
+        $colWidth = 13; // Ajuste para a largura das colunas
         $rowHeight = 7; // Altura das linhas
         
         // Definir a altura inicial das colunas

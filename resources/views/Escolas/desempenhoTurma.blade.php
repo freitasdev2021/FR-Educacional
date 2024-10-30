@@ -33,7 +33,10 @@
                     <a href="{{route('Turmas/index')}}" class="btn btn-default">Voltar</a>
                 </div>
                 <div class="col-auto">
-                    <a href="{{route('Turmas/Boletins',$id)}}" class="btn btn-default">Gerar Boletins</a>
+                    <a href="{{route('Turmas/Boletins',$id)}}" target="_blank" class="btn btn-default">Gerar Boletins</a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{route('Turmas/Ata',$id)}}" target="_blank" class="btn btn-default">Gerar Ata</a>
                 </div>
             </form>
             <!--LISTAS-->

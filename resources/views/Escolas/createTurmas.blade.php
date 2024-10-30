@@ -112,7 +112,7 @@
                             <input type="number" name="NotaPeriodo" class="form-control" value="{{isset($Registro->NotaPeriodo) ? $Registro->NotaPeriodo : ''}}"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>Média</label>
+                            <label>Média CD.Etapa</label>
                             <input type="number" name="MediaPeriodo" class="form-control" value="{{isset($Registro->MediaPeriodo) ? $Registro->MediaPeriodo : ''}}"> 
                         </div>
                         <div class="col-sm-2">
