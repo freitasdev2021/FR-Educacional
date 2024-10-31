@@ -257,7 +257,7 @@ class PlanejamentosController extends Controller
         }
         ob_start();
         echo "<option value=''>Selecione</option>";
-        echo "<option data-estagio='".$return['Estagio']."' value='PDF'>Fora do Sistema - ".$return['Estagio']."</option>";
+        echo "<option data-estagio='".$return['Estagio']."' value='PDF'>Fora do Sistema</option>";
         foreach($return['Conteudo'] as $r){
         ?>
         <optgroup label="<?=$r['Conteudo']." - ".$return['Estagio']?>">

@@ -30,7 +30,7 @@
                     <!--conteudo do card-->
                     {{-- <button class="btn btn-light col-sm-12 btnComponente">Adicionar Componente</button> --}}
                     <select name="AdicionarComponente" class="form-control">
-                        <option value="">Adicionar Pergunta</option>
+                        <option value="">Adicionar Conceito</option>
                         <option value="Dissertativa">Dissertativa</option>
                         <option value="Objetiva">Objetiva</option>
                     </select>
@@ -84,41 +84,45 @@
                     <div class="componentes">
                         <!--PRIMEIRO BIMESTRE PHP-->
                         @if(isset($Formulario))
-                            @foreach($Formulario as $f)
-                            <table class="table table-bordered border-primary text-center bimestri primeiroBimestre bimestral" data-periodo='primeiroBimestre'>
-                                <thead>
-                                    <tr>
-                                        <th colspan="2"><strong>Enunciado</strong></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="2"><strong contenteditable="true" style="padding:5px;" class="componente">{{$f->Conteudo}}</strong></th>
-                                    </tr>
-                                    <tr>
-                                        <th><strong>Conteúdo</strong></th>
-                                        <th>Excluir</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="display:none;" class="conteudoModel">
-                                        <td contenteditable="true" class="conteudo"></td>
-                                        <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
-                                    </tr>
-                                    @if(count($f->Conteudos) > 0)
-                                        @foreach($f->Conteudos as $fc)
-                                        <tr class="conteudoModel">
-                                            <td contenteditable="true" class="conteudo">{{$fc}}</td>
-                                            <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
-                                        </tr>
-                                        @endforeach
-                                    @endif
-                                    <tr id="adcButton">
-                                        <td colspan="2" style="padding:0px;"><button class="btn btn-light col-sm-12 btnConteudo" type="button">Adicionar Opção</button></td>
-                                    </tr>
-                                    <tr id="rmvButton">
-                                        <td colspan="2" style="padding:0px;"><button class="btn btn-danger col-sm-12 btnRemoveComponente" type="button">Remover</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            @foreach(json_decode($Formulario->Formulario) as $f)
+                                @if(!empty($f->Conteudo))
+                                    <table class="table table-bordered border-primary text-center bimestri primeiroBimestre bimestral" data-periodo='primeiroBimestre'>
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2"><strong>Enunciado</strong></th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="2"><strong contenteditable="true" style="padding:5px;" class="componente">{{$f->Conteudo}}</strong></th>
+                                            </tr>
+                                            @if(count($f->Conteudos) > 0)
+                                            <tr>
+                                                <th><strong>Conteúdo</strong></th>
+                                                <th>Excluir</th>
+                                            </tr>
+                                            @endif
+                                        </thead>
+                                        <tbody>
+                                            <tr style="display:none;" class="conteudoModel">
+                                                <td contenteditable="true" class="conteudo"></td>
+                                                <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
+                                            </tr>
+                                            @if(count($f->Conteudos) > 0)
+                                                @foreach($f->Conteudos as $fc)
+                                                <tr class="conteudoModel">
+                                                    <td contenteditable="true" class="conteudo">{{$fc}}</td>
+                                                    <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
+                                                </tr>
+                                                @endforeach
+                                                <tr id="adcButton">
+                                                    <td colspan="2" style="padding:0px;"><button class="btn btn-light col-sm-12 btnConteudo" type="button">Adicionar Opção</button></td>
+                                                </tr>
+                                            @endif
+                                            <tr id="rmvButton">
+                                                <td colspan="2" style="padding:0px;"><button class="btn btn-default col-sm-12 btnRemoveComponente" type="button">Remover Conceito</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @endif
                             @endforeach
                         @endif
                         <!------------------------->

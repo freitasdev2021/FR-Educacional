@@ -120,7 +120,8 @@ class AulasController extends Controller
                 d.NMDisciplina,
                 a.IDTurma,
                 d.id as IDDisciplina,
-                a.DSConteudo
+                a.DSConteudo,
+                a.Estagio
             FROM aulas a
             INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
             INNER JOIN turmas t ON(t.id = a.IDTurma)

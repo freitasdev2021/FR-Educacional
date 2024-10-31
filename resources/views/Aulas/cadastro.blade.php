@@ -33,7 +33,33 @@
                     <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
+                            <label>Etapa</label>
+                            <select name="Estagio" class="form-control" {{(isset($Registro)) ? 'disabled' : 'required'}}>
+                                <optgroup label="Bimestre">
+                                    <option value="1º BIM" {{isset($Registro) && $Registro->Estagio == "1º BIM" ? 'selected' : ''}}>1º Bimestre</option>
+                                    <option value="2º BIM" {{isset($Registro) && $Registro->Estagio == "2º BIM" ? 'selected' : ''}}>2º Bimestre</option>
+                                    <option value="3º BIM" {{isset($Registro) && $Registro->Estagio == "3º BIM" ? 'selected' : ''}}>3º Bimestre</option>
+                                    <option value="4º BIM" {{isset($Registro) && $Registro->Estagio == "4º BIM" ? 'selected' : ''}}>4º Bimestre</option>
+                                </optgroup>
+                                
+                                <optgroup label="Trimestre">
+                                    <option value="1º TRI" {{isset($Registro) && $Registro->Estagio == "1º TRI" ? 'selected' : ''}}>1º Trimestre</option>
+                                    <option value="2º TRI" {{isset($Registro) && $Registro->Estagio == "2º TRI" ? 'selected' : ''}}>2º Trimestre</option>
+                                    <option value="3º TRI" {{isset($Registro) && $Registro->Estagio == "3º TRI" ? 'selected' : ''}}>3º Trimestre</option>
+                                </optgroup>
+                                
+                                <optgroup label="Semestre">
+                                    <option value="1º SEM" {{isset($Registro) && $Registro->Estagio == "1º SEM" ? 'selected' : ''}}>1º Semestre</option>
+                                    <option value="2º SEM" {{isset($Registro) && $Registro->Estagio == "2º SEM" ? 'selected' : ''}}>2º Semestre</option>
+                                </optgroup>
+                                
+                                <optgroup label="Periodo">
+                                    <option value="1º PER" {{isset($Registro) && $Registro->Estagio == "1º PER" ? 'selected' : ''}}>1º Período</option>
+                                </optgroup>
+                            </select>                            
+                        </div>
+                        <div class="col-sm-3">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma" {{(isset($Registro->IDTurma)) ? 'disabled' : 'required'}}>
                                 <option value="">Selecione</option>
@@ -42,13 +68,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label>Disciplina</label>
                             <select class="form-control" name="IDDisciplina" {{(isset($Registro->IDDisciplina)) ? 'disabled' : 'required'}}>
                                 <option value="{{isset($Registro->IDDisciplina) ? $Registro->IDDisciplina : ''}}" {{isset($Registro->NMDisciplina) ? 'selected' : ''}}>{{isset($Registro->NMDisciplina) ? $Registro->NMDisciplina : ''}}</option>
                             </select>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label>Conteudo</label>
                             <select class="form-control" name="DSConteudo" {{(isset($Registro->DSConteudo)) ? 'disabled' : 'required'}}>
                                 <option value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}">{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}</option>
@@ -67,7 +93,6 @@
                             <textarea name="DSAula" class="form-control" {{(isset($Registro->DSAula)) ? 'disabled' : 'required'}}>{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
                         </div>
                     </div>
-                    <input type="hidden" name="Estagio">
                     <br>
                     <div class="col-sm-12 text-left row">
                         @if(!isset($Registro->STAula) || $Registro->STAula < 2)
@@ -100,7 +125,7 @@
                     })
                     //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
                     $("select[name=DSConteudo]").on("change",function(){
-                        $("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
+                        //$("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
                         if($(this).val() == "PDF"){
                             $(".externo").show()
                         }else{

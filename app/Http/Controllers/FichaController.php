@@ -45,7 +45,7 @@ class FichaController extends Controller
         );
 
         if($id){
-            $rsp = Resposta::all()->where('IDForm',$id)->first();
+            $rsp = Ficha::find($id);
             $view['id'] = $id;
             $view['Registro'] = Ficha::find($id);
             $view['submodulos'] = self::cadastroSubmodulos;
@@ -135,11 +135,11 @@ class FichaController extends Controller
             INNER JOIN alunos a ON (r.IDAluno = a.id)
             INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
             WHERE f.id = :id", ['id' => $id]);
-
+    
         // Inicializa o PDF
         $pdf = new Fpdf();
         $pdf->SetMargins(20, 20, 20); // Margens de 20 em todos os lados
-
+    
         // Obtém informações da escola
         $IDAluno = Resposta::where('IDFicha', $id)->first()->IDAluno;
         $Escola = DB::select("
@@ -149,49 +149,90 @@ class FichaController extends Controller
             INNER JOIN alunos a ON(t.id = a.IDTurma ) 
             INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
             WHERE a.id = :IDAluno", ['IDAluno' => $IDAluno])[0];
-
-        // Cabeçalho com a logo e nome da escola (uma vez)
+    
+        // Cabeçalho com a logo e nome da escola
         $pdf->AddPage();
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Logo da escola
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30);
         $pdf->SetFont('Arial', 'B', 16);
         $pdf->SetXY(50, 15);
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Escola), 0, 1, 'C'); // Nome da escola
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Escola), 0, 1, 'C');
         $pdf->Ln(30);
-
-        $boletinsPorPagina = 0;
-
+    
+        //$boletinsPorPagina = 0;
+    
         foreach ($registros as $registro) {
-            // Adiciona nova página a cada dois boletins
-            if ($boletinsPorPagina % 2 == 0 && $boletinsPorPagina > 0) {
-                $pdf->AddPage();
-            }
-
-            // Exibe o nome do aluno em uma célula destacada
+            // Verifica se precisa de uma nova página a cada 2 boletins
+            // if ($boletinsPorPagina % 2 == 0 && $boletinsPorPagina > 0) {
+            //     $pdf->AddPage();
+            // }
+    
+            // Nome do Aluno
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(0, 10, 'Aluno: ' . self::utfConvert($registro->Nome), 1, 1, 'L');
             $pdf->Ln(5);
-
-            // Cabeçalho da tabela para cada aluno
+    
+            // Cabeçalho da tabela
             $pdf->SetFont('Arial', 'B', 10);
-            $pdf->Cell(140, 8, 'Conteudo', 1, 0, 'C');
-            $pdf->Cell(30, 8, 'Resposta', 1, 1, 'C');
-
-            // Adiciona as respostas
-            $pdf->SetFont('Arial', '', 10);
+            $pdf->Cell(150, 8, 'Conteudo', 1, 0, 'C');  // Ajuste de largura para o conteúdo
+            $pdf->Cell(20, 8, 'Resposta', 1, 1, 'C');   // Ajuste de largura para a resposta
+    
+            // Adiciona as respostas com alinhamento dinâmico
+            $pdf->SetFont('Arial', '', 9);
             $respostas = json_decode($registro->Respostas, true);
+    
             foreach ($respostas as $resposta) {
-                $pdf->Cell(140, 8, self::utfConvert($resposta['Conteudo']), 1, 0);
-                $pdf->Cell(30, 8, self::utfConvert($resposta['Resposta']), 1, 1);
+                $conteudo = self::utfConvert($resposta['Conteudo']);
+                $respostaTexto = self::utfConvert($resposta['Resposta']);
+                
+                // Limite de caracteres por linha para a coluna de Conteúdo
+                $lineWidthContent = 90; // Ajuste esse valor conforme necessário para a largura da célula
+    
+                // Quebra o conteúdo em várias linhas com `wordwrap`
+                $wrappedContent = wordwrap($conteudo, $lineWidthContent, PHP_EOL);
+    
+                // Divide as linhas do conteúdo e calcula a altura total
+                $lines = explode(PHP_EOL, $wrappedContent);
+                $cellHeight = 8 * count($lines);
+    
+                // Verifica se a altura atual + altura da célula ultrapassa o limite da página
+                if ($pdf->GetY() + $cellHeight > $pdf->GetPageHeight() - 20) {
+                    $pdf->AddPage(); // Adiciona uma nova página se não houver espaço suficiente
+                    $boletinsPorPagina = 0; // Reinicia a contagem de boletins na nova página
+    
+                    // Redesenha o cabeçalho e nome do aluno
+                    $pdf->SetFont('Arial', 'B', 10);
+                    $pdf->Cell(0, 10, 'Aluno: ' . self::utfConvert($registro->Nome), 1, 1, 'L');
+                    $pdf->Ln(5);
+                    $pdf->Cell(150, 8, 'Conteudo', 1, 0, 'C');
+                    $pdf->Cell(20, 8, 'Resposta', 1, 1, 'C');
+                    $pdf->SetFont('Arial', '', 9);
+                }
+    
+                // Exibe cada linha do conteúdo
+                $yBefore = $pdf->GetY();
+                foreach ($lines as $line) {
+                    $pdf->Cell(150, 8, $line, 0, 2); // Imprime cada linha na mesma célula
+                }
+                // Borda ao redor de toda a célula de conteúdo
+                $pdf->Rect(20, $yBefore, 150, $cellHeight);
+    
+                // Alinha a coluna "Resposta" ao lado do conteúdo
+                $pdf->SetXY(170, $yBefore);
+                $pdf->Cell(20, $cellHeight, $respostaTexto, 1, 1, 'C');
+                
+                // Define a posição Y para a próxima linha de conteúdo
+                $pdf->SetY($yBefore + $cellHeight);
             }
-
-            $pdf->Ln(10); // Espaço entre os boletins
-            $boletinsPorPagina++;
+    
+            $pdf->Ln(10); // Espaço entre boletins
+            
         }
-
+    
         // Saída do PDF
         $pdf->Output();
         exit;
     }
+    
 
 
     public function getRespostas($id){
@@ -333,11 +374,9 @@ class FichaController extends Controller
                 $item[] = $r->Titulo;
                 $item[] = $r->Escola;
                 $item[] = "
-                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export',$r->IDFicha).">Exportar Respostas</a>&nbsp
-                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',$r->IDFicha).">Exportar PDF</a>&nbsp
+                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',$r->IDFicha).">Exportar (PDF)</a>&nbsp
                 <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Abrir</a>&nbsp
                 <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Visualizar</a>&nbsp
-                <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDFicha).">Respostas</a>
                 ";
                 $itensJSON[] = $item;
             }
