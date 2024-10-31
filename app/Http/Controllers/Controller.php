@@ -162,4 +162,20 @@ abstract class Controller
     public static function data($data,$tipo){
         return date($tipo, strtotime($data));
     }
+
+    public static function diaSemana($data) {
+        $diasSemana = [
+            'Sunday' => 'domingo',
+            'Monday' => 'segunda-feira',
+            'Tuesday' => 'terça-feira',
+            'Wednesday' => 'quarta-feira',
+            'Thursday' => 'quinta-feira',
+            'Friday' => 'sexta-feira',
+            'Saturday' => 'sábado'
+        ];
+    
+        $diaIngles = date('l', strtotime($data)); // Obter o dia da semana em inglês
+        return $diasSemana[$diaIngles] ?? 'Dia inválido';
+    }
+    
 }

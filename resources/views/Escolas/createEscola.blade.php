@@ -39,13 +39,21 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-3">
                             <label>Nome da escola</label>
                             <input type="text" name="Nome" class="form-control @error('Organizacao') is-invalid @enderror" maxlength="100" required value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}">
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-3">
+                            <label>Início</label>
+                            <input type="time" name="INIFuncionamento" class="form-control" value="{{isset($Registro->INIFuncionamento) ? $Registro->INIFuncionamento : ''}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Término</label>
+                            <input type="time" name="TERFuncionamento" class="form-control" value="{{isset($Registro->TERFuncionamento) ? $Registro->TERFuncionamento : ''}}">
+                        </div>
+                        <div class="col-sm-3">
                             <label>Telefone</label>
-                            <input type="text" name="Telefone" class="form-control" value="{{isset($Registro->Telefone) ? $Registro->Telefone : ''}}">
+                            <input type="text" name="Telefone" class="form-control" value="{{isset($Registro->Telefone) ? $Registro->Telefone: ''}}">
                         </div>
                     </div>
                     <div class="row">

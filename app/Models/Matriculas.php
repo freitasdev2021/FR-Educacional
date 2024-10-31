@@ -43,7 +43,12 @@ class Matriculas extends Model
         'EFisica',
         'PaisJSON',
         'Sexo',
-        'Cor'
+        'Cor',
+        'Observacoes',
+        'Passaporte',
+        'CNascimento',
+        'SUS',
+        'CNH'
     ];
 
     public function escola()

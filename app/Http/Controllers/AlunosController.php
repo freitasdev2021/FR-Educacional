@@ -235,6 +235,7 @@ class AlunosController extends Controller
             m.Rua,
             m.Bairro,
             m.UF,
+            m.CNascimento,
             m.Numero,
             m.Cidade,
             re.CLResponsavel,
@@ -1122,7 +1123,12 @@ class AlunosController extends Controller
                 cal.TERRematricula,
                 r.ANO,
                 m.PaisJSON,
-                m.Quilombola
+                m.Quilombola,
+                m.CNascimento,
+                m.CNH,
+                m.SUS,
+                m.Passaporte,
+                m.Observacoes
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -1269,6 +1275,13 @@ class AlunosController extends Controller
                     $Foto = '';
                 }
 
+                if($request->file('CNascimento')){
+                    $CNascimento = $request->file('CNascimento')->getClientOriginalName();
+                    $request->file('CNascimento')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CNascimento,'public');
+                }else{
+                    $CNascimento = '';
+                }
+
                 $Pais = array(
                     "Mae" => $request->Mae,
                     "Pai" => $request->Pai,
@@ -1285,6 +1298,10 @@ class AlunosController extends Controller
                 $matricula = array(
                     'AnexoRG' => $AnexoRG,
                     'CResidencia' => $CResidencia,
+                    'CNascimento' => $CNascimento,
+                    "SUS" => $request->SUS,
+                    "Passaporte" => $request->Passaporte,
+                    "CNH" => $request->CNH,
                     'Historico' => $Historico,
                     'Nome' => $request->Nome,
                     'CPF' => preg_replace('/\D/', '', $request->CPF),
@@ -1397,6 +1414,13 @@ class AlunosController extends Controller
                     $Foto = '';
                 }
 
+                if($request->file('CNascimento')){
+                    $CNascimento = $request->file('CNascimento')->getClientOriginalName();
+                    $request->file('CNascimento')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CNascimento,'public');
+                }else{
+                    $CNascimento = '';
+                }
+
                 $Pais = array(
                     "Mae" => $request->Mae,
                     "Pai" => $request->Pai,
@@ -1414,6 +1438,10 @@ class AlunosController extends Controller
                     'AnexoRG' => $AnexoRG,
                     'CResidencia' => $CResidencia,
                     'Historico' => $Historico,
+                    'CNascimento' => $CNascimento,
+                    "SUS" => $request->SUS,
+                    "Passaporte" => $request->Passaporte,
+                    "CNH" => $request->CNH,
                     'Nome' => $request->Nome,
                     'CPF' => preg_replace('/\D/', '', $request->CPF),
                     'RG' => preg_replace('/\D/', '', $request->RG),

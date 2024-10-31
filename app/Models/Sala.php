@@ -14,6 +14,7 @@ class Sala extends Model
     protected $fillable = [
         "NMSala",
         "TMSala",
-        "IDEscola"
+        "IDEscola",
+        "TPSala"
     ];
 }

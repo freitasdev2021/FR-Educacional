@@ -166,21 +166,25 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <br>
                             <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->RGPaisAnexo")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> RG dos Pais</a>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <br>
                             <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->AnexoRG")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> RG do Aluno</a>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <br>
                             <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->CResidencia")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Comprovante de Residência</a>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <br>
                             <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->Historico")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Histórico Escolar</a>
+                        </div>
+                        <div class="col-sm-4">
+                            <br>
+                            <a href="{{url("storage/organizacao_".$IDOrg."_alunos/aluno_$Ficha->CDPasta/$Ficha->CNascimento")}}" download class="btn btn-danger col-sm-12"><i class='bx bxs-file-pdf' ></i> Certidão de Nascimento</a>
                         </div>
                     </div>
                 </div>

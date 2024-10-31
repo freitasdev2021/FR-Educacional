@@ -22,6 +22,8 @@ class Escola extends Model
         'Telefone',
         'Email',
         'QTVagas',
+        'INIFuncionamento',
+        'TERFuncionamento'
     ];
 
     public function organizacao()

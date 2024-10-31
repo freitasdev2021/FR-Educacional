@@ -166,8 +166,8 @@ class CalendarioController extends Controller
                 $item = [];
                 $item[] = $fa->Feriado;
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $fa->Escola : '';
-                $item[] = Controller::data($fa->DTInicio,'d/m/Y');
-                $item[] = Controller::data($fa->DTTermino,'d/m/Y');
+                $item[] = Controller::data($fa->DTInicio,'d/m/Y')." - ".Controller::diaSemana($fa->DTInicio);
+                $item[] = Controller::data($fa->DTTermino,'d/m/Y')." - ".Controller::diaSemana($fa->DTTermino);
                 (in_array(Auth::user()->tipo,[4,2])) ? $item[] = "<a href='".route('Calendario/Feriados/Edit',$fa->IDFer)."' class='btn btn-primary btn-xs'>Editar</a>" : '';
                 $itensJSON[] = $item;
             }

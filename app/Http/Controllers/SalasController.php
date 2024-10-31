@@ -46,14 +46,15 @@ class SalasController extends Controller
             if($request->id){
                 Sala::find($request->id)->update($data);
                 $mensagem = "Sala Editada com Sucesso!";
+                $rota = 'Escolas/Salas/Edit';
                 $aid = $request->id;
             }else{
                 Sala::create($data);
                 $mensagem = "Sala cadastrada com Sucesso!";
                 $aid = '';
+                $rota = 'Escolas/Salas/Novo';
             }
             $status = 'success';
-            $rota = 'Escolas/Salas/Novo';
         }catch(\Throwable $th){
             $rota = 'Escolas/Salas/Novo';
             $mensagem = 'Erro '.$th;
@@ -69,19 +70,20 @@ class SalasController extends Controller
             $IDOrg = Auth::user()->id_org;
             $SQL = <<<SQL
                 SELECT 
-                    s.NMSala,s.TMSala,s.id
+                    s.NMSala,s.TMSala,s.id,s.TPSala
                 FROM salas s
                 INNER JOIN escolas e ON(s.IDEscola = e.id)
                 WHERE e.IDOrg = $IDOrg
             SQL;
             $registros = DB::select($SQL);
         }else{
-            $registros = Sala::select('NMSala','TMSala','id')->whereIn('IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->get();
+            $registros = Sala::select('NMSala','TMSala','id','TPSala')->whereIn('IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->get();
         }
         
         if(count($registros) > 0){
             foreach($registros as $r){
                 $item = [];
+                $item[] = $r->TPSala;
                 $item[] = $r->NMSala;
                 $item[] = $r->TMSala . " M2";
                 $item[] = "<a href='".route('Escolas/Salas/Edit',$r->id)."' class='btn btn-primary btn-xs'>Abrir</a>";

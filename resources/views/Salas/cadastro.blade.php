@@ -32,20 +32,31 @@
                             <select name="IDEscola" class="form-control" required>
                                 <option value="">Selecione</option>
                                 @foreach($escolas as $e)
-                                <option value="{{$e->id}}" {{(isset($Registro->IDEscola) && $Registro->IDEscola == $e->id) ? 'selected' : ''}}>{{$e->Nome}}</option>
+                                <option value="{{$e->id}}" {{(isset($Registros->IDEscola) && $Registros->IDEscola == $e->id) ? 'selected' : ''}}>{{$e->Nome}}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                     @endif
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label>Nome da Sala</label>
-                            <input type="text" name="NMSala" value="{{isset($Registro) ? $Registro->NMSala : ''}}" class="form-control">
+                        <div class="col-sm-4">
+                            <label>Nome</label>
+                            <input type="text" name="NMSala" value="{{isset($Registros) ? $Registros->NMSala : ''}}" class="form-control">
                         </div>
-                        <div class="col-sm-6">
-                            <label>Tamano da sala (M2)</label>
-                            <input type="number" name="TMSala" value="{{isset($Registro) ? $Registro->TMSala : ''}}" class="form-control">
+                        <div class="col-sm-4">
+                            <label>Tamanho (M2)</label>
+                            <input type="number" name="TMSala" value="{{isset($Registros) ? $Registros->TMSala : ''}}" class="form-control">
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Tipo da Dependência</label>
+                            <select name="TPSala" class="form-control" required>
+                                <option value="Sala de Aula" {{isset($Registros) && $Registros->TPSala == 'Sala de Aula' ? 'selected' : ''}}>Sala de Aula</option>
+                                <option value="Refeitório" {{isset($Registros) && $Registros->TPSala == 'Refeitório' ? 'selected' : ''}}>Refeitório</option>
+                                <option value="Auditório" {{isset($Registros) && $Registros->TPSala == 'Auditório' ? 'selected' : ''}}>Auditório</option>
+                                <option value="Biblioteca" {{isset($Registros) && $Registros->TPSala == 'Biblioteca' ? 'selected' : ''}}>Biblioteca</option>
+                                <option value="Diretoria" {{isset($Registros) && $Registros->TPSala == 'Diretoria' ? 'selected' : ''}}>Diretoria</option>
+                                <option value="Sala dos Professores" {{isset($Registros) && $Registros->TPSala == 'Sala dos Professores' ? 'selected' : ''}}>Sala dos Professores</option>
+                            </select>
                         </div>
                     </div>
                     <br>
