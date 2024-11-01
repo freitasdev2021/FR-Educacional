@@ -129,6 +129,13 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
         Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
         //DADOS DO ALUNO
+        //LAUDOS
+        Route::get('Alunos/NEE/list/{IDAluno}',[AlunosController::class,'getNecessidades'])->name('Alunos/NEE/list');
+        Route::get('Alunos/NEE/{IDAluno}',[AlunosController::class,'necessidades'])->name('Alunos/NEE');
+        Route::get('Alunos/NEE/Cadastro/{IDAluno}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Novo');
+        Route::get('Alunos/NEE/Cadastro/{IDAluno}/{id}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Edit');
+        Route::post('Alunos/NEE/Save',[AlunosController::class,'saveNecessidade'])->name('Alunos/NEE/Save');
+        //
         Route::get("Alunos/Comprovantes/Matricula/{id}",[AlunosController::class,'getComprovanteMatricula'])->name("Alunos/Comprovante/Matricula");
         Route::get("Alunos/Comprovantes/Frequencia/{id}",[AlunosController::class,'getComprovanteFrequencia'])->name("Alunos/Comprovante/Frequencia");
         Route::get("Alunos/Comprovantes/Filiacao/{id}",[AlunosController::class,'getRelatorioMatricula'])->name("Alunos/Comprovante/Filiacao");

@@ -111,26 +111,4 @@
             <!--//-->
         </div>
     </div>
-    <script>
-        $('input[name=CEP]').on("change",function(e){
-            if( $(this).val().length == 9){
-                var cep = $(this).val();
-                var url = "https://viacep.com.br/ws/"+cep+"/json/";
-                $.ajax({
-                    url: url,
-                    type: 'get',
-                    dataType: 'json',
-                    success: function(dados){
-                        $("input[name=UF]").val(dados.uf).change();
-                        $("input[name=Cidade]").val(dados.localidade);
-                        $("input[name=Bairro]").val(dados.bairro);
-                        $("input[name=Rua]").val(dados.logradouro);
-                    }
-                })
-            }            
-        })
-        //
-        $("input[name=CEP]").inputmask('99999-999')
-        $("input[name=Celular]").inputmask('(99) 9 9999-9999')
-    </script>
 </x-educacional-layout>

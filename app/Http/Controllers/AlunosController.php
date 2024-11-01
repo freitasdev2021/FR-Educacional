@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Aluno;
 use App\Models\Matriculas;
 use App\Models\Escola;
+use App\Models\NEE;
 use App\Models\Turma;
 use App\Models\FeedbackTransferencia;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -78,6 +79,10 @@ class AlunosController extends Controller
         'nome' => 'Anexos',
         'endereco' => 'Anexos',
         'rota' => 'Alunos/Anexos'
+    ],[
+        'nome' => 'NEE',
+        'endereco' => 'NEE',
+        'rota' => 'Alunos/NEE'
     ]);
 
     public const professoresSubmodulos = array([
@@ -1577,6 +1582,114 @@ class AlunosController extends Controller
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
+    }
+
+    public static function getCDPastaAluno($IDAluno){
+        return DB::select("SELECT CDPasta FROM matriculas m INNER JOIN alunos a ON(a.IDMatricula = m.id) WHERE a.id = $IDAluno")[0]->CDPasta;
+    }
+
+    public function necessidades($id){
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresSubmodulos;
+        }else{
+            $submodulos = self::cadastroSubmodulos;
+        }
+
+        return view('Alunos.necessidades',[
+            "submodulos"=> $submodulos,
+            "id" => $id
+        ]);
+    }
+
+    public function cadastroNecessidade($IDAluno,$id=null){
+        if(self::getDados()['tipo'] == 6){
+            $submodulos = self::professoresSubmodulos;
+        }else{
+            $submodulos = self::cadastroSubmodulos;
+        }
+
+        $view = array(
+            "submodulos" => $submodulos,
+            "IDAluno" => $IDAluno,
+            'id' => '',
+            "CDPasta" => self::getCDPastaAluno($IDAluno)
+        );
+
+        if($id){
+            $view['id'] = $id;
+            $view['Registro'] = NEE::find($id);
+        }
+
+        return view('Alunos.cadastroNecessidade',$view);
+    }
+
+    public function saveNecessidade(Request $request){
+        try{
+            $data = $request->all();
+            if($request->id){
+                if($request->file('Laudo')){
+                    $Laudo = $request->file('Laudo')->getClientOriginalName();
+                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldLaudo);
+                    $request->file('Laudo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Laudo,'public');
+                }else{
+                    $Laudo = '';
+                }
+                $data['Laudo'] = $Laudo;
+                NEE::find($request->id)->update($data);
+                $mensagem = "Laudo Editado com Sucesso!";
+                $aid = array("id"=>$request->id,"IDAluno"=>$request->IDAluno);
+                $rota = 'Alunos/NEE/Edit';
+            }else{
+                // dd($data);
+                if($request->file('Laudo')){
+                    $Laudo = $request->file('Laudo')->getClientOriginalName();
+                    $request->file('Laudo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Laudo,'public');
+                }else{
+                    $Laudo = '';
+                }
+                $data['Laudo'] = $Laudo;
+                NEE::create($data);
+                $mensagem = "Laudo cadastrado com Sucesso!";
+                $aid = $request->IDAluno;
+                $rota = 'Alunos/NEE/Novo';
+            }
+            $status = 'success';
+            
+        }catch(\Throwable $th){
+            $rota = 'Alunos/NEE/Novo';
+            $mensagem = 'Erro '.$th;
+            $aid = $request->IDAluno;
+            $status = 'error';
+        }finally{
+            return redirect()->route($rota,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function getNecessidades($IDAluno){
+        $registros = DB::select("SELECT n.id,n.IDAluno,n.DSNecessidade,n.CID,n.DTLaudo,n.Laudo FROM necessidades_aluno n INNER JOIN alunos a ON(a.id = n.IDAluno) WHERE a.id = $IDAluno");
+        $IDOrg = Auth::user()->id_org;
+        $CDPasta = self::getCDPastaAluno($IDAluno);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->DSNecessidade;
+                $item[] = $r->CID;
+                $item[] = $r->DTLaudo;
+                $downloadUrl = url("storage/organizacao_{$IDOrg}_alunos/aluno_{$CDPasta}/{$r->Laudo}");
+                $item[] = "<a href='".route('Alunos/NEE/Edit',array('id'=>$r->id,'IDAluno'=>$r->IDAluno))."' class='btn btn-primary btn-xs'>Abrir</a> <a href='{$downloadUrl}' download class='btn btn-success btn-xs'>Download Laudo</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
     }
 
     public function saveSituacao(Request $request){
