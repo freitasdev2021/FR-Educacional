@@ -42,7 +42,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <label>CID</label>
-                            <input type="number" name="CID" class="form-control" value="{{isset($Registro->CID) ? $Registro->CID : ''}}">
+                            <input type="text" maxlength="10" name="CID" class="form-control" value="{{isset($Registro->CID) ? $Registro->CID : ''}}">
                         </div>
                         <div class="col-sm-4">
                             <label>Anexo do Laudo</label>
