@@ -581,6 +581,72 @@ class AlunosController extends Controller
         exit;
     }
 
+    public function getAluno($id){
+        $SQL = "SELECT 
+                a.id as IDAluno, 
+                m.id as IDMatricula,
+                m.Nome as Nome,
+                t.Nome as Turma,
+                e.Nome as Escola,
+                t.Serie as Serie,
+                m.Nascimento as Nascimento,
+                a.STAluno,
+                m.Foto,
+                re.Escolaridade,
+                re.Profissao,
+                m.Email,
+                m.RG,
+                m.CPF,
+                re.NMResponsavel,
+                re.RGPais,
+                re.CPFResponsavel,
+                re.EmailResponsavel,
+                m.CEP,
+                m.Rua,
+                m.Bairro,
+                m.UF,
+                m.Numero,
+                m.Cidade,
+                re.CLResponsavel,
+                a.IDTurma,
+                m.Numero,
+                m.Celular,
+                m.NEE,
+                m.Alergia,
+                m.Transporte,
+                m.BolsaFamilia,
+                m.AMedico,
+                m.APsicologico,
+                m.CDPasta,
+                m.AnexoRG,
+                re.RGPaisAnexo,
+                m.CResidencia,
+                m.Historico,
+                re.RGPaisAnexo,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                r.ANO,
+                m.PaisJSON,
+                m.Quilombola,
+                m.CNascimento,
+                m.CNH,
+                m.SUS,
+                m.Passaporte,
+                m.Observacoes,
+                e.id as IDEscola
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN responsavel re ON(re.IDAluno = a.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            WHERE a.id = $id  
+            ";
+        return DB::select($SQL)[0];
+    }
+
     public function gerarHistoricoEscolar($id)
     {
         // Obtém todos os anos em que o aluno tem registros
@@ -592,6 +658,10 @@ class AlunosController extends Controller
         ->orderBy('ano')
         ->pluck('ano')
         ->toArray();
+
+        $Aluno = self::getAluno($id);
+
+        //dd($Aluno);
 
         $selectYears = '';
         $selectCargas = "";
@@ -678,8 +748,35 @@ class AlunosController extends Controller
         // Configura o FPDF
         $pdf = new Fpdf();
         $pdf->AddPage('L');
-        $pdf->SetFont('Arial', 'B', 8);
+        $Escola = Escola::find($Aluno->IDEscola);
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $pdf->Cell(0, 10, self::utfCOnvert($Escola->Nome), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(0, 10, self::utfCOnvert($Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." - ".$Escola->Cidade."/".$Escola->UF), 0, 1, 'C');
+        // Espaço após a logo
+        $pdf->Ln(10);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("HISTÓRICO ESCOLAR"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+        //DADOS DO ALUNO
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(80,10,"Nome: ".self::utfConvert($Aluno->Nome),0,0,'C');       // Largura de 60 para o Nome
+        $pdf->Cell(80,10,self::utfConvert("CPF: ").self::utfConvert($Aluno->CPF),0,0,'C');    // Largura de 60 para a Série
+        $pdf->Cell(0,10,"Data de Nascimento: ".self::utfConvert(date('d/m/Y', strtotime($Aluno->Nascimento))),0,1,'C'); // O restante da largura para o Nascimento
+               
+        //
+        $pdf->Ln(20);
+        $pdf->SetFont('Arial', 'B', 8);
         // Cabeçalho da tabela
         $pdf->Cell(40, 10, 'Disciplinas', 1, 0, 'C');
         foreach ($anos as $ano) {
@@ -698,6 +795,15 @@ class AlunosController extends Controller
                 $pdf->Cell(20, 10, $disciplina->$carga, 1, 0, 'C');
             }
             $pdf->Ln();
+        }
+
+        $pdf->Ln();
+        foreach($cargas as $c){
+            foreach($anos as $ano){
+                $carga = "CargaTotal_{$ano}";
+                $pdf->Cell(20, 10, "{$ano}", 1, 0, 'C');
+                $pdf->Cell(20, 10, $c->$carga, 1, 0, 'C');
+            }
         }
 
         // Saída do PDF
