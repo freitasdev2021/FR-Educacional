@@ -70,7 +70,7 @@
                                 </optgroup>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Salas</label>
                             <select name="IDSala" class="form-control">
                                 <option value="">Selecione</option>
@@ -79,13 +79,24 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Turma</label>
                             <input type="text" name="Nome" class="form-control" value="{{isset($Registro->Turma) ? $Registro->Turma : ''}}">
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Matérias p/Repetência</label>
-                            <input type="text" name="QTRepetencia" class="form-control" value="{{isset($Registro->QTRepetencia) ? $Registro->QTRepetencia : ''}}">
+                            <input type="number" name="QTRepetencia" class="form-control" value="{{isset($Registro->QTRepetencia) ? $Registro->QTRepetencia : ''}}">
+                        </div>
+                        <div class="col-sm-1">
+                            <label>Frequência MIN (%)</label>
+                            <input type="number" name="MINFrequencia" class="form-control" value="{{isset($Registro->MINFrequencia) ? $Registro->MINFrequencia : ''}}">
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Tipo de Avaliação</label>
+                            <select name="TPAvaliacao" class="form-control">
+                                <option value="Nota" {{(isset($Registro->TPAvaliacao) && $Registro->TPAvaliacao == "Nota" ) ? 'selected' : ''}}>Nota</option>
+                                <option value="Conceito" {{(isset($Registro->TPAvaliacao) && $Registro->TPAvaliacao == "Conceito" ) ? 'selected' : ''}}>Conceito</option>
+                            </select>
                         </div>
                     </div>
                     <div class="row">

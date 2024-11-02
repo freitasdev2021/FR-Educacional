@@ -32,12 +32,14 @@
                 <div class="col-auto">
                     <a href="{{route('Turmas/index')}}" class="btn btn-default">Voltar</a>
                 </div>
+                @if($Turma->TPAvaliacao == 'Nota')
                 <div class="col-auto">
                     <a href="{{route('Turmas/Boletins',$id)}}" target="_blank" class="btn btn-default">Gerar Boletins</a>
                 </div>
                 <div class="col-auto">
                     <a href="{{route('Turmas/Ata',$id)}}" target="_blank" class="btn btn-default">Gerar Ata</a>
                 </div>
+                @endif
             </form>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">

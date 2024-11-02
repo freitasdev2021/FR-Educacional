@@ -146,7 +146,8 @@ class TurmasController extends Controller
             'submodulos' => self::professoresSubmodulos,
             'id' => $IDTurma,
             'Disciplinas' => ProfessoresController::getDisciplinasProfessor(Auth::user()->IDProfissional),
-            'Estagios' => $Estagios
+            'Estagios' => $Estagios,
+            'Turma' => Turma::find($IDTurma)
         ];
         if($IDTurma){
             $view['submodulos'] = self::professoresCadastroSubmodulos;
@@ -216,7 +217,9 @@ class TurmasController extends Controller
                 t.Periodo,               -- Período do Aluno
                 d.NMDisciplina as Disciplina, -- Nome da Disciplina
                 au.Estagio,              -- Estágio (Bimestre)
-                t.MediaPeriodo
+                t.MediaPeriodo,
+                t.TPAvaliacao,
+                t.MINFrequencia
             FROM 
                 alunos a
             INNER JOIN 
@@ -274,23 +277,31 @@ class TurmasController extends Controller
 
                 if($Estagio == "Ano"){
                     $Frequencia = ($r->FrequenciaAno / $Estagios) * 100 . " %";
-                    $Total = ($r->RecAno > 0) ? $r->RecAno : $r->TotalAno ;
-                    $Resultado = ($Total > $MediaTotal) ? 'Aprovado' : 'Reprovado';
+                    
+                    if($r->TPAvaliacao == "Nota"){
+                        $Total = ($r->RecAno > 0) ? $r->RecAno : $r->TotalAno ;
+                        $Resultado = ($Total > $MediaTotal && $Frequencia >= $r->MINFrequencia) ? 'Aprovado' : 'Reprovado';
+                    }else{
+                        $Resultado = "Conceito Sob. Avaliação";
+                    }
                 }else{
                     $Frequencia = ($r->Frequencia / $Estagios) * 100 . " %";
-                    $Total = ($r->RecBim > 0) ? $r->RecBim : $r->Total;
-                    $Resultado = ($Total > $r->MediaPeriodo) ? 'Aprovado' : 'Reprovado';
+                    
+                    if($r->TPAvaliacao == "Nota"){
+                        $Total = ($r->RecBim > 0) ? $r->RecBim : $r->Total;
+                        $Resultado = ($Total > $r->MediaPeriodo && $Frequencia >= $r->MINFrequencia) ? 'Aprovado' : 'Reprovado';
+                    }else{
+                        $Resultado = "Conceito Sob. Avaliação, o Resultado será Inserido na Ficha";
+                    }
                 }
 
                 $item = [];
                 $item[] = $r->Aluno;
-                $item[] = $Total;
+                $item[] = ($r->TPAvaliacao == "Nota") ? $Total : 'Conceito' ;
                 $item[] = $Estagio;
                 $item[] = $Frequencia; // Corrigido o uso de concatenação
                 $item[] = $r->Disciplina;
-                $item[] = ($Resultado == 'Reprovado') 
-                    ? "<strong class='text-danger'>Reprovado</strong>" 
-                    : "<strong class='text-success'>Aprovado</strong>";
+                $item[] = $Resultado;
                 $itensJSON[] = $item;
 
             }

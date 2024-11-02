@@ -50,7 +50,7 @@
                                 </div>
                                 <div class="col-sm-2">
                                     <label>Pontuação</label>
-                                    <input type="number" class="form-control" name="Pontuacao" value="{{isset($Registro->Pontuacao) ? $Registro->Pontuacao : ''}}">
+                                    <input type="number" class="form-control" name="Pontuacao" value="{{isset($Registro->Pontuacao) ? $Registro->Pontuacao : '0'}}">
                                 </div>
                             </div>
                             <div class="row">

@@ -81,7 +81,8 @@ class AulasController extends Controller
         }
 
         return view('Aulas.index',[
-            'submodulos' => $submodulos
+            'submodulos' => $submodulos,
+            'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id)
         ]);
     }
     //ATIVIDADES
@@ -93,7 +94,8 @@ class AulasController extends Controller
         }
 
         return view('Aulas.atividades',[
-            'submodulos' => $submodulos
+            'submodulos' => $submodulos,
+            'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id)
         ]);
     }
     //CADASTRO DE AULAS
@@ -191,8 +193,11 @@ class AulasController extends Controller
             SELECT 
                 m.Nome AS Aluno,
                 m.id AS IDAluno,
-                CASE WHEN n.IDAluno IS NOT NULL THEN n.Nota ELSE '' END AS Pontos,
-                CASE WHEN n.IDAluno IS NOT NULL THEN 'Corrigida' ELSE 'Não Corrigida' END AS Concluido
+                CASE WHEN t.TPAvaliacao = 'Conceito' THEN
+                    CASE WHEN n.IDAluno IS NOT NULL THEN n.Conceito ELSE '' END
+                ELSE
+                    CASE WHEN n.IDAluno IS NOT NULL THEN n.Nota ELSE '' END
+                END as Pontos
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
             INNER JOIN turmas t ON a.IDTurma = t.id
@@ -256,10 +261,17 @@ class AulasController extends Controller
             for($i=0;$i<count($Notas);$i++){
                 $Pontos[] = [
                     "IDAtividade" => $request->IDAtividade,
-                    "IDAluno" => $Aluno[$i],
-                    "Nota" => $Notas[$i]
+                    "IDAluno" => $Aluno[$i]
                 ];
+                
+                if(is_numeric($Notas[$i])){
+                    $Pontos[$i]['Nota'] = $Notas[$i];
+                }else{
+                    $Pontos[$i]['Conceito'] = $Notas[$i]; 
+                }
             }
+
+            //dd($Pontos);
             //
             Nota::where('IDAtividade',$request->IDAtividade)->delete();
             foreach($Pontos as $p){
@@ -359,6 +371,14 @@ class AulasController extends Controller
             $WHERE = "WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
         }
 
+        if(isset($_GET['IDTurma'])){
+            $WHERE .=" AND a.IDTurma=".$_GET['IDTurma'];
+        }
+
+        if(isset($_GET['Estagio'])){
+            $WHERE .=" AND a.Estagio='".$_GET['Estagio']."'";
+        }
+
         $SQL = <<<SQL
         SELECT
             a.id as IDAula,
@@ -406,6 +426,14 @@ class AulasController extends Controller
             $WHERE = "a.IDProfessor = $IDProf";
         }else{
             $WHERE = "t.IDEscola IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";            
+        }
+
+        if(isset($_GET['IDTurma'])){
+            $WHERE .=" AND a.IDTurma=".$_GET['IDTurma'];
+        }
+
+        if(isset($_GET['Estagio'])){
+            $WHERE .=" AND a.Estagio='".$_GET['Estagio']."'";
         }
 
         $SQL = <<<SQL
@@ -492,7 +520,7 @@ class AulasController extends Controller
 
                 $item = [];
                 $item[] = $f->Aluno;
-                $item[] = "<input type='checkbox' name='Presenca' onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked >";
+                $item[] = "<div><input type='checkbox' name='Presenca' onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked ></div>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -506,6 +534,37 @@ class AulasController extends Controller
         ];
         
         echo json_encode($resultados);
+    }
+    //
+    public function presencaTodos($IDAula){
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                au.STAula,
+                m.id AS IDAluno,
+                CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            INNER JOIN turmas t ON a.IDTurma = t.id
+            INNER JOIN aulas au ON t.id = au.IDTurma
+            LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
+            WHERE t.id = au.IDTurma AND au.id = $IDAula AND STAluno = 0
+            GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
+        SQL;
+        $frequencia = DB::select($SQL);
+        
+        foreach($frequencia as $f){
+            $Vez = Chamada::where('IDAluno',$f->IDAluno)->where("IDAula",$IDAula)->first();
+            if(!$Vez){
+                Chamada::create(array(
+                    "Presenca" => 0,
+                    "IDAluno" => $f->IDAluno,
+                    "IDAula" => $IDAula
+                ));
+            }
+        }
+
+        return redirect()->back();
     }
     //
     public function setPresenca(Request $request){

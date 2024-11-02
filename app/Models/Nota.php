@@ -18,6 +18,7 @@ class Nota extends Model
     protected $fillable = [
         'IDAtividade',
         'IDAluno',
-        'Nota'
+        'Nota',
+        'Conceito'
     ];
 }

@@ -212,28 +212,31 @@
       {{-- <pre>
          {{print_r($ficha)}}
       </pre> --}}
+      @foreach($ficha as $f)
       <table class="table">
          <thead class="bg-fr text-white">
+            <tr align="center">
+               <th colspan="4">{{$f->Serie}} - {{$f->Turma}}</th>
+            </tr>
            <tr>
              <th scope="col">Dia</th>
              <th scope="col">Turno</th>
              <th scope="col">Escola</th>
-             <th scope="col">Turma</th>
              <th scope="col">Disciplina</th>
            </tr>
          </thead>
          <tbody>
-         @foreach($ficha as $f)
+         @foreach(json_decode($f->Horarios) as $h)
            <tr>
-             <td class="bg-primary text-white" align="center"><strong>{{$f->Dia}}</strong></td>
-             <td>{{$f->Inicio}} - {{$f->Termino}}</td>
-             <td>{{$f->Escola}}</td>
-             <td>{{$f->Serie}} - {{$f->Turma}}</td>
-             <td>{{$f->Disciplina}}</td>
+             <td class="bg-primary text-white" align="center"><strong>{{$h->Dia}}</strong></td>
+             <td>{{$h->Inicio}} - {{$h->Termino}}</td>
+             <td>{{$h->Escola}}</td>
+             <td>{{$h->Disciplina}}</td>
            </tr>
          @endforeach
          </tbody>
        </table>
+       @endforeach
     </div>
     @endif
  </x-educacional-layout>

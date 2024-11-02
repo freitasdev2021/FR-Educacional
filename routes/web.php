@@ -176,6 +176,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Aulas/Recuperacao/list',[RecuperacaoController::class,'getRecuperacoes'])->name("Aulas/Recuperacao/list");
         Route::post('Aulas/Recuperacao/Save',[RecuperacaoController::class,'save'])->name("Aulas/Recuperacao/Save");
         //AULAS
+        Route::get('/Aulas/Presenca/Todos/{IDAula}',[AulasController::class,'presencaTodos'])->name('Aulas/Presenca/Todos');
         Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
         Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
         Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca')->middleware('professor');

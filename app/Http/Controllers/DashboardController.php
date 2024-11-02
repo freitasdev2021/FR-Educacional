@@ -14,7 +14,7 @@ class DashboardController extends Controller
        
         $IDOrg = Auth::user()->id_org;
         return view('dashboard',[
-            'ficha' => self::getFichaProfessor(Auth::user()->id,'Horarios'),
+            'ficha' => self::horariosProfessor(Auth::user()->id),
             'Matriculas' => self::alunos(''),
             'Alunos' => self::alunos(' AND m.Aprovado=1'),
             'Desistentes' => self::alunos(' AND a.STAluno=2'),
@@ -42,47 +42,40 @@ class DashboardController extends Controller
         $dias = [];
         $horarios = [];
         $SQL = <<<SQL
-            SELECT
-                CONCAT(
-                    '[',
-                    GROUP_CONCAT(
-                        '{'
-                        ,'"Inicio":"', tn.INITur, '"'
-                        ,',"Termino":"', tn.TERTur, '"'
-                        ,',"Turma":"', t.Nome, '"'
-                        ,',"Disciplina":"', d.NMDisciplina, '"'
-                        ,',"Escola":"', e.Nome, '"'
-                        ,'}'
-                        SEPARATOR ','
-                    ),
-                    ']'
-                ) as Horarios,
-                tn.DiaSemana as Dia
-            FROM turnos tn
-            INNER JOIN turmas t ON(tn.IDTurma = t.id)
-            INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
-            INNER JOIN escolas e ON(al.IDEscola = e.id)
-            INNER JOIN professores p ON(p.id = tn.IDProfessor)
-            INNER JOIN users us ON(us.IDProfissional = p.id)
-            INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
-            WHERE us.id = $IDProf 
-            GROUP BY DiaSemana
+           SELECT 
+            t.Serie AS Serie,
+            t.Nome as Turma,
+            CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    DISTINCT
+                    '{'
+                    ,'"Inicio":"', tn.INITur, '"'
+                    ,',"Termino":"', tn.TERTur, '"'
+                    ,',"Disciplina":"', d.NMDisciplina, '"'
+                    ,',"Escola":"', e.Nome, '"'
+                    ,',"Dia":"', tn.DiaSemana, '"'
+                    ,'}'
+                    SEPARATOR ','
+                ),
+                ']'
+            ) AS Horarios
+        FROM turnos tn
+        INNER JOIN turmas t ON tn.IDTurma = t.id
+        INNER JOIN alocacoes al ON t.IDEscola = al.IDEscola
+        INNER JOIN escolas e ON al.IDEscola = e.id
+        INNER JOIN professores p ON p.id = tn.IDProfessor
+        INNER JOIN users us ON us.IDProfissional = p.id
+        INNER JOIN disciplinas d ON d.id = tn.IDDisciplina
+        WHERE us.id = $IDProf AND al.TPProfissional = 'PROF' 
+        GROUP BY t.id, t.Serie;
         SQL;
 
         DB::statement("SET SESSION group_concat_max_len = 1000000");
 
         $turnos = DB::select($SQL);
 
-        foreach($turnos as $t){
-            // Adiciona os dias e os horários no array
-            array_push($dias, $t->Dia);
-            array_push($horarios, json_decode($t->Horarios));
-        }
-
-        return array(
-            "Dias" => $dias,
-            "Horarios" => $horarios
-        );
+        return $turnos;
 
     }
 }

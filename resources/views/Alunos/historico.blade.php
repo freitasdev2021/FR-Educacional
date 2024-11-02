@@ -82,7 +82,7 @@
                         <tr>
                             <td>{{ $linha->Disciplina }}</td>
                             @foreach ($anos as $ano)
-                                <td>{{ ($linha->{'RecAn_'.$ano} > 0) ? $linha->RecAn : $linha->{'Total_' . $ano} - $linha->{'PontRec_'.$ano} + $linha->{'RecBim_'.$ano} }}</td>
+                                <td>{{ ($linha->{'RecAn_'.$ano} > 0) ? $linha->{'RecAn_'.$ano} : $linha->{'Total_' . $ano} - $linha->{'PontRec_'.$ano} + $linha->{'RecBim_'.$ano} }}</td>
                                 <td>{{ $linha->{'CargaDisciplina_' . $ano} }} </td>
                             @endforeach
                         </tr>
