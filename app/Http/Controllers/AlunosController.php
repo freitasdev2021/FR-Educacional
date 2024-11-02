@@ -581,6 +581,130 @@ class AlunosController extends Controller
         exit;
     }
 
+    public function gerarHistoricoEscolar($id)
+    {
+        // Obtém todos os anos em que o aluno tem registros
+        $anos = DB::table('aulas')
+        ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
+        ->join('alunos', 'alunos.id', '=', 'frequencia.IDAluno')
+        ->where('alunos.id', $id)
+        ->select(DB::raw('DISTINCT YEAR(aulas.created_at) as ano'))
+        ->orderBy('ano')
+        ->pluck('ano')
+        ->toArray();
+
+        $selectYears = '';
+        $selectCargas = "";
+        foreach ($anos as $ano) {
+            $selectYears .= "
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecBim_{$ano},
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecAn_{$ano},
+            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as PontRec_{$ano},
+            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id ) END) as Total_{$ano}, 
+            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                    (SELECT COUNT(f2.id) 
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND au2.IDDisciplina = d.id
+                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                END) as Frequencia_{$ano},
+                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND au2.IDDisciplina = d.id
+                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                END) as CargaDisciplina_{$ano},
+                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                END) as CargaTotal_{$ano},
+            ";
+
+            $selectCargas .="
+            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+            (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                WHERE f2.IDAluno = a.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+            END) as CargaTotal_{$ano},
+            ";
+        }
+
+        // Executa a consulta
+        $historico = DB::select("
+            SELECT 
+                d.NMDisciplina as Disciplina,
+                {$selectYears}
+                COUNT(d.id)
+            FROM 
+                disciplinas d
+            INNER JOIN 
+                aulas au ON(d.id = au.IDDisciplina)
+            INNER JOIN 
+                frequencia f ON(au.id = f.IDAula)
+            INNER JOIN 
+                alunos a ON(a.id = f.IDAluno)
+            WHERE 
+                a.id = :aluno_id
+            GROUP BY 
+                d.id;
+        ", ['aluno_id' => $id]);
+
+        $cargas = DB::select("
+            SELECT 
+                {$selectCargas}
+                COUNT(au.id)
+            FROM 
+                aulas au
+            INNER JOIN 
+                frequencia f ON(au.id = f.IDAula)
+            INNER JOIN 
+                alunos a ON(a.id = f.IDAluno)
+            INNER JOIN 
+                atividades at ON(at.IDAula = au.id)
+            INNER JOIN 
+                notas n ON(at.id = n.IDAtividade)
+            WHERE 
+                a.id = :aluno_id
+        ", ['aluno_id' => $id]);
+
+        // Configura o FPDF
+        $pdf = new Fpdf();
+        $pdf->AddPage('L');
+        $pdf->SetFont('Arial', 'B', 8);
+
+        // Cabeçalho da tabela
+        $pdf->Cell(40, 10, 'Disciplinas', 1, 0, 'C');
+        foreach ($anos as $ano) {
+            $pdf->Cell(40, 10, "{$ano}", 1, 0, 'C');
+        }
+        $pdf->Ln();
+
+        // Dados das disciplinas e notas por ano
+        foreach ($historico as $disciplina) {
+            $pdf->Cell(40, 10, self::utfConvert($disciplina->Disciplina), 1);
+            foreach ($anos as $ano) {
+                $notaKey = "Total_{$ano}";
+                $carga = "CargaDisciplina_{$ano}";
+                $nota = isset($disciplina->$notaKey) ? $disciplina->$notaKey : '-';
+                $pdf->Cell(20, 10, $nota, 1, 0, 'C');
+                $pdf->Cell(20, 10, $disciplina->$carga, 1, 0, 'C');
+            }
+            $pdf->Ln();
+        }
+
+        // Saída do PDF
+        $pdf->Output("I",'TesteHistorico_'.rand(1,100).".pdf");
+        exit;
+    }
+
     public function historico($id){
         // Primeiro, obtenha todos os anos em que o aluno tem registros
         $anos = DB::table('aulas')
