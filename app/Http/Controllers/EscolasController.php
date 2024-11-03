@@ -572,9 +572,15 @@ class EscolasController extends Controller
         ]);
     }
 
-    public static function getAlunosEscola(){
+    public static function getAlunosEscola($escolas){
         $idorg = Auth::user()->id_org;
         $IDAlunos = array();
+        if(is_array($escolas)){
+            $EscolasImploded = implode(",",$escolas);
+        }else{
+            $EscolasImploded = "";
+        }
+
         $SQL = "SELECT
             a.id as IDAluno
         FROM matriculas m
@@ -585,13 +591,37 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
-        WHERE o.id = $idorg AND STAluno = 0 GROUP BY a.id";
+        WHERE e.id IN($EscolasImploded) AND STAluno = 0 GROUP BY a.id";
         
         foreach(DB::select($SQL) as $ds){
             array_push($IDAlunos,$ds->IDAluno);
         }
 
         return $IDAlunos;
+    }
+
+    public static function getNomeAlunosEscola($escolas){
+        if(is_array($escolas)){
+            $EscolasImploded = implode(",",$escolas);
+        }else{
+            $EscolasImploded = "";
+        }
+
+        $SQL = "SELECT
+            a.id,
+            m.Nome as Aluno,
+            t.Nome as Turma
+        FROM matriculas m
+        INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+        INNER JOIN escolas e ON(t.IDEscola = e.id)
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+        WHERE e.id IN($EscolasImploded) AND STAluno = 0 GROUP BY a.id";
+
+        return DB::select($SQL);
     }
 
     public static function getTurmasEscola(){

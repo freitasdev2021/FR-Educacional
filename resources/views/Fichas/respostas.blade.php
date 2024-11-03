@@ -6,30 +6,37 @@
            @endforeach
         </div>
         <div class="fr-card-body">
-            <!--CABECALHO-->
-            <div class="col-sm-12 p-2 row">
-                <div class="col-auto">
-                    <a href="{{route('Fichas/index')}}" class="btn btn-fr">Voltar</a>
-                </div>
-            </div>
-            <!--LISTAS-->
-            <div class="col-sm-12 p-2">
-                <hr>
-                <table class="table table-sm tabela" id="escolas" data-rota="{{route('Fichas/getRespostas',$id)}}">
+        <!-- Cabeçalho da escola e nome do aluno -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{{ asset('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $escola->id . '/' . $escola->foto) }}" alt="Logo da Escola" width="100">
+            <h1>{{ $escola->nome }}</h1>
+        </div>
+
+        @foreach($registros as $registro)
+            <div>
+                <p><strong>Aluno:</strong> {{ $registro->nome }}</p>
+
+                <!-- Tabela de Respostas -->
+                <table class="table">
                     <thead>
-                      <tr>
-                        <th style="text-align:center;" scope="col">Nome</th>
-                        @foreach($respostas as $r)
-                        <th style="text-align:center;" scope="col">{{$r->Conteudo}}</th>
-                        @endforeach
-                      </tr>
+                        <tr>
+                            <th class="content-cell">Conteúdo</th>
+                            <th class="response-cell">Resposta</th>
+                        </tr>
                     </thead>
                     <tbody>
-                      
+                        @foreach(json_decode($registro->respostas, true) as $resposta)
+                            <tr>
+                                <td class="content-cell">{{$resposta['Conteudo']}}</td>
+                                <td class="response-cell">{{ $resposta['Resposta'] }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
-                  </table>
+                </table>
+
+                <br><hr><br> <!-- Espaço entre boletins -->
             </div>
-            <!--//-->
+        @endforeach
         </div>
     </div>
 </x-educacional-layout>

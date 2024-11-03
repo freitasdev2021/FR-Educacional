@@ -65,6 +65,8 @@
                             <label col="col-sm-6">Atribuições das Atividades</label>
                             @if(isset($Registro->id))
                             ( <input type="checkbox" name="alterarAtt"> Alterar Atribuições )
+                            @else
+                            ( <input type="checkbox" name="todosPresentes"> Todos Presentes )
                             @endif
                             <table>
                                 <table class="table table-sm tabela">
@@ -103,6 +105,9 @@
     </div>
     <script>
         $(document).ready(function(){
+            $("input[name=todosPresentes]").on("change",function(){
+                $('input[name="Aluno[]"]').prop('checked', $(this).prop('checked'));
+            })
             $("select[name=IDAula]").on("change",function(){
                 $.ajax({
                     method : "POST",

@@ -41,7 +41,7 @@ class FichaController extends Controller
         $view = array(
             'id' => '',
             'submodulos' => self::submodulos,
-            'Escolas' => ProfessoresController::getDadosEscolasProfessor(Auth::user()->IDProfissional)
+            'Escolas' => Escola::all()->whereIn('id',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
         );
 
         if($id){
@@ -56,13 +56,24 @@ class FichaController extends Controller
     }
 
     public function respostas($id){
-        // Consulta SQL para obter registros de respostas
-        // Consulta SQL para obter registros de respostas
-        $Registro = DB::select("SELECT r.Respostas FROM respostas_ficha r WHERE r.IDFicha = $id")[0];
+        $registros = DB::select("SELECT r.Respostas as respostas, m.Nome as nome 
+        FROM respostas_ficha r 
+        INNER JOIN ficha_avaliativa f ON f.id = r.IDFicha 
+        INNER JOIN alunos a ON r.IDAluno = a.id 
+        INNER JOIN matriculas m ON m.id = a.IDMatricula 
+        WHERE f.id = :id", ['id' => $id]);
+
+        $IDAluno = Resposta::where('IDFicha', $id)->first()->IDAluno;
+        $escola = DB::select("SELECT e.id, e.Nome as nome, e.Foto as foto 
+            FROM escolas e 
+            INNER JOIN turmas t ON t.IDEscola = e.id 
+            INNER JOIN alunos a ON t.id = a.IDTurma 
+            WHERE a.id = :IDAluno", ['IDAluno' => $IDAluno])[0];
 
         return view('Fichas.respostas',array(
             "submodulos" => self::cadastroSubmodulos,
-            "respostas" => json_decode($Registro->Respostas),
+            "registros" => $registros,
+            "escola" => $escola,
             "id" => $id
         ));
     }
@@ -280,7 +291,7 @@ class FichaController extends Controller
         return view('Fichas.formulario',array(
            "Ficha" => json_decode(Ficha::find($id)->Formulario),
            'id' => $id,
-           "Alunos" => ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional),
+           "Alunos" => EscolasController::getNomeAlunosEscola(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)),
            'submodulos'=> self::submodulos
         ));
     }
@@ -375,8 +386,9 @@ class FichaController extends Controller
                 $item[] = $r->Escola;
                 $item[] = "
                 <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',$r->IDFicha).">Exportar (PDF)</a>&nbsp
-                <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Abrir</a>&nbsp
-                <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Visualizar</a>&nbsp
+                <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDFicha).">Respostas</a>&nbsp
+                <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Editar Ficha</a>&nbsp
+                <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Avaliar Aluno</a>&nbsp
                 ";
                 $itensJSON[] = $item;
             }
