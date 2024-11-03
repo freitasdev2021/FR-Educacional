@@ -23,7 +23,8 @@ class Escola extends Model
         'Email',
         'QTVagas',
         'INIFuncionamento',
-        'TERFuncionamento'
+        'TERFuncionamento',
+        'OBSGeralHistorico'
     ];
 
     public function organizacao()

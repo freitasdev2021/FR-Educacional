@@ -88,6 +88,12 @@
                             <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}" required>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Observação Geral nos Históricos</label>
+                            <textarea name="OBSGeralHistorico" class="form-control">{{isset($Registro->OBSGeralHistorico) ? $Registro->OBSGeralHistorico : ''}}</textarea>
+                        </div>
+                    </div>
                     <br>
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>

@@ -77,6 +77,18 @@
                             <label>CNH</label>
                             <input type="text" class="form-control" value="{{isset($Registro->CNH) ? $Registro->CNH : ''}}" name="CNH"> 
                         </div>
+                        <div class="col-sm-2">
+                            <label>Naturalidade</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->Naturalidade) ? $Registro->Naturalidade : ''}}" name="Naturalidade"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>NIS</label>
+                            <input type="number" class="form-control" value="{{isset($Registro->NIS) ? $Registro->NIS : ''}}" name="NIS"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>INEP</label>
+                            <input type="number" class="form-control" value="{{isset($Registro->INEP) ? $Registro->INEP : ''}}" name="INEP"> 
+                        </div>
                     </div>
                     <hr>
                     <h5>Dados do Responsável</h5>
@@ -313,6 +325,10 @@
                         <div class="col-sm-3">
                             <label>Observações</label>
                             <input type="text" name="Observacoes" class="form-control" value="{{isset($Registro) ? $Registro->Observacoes : ''}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Tipo de Transporte</label>
+                            <input type="text" name="TPTransporte" class="form-control" value="{{isset($Registro) ? $Registro->TPTransporte : ''}}">
                         </div>
                     </div>
                     <br>

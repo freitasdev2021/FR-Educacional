@@ -62,6 +62,32 @@
                     <td>15/03/2005</td>
                 </tr>
             </table> --}}
+            <div class="col-sm-12">
+                <form action="{{route('Alunos/GerarHistorico',$id)}}" method="POST">
+                    @csrf
+                    @method("PATCH")
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label>Observação Individual</label>
+                            <input type="text" name="OBSIndividual" class="form-control">
+                        </div>
+                        <div class="col-auto">
+                            <label>Como Certificado</label>
+                            <input type="checkbox" name="CMCertificado" class="form-check">
+                        </div>
+                        <div class="col-auto">
+                            <label>
+                                Segunda Via
+                            </label>
+                            <input type="checkbox" name="SGVia" class="form-check">
+                        </div>
+                        <div class="col-auto" style="margin-top:20px;">
+                            <button class="btn btn-success">Gerar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <hr>
             <table>
                 <thead>
                     <tr>

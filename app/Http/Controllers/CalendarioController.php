@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use DatePeriod;
 use DateInterval;
+use Storage;
 
 class CalendarioController extends Controller
 {
@@ -667,12 +668,26 @@ class CalendarioController extends Controller
         try{
             $status = 'success';
             $mensagem = 'Ferias Salvas com Sucesso';
+            $data = $request->all();
             if($request->id){
-                FeriasProfissionais::find($request->id)->update($request->all());
+                // if($request->file('Anexo')){
+                //     $Anexo = $request->file('Anexo')->getClientOriginalName();
+                //     Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldAnexo);
+                //     $request->file('Anexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Anexo,'public');
+                // }else{
+                //     $Anexo = '';
+                // }
+                FeriasProfissionais::find($request->id)->update($data);
                 $aid = $request->id;
                 $rout = 'Calendario/FeriasProfissionais/Edit';
             }else{
-                FeriasProfissionais::create($request->all());
+                // if($request->file('Anexo')){
+                //     $Anexo = $request->file('Anexo')->getClientOriginalName();
+                //     $request->file('Anexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Anexo,'public');
+                // }else{
+                //     $Anexo = '';
+                // }
+                FeriasProfissionais::create($data);
                 $rout = 'Calendario/FeriasProfissionais';
                 $aid = '';
             }

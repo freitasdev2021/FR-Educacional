@@ -48,7 +48,11 @@ class Matriculas extends Model
         'Passaporte',
         'CNascimento',
         'SUS',
-        'CNH'
+        'CNH',
+        'NIS',
+        'INEP',
+        'Naturalidade',
+        'TPTransporte'
     ];
 
     public function escola()

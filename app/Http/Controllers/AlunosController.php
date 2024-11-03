@@ -633,7 +633,11 @@ class AlunosController extends Controller
                 m.SUS,
                 m.Passaporte,
                 m.Observacoes,
-                e.id as IDEscola
+                e.id as IDEscola,
+                m.Naturalidade,
+                m.NIS,
+                m.INEP,
+                m.TPTransporte
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -647,8 +651,9 @@ class AlunosController extends Controller
         return DB::select($SQL)[0];
     }
 
-    public function gerarHistoricoEscolar($id)
+    public function gerarHistoricoEscolar($id,Request $request)
     {
+        //dd($request->all());
         // Obtém todos os anos em que o aluno tem registros
         $anos = DB::table('aulas')
         ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
@@ -758,41 +763,67 @@ class AlunosController extends Controller
 
         // Posição do nome da escola após a logo
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $pdf->Cell(0, 10, self::utfCOnvert($Escola->Nome), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Nome), 0, 1, 'C'); // Nome da escola centralizado
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 10, self::utfCOnvert($Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." - ".$Escola->Cidade."/".$Escola->UF), 0, 1, 'C');
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." - ".$Escola->Cidade."/".$Escola->UF), 0, 1, 'C');
         // Espaço após a logo
-        $pdf->Ln(10);
-
+        $pdf->Ln(5);
+        if($request->CMCertificado){
+            $Titulo = "CERTIFICADO DE CONCLUSÃO";
+        }else{
+            $Titulo = "HISTÓRICO ESCOLAR";
+        }
         // Definir fonte e título
         $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("HISTÓRICO ESCOLAR"), 0, 1, 'C'); // Título centralizado
+        $pdf->Cell(0, 10, self::utfConvert($Titulo), 0, 1, 'C'); // Título centralizado
+        if($request->SGVia){
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0,10,"Segunda Via",0,1,'C');
+        }
         $pdf->Ln(10); // Espaço após o título
+        //MENSAGEM
+        if($request->CMCertificado){
+            $pdf->SetFont('Arial', 'B', 14);
+            $mensagemCertificado = "Certificamos que ".self::utfConvert($Aluno->Nome).", portador do CPF ".self::utfConvert($Aluno->CPF).", natural de ".self::utfConvert($Aluno->Naturalidade).", nascido(a) em ".date('d/m/Y',strtotime($Aluno->Nascimento)).", concluiu com êxito mais uma etapa de ensino.";
+            $pdf->MultiCell(0, 4, self::utfConvert($mensagemCertificado), 0, 'C'); // Centralizado e com quebra de linha automática
+            $pdf->Ln(10);
+        }
         //DADOS DO ALUNO
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(80,10,"Nome: ".self::utfConvert($Aluno->Nome),0,0,'C');       // Largura de 60 para o Nome
-        $pdf->Cell(80,10,self::utfConvert("CPF: ").self::utfConvert($Aluno->CPF),0,0,'C');    // Largura de 60 para a Série
-        $pdf->Cell(0,10,"Data de Nascimento: ".self::utfConvert(date('d/m/Y', strtotime($Aluno->Nascimento))),0,1,'C'); // O restante da largura para o Nascimento
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(80, 5, "Nome: ".self::utfConvert($Aluno->Nome), 0, 0);
+        $pdf->Cell(50, 5, "INEP: ".self::utfConvert($Aluno->INEP), 0, 0);
+        $pdf->Cell(50, 5, "CPF: ".self::utfConvert($Aluno->CPF), 0, 1); // Quebra de linha para o próximo conjunto
+
+        // Naturalidade e Nascimento
+        $pdf->Cell(80, 5, "Naturalidade: ".self::utfConvert($Aluno->Naturalidade), 0, 0);
+        $pdf->Cell(50, 5, "Nascimento: ".date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 0);
+        $pdf->Cell(50, 5, self::utfConvert("Observação: ".$request->OBSIndividual), 0, 0);
+        $pdf->Ln();
+        $pdf->Cell(50, 5, self::utfConvert("Observação Geral: ".$Escola->OBSGeralHistorico), 0, 0);
+        $Filiacao = json_decode($Aluno->PaisJSON);
+        $pdf->Ln();
+        $pdf->Cell(50, 5, "Pai: ".self::utfConvert($Filiacao->Pai), 0, 1);
+        $pdf->Cell(50, 5,self::utfConvert("Mãe: ".$Filiacao->Mae), 0, 1);
                
         //
-        $pdf->Ln(20);
+        $pdf->Ln();
         $pdf->SetFont('Arial', 'B', 8);
         // Cabeçalho da tabela
-        $pdf->Cell(40, 10, 'Disciplinas', 1, 0, 'C');
+        $pdf->Cell(40, 5, 'Disciplinas', 1, 0, 'C');
         foreach ($anos as $ano) {
-            $pdf->Cell(40, 10, "{$ano}", 1, 0, 'C');
+            $pdf->Cell(40, 5, "{$ano}", 1, 0, 'C');
         }
         $pdf->Ln();
 
         // Dados das disciplinas e notas por ano
         foreach ($historico as $disciplina) {
-            $pdf->Cell(40, 10, self::utfConvert($disciplina->Disciplina), 1);
+            $pdf->Cell(40, 5, self::utfConvert($disciplina->Disciplina), 1);
             foreach ($anos as $ano) {
                 $notaKey = "Total_{$ano}";
                 $carga = "CargaDisciplina_{$ano}";
                 $nota = isset($disciplina->$notaKey) ? $disciplina->$notaKey : '-';
-                $pdf->Cell(20, 10, $nota, 1, 0, 'C');
-                $pdf->Cell(20, 10, $disciplina->$carga, 1, 0, 'C');
+                $pdf->Cell(20, 5, $nota, 1, 0, 'C');
+                $pdf->Cell(20, 5, $disciplina->$carga, 1, 0, 'C');
             }
             $pdf->Ln();
         }
@@ -801,13 +832,23 @@ class AlunosController extends Controller
         foreach($cargas as $c){
             foreach($anos as $ano){
                 $carga = "CargaTotal_{$ano}";
-                $pdf->Cell(20, 10, "{$ano}", 1, 0, 'C');
-                $pdf->Cell(20, 10, $c->$carga, 1, 0, 'C');
+                $pdf->Cell(20, 5, "{$ano}", 1, 0, 'C');
+                $pdf->Cell(20, 5, $c->$carga, 1, 0, 'C');
             }
         }
 
+        $pdf->Ln(30);
+        // Assinaturas
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(90, 10, "Assinatura do Diretor:", 0, 0, 'C');
+        $pdf->Cell(90, 10, self::utfConvert("Assinatura do Secretário Escolar:"), 0, 1, 'C');
+
+        // Desenha linhas para as assinaturas
+        $pdf->Cell(90, 10, "_________________________", 0, 0, 'C');
+        $pdf->Cell(90, 10, "_________________________", 0, 1, 'C');
+
         // Saída do PDF
-        $pdf->Output("I",'TesteHistorico_'.rand(1,100).".pdf");
+        $pdf->Output("D",'Historico_'.rand(1,100).".pdf");
         exit;
     }
 
@@ -1322,69 +1363,8 @@ class AlunosController extends Controller
         ];
 
         if($id){
-            $SQL = "SELECT 
-                a.id as IDAluno, 
-                m.id as IDMatricula,
-                m.Nome as Nome,
-                t.Nome as Turma,
-                e.Nome as Escola,
-                t.Serie as Serie,
-                m.Nascimento as Nascimento,
-                a.STAluno,
-                m.Foto,
-                re.Escolaridade,
-                re.Profissao,
-                m.Email,
-                m.RG,
-                m.CPF,
-                re.NMResponsavel,
-                re.RGPais,
-                re.CPFResponsavel,
-                re.EmailResponsavel,
-                m.CEP,
-                m.Rua,
-                m.Bairro,
-                m.UF,
-                m.Numero,
-                m.Cidade,
-                re.CLResponsavel,
-                a.IDTurma,
-                m.Numero,
-                m.Celular,
-                m.NEE,
-                m.Alergia,
-                m.Transporte,
-                m.BolsaFamilia,
-                m.AMedico,
-                m.APsicologico,
-                m.CDPasta,
-                m.AnexoRG,
-                re.RGPaisAnexo,
-                m.CResidencia,
-                m.Historico,
-                re.RGPaisAnexo,
-                cal.INIRematricula,
-                cal.TERRematricula,
-                r.ANO,
-                m.PaisJSON,
-                m.Quilombola,
-                m.CNascimento,
-                m.CNH,
-                m.SUS,
-                m.Passaporte,
-                m.Observacoes
-            FROM matriculas m
-            INNER JOIN alunos a ON(a.IDMatricula = m.id)
-            INNER JOIN turmas t ON(a.IDTurma = t.id)
-            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
-            INNER JOIN escolas e ON(t.IDEscola = e.id)
-            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-            INNER JOIN responsavel re ON(re.IDAluno = a.id)
-            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
-            WHERE o.id = $idorg AND a.id = $id  
-            ";
 
-            $Registro = DB::select($SQL)[0];
+            $Registro = self::getAluno($id);
             $Vencimento = Carbon::parse($Registro->INIRematricula);
             $Hoje = Carbon::parse(date('Y-m-d'));
             if(self::getDados()['tipo'] == 6){
@@ -1573,7 +1553,11 @@ class AlunosController extends Controller
                     "DireitoImagem" => $request->DireitoImagem,
                     "Quilombola" => $request->Quilombola,
                     "Cor" => $request->Cor,
-                    "Sexo" => $request->Sexo
+                    "Sexo" => $request->Sexo,
+                    "INEP" => $request->INEP,
+                    "NIS" => $request->NIS,
+                    "Naturalidade" => $request->Naturalidade,
+                    "TPTransporte" => $request->TPTransporte
                 );
 
                 $matricula['PaisJSON'] = json_encode($Pais);
@@ -1712,8 +1696,14 @@ class AlunosController extends Controller
                     "EReligioso" => $request->EReligioso,
                     "DireitoImagem" => $request->DireitoImagem,
                     "Cor" => $request->Cor,
-                    "Sexo" => $request->Sexo
+                    "Sexo" => $request->Sexo,
+                    "INEP" => $request->INEP,
+                    "NIS" => $request->NIS,
+                    "Naturalidade" => $request->Naturalidade,
+                    "TPTransporte" => $request->TPTransporte
                 );
+
+                //dd($matricula);
 
                 $matricula['PaisJSON'] = json_encode($Pais);
 
