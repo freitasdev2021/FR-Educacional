@@ -581,13 +581,15 @@ class AlunosController extends Controller
         exit;
     }
 
-    public function getAluno($id){
+    public static function getAluno($id){
         $SQL = "SELECT 
                 a.id as IDAluno, 
                 m.id as IDMatricula,
                 m.Nome as Nome,
                 t.Nome as Turma,
                 e.Nome as Escola,
+                e.id as IDEscola,
+                e.Foto as FotoEscola,
                 t.Serie as Serie,
                 m.Nascimento as Nascimento,
                 a.STAluno,
@@ -637,7 +639,9 @@ class AlunosController extends Controller
                 m.Naturalidade,
                 m.NIS,
                 m.INEP,
-                m.TPTransporte
+                m.TPTransporte,
+                m.Cor,
+                m.Sexo
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)

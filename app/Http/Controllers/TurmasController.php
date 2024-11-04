@@ -582,11 +582,11 @@ class TurmasController extends Controller
                 $pdf->SetFont('Arial', '', 10);
                 $pdf->Cell(30, 7, mb_convert_encoding($d['Disciplina'],'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
                 $pdf->Cell(21, 7, $d['Nota1B'], 1, 0, 'C');
-                $pdf->Cell(21, 7, $d['Faltas1B']/4, 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas1B'], 1, 0, 'C');
                 $pdf->Cell(21, 7, $d['Nota2B'], 1, 0, 'C');
-                $pdf->Cell(21, 7, $d['Faltas2B']/4, 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas2B'], 1, 0, 'C');
                 $pdf->Cell(21, 7, $d['Nota3B'], 1, 0, 'C');
-                $pdf->Cell(21, 7, $d['Faltas3B']/4, 1, 0, 'C');
+                $pdf->Cell(21, 7, $d['Faltas3B'], 1, 0, 'C');
                 $pdf->Cell(21, 7, $d['Nota4B'], 1, 0, 'C');
                 $pdf->Cell(21, 7, $d['Faltas4B'], 1, 1, 'C');
             }

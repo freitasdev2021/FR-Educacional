@@ -94,6 +94,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
+        //FICHA INDIVIDUAL
+        Route::get('Alunos/FichaIndividual/{id}',[FichaController::class,'gerarFichaIndividual'])->name('Alunos/FichaIndividual');
         //ANEXOS
         Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
         Route::post('Alunos/Anexos/Save',[AlunosController::class,'saveAnexo'])->name("Alunos/Anexos/Save");

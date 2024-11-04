@@ -23,7 +23,7 @@ class PlanejamentosController extends Controller
         'endereco' => 'Cadastro',
         'rota' => 'Planejamentos/Cadastro'
     ],[
-        "nome" => 'Planejamento Anual',
+        "nome" => 'Planejamento',
         'endereco' => 'Componentes',
         'rota' => 'Planejamentos/Componentes'
     ]);
