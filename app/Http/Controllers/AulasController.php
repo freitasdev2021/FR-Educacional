@@ -304,10 +304,19 @@ class AulasController extends Controller
             }else{
                 $AulaData = $request->all();
                 $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
-                $AulaData['DSConteudo'] = ($request->DSConteudo == "PDF") ? $request->ConteudoPDF : $request->DSConteudo;
-                $Aula = Aulas::create($AulaData);
-                $rout = 'Aulas/Edit';
-                $aid = $Aula->id;
+                foreach($request->IDDisciplina as $d){
+                    $AulaData['IDDisciplina'] = $d;
+                    $Aula = Aulas::create($AulaData);
+                    foreach($request->Chamada as $ch){
+                        Chamada::create(array(
+                            "Presenca" => 0,
+                            "IDAluno" => $ch,
+                            "IDAula" => $Aula->id
+                        ));
+                    }
+                }
+                $rout = 'Aulas/Novo';
+                $aid = '';
                 $status = 'success';
                 $mensagem = 'Aula Iniciada com Sucesso!';
             }
@@ -535,6 +544,31 @@ class AulasController extends Controller
         ];
         
         echo json_encode($resultados);
+    }
+    //
+    public function getHtmlAlunosChamada($IDTurma){
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                m.id AS IDAluno
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            INNER JOIN turmas t ON a.IDTurma = t.id
+            WHERE t.id = $IDTurma AND STAluno = 0
+            GROUP BY m.Nome, m.id
+        SQL;
+        $frequencia = DB::select($SQL);
+        ob_start();
+        foreach($frequencia as $f){
+            ?>
+            <tr>
+                <th><?=$f->Aluno?></th>
+                <th><input type='checkbox' name='Chamada[]' value='<?=$f->IDAluno?>'></th>
+            </tr>
+            <?php
+        }
+
+        return ob_get_clean();
     }
     //
     public function presencaTodos($IDAula){

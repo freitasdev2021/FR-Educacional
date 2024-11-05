@@ -447,8 +447,9 @@ class ProfessoresController extends Controller
         ob_start();
         foreach(DB::select($SQL) as $tp){
         ?>
-        <option value="">Selecione</option>
-        <option value="<?=$tp->IDDisciplina?>"><?=$tp->Disciplina?></option>
+        <div>
+            <input type="checkbox" name="IDDisciplina[]" value="<?=$tp->IDDisciplina?>"><?=$tp->Disciplina?>
+        </div>
         <?php
         }
         return ob_get_clean();

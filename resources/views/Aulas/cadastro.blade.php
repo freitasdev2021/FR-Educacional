@@ -59,7 +59,7 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-6">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma" {{(isset($Registro->IDTurma)) ? 'disabled' : 'required'}}>
                                 <option value="">Selecione</option>
@@ -69,21 +69,7 @@
                             </select>
                         </div>
                         <div class="col-sm-3">
-                            <label>Disciplina</label>
-                            <select class="form-control" name="IDDisciplina" {{(isset($Registro->IDDisciplina)) ? 'disabled' : 'required'}}>
-                                <option value="{{isset($Registro->IDDisciplina) ? $Registro->IDDisciplina : ''}}" {{isset($Registro->NMDisciplina) ? 'selected' : ''}}>{{isset($Registro->NMDisciplina) ? $Registro->NMDisciplina : ''}}</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-3">
-                            <label>Conteudo</label>
-                            <select class="form-control" name="DSConteudo" {{(isset($Registro->DSConteudo)) ? 'disabled' : 'required'}}>
-                                <option value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}">{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12 externo">
-                            <label>Conteúdo do Planejamento Externo</label>
+                            <label>Conteúdo</label>
                             <input type="text" name="DSConteudo" class="form-control">
                         </div>
                     </div>
@@ -98,6 +84,28 @@
                         </div>
                     </div>
                     <br>
+                    <div class="col-sm-12 row disciplinas">
+
+                    </div>
+                    <br>
+                    <div class="col-sm-12 p-2">
+                        <div>
+                            <input type="checkbox" name="todosPresentes">Todos Presentes
+                        </div>
+                        <br>
+                        <table class="table table-sm tabela">
+                            <thead>
+                              <tr>
+                                <th style="text-align:center;" scope="col">Aluno</th>
+                                <th style="text-align:center;" scope="col">Presente</th>
+                              </tr>
+                            </thead>
+                            <tbody id="presencas">
+                              
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
                     <div class="col-sm-12 text-left row">
                         @if(!isset($Registro->STAula) || $Registro->STAula < 2)
                         <button type="submit" class="btn {{(isset($Registro->STAula) && $Registro->STAula == 1) ? 'btn-danger' : 'btn-fr'}} col-auto">{{(isset($Registro->STAula) && $Registro->STAula == 1) ? 'Encerrar' : 'Salvar'}}</button>
@@ -107,38 +115,49 @@
                     </div>
                 </form>
                 <script>
-                    $(".externo").hide()
+                    $("input[name=todosPresentes]").on("change",function(){
+                        $('input[name="Chamada[]"]').prop('checked', $(this).prop('checked'));
+                    })
                     //SELECIONA AS DISCIPLINAS
                     $("select[name=IDTurma]").on("change",function(){
                        $.ajax({
                           method : 'GET',
                           url : "/Professores/DisciplinasProfessor/"+$(this).val()
                        }).done(function(response){
-                          $("select[name=IDDisciplina]").html(response)
+                          $(".disciplinas").html(response)
                        })
-                    })
-                    //SELECIONA OS CONTEUDOS DO PLANEJAMENTO
-                    $("select[name=IDDisciplina]").on("change",function(){
+
                        $.ajax({
                           method : 'GET',
-                          url : "/Planejamentos/getConteudo/"+$(this).val()+"/"+$("select[name=IDTurma]").val()+"/"+$("select[name=TPAula]").val()
-                       }).done(function(response){
-                          $("select[name=DSConteudo]").html(response)
-                          $("input[name=Estagio]").val($("select[name=DSConteudo] option:selected").attr("data-estagio"))
+                          url : "/Aulas/ListaAlunos/"+$(this).val()
+                       }).done(function(alun){
+                        //console.log(alun)
+                          $("#presencas").html(alun)
                        })
-                    })
-                    //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
-                    $("select[name=DSConteudo]").on("change",function(){
-                        //$("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
-                        if($(this).val() == "PDF"){
-                            $(".externo").show()
-                        }else{
-                            $(".externo").hide()
-                        }
 
-                        $("input[name=DSConteudo]").val($(this).val())
-                        $("input[name=DSConteudo]").attr("value",$(this).val())
                     })
+                    //SELECIONA OS CONTEUDOS DO PLANEJAMENTO
+                    // $("select[name=IDDisciplina]").on("change",function(){
+                    //    $.ajax({
+                    //       method : 'GET',
+                    //       url : "/Planejamentos/getConteudo/"+$(this).val()+"/"+$("select[name=IDTurma]").val()+"/"+$("select[name=TPAula]").val()
+                    //    }).done(function(response){
+                    //       $("select[name=DSConteudo]").html(response)
+                    //       $("input[name=Estagio]").val($("select[name=DSConteudo] option:selected").attr("data-estagio"))
+                    //    })
+                    // })
+                    //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
+                    // $("select[name=DSConteudo]").on("change",function(){
+                    //     //$("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
+                    //     if($(this).val() == "PDF"){
+                    //         $(".externo").show()
+                    //     }else{
+                    //         $(".externo").hide()
+                    //     }
+
+                    //     $("input[name=DSConteudo]").val($(this).val())
+                    //     $("input[name=DSConteudo]").attr("value",$(this).val())
+                    // })
                     //
                 </script>    
             </div>
