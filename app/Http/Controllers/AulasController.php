@@ -123,7 +123,8 @@ class AulasController extends Controller
                 a.IDTurma,
                 d.id as IDDisciplina,
                 a.DSConteudo,
-                a.Estagio
+                a.Estagio,
+                a.DTAula
             FROM aulas a
             INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
             INNER JOIN turmas t ON(t.id = a.IDTurma)
@@ -385,7 +386,7 @@ class AulasController extends Controller
             a.DSAula,
             d.NMDisciplina,
             a.DSConteudo,
-            a.created_at,
+            a.DTAula,
             (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
         FROM aulas a
         INNER JOIN turmas t ON(t.id = a.IDTurma)
@@ -403,7 +404,7 @@ class AulasController extends Controller
                 $item[] = $a->NMDisciplina;
                 $item[] = $a->DSConteudo;
                 $item[] = $a->Frequencia;
-                $item[] = self::data($a->created_at,'d/m/Y');
+                $item[] = self::data($a->DTAula,'d/m/Y');
                 $item[] = "<a href=".route('Aulas/Edit',$a->IDAula)." class='btn btn-fr btn-xs'>Abrir Diário</a>";
                 $itensJSON[] = $item;
             }

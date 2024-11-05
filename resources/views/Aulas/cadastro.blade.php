@@ -88,7 +88,11 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <label>Data da Aula</label>
+                            <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" {{(isset($Registro->DTAula)) ? 'disabled' : 'required'}}>
+                        </div>
+                        <div class="col-sm-6">
                             <label>Descrição da Aula</label>
                             <textarea name="DSAula" class="form-control" {{(isset($Registro->DSAula)) ? 'disabled' : 'required'}}>{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
                         </div>
