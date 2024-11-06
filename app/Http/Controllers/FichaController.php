@@ -56,24 +56,26 @@ class FichaController extends Controller
     }
 
     public function respostas($id){
-        $registros = DB::select("SELECT r.Respostas as respostas, m.Nome as nome 
+        $AND = "";
+        if (request()->has('IDTurma') && !empty(request('IDTurma'))) {
+            $AND .= " AND a.IDTurma = " . request('IDTurma');
+        }
+
+        $SQL = "SELECT r.Respostas as respostas, m.Nome as nome 
         FROM respostas_ficha r 
         INNER JOIN ficha_avaliativa f ON f.id = r.IDFicha 
         INNER JOIN alunos a ON r.IDAluno = a.id 
         INNER JOIN matriculas m ON m.id = a.IDMatricula 
-        WHERE f.id = :id", ['id' => $id]);
+        WHERE f.id = $id $AND";
 
-        $IDAluno = Resposta::where('IDFicha', $id)->first()->IDAluno;
-        $escola = DB::select("SELECT e.id, e.Nome as nome, e.Foto as foto 
-            FROM escolas e 
-            INNER JOIN turmas t ON t.IDEscola = e.id 
-            INNER JOIN alunos a ON t.id = a.IDTurma 
-            WHERE a.id = :IDAluno", ['IDAluno' => $IDAluno])[0];
+        //dd($SQL);
+
+        $registros = DB::select($SQL);
 
         return view('Fichas.respostas',array(
             "submodulos" => self::cadastroSubmodulos,
             "registros" => $registros,
-            "escola" => $escola,
+            "Turmas" => EscolasController::getTurmasSelect(),
             "id" => $id
         ));
     }
@@ -271,8 +273,12 @@ class FichaController extends Controller
         ]);
     }
 
-    public function exportarRespostasPDF($id)
+    public function exportarRespostasPDF($id,$IDTurma=null)
     {
+        $AND = "";
+        if($IDTurma > 0){
+            $AND .=" AND a.IDTurma=".$IDTurma;
+        }
         // Consulta os dados dos registros
         $registros = DB::select("
             SELECT r.Respostas, r.id, m.Nome 
@@ -280,7 +286,7 @@ class FichaController extends Controller
             INNER JOIN ficha_avaliativa f ON (f.id = r.IDFicha) 
             INNER JOIN alunos a ON (r.IDAluno = a.id)
             INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-            WHERE f.id = :id", ['id' => $id]);
+            WHERE f.id = $id $AND");
     
         // Inicializa o PDF
         $pdf = new Fpdf();
@@ -377,49 +383,6 @@ class FichaController extends Controller
         // Saída do PDF
         $pdf->Output();
         exit;
-    }
-    
-
-
-    public function getRespostas($id){
-        $registros = DB::select("
-            SELECT r.Respostas, r.id, m.Nome 
-            FROM respostas_ficha r 
-            INNER JOIN ficha_avaliativa f ON (f.id = r.IDFicha) 
-            INNER JOIN alunos a ON (r.IDAluno = a.id)
-            INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-            WHERE f.id = :id", ['id' => $id]);
-
-            $itensJSON = [];
-
-            if (count($registros) > 0) {
-                foreach ($registros as $registro) {
-                    $item = [];
-                    // Adiciona o nome do usuário
-                    $item[] = $registro->Nome;
-                    
-                    // Decodifica as respostas JSON para um array associativo
-                    $respostas = json_decode($registro->Respostas, true);
-                    
-                    // Adiciona cada resposta ao array de itens
-                    foreach ($respostas as $resposta) {
-                        $item[] = $resposta['Resposta'];
-                    }
-                    
-                    // Adiciona o item ao array de itens JSON
-                    $itensJSON[] = $item;
-                }
-            }else{
-                $itensJSON = [];
-            }
-        
-        $resultados = [
-            "recordsTotal" => intval(count($registros)),
-            "recordsFiltered" => intval(count($registros)),
-            "data" => $itensJSON 
-        ];
-        
-        echo json_encode($resultados);
     }
 
     public function visualizar($id){
@@ -520,7 +483,7 @@ class FichaController extends Controller
                 $item[] = $r->Titulo;
                 $item[] = $r->Escola;
                 $item[] = "
-                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',$r->IDFicha).">Exportar (PDF)</a>&nbsp
+                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',["id"=>$r->IDFicha,"IDTurma"=>0],).">Exportar (PDF)</a>&nbsp
                 <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDFicha).">Respostas</a>&nbsp
                 <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Editar Ficha</a>&nbsp
                 <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Avaliar Aluno</a>&nbsp

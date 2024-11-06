@@ -70,7 +70,7 @@
                         </div>
                         <div class="col-sm-3">
                             <label>Conteúdo</label>
-                            <input type="text" name="DSConteudo" class="form-control">
+                            <input type="text" name="DSConteudo" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}" class="form-control" {{(isset($Registro->DSConteudo)) ? 'disabled' : 'required'}}>
                         </div>
                     </div>
                     <div class="row">
@@ -88,6 +88,7 @@
 
                     </div>
                     <br>
+                    @if(!$id)
                     <div class="col-sm-12 p-2">
                         <div>
                             <input type="checkbox" name="todosPresentes">Todos Presentes
@@ -106,6 +107,7 @@
                         </table>
                     </div>
                     <hr>
+                    @endif
                     <div class="col-sm-12 text-left row">
                         @if(!isset($Registro->STAula) || $Registro->STAula < 2)
                         <button type="submit" class="btn {{(isset($Registro->STAula) && $Registro->STAula == 1) ? 'btn-danger' : 'btn-fr'}} col-auto">{{(isset($Registro->STAula) && $Registro->STAula == 1) ? 'Encerrar' : 'Salvar'}}</button>

@@ -484,6 +484,36 @@ class EscolasController extends Controller
             return ob_get_clean();
         }
     }
+
+    public static function getTurmasSelect(){
+        $idorg = Auth::user()->id_org;
+
+        if(Auth::user()->tipo == 6){
+            $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY')).')';
+            //dd(ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY'));
+        }else{
+            $AND = " AND t.IDEscola IN(".implode(",",self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+        }
+
+        $SQL = <<<SQL
+        SELECT 
+            t.id as IDTurma, 
+            t.Nome as Turma,
+            e.Nome as Escola,
+            t.Serie
+        FROM turmas t
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        INNER JOIN organizacoes o on(e.IDOrg = o.id)
+        LEFT JOIN alunos a ON(a.IDTurma = t.id)
+        WHERE o.id = $idorg $AND
+        GROUP BY 
+            t.id
+        SQL;
+
+        $turmas = DB::select($SQL);
+        return $turmas;
+    }
+
     ///////////////////////////////////////////TURMAS
     public function getTurmas(){
 

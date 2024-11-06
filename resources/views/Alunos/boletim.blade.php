@@ -97,7 +97,7 @@
                                 <td>{{$b->Faltas4B}}</td>
                                 
                                 <td>{{$MediaPeriodo}}</td>
-                                <td>{{($b->Nota1B + $b->Nota2B + $b->Nota3B + $b->Nota4B >= $MediaPeriodo*4 && $MINFrequencia >= ($r->FrequenciaAno / 200) * 100) ? 'Aprovado' : 'Reprovado'}}</td>
+                                <td>{{($b->Nota1B + $b->Nota2B + $b->Nota3B + $b->Nota4B >= $MediaPeriodo*4 && $MINFrequencia >= ($b->FrequenciaAno / 200) * 100) ? 'Aprovado' : 'Reprovado'}}</td>
                             </tr>
                             @endforeach
                         @break

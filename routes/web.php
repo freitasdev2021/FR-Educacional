@@ -125,9 +125,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Fichas/Cadastro',[FichaController::class,'cadastro'])->name('Fichas/Novo');
         Route::get('Fichas/Cadastro/{id}',[FichaController::class,'cadastro'])->name('Fichas/Edit');
         Route::get('Fichas/Respostas/{id}',[FichaController::class,'respostas'])->name('Fichas/Respostas');
-        Route::get('Fichas/getRespostas/{id}',[FichaController::class,'getRespostas'])->name('Fichas/getRespostas');
         Route::get('Fichas/Respostas/Export/{id}', [FichaController::class, 'exportRespostas'])->name('Fichas/Respostas/Export');
-        Route::get('Fichas/Respostas/Export/PDF/{id}', [FichaController::class, 'exportarRespostasPDF'])->name('Fichas/Respostas/Export/PDF');
+        Route::get('Fichas/Respostas/Export/PDF/{id}/{IDTurma}', [FichaController::class, 'exportarRespostasPDF'])->name('Fichas/Respostas/Export/PDF');
         Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
         Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
         //DADOS DO ALUNO

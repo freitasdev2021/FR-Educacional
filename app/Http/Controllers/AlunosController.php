@@ -1193,13 +1193,17 @@ class AlunosController extends Controller
                 SELECT 
                     at.TPConteudo, 
                     a.Estagio,
-                    at.created_at as Data,
+                    at.DTEntrega as Data,
+                    t.TPAvaliacao,
                     d.NMDisciplina as Disciplina,
+                    n.Conceito,
                     MAX(CASE WHEN att.IDAluno = n.IDAluno THEN n.Nota ELSE 0 END) as Nota -- Pega a maior nota para evitar duplicações
                 FROM 
                     atividades at
                 INNER JOIN 
                     aulas a ON(a.id = at.IDAula)
+                INNER JOIN 
+                    turmas t ON(t.id = a.IDTurma)
                 INNER JOIN 
                     disciplinas d ON(d.id = a.IDDisciplina)
                 INNER JOIN 
@@ -1222,7 +1226,7 @@ class AlunosController extends Controller
                 $item = [];
                 $item[] = $r->Disciplina;
                 $item[] = $r->TPConteudo;
-                $item[] = $r->Nota;
+                $item[] = ($r->TPAvaliacao == "Nota") ? $r->Nota : $r->Conceito;
                 $item[] = $r->Estagio;
                 $item[] = self::data($r->Data,'d/m/Y');
                 $itensJSON[] = $item;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Atividade;
 use App\Models\AtividadeAtribuicao;
 use App\Models\Aulas;
+use App\Models\Disciplina;
 use App\Models\Nota;
 use App\Models\Chamada;
 use Illuminate\Http\Request;
@@ -306,6 +307,7 @@ class AulasController extends Controller
                 $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
                 foreach($request->IDDisciplina as $d){
                     $AulaData['IDDisciplina'] = $d;
+                    $AulaData['DSAula'] = $request->DSAula." - ".Disciplina::find($d)->NMDisciplina;
                     $Aula = Aulas::create($AulaData);
                     foreach($request->Chamada as $ch){
                         Chamada::create(array(
