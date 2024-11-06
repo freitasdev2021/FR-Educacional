@@ -95,6 +95,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
         //FICHA INDIVIDUAL
+        Route::get('Alunos/Relatorio/Teste',[RelatoriosController::class,'getAlunosTurmasEditavel'])->name('Alunos/Relatorio/Teste');
         Route::get('Alunos/FichaIndividual/{id}',[FichaController::class,'gerarFichaIndividual'])->name('Alunos/FichaIndividual');
         //ANEXOS
         Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
@@ -247,6 +248,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //RELATORIOS
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
         Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');
+        Route::get('Escolas/Relatorios/ImprimirDireto/{Tipo}',[RelatoriosController::class,'imprimirDireto'])->name('Escolas/Relatorios/ImprimirDireto');
         Route::put('Escolas/Relatorios/Gerar/{Tipo}',[RelatoriosController::class,'Gerar'])->name('Escolas/Relatorios/Gerar');
         //VAGAS
         Route::get('Escolas/Vagas',[VagasController::class,'index'])->name('Escolas/Vagas');

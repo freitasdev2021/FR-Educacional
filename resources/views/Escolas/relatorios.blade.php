@@ -48,14 +48,39 @@
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','TurmaFaixa')}}">Imprimir</a></td>
                       </tr>
                       <tr>
-                        <td>Alunos por Turma e Faixa</td>
+                        <td>Alunos Usuários de Transporte</td>
                         <td>Quantitativo</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','QTTransporte')}}">Imprimir</a></td>
                       </tr>
                       <tr>
-                        <td>Usuários Transporte</td>
+                        <td>Alunos Usuários Transporte</td>
                         <td>Nominal</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','NMTransporte')}}">Imprimir</a></td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','NMTransporte')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Dependências da Escola</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Dependencias Escola')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Lista de Turmas</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Lista de Turmas')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Lista de Turmas - Editavel</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Lista de Turmas')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos por Sexo</td>
+                        <td>Quantitativo</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Alunos por Sexo')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos do Bolsa Família</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','BolsaFamilia')}}">Imprimir</a></td>
                       </tr>
                     </tbody>
                   </table>
