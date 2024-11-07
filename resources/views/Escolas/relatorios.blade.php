@@ -82,6 +82,21 @@
                         <td>Nominal</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','BolsaFamilia')}}">Imprimir</a></td>
                       </tr>
+                      <tr>
+                        <td>Alunos de Recuperação Final</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getRecuperacaoFinal')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos de Recuperação Final por Faltas</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getRecuperacaoFinalFaltas')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Quantidade Alunos de Recuperação Final por série</td>
+                        <td>Quantitativo</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getQTRecuperacaoFinal')}}">Imprimir</a></td>
+                      </tr>
                     </tbody>
                   </table>
             </div>

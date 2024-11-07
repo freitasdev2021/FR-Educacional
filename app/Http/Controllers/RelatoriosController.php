@@ -61,6 +61,12 @@ class RelatoriosController extends Controller
             return self::getTransporte();
             case "BolsaFamilia":
             return self::getBolsaFamilia();
+            case "getRecuperacaoFinal":
+            return self::getRecuperacaoFinal();
+            case "getQTRecuperacaoFinal":
+            return self::getQTRecuperacaoFinal();
+            case "getRecuperacaoFinalFaltas":
+            return self::getRecuperacaoFinalFaltas();
         }
     }
 
@@ -94,6 +100,437 @@ class RelatoriosController extends Controller
         }finally{
 
         }
+    }
+
+    public function getQTRecuperacaoFinal(){
+        $ANO = date('Y');
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+        $SQLTurmas = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola,t.MediaPeriodo FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQLTurmas);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(3, 3, 3); // Margens esquerda, superior e direita
+
+        $pdf->SetFont('Arial', 'B', 16);
+
+        $pdf->Cell(0, 10, self::utfConvert("Alunos em Recuperação Final por Turma"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+
+        foreach($Turmas as $t){
+            
+            $SQL = <<<SQL
+            SELECT 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND DATE_FORMAT(au3.created_at, '%Y') = $ANO
+                ) as TotalAno,
+
+                (SELECT SUM(rec2.Nota) 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio != 'ANUAL' 
+                AND rec2.IDAluno = a.id 
+                AND rec2.IDDisciplina = d.id 
+                ) as RecBim,
+
+                -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE f2.IDAluno = a.id 
+                AND au2.IDDisciplina = d.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
+                ) as FrequenciaAno,
+                (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
+                (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                -- Caso em que é verificado se a nota é inferior à média
+                CASE WHEN 
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE au3.IDDisciplina = 10 
+                    AND n2.IDAluno = a.id 
+                    AND DATE_FORMAT(n2.created_at, '%Y') = $ANO
+                    ) < t.MediaPeriodo THEN 'Reprovado' 
+                ELSE 'Aprovado' END as Resultado,
+                m.Nome as Aluno,         -- Nome do Aluno
+                a.id as IDAluno,         -- ID do Aluno
+                d.NMDisciplina as Disciplina, -- Nome da Disciplina
+                t.MediaPeriodo,
+                t.TPAvaliacao,
+                t.MINFrequencia,
+                t.Serie
+            FROM 
+                alunos a
+            INNER JOIN 
+                matriculas m ON m.id = a.IDMatricula   -- Relaciona alunos com suas matrículas
+            INNER JOIN 
+                turmas t ON t.id = a.IDTurma           -- Relaciona alunos com suas turmas
+            INNER JOIN 
+                aulas au ON t.id = au.IDTurma          -- Relaciona turmas com aulas
+            INNER JOIN 
+                disciplinas d ON d.id = au.IDDisciplina -- Relaciona aulas com disciplinas
+            INNER JOIN 
+                notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
+            WHERE 
+                DATE_FORMAT(au.created_at, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
+            GROUP BY 
+                a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia
+            SQL;
+
+            $QueryRec = DB::select($SQL);
+            $Recuperacoes = [];
+            foreach($QueryRec as $r){
+                $Frequencia = ($r->FrequenciaAno / 200) * 100 . " %";
+                $MediaTotal = $r->MediaPeriodo * 4;       
+                if($r->TPAvaliacao == "Nota"){
+                    if($r->RecBim > 0){
+                        $Total = ($r->RecBim - $r->TotalAno) + $r->PontBim;
+                        //dd($Total);
+                    }else{
+                        $Total = $r->TotalAno;
+                    }
+                    
+                    $Resultado = ($Total > $MediaTotal) ? 'Aprovado' : 'Reprovado';
+                }else{
+                    $Resultado = "Conceito Sob. Avaliação";
+                }
+
+                if (!isset($Recuperacoes[$t->Serie])) {
+                    $Recuperacoes[$t->Serie] = []; // Inicializa o array para o aluno se não existir
+                }
+
+                if($Resultado == "Reprovado"){
+                    $Recuperacoes[$t->Serie][] = $r->Aluno;
+                }
+            }
+
+            //dd($SQL);
+
+            // Definir fonte para o corpo do relatório
+            //CABECALHO DA TABELA
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DA LISTA    
+            foreach($Recuperacoes as $key => $r){
+                $pdf->Cell(65, 8, self::utfConvert("Turma: ".$key), 1);
+                $pdf->Cell(75, 8, self::utfConvert("Quantidade: ".count($r)), 1);
+                $pdf->Ln();
+            }
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Alunos Recuperacao".'.pdf');
+        exit;
+    }
+
+    public function getRecuperacaoFinal(){
+        $ANO = date('Y');
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+        $SQLTurmas = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola,t.MediaPeriodo FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQLTurmas);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(3, 3, 3); // Margens esquerda, superior e direita
+
+        $pdf->SetFont('Arial', 'B', 16);
+
+        $pdf->Cell(0, 10, self::utfConvert("Alunos em Recuperação Final"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+
+        $pageCount = 0;
+        foreach($Turmas as $t){
+            if ($pageCount % 1 == 0 && $pageCount > 0) {
+                $pdf->AddPage();
+            }
+
+            $SQL = <<<SQL
+            SELECT 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND DATE_FORMAT(au3.created_at, '%Y') = $ANO
+                ) as TotalAno,
+
+                (SELECT SUM(rec2.Nota) 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio != 'ANUAL' 
+                AND rec2.IDAluno = a.id 
+                AND rec2.IDDisciplina = d.id 
+                ) as RecBim,
+
+                -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE f2.IDAluno = a.id 
+                AND au2.IDDisciplina = d.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
+                ) as FrequenciaAno,
+                (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
+                (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                -- Caso em que é verificado se a nota é inferior à média
+                CASE WHEN 
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE au3.IDDisciplina = 10 
+                    AND n2.IDAluno = a.id 
+                    AND DATE_FORMAT(n2.created_at, '%Y') = $ANO
+                    ) < t.MediaPeriodo THEN 'Reprovado' 
+                ELSE 'Aprovado' END as Resultado,
+                m.Nome as Aluno,         -- Nome do Aluno
+                a.id as IDAluno,         -- ID do Aluno
+                d.NMDisciplina as Disciplina, -- Nome da Disciplina
+                t.MediaPeriodo,
+                t.TPAvaliacao,
+                t.MINFrequencia
+            FROM 
+                alunos a
+            INNER JOIN 
+                matriculas m ON m.id = a.IDMatricula   -- Relaciona alunos com suas matrículas
+            INNER JOIN 
+                turmas t ON t.id = a.IDTurma           -- Relaciona alunos com suas turmas
+            INNER JOIN 
+                aulas au ON t.id = au.IDTurma          -- Relaciona turmas com aulas
+            INNER JOIN 
+                disciplinas d ON d.id = au.IDDisciplina -- Relaciona aulas com disciplinas
+            INNER JOIN 
+                notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
+            WHERE 
+                DATE_FORMAT(au.created_at, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
+            GROUP BY 
+                a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia
+            SQL;
+
+            $QueryRec = DB::select($SQL);
+            $Recuperacoes = [];
+            foreach($QueryRec as $r){
+                $Frequencia = ($r->FrequenciaAno / 200) * 100 . " %";
+                $MediaTotal = $r->MediaPeriodo * 4;       
+                if($r->TPAvaliacao == "Nota"){
+                    if($r->RecBim > 0){
+                        $Total = ($r->RecBim - $r->TotalAno) + $r->PontBim;
+                        //dd($Total);
+                    }else{
+                        $Total = $r->TotalAno;
+                    }
+                    
+                    $Resultado = ($Total > $MediaTotal) ? 'Aprovado' : 'Reprovado';
+                }else{
+                    $Resultado = "Conceito Sob. Avaliação";
+                }
+
+                if (!isset($Recuperacoes[$r->Aluno])) {
+                    $Recuperacoes[$r->Aluno] = []; // Inicializa o array para o aluno se não existir
+                }
+
+                if($Resultado == "Reprovado"){
+                    $Recuperacoes[$r->Aluno][] = $r->Disciplina;
+                }
+            }
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', '', 10);
+            //CABECALHO DA TABELA
+            $pdf->Cell(153,10,self::utfConvert("Turma ".$t->Serie)." ".$t->Turma ." - Média:".$t->MediaPeriodo*4.,1);
+            $pdf->Ln();
+            $pdf->Cell(13, 8, self::utfConvert('N°'), 1);
+            $pdf->Cell(65, 8, self::utfConvert('Nome'), 1);
+            $pdf->Cell(75, 8, self::utfConvert('Disciplinas'), 1);
+            $pdf->Ln();
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DA LISTA    
+            $numAluno = 0;
+            foreach($Recuperacoes as $key => $r){
+                $numAluno++;
+                $pdf->Cell(13, 8, self::utfConvert($numAluno), 1);
+                $pdf->Cell(65, 8, self::utfConvert($key), 1);
+                $pdf->Cell(75, 8, self::utfConvert(implode(',',$r)), 1);
+                $pdf->Ln();
+            }
+            $pdf->Ln(10);
+            $pageCount++;
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Alunos Recuperacao".'.pdf');
+        exit;
+    }
+
+    public function getRecuperacaoFinalFaltas(){
+        $ANO = date('Y');
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+        $SQLTurmas = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola,t.MediaPeriodo FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQLTurmas);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(3, 3, 3); // Margens esquerda, superior e direita
+
+        $pdf->SetFont('Arial', 'B', 16);
+
+        $pdf->Cell(0, 10, self::utfConvert("Alunos Reprovados por Faltas"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+
+        $pageCount = 0;
+        foreach($Turmas as $t){
+            if ($pageCount % 1 == 0 && $pageCount > 0) {
+                $pdf->AddPage();
+            }
+
+            $SQL = <<<SQL
+            SELECT 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND DATE_FORMAT(au3.created_at, '%Y') = $ANO
+                ) as TotalAno,
+
+                (SELECT SUM(rec2.Nota) 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio != 'ANUAL' 
+                AND rec2.IDAluno = a.id 
+                AND rec2.IDDisciplina = d.id 
+                ) as RecBim,
+
+                -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE f2.IDAluno = a.id 
+                AND au2.IDDisciplina = d.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
+                ) as FrequenciaAno,
+                (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
+                (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                -- Caso em que é verificado se a nota é inferior à média
+                CASE WHEN 
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE au3.IDDisciplina = 10 
+                    AND n2.IDAluno = a.id 
+                    AND DATE_FORMAT(n2.created_at, '%Y') = $ANO
+                    ) < t.MediaPeriodo THEN 'Reprovado' 
+                ELSE 'Aprovado' END as Resultado,
+                m.Nome as Aluno,         -- Nome do Aluno
+                a.id as IDAluno,         -- ID do Aluno
+                d.NMDisciplina as Disciplina, -- Nome da Disciplina
+                t.MediaPeriodo,
+                t.TPAvaliacao,
+                t.MINFrequencia
+            FROM 
+                alunos a
+            INNER JOIN 
+                matriculas m ON m.id = a.IDMatricula   -- Relaciona alunos com suas matrículas
+            INNER JOIN 
+                turmas t ON t.id = a.IDTurma           -- Relaciona alunos com suas turmas
+            INNER JOIN 
+                aulas au ON t.id = au.IDTurma          -- Relaciona turmas com aulas
+            INNER JOIN 
+                disciplinas d ON d.id = au.IDDisciplina -- Relaciona aulas com disciplinas
+            INNER JOIN 
+                notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
+            WHERE 
+                DATE_FORMAT(au.created_at, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
+            GROUP BY 
+                a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia
+            SQL;
+
+            $QueryRec = DB::select($SQL);
+            $Recuperacoes = [];
+            foreach($QueryRec as $r){
+                $Frequencia = ($r->FrequenciaAno / 200) * 100 . " %";
+                $MediaTotal = $r->MediaPeriodo * 4;       
+                if($r->TPAvaliacao == "Nota"){
+                    if($r->RecBim > 0){
+                        $Total = ($r->RecBim - $r->TotalAno) + $r->PontBim;
+                        //dd($Total);
+                    }else{
+                        $Total = $r->TotalAno;
+                    }
+                    
+                    $Resultado = ($Frequencia >= $r->MINFrequencia) ? 'Aprovado' : 'Reprovado';
+                }else{
+                    $Resultado = "Conceito Sob. Avaliação";
+                }
+
+                if (!isset($Recuperacoes[$r->Aluno])) {
+                    $Recuperacoes[$r->Aluno] = []; // Inicializa o array para o aluno se não existir
+                }
+
+                if($Resultado == "Reprovado"){
+                    $Recuperacoes[$r->Aluno][] = $r->Disciplina;
+                }
+            }
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', '', 10);
+            //CABECALHO DA TABELA
+            $pdf->Cell(153,10,self::utfConvert("Turma ".$t->Serie)." ".$t->Turma ." - Média:".$t->MediaPeriodo*4.,1);
+            $pdf->Ln();
+            $pdf->Cell(13, 8, self::utfConvert('N°'), 1);
+            $pdf->Cell(65, 8, self::utfConvert('Nome'), 1);
+            $pdf->Cell(75, 8, self::utfConvert('Disciplinas'), 1);
+            $pdf->Ln();
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DA LISTA    
+            $numAluno = 0;
+            foreach($Recuperacoes as $key => $r){
+                $numAluno++;
+                $pdf->Cell(13, 8, self::utfConvert($numAluno), 1);
+                $pdf->Cell(65, 8, self::utfConvert($key), 1);
+                $pdf->Cell(75, 8, self::utfConvert(implode(',',$r)), 1);
+                $pdf->Ln();
+            }
+            $pdf->Ln(10);
+            $pageCount++;
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Alunos Recuperacao".'.pdf');
+        exit;
     }
 
     public function dependenciasEscola(){

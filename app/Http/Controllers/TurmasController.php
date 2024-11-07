@@ -172,6 +172,8 @@ class TurmasController extends Controller
                     AND DATE_FORMAT(au2.created_at, '%Y') = $NOW
                     ) as FrequenciaAno,
                     (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecAno,
+                    (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
+                    (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
                     (SELECT SUM(n2.Nota) 
                     FROM notas n2 
                     INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
@@ -279,7 +281,17 @@ class TurmasController extends Controller
                     $Frequencia = ($r->FrequenciaAno / $Estagios) * 100 . " %";
                     
                     if($r->TPAvaliacao == "Nota"){
-                        $Total = ($r->RecAno > 0) ? $r->RecAno : $r->TotalAno ;
+                        if($r->RecAno > 0){
+                            $Total = $r->RecAno;
+                        }else{
+                            if($r->RecBim > 0){
+                                $Total = ($r->RecBim - $r->TotalAno) + $r->PontBim;
+                                //dd($Total);
+                            }else{
+                                $Total = $r->TotalAno;
+                            }
+                        }
+                        
                         $Resultado = ($Total > $MediaTotal && $Frequencia >= $r->MINFrequencia) ? 'Aprovado' : 'Reprovado';
                     }else{
                         $Resultado = "Conceito Sob. Avaliação";
