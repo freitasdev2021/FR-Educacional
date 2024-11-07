@@ -97,6 +97,26 @@
                         <td>Quantitativo</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getQTRecuperacaoFinal')}}">Imprimir</a></td>
                       </tr>
+                      <tr>
+                        <td>Livro de Matrícula</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','LivroMatricula')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Boletim Informativo</td>
+                        <td>Nominal e Quantitativo</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getBoletimInformativo')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos Matrículados</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getAlunosMatriculados')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos do Último Censo</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getAlunosCenso')}}">Imprimir</a></td>
+                      </tr>
                     </tbody>
                   </table>
             </div>

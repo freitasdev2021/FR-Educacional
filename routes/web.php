@@ -96,6 +96,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     Route::middleware('time')->group(function(){
         //FICHA INDIVIDUAL
         Route::get('Alunos/Relatorio/Teste',[RelatoriosController::class,'getAlunosTurmasEditavel'])->name('Alunos/Relatorio/Teste');
+        Route::get('Turmas/Aprovacao/Teste/{IDTurma}/{Ano}',[TurmasController::class,'getProgredidosTurma'])->name('Turmas/Aprovacao/Teste');
         Route::get('Alunos/FichaIndividual/{id}',[FichaController::class,'gerarFichaIndividual'])->name('Alunos/FichaIndividual');
         //ANEXOS
         Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
@@ -139,6 +140,9 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post('Alunos/NEE/Save',[AlunosController::class,'saveNecessidade'])->name('Alunos/NEE/Save');
         //
         Route::get("Alunos/Comprovantes/Matricula/{id}",[AlunosController::class,'getComprovanteMatricula'])->name("Alunos/Comprovante/Matricula");
+        Route::get("Alunos/Comprovantes/Escolaridade/{id}",[AlunosController::class,'getComprovanteEscolaridade'])->name("Alunos/Comprovante/Escolaridade");
+        Route::get("Alunos/Comprovantes/Vaga/{id}",[AlunosController::class,'getComprovanteVaga'])->name("Alunos/Comprovante/Vaga");
+        Route::get("Alunos/Comprovantes/Prematricula/{id}",[AlunosController::class,'getPreMatricula'])->name("Alunos/Comprovante/Prematricula");
         Route::get("Alunos/Comprovantes/Frequencia/{id}",[AlunosController::class,'getComprovanteFrequencia'])->name("Alunos/Comprovante/Frequencia");
         Route::get("Alunos/Comprovantes/Filiacao/{id}",[AlunosController::class,'getRelatorioMatricula'])->name("Alunos/Comprovante/Filiacao");
         Route::get("Alunos/Comprovantes/Conclusao/{id}",[AlunosController::class,'getComprovanteConclusao'])->name("Alunos/Comprovante/Conclusao");

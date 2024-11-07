@@ -352,6 +352,9 @@
                             <a href="{{route('Alunos/Comprovante/Frequencia',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Frequência</a>
                             <a href="{{route('Alunos/Comprovante/Filiacao',$Registro->IDAluno)}}" class="btn btn-fr">Relatório de Matrícula</a>
                             <a href="{{route('Alunos/Comprovante/Conclusao',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Conclusão</a>
+                            <a href="{{route('Alunos/Comprovante/Escolaridade',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Escolaridade</a>
+                            <a href="{{route('Alunos/Comprovante/Vaga',$Registro->IDAluno)}}" class="btn btn-fr">Atestado de Vaga</a>
+                            <a href="{{route('Alunos/Comprovante/Prematricula',$Registro->IDAluno)}}" class="btn btn-fr">Ficha de Pré Matrícula</a>
                         </div>
                         @endif
                     </div>

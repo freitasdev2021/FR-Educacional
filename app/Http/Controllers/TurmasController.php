@@ -155,6 +155,129 @@ class TurmasController extends Controller
         return view('Escolas.desempenhoTurma',$view);
     }
 
+    public static function getProgredidosTurma($IDTurma,$Ano){
+        $SQL = <<<SQL
+            SELECT 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND DATE_FORMAT(au3.created_at, '%Y') = $Ano
+                ) as Total,
+                (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                (SELECT SUM(rec2.Nota) 
+                FROM recuperacao rec2 
+                WHERE rec2.IDAluno = a.id 
+                AND rec2.IDDisciplina = d.id 
+                ) as RecBim,
+                (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecAn,
+                -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE f2.IDAluno = a.id 
+                AND au2.IDDisciplina = d.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
+                ) as Frequencia,
+                t.MediaPeriodo,
+                -- Caso em que é verificado se a nota é inferior à média
+                CASE WHEN 
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE n2.IDAluno = a.id 
+                    AND DATE_FORMAT(n2.created_at, '%Y') = $Ano
+                    ) < t.MediaPeriodo THEN 'Reprovado' 
+                ELSE 'Aprovado' END as Resultado,
+
+                m.Nome as Aluno,         -- Nome do Aluno
+                a.id as IDAluno,         -- ID do Aluno
+                d.NMDisciplina as Disciplina, -- Nome da Disciplina
+                t.MediaPeriodo,
+                t.TPAvaliacao,
+                t.MINFrequencia,
+                t.Serie,
+                t.QTRepetencia
+            FROM 
+                alunos a
+            INNER JOIN 
+                matriculas m ON m.id = a.IDMatricula   -- Relaciona alunos com suas matrículas
+            INNER JOIN 
+                turmas t ON t.id = a.IDTurma           -- Relaciona alunos com suas turmas
+            INNER JOIN 
+                aulas au ON t.id = au.IDTurma          -- Relaciona turmas com aulas
+            INNER JOIN 
+                disciplinas d ON d.id = au.IDDisciplina -- Relaciona aulas com disciplinas
+            INNER JOIN 
+                notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
+            WHERE 
+                                    -- Filtro para turma específica
+                DATE_FORMAT(au.created_at, '%Y') = $Ano -- Filtro para o ano de 2024
+                AND t.id = $IDTurma
+            GROUP BY 
+                a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia -- Corrigido o GROUP BY
+        SQL;
+
+        $Desempenho = DB::select($SQL);
+        $Dependencias = array();
+        $QTReprovacoes = array();
+        if($Desempenho){
+            foreach($Desempenho as $d){
+
+                if($d->RecAn > 0){
+                    $Total = $d->RecAn;
+                }else{
+                    if($d->RecBim > 0){
+                        $Total = ($d->RecBim - $d->Total) + $d->PontBim;
+                        //dd($Total);
+                    }else{
+                        $Total = $d->Total;
+                    }
+                }
+
+                if($Total < $d->MediaPeriodo*4){
+                    array_push($QTReprovacoes,$d->QTRepetencia);
+                    array_push($Dependencias,array(
+                        "Disciplina" => $d->Disciplina,
+                        "Total" => ($d->RecAn) ? $d->RecAn : $d->Total,
+                        "Media" => $d->MediaPeriodo*4
+                    ));
+                }
+            }
+
+            $repetencias = array_unique($QTReprovacoes)[0];
+
+           
+            $naoPassou = array_filter($Dependencias,function($i){
+                if($i['Total'] < $i['Media'] ){
+                    return $i;
+                }
+            });
+            $dados = "Sim";
+        }else{
+            $dados = "Não";
+        }
+
+        if($dados == "Sim"){
+            if(count($naoPassou) >= $repetencias){
+                $situacao = "Reprovado";
+            }else{
+                $situacao = "Aprovado";
+            }
+        }
+    
+
+        if($dados == "Sim"){
+            return $situacao;
+        }else{
+            return "Sem dados";
+        }
+        
+    }
+
     public function getDesempenho($IDTurma){
         $NOW = date('Y');
         if(isset($_GET['Disciplina']) && !empty($_GET['Disciplina']) && isset($_GET['Estagio']) && !empty($_GET['Estagio'])){

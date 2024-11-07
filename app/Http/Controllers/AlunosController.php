@@ -292,28 +292,151 @@ class AlunosController extends Controller
         ]);
     }
 
-    public static function getComprovanteMatricula($IDAluno){
+    public static function getComprovanteEscolaridade($IDAluno){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
-        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola 
-        FROM escolas e 
-        INNER JOIN turmas t ON(t.IDEscola = e.id) 
-        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
-        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-        WHERE a.id = $IDAluno")[0];
+        $Aluno = self::getAluno($IDAluno); 
+        $Escola = Escola::find($Aluno->IDEscola);
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
         // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
         // Definir fonte e título
         $pdf->SetFont('Arial', 'B', 16);
 
         // Posição do nome da escola após a logo
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
         $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Cell(0, 10, $Aluno->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        // Espaço após a logo
+        $pdf->Ln(40);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE ESCOLARIDADE"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "no Turno Manhã";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "no Turno Tarde";
+        }
+        //        
+        $Ano = date('Y');
+        // Inserir o texto da declaração
+        $Nascimento = date('d/m/Y',strtotime($Aluno->Nascimento));
+        $Pais = json_decode($Aluno->PaisJSON);
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome Nascido no dia $Nascimento cuja filiação é $Pais->Pai e $Pais->Mae está regularmente matriculado(a) no $Aluno->Serie - $Aluno->Turma da escola $Aluno->Escola, " .
+                    "no ano letivo de $Ano $Turno, conforme os registros escolares.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Matricula.pdf');
+        exit;
+
+    }
+
+    public static function getComprovanteVaga($IDAluno){
+        $Aluno = self::getAluno($IDAluno); 
+        $Escola = Escola::find($Aluno->IDEscola);
+        // Definir margens
+        $pdf = new FPDF();
+        $pdf->AddPage('P'); // Documento em modo retrato
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        $pdf->SetFont('Arial', 'B', 16);
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
+        $pdf->Cell(0, 10, $Aluno->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        // Espaço após a logo
+        $pdf->Ln(25);
+        // Cabeçalho do Relatório
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->Cell(0, 10, 'Atestado de Vaga', 0, 1, 'C');
+        $pdf->Ln(10);
+    
+        // Informações do Aluno e Turma
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(40, 10, 'Turma:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Serie." ".$Aluno->Turma), 0, 1);
+        
+        $pdf->Cell(40, 10, 'Nome do Aluno:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Nome), 0, 1);
+        $pdf->Ln(10);
+        //
+        $documentos = [
+            'Certidão de Nascimento ou RG',
+            'CPF do aluno',
+            'Comprovante de Residência atualizado',
+            'Histórico Escolar ou Declaração de Transferência',
+            'Carteira de Vacinação',
+            'Duas fotos 3x4',
+            'CPF e RG do responsável',
+            'Comprovante de Trabalho dos pais ou responsáveis (se necessário)',
+            'Cartão do SUS',
+            'Comprovante de Bolsa Família (se aplicável)'
+        ];
+        // Relação de Documentos
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 10, self::utfConvert('Documentos Necessários:'), 0, 1);
+        $pdf->SetFont('Arial', '', 12);
+        foreach ($documentos as $doc) {
+            $pdf->Cell(10, 10, '-', 0, 0); // Marcador de lista
+            $pdf->Cell(0, 10, self::utfConvert($doc), 0, 1);
+        }
+        $pdf->Ln(10);
+    
+        // Assinatura e Data
+        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'C');
+        $pdf->Cell(0, 10, 'Assinatura do Emissor', 0, 1, 'C');
+        $pdf->Ln(5);
+    
+        // Data e Hora de Emissão
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 10, 'Emitido por ' . Auth::user()->name . ' em ' . date('d/m/Y H:i'), 0, 1, 'C');
+    
+        // Exibir o PDF
+        $pdf->Output('I', 'Atestado_de_Vaga.pdf');
+        exit;
+
+    }
+
+    public static function getComprovanteMatricula($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Aluno = self::getAluno($IDAluno); 
+        $Escola = Escola::find($Aluno->IDEscola);
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
+        $pdf->Cell(0, 10, $Aluno->Escola, 0, 1, 'C'); // Nome da escola centralizado
         // Espaço após a logo
         $pdf->Ln(40);
 
@@ -326,12 +449,20 @@ class AlunosController extends Controller
         $pdf->SetFont('Arial', '', 12);
 
         // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
-        $nomeEscola = "Nome da Escola";
-        $nomeAluno = "Nome do Aluno";
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "no Turno Manhã";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "no Turno Tarde";
+        }
+        //        
         $Ano = date('Y');
         // Inserir o texto da declaração
-        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Escola->Aluno está regularmente matriculado(a) na $Escola->Escola, " .
-                    "no ano letivo de $Ano, conforme os registros escolares.";
+        $Nascimento = date('d/m/Y',strtotime($Aluno->Nascimento));
+        $Pais = json_decode($Aluno->PaisJSON);
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome Nascido no dia $Nascimento cuja filiação é $Pais->Pai e $Pais->Mae está regularmente matriculado(a) no $Aluno->Serie - $Aluno->Turma da escola $Aluno->Escola, " .
+                    "no ano letivo de $Ano $Turno, conforme os registros escolares.";
         $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
 
         // Espaço antes da assinatura
@@ -339,10 +470,146 @@ class AlunosController extends Controller
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('D', 'Declaracao_Matricula.pdf');
+        $pdf->Output('I', 'Declaracao_Matricula.pdf');
+        exit;
+
+    }
+
+    public static function getFrequenciaEscolarAluno($IDAluno){
+        $SQL = <<<SQL
+            SELECT 
+            (SELECT COUNT(f2.id) 
+            FROM frequencia f2 
+            INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+            WHERE f2.IDAluno = a.id 
+            AND DATE_FORMAT(au2.created_at, '%Y') = 2024
+            ) as FrequenciaAno
+        FROM 
+            alunos a
+        INNER JOIN 
+            matriculas m ON m.id = a.IDMatricula   -- Relaciona alunos com suas matrículas
+        INNER JOIN 
+            turmas t ON t.id = a.IDTurma           -- Relaciona alunos com suas turmas
+        INNER JOIN 
+            aulas au ON t.id = au.IDTurma          -- Relaciona turmas com aulas
+        INNER JOIN 
+            disciplinas d ON d.id = au.IDDisciplina -- Relaciona aulas com disciplinas
+        INNER JOIN 
+            notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
+        WHERE 
+            DATE_FORMAT(au.created_at, '%Y') = 2024 AND a.id = $IDAluno
+        GROUP BY a.id
+        SQL;
+
+        return DB::Select($SQL)[0];
+    }
+
+    public static function getPreMatricula($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Aluno = self::getAluno($IDAluno); 
+        $Escola = Escola::find($Aluno->IDEscola);
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Escola), 0, 1, 'C'); // Nome da escola centralizado
+        // Espaço após a logo
+        $pdf->Ln(40);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("FICHA DE PRÉ MATRÍCULA"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        //AQUI VAI O CONTEUDO
+        // Dados da Escola e Diretor(a)
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(40, 10, 'Diretor(a):', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert("Diretor Teste"), 0, 1);
+        $pdf->Ln(5);
+
+        // Dados do Responsável e do Aluno
+        $pdf->Cell(40, 10, self::utfConvert('Responsável: '), 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->NMResponsavel), 0, 1);
+
+        $pdf->Cell(40, 10, 'Nome do Aluno:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Nome), 0, 1);
+
+        $pdf->Cell(40, 10, 'Nascimento: ', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert(date('d/m/Y', strtotime($Aluno->Nascimento))), 0, 1);
+
+        $pdf->Cell(40, 10, 'Naturalidade:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Naturalidade), 0, 1);
+
+        $pdf->Cell(40, 10, 'Nacionalidade: ', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert("Brasileiro"), 0, 1);
+
+        $pdf->Cell(40, 10, 'Sexo:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Sexo), 0, 1);
+
+        $pdf->Cell(40, 10, self::utfConvert('Cor/Raça:'), 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Sexo), 0, 1);
+
+        $pdf->Cell(40, 10, 'CPF:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->CPF), 0, 1);
+
+        $pdf->Cell(40, 10, self::utfConvert('Endereço:'), 0, 0);
+        $pdf->MultiCell(0, 10, self::utfConvert($Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade." - ".$Aluno->UF));
+
+        $pdf->Cell(40, 10, 'INEP:', 0, 0);
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->INEP), 0, 1);
+        $pdf->Ln(10);
+
+        // Campos para Alteração de Endereço e Observações
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 10, self::utfConvert('Alteração de Endereço:'), 0, 1);
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(0, 10, '_____________________________', 0, 1);
+
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 10, self::utfConvert('Observações:'), 0, 1);
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->MultiCell(0, 10, '________________________________________________________________________________');
+        $pdf->Ln(10);
+
+        // Informações Legais
+        $pdf->SetFont('Arial', 'I', 10);
+        $pdf->MultiCell(0, 10, self::utfConvert('Lei de criação e autorização de funcionamento da escola: ') . self::utfConvert("LEI Nº 9.394"));
+        $pdf->Ln(10);
+
+        // Assinaturas
+        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'L');
+        $pdf->Cell(0, 10, self::utfConvert('Assinatura do Responsável'), 0, 1, 'L');
+        $pdf->Ln(10);
+
+        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'L');
+        $pdf->Cell(0, 10, 'Assinatura do Diretor(a)', 0, 1, 'L');
+        $pdf->Ln(10);
+
+        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'L');
+        $pdf->Cell(0, 10, self::utfConvert('Assinatura do Funcionário Responsável'), 0, 1, 'L');
+        $pdf->Ln(10);
+
+        //AQUI TERMINA O CONTEÚDO
+        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
         exit;
 
     }
@@ -351,24 +618,22 @@ class AlunosController extends Controller
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
-        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola 
-        FROM escolas e 
-        INNER JOIN turmas t ON(t.IDEscola = e.id) 
-        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
-        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-        WHERE a.id = $IDAluno")[0];
+        $Aluno = self::getAluno($IDAluno); 
+        $Escola = Escola::find($Aluno->IDEscola);
+        $FrequenciaEscolar = self::getFrequenciaEscolarAluno($Aluno->IDAluno)->FrequenciaAno;
+        $PorcentagemFrequencia = ($FrequenciaEscolar/200) * 100 ."%";
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
         // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
         // Definir fonte e título
         $pdf->SetFont('Arial', 'B', 16);
 
         // Posição do nome da escola após a logo
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
         $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Cell(0, 10, self::utfConvert($Aluno->Escola), 0, 1, 'C'); // Nome da escola centralizado
         // Espaço após a logo
         $pdf->Ln(40);
 
@@ -381,25 +646,182 @@ class AlunosController extends Controller
         $pdf->SetFont('Arial', '', 12);
 
         // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
-        $nomeEscola = "Nome da Escola";
-        $nomeAluno = "Nome do Aluno";
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "no Turno Manhã";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "no Turno Tarde";
+        }
         $Ano = date('Y');
         // Inserir o texto da declaração
-        $declaracao = "Certificamos que o(a) aluno(a) $Escola->Aluno frequentou regularmente as aulas na $Escola->Escola, " .
-              "durante o ano letivo de $Ano, conforme os registros de frequência escolar.";
-        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "no Turno Manhã";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
+        }
 
+        $Nascimento = date('d/m/Y',strtotime($Aluno->Nascimento));
+        $Pais = json_decode($Aluno->PaisJSON);
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome Nascido no dia $Nascimento em $Aluno->Naturalidade cuja filiação é $Pais->Pai e $Pais->Mae está frequente no $Aluno->Serie - $Aluno->Turma da escola $Aluno->Escola, " .
+                    "no ano letivo de $Ano $Turno, conforme os registros escolares.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+        $pdf->Ln();
+        $pdf->Cell(0,10,self::utfConvert("Frequência Anual Atual: ".$PorcentagemFrequencia." (".date('d/m/Y').")"),0,1);
+        $pdf->Cell(0,10,self::utfConvert("Frequência Mínima Anual: ".$Aluno->MINFrequencia."%"),0,1);
         // Espaço antes da assinatura
         $pdf->Ln(20);
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('D', 'Declaracao_Frequencia.pdf');
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
         exit;
 
+    }
+
+    public static function getIniciante($IDAluno){
+        $Aluno = self::getAluno($IDAluno);
+        //dd($Aluno);
+        $MatriculaEsseAno = Matriculas::where('id',$IDAluno)->whereYear('created_at',date('Y'))->exists();
+        $TransferidoEsseAno = Transferencia::where('IDAluno',$IDAluno)->where('IDEscolaDestino',$Aluno->IDEscola)->whereYear('created_at',date('Y'))->exists();
+        
+        if($MatriculaEsseAno && !$TransferidoEsseAno){
+            return "Sim";
+        }elseif($TransferidoEsseAno){
+            return "Sim";
+        }else{
+            return "Não";
+        }
+    }
+
+    public static function getResultadoAno($IDAluno,$Ano){
+        $SQL = <<<SQL
+            SELECT 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND DATE_FORMAT(au3.created_at, '%Y') = $Ano
+                ) as Total,
+                (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                (SELECT SUM(rec2.Nota) 
+                FROM recuperacao rec2 
+                WHERE rec2.IDAluno = a.id 
+                AND rec2.IDDisciplina = d.id 
+                ) as RecBim,
+                (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $IDAluno AND rec2.IDDisciplina = d.id ) as RecAn,
+                -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE f2.IDAluno = a.id 
+                AND au2.IDDisciplina = d.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
+                ) as Frequencia,
+                t.MediaPeriodo,
+                -- Caso em que é verificado se a nota é inferior à média
+                CASE WHEN 
+                    (SELECT SUM(n2.Nota) 
+                    FROM notas n2 
+                    INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
+                    INNER JOIN aulas au3 ON at2.IDAula = au3.id 
+                    WHERE n2.IDAluno = a.id 
+                    AND DATE_FORMAT(n2.created_at, '%Y') = $Ano
+                    ) < t.MediaPeriodo THEN 'Reprovado' 
+                ELSE 'Aprovado' END as Resultado,
+
+                m.Nome as Aluno,         -- Nome do Aluno
+                a.id as IDAluno,         -- ID do Aluno
+                d.NMDisciplina as Disciplina, -- Nome da Disciplina
+                t.MediaPeriodo,
+                t.TPAvaliacao,
+                t.MINFrequencia,
+                t.Serie,
+                t.QTRepetencia
+            FROM 
+                alunos a
+            INNER JOIN 
+                matriculas m ON m.id = a.IDMatricula   -- Relaciona alunos com suas matrículas
+            INNER JOIN 
+                turmas t ON t.id = a.IDTurma           -- Relaciona alunos com suas turmas
+            INNER JOIN 
+                aulas au ON t.id = au.IDTurma          -- Relaciona turmas com aulas
+            INNER JOIN 
+                disciplinas d ON d.id = au.IDDisciplina -- Relaciona aulas com disciplinas
+            INNER JOIN 
+                notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
+            WHERE 
+                                    -- Filtro para turma específica
+                DATE_FORMAT(au.created_at, '%Y') = $Ano -- Filtro para o ano de 2024
+                AND a.id = $IDAluno
+            GROUP BY 
+                a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia -- Corrigido o GROUP BY
+        SQL;
+
+        $Desempenho = DB::select($SQL);
+        $Dependencias = array();
+        $QTReprovacoes = array();
+        if($Desempenho){
+            foreach($Desempenho as $d){
+
+                if($d->RecAn > 0){
+                    $Total = $d->RecAn;
+                }else{
+                    if($d->RecBim > 0){
+                        $Total = ($d->RecBim - $d->Total) + $d->PontBim;
+                        //dd($Total);
+                    }else{
+                        $Total = $d->Total;
+                    }
+                }
+
+                if($Total < $d->MediaPeriodo*4){
+                    array_push($QTReprovacoes,$d->QTRepetencia);
+                    array_push($Dependencias,array(
+                        "Disciplina" => $d->Disciplina,
+                        "Total" => ($d->RecAn) ? $d->RecAn : $d->Total,
+                        "Media" => $d->MediaPeriodo*4
+                    ));
+                }
+            }
+
+            $repetencias = array_unique($QTReprovacoes)[0];
+
+           
+            $naoPassou = array_filter($Dependencias,function($i){
+                if($i['Total'] < $i['Media'] ){
+                    return $i;
+                }
+            });
+            $dados = "Sim";
+        }else{
+            $dados = "Não";
+        }
+
+        if($dados == "Sim"){
+            if(count($naoPassou) >= $repetencias){
+                $situacao = "Reprovado";
+            }else{
+                $situacao = "Aprovado";
+            }
+        }
+    
+
+        if($dados == "Sim"){
+            return $situacao;
+        }else{
+            return "Sem dados";
+        }
+        
     }
 
     public function getRelatorioMatricula($IDAluno){
@@ -582,6 +1004,7 @@ class AlunosController extends Controller
     }
 
     public static function getAluno($id){
+        $alunos = array();
         $SQL = "SELECT 
                 a.id as IDAluno, 
                 m.id as IDMatricula,
@@ -641,7 +1064,10 @@ class AlunosController extends Controller
                 m.INEP,
                 m.TPTransporte,
                 m.Cor,
-                m.Sexo
+                m.Sexo,
+                t.INITurma,
+                t.TERTurma,
+                t.MINFrequencia
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)

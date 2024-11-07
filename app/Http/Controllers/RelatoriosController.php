@@ -67,6 +67,14 @@ class RelatoriosController extends Controller
             return self::getQTRecuperacaoFinal();
             case "getRecuperacaoFinalFaltas":
             return self::getRecuperacaoFinalFaltas();
+            case "LivroMatricula":
+            return self::getLivroMatricula();
+            case "getBoletimInformativo":
+            return self::getBoletimInformativo();
+            case "getAlunosMatriculados":
+            return self::getAlunosMatriculados();
+            case "getAlunosCenso":
+            return self::getAlunosCenso();
         }
     }
 
@@ -299,8 +307,7 @@ class RelatoriosController extends Controller
                     FROM notas n2 
                     INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
                     INNER JOIN aulas au3 ON at2.IDAula = au3.id 
-                    WHERE au3.IDDisciplina = 10 
-                    AND n2.IDAluno = a.id 
+                    WHERE n2.IDAluno = a.id 
                     AND DATE_FORMAT(n2.created_at, '%Y') = $ANO
                     ) < t.MediaPeriodo THEN 'Reprovado' 
                 ELSE 'Aprovado' END as Resultado,
@@ -580,6 +587,636 @@ class RelatoriosController extends Controller
         $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
         //DOWNLOAD
         $pdf->Output('I', 'Dependencias.pdf');
+        exit;
+    }
+
+    public function getBoletimInformativo(){
+        $idorg = Auth::user()->id_org;
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQL);
+
+        // Cabeçalho do documento
+        //RELATÓRIO QUANTITATIVO POR TURMA
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetMargins(10, 10, 10); // Margens esquerda, superior e direita
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("Relatórios por Turma"), 0, 1, 'C'); // Título
+        $pdf->Ln(10);
+       
+        //CONTEUDO DO MESMO 
+        foreach($Turmas as $t){
+            $Progredidos = 0; //ARMAZENA ALUNOS DE REC
+            $Iniciantes = 0;
+            $alunosturmasql = <<<SQL
+                SELECT
+                    a.id as IDAluno
+                FROM matriculas m
+                INNER JOIN alunos a ON(a.IDMatricula = m.id)
+                LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+                INNER JOIN turmas t ON(a.IDTurma = t.id)
+                INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+                LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+                INNER JOIN escolas e ON(t.IDEscola = e.id)
+                INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+                INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+                INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+                WHERE t.id = $t->IDTurma GROUP BY a.id ORDER BY m.Nome ASC
+            SQL;
+            foreach(DB::select($alunosturmasql) as $aluno){
+                if(AlunosController::getResultadoAno($aluno->IDAluno,date('Y')) == "Aprovado"){
+                    $Progredidos++;
+                }
+                
+                if(AlunosController::getIniciante($aluno->IDAluno) == "Sim"){
+                    $Iniciantes++;
+                }
+            }
+           
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', '', 10);
+            //CABECALHO DA TABELA
+            $pdf->Cell(180,10,self::utfConvert("Turma ".$t->Serie)." ".$t->Turma,1);
+            $pdf->Ln();
+            $pdf->Cell(90, 8, self::utfConvert('Sexo'), 1);
+            $pdf->Cell(90, 8, self::utfConvert('Quantidade'), 1);
+            $pdf->Ln();
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DA TABELA
+            foreach(self::getRelatoriosQuantitativos($t->IDTurma,"m.Sexo","m.Sexo") as $qt){
+                $pdf->Cell(90, 8, self::utfConvert($qt->Sexo), 1);
+                $pdf->Cell(90, 8, self::utfConvert($qt->Quantidade), 1);
+                $pdf->Ln();
+            }
+            $pdf->Cell(45, 8, self::utfConvert("Total de Alunos: ".self::getQuantidadeAlunosTurma($t->IDTurma,"AND a.STAluno = 0")), 1);
+            $pdf->Cell(45, 8, self::utfConvert("Evadidos: ".self::getQuantidadeAlunosTurma($t->IDTurma,"AND a.STAluno = 1")), 1);
+            $pdf->Cell(45, 8, self::utfConvert("Progredidos: ".$Progredidos), 1);
+            $pdf->Cell(45, 8, self::utfConvert("Novatos: ".$Iniciantes), 1);
+            $pdf->Ln(15);
+            //
+        }
+        //MATRICULAS POR TURMA - LISTA NOMINAL
+        $pdf->Cell(0, 10, self::utfConvert("Matrículas por Turma"), 0, 1, 'C'); // Título
+        $pdf->Ln(10);
+        $pageCount = 0;
+        foreach($Turmas as $t){
+            $Alunos = "SELECT
+                a.id as IDAluno, 
+                m.Nome as Nome,
+                t.Nome as Turma,
+                e.Nome as Escola,
+                t.Serie as Serie,
+                m.Nascimento as Nascimento,
+                a.STAluno,
+                m.Foto,
+                m.INEP,
+                m.Email,
+                m.Cor,
+                ats.created_at as DTSituacao,
+                m.CPF,
+                resp.NMResponsavel,
+                r.ANO,
+                m.NEE,
+                m.NIS,
+                m.RG,
+                m.CPF,
+                m.created_at as DTMatricula,
+                m.SUS,
+                m.Naturalidade,
+                m.Sexo,
+                m.created_at,
+                resp.CLResponsavel,
+                MAX(tr.Aprovado) as Aprovado,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                cal.INIAno,
+                cal.TERAno,
+                r.ANO,
+                m.Rua,
+                m.Numero,
+                m.Cidade,
+                m.UF,
+                m.Bairro,
+                m.PaisJSON,
+                m.BolsaFamilia
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE t.id = $t->IDTurma GROUP BY a.id ORDER BY m.Nome ASC 
+            ";
+            //ADICIONAR PAGINAS
+            //$pdf->AddPage();
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(0, 8, self::utfConvert("Turma ".$t->Serie." ".$t->Turma), 0, 1);
+            $pdf->Ln(5);
+        
+            // Cabeçalho do Aluno
+            //CORPO DAS TURMAS
+            // Iteração para cada aluno na turma
+            foreach(DB::select($Alunos) as $num => $al) {
+                if ($pageCount % 1 == 0 && $pageCount > 0) {
+                    $pdf->AddPage('L');
+                }
+                switch($al->STAluno) {
+                    case "0": $Situacao = 'Frequente'; break;
+                    case "1": $Situacao = "Evadido"; break;
+                    case "2": $Situacao = "Desistente"; break;
+                    case "3": $Situacao = "Desligado"; break;
+                    case "4": $Situacao = "Egresso"; break;
+                    case "5": $Situacao = "Transferido Para Outra Rede"; break;
+                }
+
+                $Pais = json_decode($al->PaisJSON);
+
+                // Início do bloco de informações do aluno
+                $pdf->SetFont('Arial', 'B', 10);
+                $pdf->Cell(0, 10, self::utfConvert($al->Nome), 0, 1, 'C'); // Título
+                $pdf->SetFont('Arial', '', 12);
+                $pdf->Cell(0, 6, self::utfConvert("N°: ".($num+1)), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Bolsa Família: "), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Matrícula: ".$Situacao), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Sexo: ".$al->Sexo), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Nascimento: ".date('d/m/Y', strtotime($al->Nascimento))), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Idade: ".Carbon::parse($al->Nascimento)->age), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Inclusão: ".(($al->NEE == 1) ? 'Sim' : 'Não')), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("INEP: ".$al->INEP), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("NIS: ".$al->NIS), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Naturalidade: ".$al->Naturalidade), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Tipo Sanguíneo: O+"), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Endereço: ".$al->Rua.", ".$al->Numero." ".$al->Bairro." ".$al->Cidade." - ".$al->UF), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("RG: ".$al->RG), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("CPF: ".$al->CPF), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("SUS: ".$al->SUS), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Data Matrícula: ".date('d/m/Y',strtotime($al->DTMatricula))), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Raça: ".$al->Cor), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Filiação: "."Teste"." e "."Teste"), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Resultado do Ano Anterior: ".AlunosController::getResultadoAno($al->IDAluno,date('Y')-1)), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("È Iniciante na Unidade?: ".AlunosController::getIniciante($al->IDAluno)), 0, 1);
+                // Separação entre alunos
+                $pdf->Ln(5);
+            }
+            $pdf->Ln(10);
+            $pageCount++;
+            //
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Lista de Turmas".'.pdf');
+        exit;
+    }
+
+    public function getLivroMatricula(){
+        $idorg = Auth::user()->id_org;
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQL);
+
+        // Cabeçalho do documento
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetMargins(10, 10, 10); // Margens esquerda, superior e direita
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("Livro de Matrícula"), 0, 1, 'C'); // Título
+        $pdf->Ln(10);
+        $pageCount = 0;
+        foreach($Turmas as $t){
+            $Alunos = "SELECT
+                a.id as IDAluno, 
+                m.Nome as Nome,
+                t.Nome as Turma,
+                e.Nome as Escola,
+                t.Serie as Serie,
+                m.Nascimento as Nascimento,
+                a.STAluno,
+                m.Foto,
+                m.INEP,
+                m.Email,
+                m.Cor,
+                ats.created_at as DTSituacao,
+                m.CPF,
+                resp.NMResponsavel,
+                r.ANO,
+                m.NEE,
+                m.NIS,
+                m.RG,
+                m.CPF,
+                m.created_at as DTMatricula,
+                m.SUS,
+                m.Naturalidade,
+                m.Sexo,
+                m.created_at,
+                resp.CLResponsavel,
+                MAX(tr.Aprovado) as Aprovado,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                cal.INIAno,
+                cal.TERAno,
+                r.ANO,
+                m.Rua,
+                m.Numero,
+                m.Cidade,
+                m.UF,
+                m.Bairro,
+                m.PaisJSON,
+                m.BolsaFamilia
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE t.id = $t->IDTurma GROUP BY a.id ORDER BY m.Nome ASC 
+            ";
+            //ADICIONAR PAGINAS
+            //$pdf->AddPage();
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(0, 8, self::utfConvert("Turma ".$t->Serie." ".$t->Turma), 0, 1);
+            $pdf->Ln(5);
+        
+            // Cabeçalho do Aluno
+            //CORPO DAS TURMAS
+            // Iteração para cada aluno na turma
+            foreach(DB::select($Alunos) as $num => $al) {
+                if ($pageCount % 1 == 0 && $pageCount > 0) {
+                    $pdf->AddPage('L');
+                }
+                switch($al->STAluno) {
+                    case "0": $Situacao = 'Frequente'; break;
+                    case "1": $Situacao = "Evadido"; break;
+                    case "2": $Situacao = "Desistente"; break;
+                    case "3": $Situacao = "Desligado"; break;
+                    case "4": $Situacao = "Egresso"; break;
+                    case "5": $Situacao = "Transferido Para Outra Rede"; break;
+                }
+
+                $Pais = json_decode($al->PaisJSON);
+
+                // Início do bloco de informações do aluno
+                $pdf->SetFont('Arial', 'B', 10);
+                $pdf->Cell(0, 10, self::utfConvert($al->Nome), 0, 1, 'C'); // Título
+                $pdf->SetFont('Arial', '', 12);
+                $pdf->Cell(0, 6, self::utfConvert("N°: ".($num+1)), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Bolsa Família: "), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Matrícula: ".$Situacao), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Sexo: ".$al->Sexo), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Nascimento: ".date('d/m/Y', strtotime($al->Nascimento))), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Idade: ".Carbon::parse($al->Nascimento)->age), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Inclusão: ".(($al->NEE == 1) ? 'Sim' : 'Não')), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("INEP: ".$al->INEP), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("NIS: ".$al->NIS), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Naturalidade: ".$al->Naturalidade), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Tipo Sanguíneo: O+"), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Endereço: ".$al->Rua.", ".$al->Numero." ".$al->Bairro." ".$al->Cidade." - ".$al->UF), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("RG: ".$al->RG), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("CPF: ".$al->CPF), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("SUS: ".$al->SUS), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Data Matrícula: ".date('d/m/Y',strtotime($al->DTMatricula))), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Raça: ".$al->Cor), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Filiação: "."Teste"." e "."Teste"), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("Resultado do Ano Anterior: ".AlunosController::getResultadoAno($al->IDAluno,date('Y')-1)), 0, 1);
+                $pdf->Cell(0, 6, self::utfConvert("È Iniciante na Unidade?: ".AlunosController::getIniciante($al->IDAluno)), 0, 1);
+                // Separação entre alunos
+                $pdf->Ln(5);
+            }
+            $pdf->Ln(10);
+            $pageCount++;
+            //
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Lista de Turmas".'.pdf');
+        exit;
+    }
+
+    public function getAlunosMatriculados(){
+        $idorg = Auth::user()->id_org;
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola,e.id as IDEscola FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQL);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(3, 3, 3); // Margens esquerda, superior e direita
+
+        $pdf->SetFont('Arial', 'B', 16);
+
+        $pdf->Cell(0, 10, self::utfConvert("Lista de Matrículas"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+        $pageCount = 0;
+        foreach($Turmas as $t){
+            if ($pageCount % 1 == 0 && $pageCount > 0) {
+                $pdf->AddPage();
+            }
+            $Alunos = "SELECT
+                a.id as IDAluno, 
+                m.Nome as Nome,
+                t.Nome as Turma,
+                e.Nome as Escola,
+                t.Serie as Serie,
+                m.Nascimento as Nascimento,
+                a.STAluno,
+                m.Foto,
+                m.INEP,
+                m.Email,
+                ats.created_at as DTSituacao,
+                m.CPF,
+                resp.NMResponsavel,
+                r.ANO,
+                m.NEE,
+                m.Sexo,
+                m.created_at,
+                resp.CLResponsavel,
+                MAX(tr.Aprovado) as Aprovado,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                cal.INIAno,
+                cal.TERAno,
+                r.ANO,
+                CASE WHEN a.id = rj.IDAluno THEN 'Sim' ELSE 'Não' END as Remanejado
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+            LEFT JOIN remanejados rj ON(rj.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE t.id = $t->IDTurma GROUP BY a.id ORDER BY m.Nome ASC 
+            ";
+            //ADICIONAR PAGINAS
+            //$pdf->AddPage();
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', '', 10);
+            //CABECALHO DA TABELA
+            $Escola = Escola::find($t->IDEscola);
+            $pdf->Cell(206,10,self::utfConvert("Vagas na Escola ".$Escola->Nome.": ".$Escola->QTVagas),1);
+            $pdf->Cell(206,10,self::utfConvert("Turma ".$t->Serie)." ".$t->Turma,1);
+            $pdf->Ln();
+            $pdf->Cell(13, 8, self::utfConvert('N°'), 1);
+            $pdf->Cell(65, 8, self::utfConvert('Nome'), 1);
+            $pdf->Cell(25, 8, self::utfConvert('Turno'), 1);
+            $pdf->Cell(35, 8, self::utfConvert('Matrícula'), 1);
+            $pdf->Cell(25, 8, self::utfConvert('DT.Matrícula'), 1);
+            $pdf->Cell(23, 8, self::utfConvert('Remanejado'), 1);
+            $pdf->Cell(20, 8, self::utfConvert('Especial'), 1);
+            $pdf->Ln();
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DAS TURMAS
+            foreach(DB::select($Alunos) as $num => $al){
+                switch($al->STAluno){
+                    case "0":
+                        $Situacao = 'Frequente';
+                        $dataSaida = "";
+                        $Vencimento = Carbon::parse($al->INIRematricula);
+                        $Hoje = Carbon::parse(date('Y-m-d'));
+                        $SitMatricula = $Vencimento->lt($Hoje) && $al->ANO <= date('Y') ? "PENDENTE RENOVAÇÃO" : "RENOVADA";
+                        $freq = 1;
+                    break;
+                    case "1":
+                        $Situacao = "Evadido";
+                        $dataSaida = "";
+                        $freq = 0;
+                    break;
+                    case "2":
+                        $Situacao = "Desistente";
+                        $dataSaida = date('d/m/Y',strtotime($al->DTSituacao));
+                        $freq = 0;
+                    break;
+                    case "3":
+                        $Situacao = "Desligado";
+                        $dataSaida = date('d/m/Y',strtotime($al->DTSituacao));
+                        $freq = 0;
+                    break;
+                    case "4":
+                        $Situacao = "Egresso";
+                        $dataSaida = date('d/m/Y',strtotime($al->DTSituacao));
+                        $freq = 0;
+                    break;
+                    case "5":
+                        $Situacao = "Transferido Para Outra Rede";
+                        $dataSaida = "";
+                        $freq = 0;
+                    break;
+                }
+
+                if($freq == 1){
+                    $Mat = $Situacao." - ".$SitMatricula;
+                }else{
+                    $Mat = $Situacao." - ".$dataSaida;
+                }
+
+                $pdf->Cell(13, 8, self::utfConvert($num+1), 1);
+                $pdf->Cell(65, 8, self::utfConvert($al->Nome), 1);
+                $pdf->Cell(25, 8, self::utfConvert("Manhã"), 1);
+                $pdf->Cell(35, 8, self::utfConvert($Mat), 1);
+                $pdf->Cell(25, 8, self::utfConvert(date('d/m/Y',strtotime($al->created_at))), 1);
+                $pdf->Cell(23, 8, self::utfConvert($al->Remanejado), 1);
+                $pdf->Cell(20, 8, self::utfConvert(($al->NEE == 1) ? 'Sim' : 'Não'), 1);
+                $pdf->Ln();
+            }
+            $pdf->Ln(10);
+            $pageCount++;
+            //
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Lista de Turmas".'.pdf');
+        exit;
+    }
+
+    public function getAlunosCenso(){
+        $idorg = Auth::user()->id_org;
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+
+        $Turmas = DB::select($SQL);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(3, 3, 3); // Margens esquerda, superior e direita
+
+        $pdf->SetFont('Arial', 'B', 16);
+
+        $pdf->Cell(0, 10, self::utfConvert("Lista Oficial do Último Censo"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+        $pageCount = 0;
+        foreach($Turmas as $t){
+            if ($pageCount % 1 == 0 && $pageCount > 0) {
+                $pdf->AddPage();
+            }
+            $Alunos = "SELECT
+                a.id as IDAluno, 
+                m.Nome as Nome,
+                t.Nome as Turma,
+                e.Nome as Escola,
+                t.Serie as Serie,
+                m.Nascimento as Nascimento,
+                a.STAluno,
+                m.Foto,
+                m.INEP,
+                m.Email,
+                ats.created_at as DTSituacao,
+                m.CPF,
+                resp.NMResponsavel,
+                r.ANO,
+                m.NEE,
+                m.Sexo,
+                m.created_at,
+                resp.CLResponsavel,
+                MAX(tr.Aprovado) as Aprovado,
+                cal.INIRematricula,
+                cal.TERRematricula,
+                cal.INIAno,
+                cal.TERAno,
+                r.ANO
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE t.id = $t->IDTurma AND DATE(m.created_at) <= DATE_FORMAT(CONCAT(r.ANO, '-05-'), '%Y-%m-%d') GROUP BY a.id ORDER BY m.Nome ASC 
+            ";
+            //ADICIONAR PAGINAS
+            //$pdf->AddPage();
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', '', 10);
+            //CABECALHO DA TABELA
+            $pdf->Cell(205,10,self::utfConvert("Turma ".$t->Serie)." ".$t->Turma,1);
+            $pdf->Ln();
+            $pdf->Cell(13, 8, self::utfConvert('N°'), 1);
+            $pdf->Cell(65, 8, self::utfConvert('Nome'), 1);
+            $pdf->Cell(25, 8, self::utfConvert('Entrada'), 1);
+            $pdf->Cell(35, 8, self::utfConvert('Matrícula'), 1);
+            $pdf->Cell(10, 8, self::utfConvert('Sexo'), 1);
+            $pdf->Cell(25, 8, self::utfConvert('Nascimento'), 1);
+            $pdf->Cell(12, 8, self::utfConvert('Idade'), 1);
+            $pdf->Cell(20, 8, self::utfConvert('Inclusão'), 1);
+            $pdf->Ln();
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DAS TURMAS
+            foreach(DB::select($Alunos) as $num => $al){
+                switch($al->STAluno){
+                    case "0":
+                        $Situacao = 'Frequente';
+                        $dataSaida = "";
+                        $Vencimento = Carbon::parse($al->INIRematricula);
+                        $Hoje = Carbon::parse(date('Y-m-d'));
+                        $SitMatricula = $Vencimento->lt($Hoje) && $al->ANO <= date('Y') ? "PENDENTE RENOVAÇÃO" : "RENOVADA";
+                        $freq = 1;
+                    break;
+                    case "1":
+                        $Situacao = "Evadido";
+                        $dataSaida = "";
+                        $freq = 0;
+                    break;
+                    case "2":
+                        $Situacao = "Desistente";
+                        $dataSaida = date('d/m/Y',strtotime($al->DTSituacao));
+                        $freq = 0;
+                    break;
+                    case "3":
+                        $Situacao = "Desligado";
+                        $dataSaida = date('d/m/Y',strtotime($al->DTSituacao));
+                        $freq = 0;
+                    break;
+                    case "4":
+                        $Situacao = "Egresso";
+                        $dataSaida = date('d/m/Y',strtotime($al->DTSituacao));
+                        $freq = 0;
+                    break;
+                    case "5":
+                        $Situacao = "Transferido Para Outra Rede";
+                        $dataSaida = "";
+                        $freq = 0;
+                    break;
+                }
+
+                if($freq == 1){
+                    $Mat = $Situacao." - ".$SitMatricula;
+                }else{
+                    $Mat = $Situacao." - ".$dataSaida;
+                }
+
+                $pdf->Cell(13, 8, self::utfConvert($num+1), 1);
+                $pdf->Cell(65, 8, self::utfConvert($al->Nome), 1);
+                $pdf->Cell(25, 8, self::utfConvert(date('d/m/Y',strtotime($al->created_at))), 1);
+                $pdf->Cell(35, 8, self::utfConvert($Mat), 1);
+                $pdf->Cell(10, 8, self::utfConvert($al->Sexo), 1);
+                $pdf->Cell(25, 8, self::utfConvert(date('d/m/Y',strtotime($al->Nascimento))), 1);
+                $pdf->Cell(12, 8, self::utfConvert(Carbon::parse($al->Nascimento)->age), 1);
+                $pdf->Cell(20, 8, self::utfConvert(($al->NEE == 1) ? 'Sim' : 'Não'), 1);
+                $pdf->Ln();
+            }
+            $pdf->Ln(10);
+            $pageCount++;
+            //
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Lista de Turmas".'.pdf');
         exit;
     }
 
@@ -959,6 +1596,46 @@ class RelatoriosController extends Controller
         //DOWNLOAD
         $pdf->Output('I',"Beneficiários Bolsa Família".'.pdf');
         exit;
+    }
+
+    public static function getRelatoriosQuantitativos($IDTurma,$GROUPBY,$SELECT){
+            $Alunos = "SELECT
+                COUNT(a.id) as Quantidade,
+                $SELECT
+            FROM matriculas m
+                INNER JOIN alunos a ON(a.IDMatricula = m.id)
+                LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+                INNER JOIN turmas t ON(a.IDTurma = t.id)
+                INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+                LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+                INNER JOIN escolas e ON(t.IDEscola = e.id)
+                INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+                INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+                INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE t.id = $IDTurma AND a.STAluno = 0 GROUP BY $GROUPBY
+        ";
+
+        return DB::select($Alunos);
+    }
+
+    public static function getQuantidadeAlunosTurma($IDTurma,$WHERE){
+        $QTAlunosSQL = "SELECT
+            a.id
+        FROM matriculas m
+        INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+        LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+        INNER JOIN escolas e ON(t.IDEscola = e.id)
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+        INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+        WHERE t.id = $IDTurma $WHERE GROUP BY m.id
+        ";
+
+        $QTAlunos = count(DB::select($QTAlunosSQL));
+        return $QTAlunos;
     }
 
     public function QTAlunosSexo(){
