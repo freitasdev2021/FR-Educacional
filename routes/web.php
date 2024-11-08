@@ -147,6 +147,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get("Alunos/Comprovantes/Filiacao/{id}",[AlunosController::class,'getRelatorioMatricula'])->name("Alunos/Comprovante/Filiacao");
         Route::get("Alunos/Comprovantes/Conclusao/{id}",[AlunosController::class,'getComprovanteConclusao'])->name("Alunos/Comprovante/Conclusao");
         Route::get("Alunos/Comprovantes/Transferencia/{id}",[AlunosController::class,'getDeclaracaoTransferencia'])->name("Alunos/Comprovante/Transferencia");
+        Route::get("Alunos/Comprovantes/Comparecimento/{id}",[AlunosController::class,'getAtestadoComparecimento'])->name("Alunos/Comprovante/Comparecimento");
+        Route::get("Alunos/Comprovantes/Responsabilidade/{id}",[AlunosController::class,'termoResponsabilidade'])->name("Alunos/Comprovante/Responsabilidade");
         Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico');
         Route::get('/Alunos/Boletim/{id}',[AlunosController::class,'boletim'])->name('Alunos/Boletim');
         Route::patch('/Alunos/GerarHistorico/{id}',[AlunosController::class,'gerarHistoricoEscolar'])->name('Alunos/GerarHistorico');

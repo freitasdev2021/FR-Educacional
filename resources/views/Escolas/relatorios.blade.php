@@ -117,6 +117,16 @@
                         <td>Nominal</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getAlunosCenso')}}">Imprimir</a></td>
                       </tr>
+                      <tr>
+                        <td>Mapa de Notas e Faltas</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','mapaNotas')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Médias Mínimas e Necessárias</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','mediasMinimasNecessarias')}}">Imprimir</a></td>
+                      </tr>
                     </tbody>
                   </table>
             </div>

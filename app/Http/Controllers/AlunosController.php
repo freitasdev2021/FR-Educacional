@@ -944,6 +944,124 @@ class AlunosController extends Controller
         exit;
     }
 
+    public function getAtestadoComparecimento($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Aluno = self::getAluno($IDAluno);
+        $Escola = Escola::find($Aluno->IDEscola);
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $pdf->Cell(0, 10, $Escola->Nome, 0, 1, 'C'); // Nome da escola centralizado
+
+        // Espaço após o título
+        $pdf->Ln(20);
+
+        // Definir fonte e título
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("Atestado de Comparecimento"), 0, 1, 'C'); // Título centralizado
+        $pdf->Ln(10); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+
+        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
+        $nomeEscola = "Nome da Escola";
+        $nomeAluno = "Nome do Aluno";
+        $Ano = date('Y');
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "no Turno Manhã";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "no Turno Tarde";
+        }
+        // Inserir o texto da declaração
+        $declaracao = "Atestamos que $Aluno->NMResponsavel Responsavel pelo(a) Aluno(a) $Aluno->Nome, matriculado(a) na turma $Aluno->Turma $Aluno->Serie do turno $Turno, esteve presente na escola na data e horário especificados.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('D', 'Atestado_Comparecimento.pdf');
+        exit;
+    }
+
+    public function termoResponsabilidade($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage();
+
+        // Pega informações do aluno e da escola
+        $Aluno = self::getAluno($IDAluno);
+        $Escola = Escola::find($Aluno->IDEscola);
+
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20);
+
+        // Inserir a logo da escola
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30);
+
+        // Nome da escola
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->SetXY(20, 15);
+        $pdf->Cell(0, 10, $Escola->Nome, 0, 1, 'C');
+
+        // Espaço após o título
+        $pdf->Ln(20);
+
+        // Título do termo
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("Termo de Ciência e Responsabilidade Escolar"), 0, 1, 'C');
+        $pdf->Ln(10);
+
+        // Corpo do termo
+        $pdf->SetFont('Arial', '', 12);
+
+        // Definir turno baseado no horário da turma
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        } elseif (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))) {
+            $Turno = "no Turno Manhã";
+        } elseif (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "no Turno Tarde";
+        }
+
+        // Texto do termo
+        $termo = "Eu, $Aluno->NMResponsavel, responsável pelo(a) aluno(a) $Aluno->Nome, matriculado(a) na turma $Aluno->Turma, série $Aluno->Serie, $Turno, declaro estar ciente das normas e responsabilidades escolares estabelecidas pela escola $Escola->Nome, e comprometo-me a cumpri-las em prol do desenvolvimento educacional e disciplinar do aluno.";
+        $pdf->MultiCell(0, 10, mb_convert_encoding($termo, 'ISO-8859-1', 'UTF-8'));
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+
+        // Linha de assinatura
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C');
+        $pdf->Cell(0, 10, "Assinatura do Responsável", 0, 1, 'C');
+
+        // Nome e data do emissor
+        $pdf->Ln(10);
+        $pdf->Cell(0, 10, "Emitido por: " . Auth::user()->name, 0, 1, 'L');
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade . ", " . $Escola->UF . " - " . date('d/m/Y H:i:s')), 0, 1, 'L');
+
+        // Saída do PDF
+        $pdf->Output('D', 'Termo_Ciencia_Responsabilidade.pdf');
+        exit;
+
+    }
+
     public function getDeclaracaoTransferencia($IDAluno){
         // Criar o PDF com FPDF
         $pdf = new FPDF();

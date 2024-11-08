@@ -348,13 +348,15 @@
                         @endif
                         @if(isset($Registro) && in_array(Auth::user()->tipo,[4,2,4.5,2.5])) 
                         <div class="col-auto">
-                            <a href="{{route('Alunos/Comprovante/Matricula',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Matrícula</a>
-                            <a href="{{route('Alunos/Comprovante/Frequencia',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Frequência</a>
-                            <a href="{{route('Alunos/Comprovante/Filiacao',$Registro->IDAluno)}}" class="btn btn-fr">Relatório de Matrícula</a>
-                            <a href="{{route('Alunos/Comprovante/Conclusao',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Conclusão</a>
-                            <a href="{{route('Alunos/Comprovante/Escolaridade',$Registro->IDAluno)}}" class="btn btn-fr">Declaração de Escolaridade</a>
-                            <a href="{{route('Alunos/Comprovante/Vaga',$Registro->IDAluno)}}" class="btn btn-fr">Atestado de Vaga</a>
-                            <a href="{{route('Alunos/Comprovante/Prematricula',$Registro->IDAluno)}}" class="btn btn-fr">Ficha de Pré Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Matricula',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Frequencia',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Frequência</a>
+                            <a href="{{route('Alunos/Comprovante/Filiacao',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Relatório de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Conclusao',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Conclusão</a>
+                            <a href="{{route('Alunos/Comprovante/Escolaridade',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Escolaridade</a>
+                            <a href="{{route('Alunos/Comprovante/Vaga',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Atestado de Vaga</a>
+                            <a href="{{route('Alunos/Comprovante/Prematricula',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Ficha de Pré Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Comparecimento',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Atestado de Comparecimento do Responsável</a>
+                            <a href="{{route('Alunos/Comprovante/Responsabilidade',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Termo de Ciência e Responsabilidade</a>
                         </div>
                         @endif
                     </div>
