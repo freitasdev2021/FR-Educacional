@@ -6,6 +6,7 @@ use App\Models\Disciplina;
 use Illuminate\Http\Request;
 use App\Models\Professor;
 use App\Models\Turno;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Http\Controllers\PedagogosController;
 use App\Models\Alocacao;
 use App\Models\User;
@@ -487,6 +488,65 @@ class ProfessoresController extends Controller
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
+    }
+
+    public function Imprimir(){
+        $AND = " AND a.IDEscola IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+
+        $orgId = Auth::user()->id_org;
+        $SQL = <<<SQL
+        SELECT 
+            p.id AS IDProfessor,
+            CONCAT('[', GROUP_CONCAT('"', e.Nome, '"' SEPARATOR ','), ']') AS Escolas,
+            p.Nome AS Professor,
+            p.Admissao,
+            p.TerminoContrato,
+            p.CEP,
+            p.Rua,
+            p.UF,
+            p.CPF,
+            p.Cidade,
+            p.Celular,
+            p.Bairro,
+            p.Numero,
+            p.Email,
+            p.Nascimento
+        FROM professores p
+        INNER JOIN alocacoes a ON a.IDProfissional = p.id
+        INNER JOIN escolas e ON e.id = a.IDEscola
+        INNER JOIN organizacoes o ON e.IDOrg = o.id
+        WHERE o.id = $orgId $AND AND a.TPProfissional = "PROF"
+        GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
+        SQL;
+
+        $Professores = DB::select($SQL);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(3, 3, 3); // Margens esquerda, superior e direita
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, self::utfConvert("Lista de Professores"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+        //CABECALHO DA TABELA
+        $pdf->Ln();
+        
+        foreach($Professores as $prof){
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(0, 6, self::utfConvert($prof->Professor),0,1,"C");
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(0, 6, self::utfConvert('Endereço: '.self::utfConvert($prof->Rua.", ".$prof->Numero." - ".$prof->Bairro." ".$prof->Cidade." ".$prof->UF)),0, 1);
+            $pdf->Cell(0, 6, self::utfConvert('Nascimento: '. date('d/m/Y', strtotime($prof->Nascimento))),0, 1);
+            $pdf->Cell(0, 6, self::utfConvert('Sexo: M'),0, 1);
+            $pdf->Cell(0, 6, self::utfConvert('Email: '.$prof->Email),0, 1);
+            $pdf->Cell(0, 6, self::utfConvert('Celular: '.$prof->Celular),0, 1);
+            $pdf->Cell(0, 6, self::utfConvert('CPF: '.$prof->CPF),0, 1);
+            $pdf->Cell(0, 6, self::utfConvert('NIS: 1234324'),0, 1);
+            $pdf->Ln();
+        }
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->Output('I',"Alunos Recuperacao".'.pdf');
+        exit;
     }
     
     public function removeTurno($IDTurno){

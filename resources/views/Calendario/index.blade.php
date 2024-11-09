@@ -42,6 +42,10 @@
                <label style="visibility: hidden">a</label>
                <input type="submit" class="form-control btn btn-success" value="Salvar Ano Letivo" {{(in_array(Auth::user()->tipo,[4,6])) ? 'disabled' : ''}}>
             </div>
+            <div class="col-auto">
+               <label style="visibility: hidden">a</label>
+               <a href="{{route('Calendario/Gerar')}}" class="btn btn-light">Gerar</a>
+            </div>
           </form>
           <!--LISTAS-->
           <link rel="stylesheet" href="{{asset('plugins/calendar/css/style.css')}}">

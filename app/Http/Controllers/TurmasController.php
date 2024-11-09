@@ -477,15 +477,34 @@ class TurmasController extends Controller
         // Exemplo de dados da consulta SQL que serão usados para gerar o boletim 
         
         $ata = array();
-
+        $Turma = Turma::find($IDTurma);
         // Obter dados dos alunos e suas notas
         foreach (self::getAlunosByTurma($IDTurma) as $a) {
             $SQL = <<<SQL
                SELECT 
                     d.NMDisciplina as Disciplina,
                     m.Nome,
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Rec,
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Nota
+                    a.id as IDAluno,
+                    (SELECT COUNT(f2.id) 
+                    FROM frequencia f2 
+                    INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                    WHERE f2.IDAluno = a.id 
+                    AND au2.IDDisciplina = d.id 
+                    AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
+                    ) as FrequenciaAno,
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "ANUAL" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as RecAn,
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Nota,
+                    (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                    (SELECT SUM(rec2.Nota) 
+                    FROM recuperacao rec2 
+                    WHERE rec2.Estagio !="ANUAL" AND rec2.IDAluno = a.id 
+                    AND rec2.IDDisciplina = d.id 
+                    ) as RecBim,
+                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
+                     FROM frequencia f2 
+                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                     WHERE f2.IDAluno = a.id 
+                     AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as CargaHoraria 
                 FROM disciplinas d
                 INNER JOIN aulas au ON(d.id = au.IDDisciplina)
                 INNER JOIN frequencia f ON(au.id = f.IDAula)
@@ -507,7 +526,29 @@ class TurmasController extends Controller
                         $ata[$boletim->Nome] = array(); // Inicializa o array para o aluno
                     }
                     // Adiciona a nota da disciplina no array do aluno
-                    $ata[$boletim->Nome][$boletim->Disciplina] = $boletim->Nota;
+                    if($boletim->RecAn > 0){
+                        $ata[$boletim->Nome][$boletim->Disciplina] = $boletim->RecAn;
+                    }else{
+                        if($boletim->RecBim > 0){
+                            $Nota = ($boletim->RecBim - $boletim->Nota) + $boletim->PontBim;
+                            $ata[$boletim->Nome][$boletim->Disciplina] = $Nota;
+                        }else{
+                            $Nota = $boletim->Nota;
+                            $ata[$boletim->Nome][$boletim->Disciplina] = $Nota;
+                        }
+
+                        $frequenciaAno = $boletim->FrequenciaAno;
+                        $ata[$boletim->Nome]["Frequência (%)"] = ($frequenciaAno/200) * 100;
+                        $ata[$boletim->Nome]["Faltas"] = 200 - $frequenciaAno;
+                        $ata[$boletim->Nome]['Carga Horária'] = date('H:i', strtotime($boletim->CargaHoraria));
+
+                        if(AlunosController::getResultadoAno($boletim->IDAluno,date('Y')) == "Aprovado"){
+                            $ata[$boletim->Nome]['Resultado'] = "A";
+                        }else{
+                            $ata[$boletim->Nome]['Resultado'] = "R";
+                        }
+                    }
+                    
                 }
             }
         }
@@ -533,14 +574,18 @@ class TurmasController extends Controller
         
         // Definir a fonte para as disciplinas (texto vertical)
         $disciplinas = self::getDisciplinasTurma($IDTurma);
-        $colWidth = 13; // Ajuste para a largura das colunas
+        $colWidth = 10; // Ajuste para a largura das colunas
         $rowHeight = 7; // Altura das linhas
         
         // Definir a altura inicial das colunas
-        $xPosInicial = 90;
+        $xPosInicial = 80;
         $yPos = 85; // Posição Y para as disciplinas
         $pdf->SetY($yPos); // Posição Y inicial
-        
+
+        $disciplinas[] = "Carga Horária";
+        $disciplinas[] = "Faltas";
+        $disciplinas[] = "Frequência (%)";
+        $disciplinas[] = "Resultado";
         // Imprimir as disciplinas verticalmente com bordas
         foreach ($disciplinas as $disciplina) {
             $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
@@ -553,7 +598,7 @@ class TurmasController extends Controller
             $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
         
             // Imprimir o nome da disciplina com borda preta
-            $pdf->Cell(45, $colWidth, mb_convert_encoding($disciplina, 'ISO-8859-1', 'UTF-8'), 0, 1, 'L');
+            $pdf->Cell(45, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
         
             // Voltar à rotação normal
             $pdf->Rotate(0);
@@ -566,13 +611,12 @@ class TurmasController extends Controller
         $pdf->SetY($yPos + 20);
         
         // Criar linhas da tabela (para alunos)
-        $pdf->SetFont('Arial', '', 12);
+        $pdf->SetFont('Arial', '', 8);
         
         // Para cada aluno e suas notas
         foreach ($ata as $aluno => $notas) {
             // Imprimir uma célula para o nome do aluno
-            $pdf->Cell(80, $rowHeight, mb_convert_encoding($aluno, 'ISO-8859-1', 'UTF-8'), 1);
-        
+            $pdf->Cell(70, $rowHeight, self::utfConvert($aluno), 1);
             // Para cada disciplina, imprime a nota, ou espaço vazio se o aluno não tiver nota para a disciplina
             foreach ($disciplinas as $disciplina) {
                 $nota = isset($notas[$disciplina]) ? $notas[$disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio

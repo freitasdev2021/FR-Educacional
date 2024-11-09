@@ -10,6 +10,7 @@ use App\Http\Requests\AdministradoresRequest;
 use App\Http\Controllers\SMTPController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Facades\Hash;
 class SecretariasController extends Controller
 {
@@ -57,6 +58,62 @@ class SecretariasController extends Controller
             array_push($IDEscolas,$e->id);
         }
         return $IDEscolas;
+    }
+
+    public function getLivroPonto(){
+        // Obtenha os dados dos filtros do request
+        $anoLetivo = "2024";
+        $mes = "Novembro";
+        $tipoFuncionario = "Professor";
+        $incluiAssinaturasExtras = "Sabado"; // sábado, domingo, feriado, etc.
+        $tamanhoFonteCorpo = 10; // valor padrão
+        $tamanhoFonteObs = 9; // valor padrão
+
+        // Obtenha dados dos docentes/funcionários para o relatório conforme os filtros
+        $funcionarios = array([
+            "nome" => "Freitas",
+            "matricula" => "10174200",
+            "regime" => "Integral",
+            "turnos" => "Manhã",
+            "periodos" => "Todos",
+            "turmas" => "Todas",
+            "hora_atividade" => "17:20" 
+        ]);
+
+        // Inicie o FPDF
+        $pdf = new Fpdf();
+        $pdf->AddPage();
+
+        // Cabeçalho do relatório
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 10, utf8_decode("Livro Ponto - $mes/$anoLetivo"), 0, 1, 'C');
+        $pdf->Ln(5);
+
+        // Configurações do corpo do texto
+        $pdf->SetFont('Arial', '', $tamanhoFonteCorpo);
+
+        foreach ($funcionarios as $funcionario) {
+            $pdf->Cell(0, 10, utf8_decode("Nome do Docente: {$funcionario['nome']}"), 0, 1);
+            $pdf->Cell(0, 10, utf8_decode("Matrícula: {$funcionario['matricula']}"), 0, 1);
+            $pdf->Cell(0, 10, utf8_decode("Regime de Contratação: {$funcionario['regime']}"), 0, 1);
+            $pdf->Cell(0, 10, utf8_decode("Turnos de Aula: {$funcionario['turnos']}"), 0, 1);
+            $pdf->Cell(0, 10, utf8_decode("Períodos de Aula: {$funcionario['periodos']}"), 0, 1);
+            $pdf->Cell(0, 10, utf8_decode("Turmas: {$funcionario['turmas']}"), 0, 1);
+            $pdf->Cell(0, 10, utf8_decode("Hora Atividade: {$funcionario['hora_atividade']}"), 0, 1);
+
+            // Campos de assinatura
+            $pdf->Cell(0, 10, "Assinatura do Docente: ____________________", 0, 1);
+            $pdf->Cell(0, 10, "Assinatura do Diretor: ____________________", 0, 1);
+            $pdf->Ln(10); // Espaço entre os registros de funcionários
+        }
+
+        // Rodapé com observações
+        $pdf->SetFont('Arial', '', $tamanhoFonteObs);
+        $pdf->Cell(0, 10, utf8_decode("Observações: "), 0, 1);
+
+        // Envie o PDF para o navegador
+        $pdf->Output('I', "Livro_Ponto_{$mes}_{$anoLetivo}.pdf");
+        exit;
     }
 
     public static function getAlunosRede($IDOrg){

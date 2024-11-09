@@ -715,7 +715,7 @@ class AlunosController extends Controller
                 (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
                 (SELECT SUM(rec2.Nota) 
                 FROM recuperacao rec2 
-                WHERE rec2.IDAluno = a.id 
+                WHERE rec2.Estagio !="ANUAL" AND rec2.IDAluno = a.id 
                 AND rec2.IDDisciplina = d.id 
                 ) as RecBim,
                 (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $IDAluno AND rec2.IDDisciplina = d.id ) as RecAn,
@@ -2007,6 +2007,54 @@ class AlunosController extends Controller
 
             return redirect()->back();
         }
+    }
+
+    public static function getTotalDisciplinaAno($IDAluno,$IDDisciplina){
+        $SQL = <<<SQL
+            SELECT 
+                d.NMDisciplina as Disciplina,
+                m.Nome,
+                a.id as IDAluno,
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE f2.IDAluno = a.id 
+                AND au2.IDDisciplina = d.id 
+                AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
+                ) as FrequenciaAno,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "ANUAL" AND rec2.IDAluno = $IDAluno AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as RecAn,
+                (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Nota,
+                (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
+                (SELECT SUM(rec2.Nota) 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio !="ANUAL" AND rec2.IDAluno = a.id 
+                AND rec2.IDDisciplina = d.id 
+                ) as RecBim,
+                (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
+                    FROM frequencia f2 
+                    INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                    WHERE f2.IDAluno = a.id 
+                    AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as CargaHoraria 
+            FROM disciplinas d
+            INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+            INNER JOIN frequencia f ON(au.id = f.IDAula)
+            INNER JOIN alunos a ON(a.id = f.IDAluno)
+            INNER JOIN matriculas m ON(m.id = a.IDMatricula)
+            INNER JOIN atividades at ON(at.IDAula = au.id)
+            INNER JOIN notas n ON(at.id = n.IDAtividade)
+            WHERE a.id = $IDAluno AND d.id = $IDDisciplina AND DATE_FORMAT(f.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
+            GROUP BY m.Nome, m.id, d.id
+        SQL;
+    
+        $queryBoletim = DB::select($SQL)[0];
+
+        if($queryBoletim->RecAn > 0){
+            $Total = $queryBoletim->RecAno;
+        }else{
+            $Total = $queryBoletim->Nota;
+        }
+
+        return $Total;
     }
 
     public function save(Request $request){

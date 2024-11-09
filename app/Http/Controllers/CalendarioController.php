@@ -7,6 +7,7 @@ use App\Models\Reuniao;
 use App\Models\SabadoLetivo;
 use App\Models\participacoesEvento;
 use App\Models\Evento;
+use App\Http\Controllers\SecretariasController;
 use App\Models\Periodo;
 use App\Models\Calendario;
 use App\Models\CalendarioPlanejamento;
@@ -17,6 +18,7 @@ use App\Models\FeriasProfissionais;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Facades\Auth;
 use DatePeriod;
 use DateInterval;
@@ -86,6 +88,29 @@ class CalendarioController extends Controller
             if($date->format('D') == 'Sat' && Carbon::parse($date)){
                 $dates[] = $date->format('d/m/Y');
             }
+        }
+
+        // Exibe as datas (ou retorna como resposta JSON, ou qualquer outro uso que você desejar)
+        return $dates;
+    }
+
+    public function calendarioLetivo(){
+        // Data inicial - hoje
+        $startDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->INIAno);
+
+        // Data final - daqui a um ano
+        $endDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
+
+        // Intervalo de 1 dia
+        $interval = new DateInterval('P1D');
+
+        // Cria o período de datas
+        $period = new DatePeriod($startDate, $interval, $endDate);
+
+        // Armazena as datas em um array
+        $dates = [];
+        foreach ($period as $date) {
+            $dates[] = $date->format('d-m-Y');
         }
 
         // Exibe as datas (ou retorna como resposta JSON, ou qualquer outro uso que você desejar)
@@ -662,6 +687,140 @@ class CalendarioController extends Controller
         }finally{
             return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
+    }
+
+    public function gerarCalendario()
+    {
+        // Inicializando o FPDF
+        $pdf = new FPDF();
+       
+        
+        // Definindo os meses do ano
+        $months = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+
+        // Definindo as cores para os tipos de dias
+        $colors = [
+            'letivo' => [200, 255, 200],    // Cor dos dias letivos
+            'nao_letivo' => [255, 200, 200], // Cor dos dias não letivos
+            'sabado_letivo' => [200, 200, 255], // Cor dos sábados letivos
+            'exame_final' => [255, 255, 0], // Cor para exame final
+        ];
+
+        $FeriasAlunos = FeriasAlunos::select('DTInicio','DTTermino')->whereIn("IDEscola",SecretariasController::getEscolasRede(Auth::user()->id_org))->first();
+        $sabadosLetivos = SabadoLetivo::whereIn('IDEscola', SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck('Data')->toArray();
+        $feriados = CalendarioFeriado::whereIn('IDEscola', SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck("DTInicio")->toArray();
+        $recessos = Paralizacao::whereIn('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck('DTInicio')->toArray();
+        $recuperacao = array_filter(
+            array_map(function($ret) {
+                // Converte a data para 'Y-m-d', removendo a hora
+                return date('Y-m-d', strtotime($ret));
+            }, CalendarioRecuperacao::whereIn('IDEscola', SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck("DTInicio")->toArray()),
+            function($ret) {
+                // Aqui você pode aplicar uma condição adicional, se necessário
+                return !empty($ret); // Exemplo de filtro para remover datas vazias
+            }
+        );        
+        
+        $diasLetivos = array();
+        //dd(self::calendarioLetivo());
+        foreach(self::calendarioLetivo() as $dl){
+            if(!in_array($dl,$recessos) || !in_array($dl,$feriados) || $dl->format('D') != "Sun" || $dl->format('D') == "Sat" && !in_array($dl,$sabadosLetivos)){
+                array_push($diasLetivos,$dl);
+            }
+        }
+
+        $intervaloFerias = [];
+        dd($FeriasAlunos->DTInicio);
+        // Feriados e sábados letivos fictícios
+        $feriados = [5, 12, 19, 25];  // Exemplo de feriados
+        $sabadosLetivos = [6, 13, 20, 27];  // Exemplo de sábados letivos
+        $exames = [];
+        $Ano = date('Y');
+        
+        // Gerando o conteúdo do calendário
+        foreach ($months as $index => $month) {
+            
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(0, 10, "$month $Ano", 0, 1, 'C');
+            $pdf->Ln();
+
+            // Definindo a tabela de dias da semana
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(20, 10, 'Dom', 1, 0, 'C');
+            $pdf->Cell(20, 10, 'Seg', 1, 0, 'C');
+            $pdf->Cell(20, 10, 'Ter', 1, 0, 'C');
+            $pdf->Cell(20, 10, 'Qua', 1, 0, 'C');
+            $pdf->Cell(20, 10, 'Qui', 1, 0, 'C');
+            $pdf->Cell(20, 10, 'Sex', 1, 0, 'C');
+            $pdf->Cell(20, 10, 'Sab', 1, 1, 'C');
+
+            // Obtendo o número de dias no mês
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index + 1, 2024);
+            
+            // Obtendo o dia da semana do primeiro dia do mês
+            $firstDayOfMonth = date('w', strtotime($Ano."-".($index+1)."-01"));
+
+            // Definindo a fonte para os dias
+            $pdf->SetFont('Arial', '', 10);
+
+            // Preenchendo os dias do mês
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $sumMes = 1;
+                dd($Ano."-".$index+$sumMes."-".$i);
+                // Preenchendo as células vazias até o primeiro dia do mês
+                if ($i == 1) {
+                    for ($j = 0; $j < $firstDayOfMonth; $j++) {
+                        $pdf->Cell(20, 10, '', 1);
+                    }
+                }
+
+                // Definindo a cor de fundo para o dia
+                if (in_array($i, $holidays)) {
+                    $pdf->SetFillColor($colors['nao_letivo'][0], $colors['nao_letivo'][1], $colors['nao_letivo'][2]);
+                } elseif (in_array($i, $saturdaysLetivos)) {
+                    $pdf->SetFillColor($colors['sabado_letivo'][0], $colors['sabado_letivo'][1], $colors['sabado_letivo'][2]);
+                } else {
+                    $pdf->SetFillColor($colors['letivo'][0], $colors['letivo'][1], $colors['letivo'][2]);
+                }
+
+                // Exibindo o número do dia
+                $pdf->Cell(20, 10, $i, 1, 0, 'C', true);
+
+                // Quebra de linha no final de cada semana
+                if (($firstDayOfMonth + $i) % 7 == 0) {
+                    $pdf->Ln();
+                }
+            }
+
+            $pdf->Ln(10);
+        }
+
+        // Gerando a legenda no final
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(50, 10, 'Legenda:', 0, 1, 'L');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(10, 10, 'Letivo', 0, 0, 'L');
+        $pdf->SetFillColor($colors['letivo'][0], $colors['letivo'][1], $colors['letivo'][2]);
+        $pdf->Cell(10, 10, '', 0, 1, 'L', true);
+
+        $pdf->Cell(10, 10, 'Nao Letivo', 0, 0, 'L');
+        $pdf->SetFillColor($colors['nao_letivo'][0], $colors['nao_letivo'][1], $colors['nao_letivo'][2]);
+        $pdf->Cell(10, 10, '', 0, 1, 'L', true);
+
+        $pdf->Cell(10, 10, 'Sabado Letivo', 0, 0, 'L');
+        $pdf->SetFillColor($colors['sabado_letivo'][0], $colors['sabado_letivo'][1], $colors['sabado_letivo'][2]);
+        $pdf->Cell(10, 10, '', 0, 1, 'L', true);
+
+        $pdf->Cell(10, 10, 'Exame Final', 0, 0, 'L');
+        $pdf->SetFillColor($colors['exame_final'][0], $colors['exame_final'][1], $colors['exame_final'][2]);
+        $pdf->Cell(10, 10, '', 0, 1, 'L', true);
+
+        // Gerando o PDF e enviando para o navegador
+        $pdf->Output('I', 'Calendario_Escolar_2024.pdf');
     }
 
     function saveFeriasProfissionais(Request $request){

@@ -23,11 +23,6 @@
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Ocorrencias')}}">Imprimir</a></td>
                       </tr>
                       <tr>
-                        <td>Transferidos</td>
-                        <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Transferidos')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
                         <td>Remanejados</td>
                         <td>Quantitativo</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Remanejados')}}">Imprimir</a></td>
@@ -40,7 +35,7 @@
                       <tr>
                         <td>Responsaveis</td>
                         <td>Nominal</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Responsaveis')}}">Imprimir</a></td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Responsaveis')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Alunos por Turma e Faixa</td>
@@ -126,6 +121,26 @@
                         <td>Médias Mínimas e Necessárias</td>
                         <td>Nominal</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','mediasMinimasNecessarias')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos com Foto</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Alunos com Foto')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos Transferidos</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Transferidos')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Horários</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getHorarios')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Desempenho Geral</td>
+                        <td>Nominal</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','mapaDesempenhoGeral')}}">Imprimir</a></td>
                       </tr>
                     </tbody>
                   </table>

@@ -7,14 +7,17 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
-            @if(in_array(Auth::user()->tipo,[2,2.5]))
             <div class="col-sm-12 p-2 row">
+            @if(in_array(Auth::user()->tipo,[2,2.5]))
                 <div class="col-auto">
                     <a href="{{route('Professores/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
-            </div>
             <hr>
             @endif
+                <div class="col-auto">
+                    <a href="{{route('Professores/Imprimir')}}" class="btn btn-fr">Imprimir</a>
+                </div>
+            </div>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Professores/list')}}">

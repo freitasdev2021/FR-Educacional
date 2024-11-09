@@ -94,6 +94,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
+        Route::get('Secretaria/LivroPonto',[SecretariasController::class,'getLivroPonto'])->name('Secretaria/LivroPonto');
         //FICHA INDIVIDUAL
         Route::get('Alunos/Relatorio/Teste',[RelatoriosController::class,'getAlunosTurmasEditavel'])->name('Alunos/Relatorio/Teste');
         Route::get('Turmas/Aprovacao/Teste/{IDTurma}/{Ano}',[TurmasController::class,'getProgredidosTurma'])->name('Turmas/Aprovacao/Teste');
@@ -243,6 +244,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Responsaveis',[ResponsaveisController::class,'index'])->name('Responsaveis/index');
         //PROFESSORES
         Route::get("Apoio",[ApoioController::class,'index'])->name("Apoio/index");
+        Route::get("Professores/Imprimir",[ProfessoresController::class,'Imprimir'])->name("Professores/Imprimir");
         Route::get("Professores/Apoio/list/{IDProfessor}",[ApoioController::class,'getApoio'])->name("Professores/Apoio/list");
         Route::get("Professores/Apoio/{IDProfessor}",[ApoioController::class,'index'])->name("Professores/Apoio");
         Route::get("Professores/Apoio/evolucao/{id}",[ApoioController::class,'getEvolucao'])->name("Professores/Apoio/evolucao");
@@ -263,6 +265,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Escolas/Vagas/list',[VagasController::class,'getVagas'])->name('Escolas/Vagas/list');
         Route::post('Escolas/Vagas/Save',[VagasController::class,'save'])->name('Escolas/Vagas/Save');
         //CALENDARIO
+        Route::get('Calendario/Gerar',[CalendarioController::class,'gerarCalendario'])->name('Calendario/Gerar');
         Route::post('Calendario/Rematricula',[CalendarioController::class,'rematricula'])->name('Calendario/Rematricula');
         Route::get('/Calendario',[CalendarioController::class,'index'])->name('Calendario/index');
         Route::get('/Calendario/Eventos/list',[CalendarioController::class,'getEventos'])->name('Calendario/Eventos/list');
