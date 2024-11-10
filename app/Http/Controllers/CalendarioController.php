@@ -12,6 +12,7 @@ use App\Models\Periodo;
 use App\Models\Calendario;
 use App\Models\CalendarioPlanejamento;
 use App\Models\CalendarioRecuperacao;
+use App\Http\Controllers\Services\CalendarController;
 use App\Models\CalendarioFeriado;
 use App\Models\Paralizacao;
 use App\Models\FeriasProfissionais;
@@ -94,7 +95,7 @@ class CalendarioController extends Controller
         return $dates;
     }
 
-    public function calendarioLetivo(){
+    public static function calendarioLetivo(){
         // Data inicial - hoje
         $startDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->INIAno);
 

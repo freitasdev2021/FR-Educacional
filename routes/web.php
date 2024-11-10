@@ -208,7 +208,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save')->middleware('professor');
         Route::post('/Aulas/Atividades/setNota',[AulasController::class,'setNota'])->name('Aulas/Atividades/setNota')->middleware('professor');
         //OCORRENCIAS
-        Route::get('Ocorrencias/list',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list');
+        Route::get('Ocorrencias/list/{IDAluno?}',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list');
         Route::get('Ocorrencias',[OcorrenciasController::class,'index'])->name('Ocorrencias/index');
         Route::get('Ocorrencias/Novo',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Novo');
         Route::get('Ocorrencias/Cadastro/{id}',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Edit');
@@ -402,6 +402,20 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //PEDAGOGOS
         Route::get('/Pedagogos/Novo',[PedagogosController::class,'cadastro'])->name('Pedagogos/Novo');
         Route::post('/Pedagogos/Save',[PedagogosController::class,'save'])->name('Pedagogos/Save');
+    });
+    //CAMADA DE SEGURANÇA DO PORTAL DO ALUNO
+    Route::middleware('aluno')->group(function(){
+        //OCORRENCIAS
+        Route::get('Aluno/Ocorrencias/list/{IDAluno}',[OcorrenciasController::class,'getOcorrencias'])->name('Aluno/Ocorrencias/list');
+        Route::get('Aluno/Ocorrencias',[OcorrenciasController::class,'index'])->name('OcorrenciasAluno/index');
+        Route::get('Aluno/Ocorrencia/{id}',[OcorrenciasController::class,'cadastro'])->name('Aluno/Ocorrencia');
+        //CALENDARIO
+        Route::get('Aluno/Calendario',[CalendarioController::class,'index'])->name('Aluno/Calendario/index');
+        //Desempenho
+        Route::get('Aluno/Desempenho',[AlunosController::class,'desempenho'])->name('Desempenho/index');
+        //Matrículas
+        Route::get('Aluno/Matriculas',[AlunosController::class,'matriculas'])->name('Matriculas/index');
+        //EAD
     });
     //CAMADA DE SEGURANÇA DO PROFESSOR
     Route::middleware('professor')->group(function(){

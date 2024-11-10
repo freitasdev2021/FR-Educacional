@@ -44,6 +44,11 @@
                   @if(in_array(Auth::user()->tipo,[5]))<x-modulo nome="Endereços" icon="bx bx-street-view" rota="Enderecos/index" endereco="Enderecos"/>@endif
                   @if(in_array(Auth::user()->tipo,[4.5,4]))<x-modulo nome="Merenda" icon="bx bx-fork" rota="Merenda/index" endereco="Merenda"/>@endif
                   <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Transporte/index" endereco="Transporte"/>
+                  @elseif(Auth::user()->tipo == 7)
+                  <x-modulo nome="Matrículas" icon="bx bxs-group" rota="Matriculas/index" endereco="Matriculas"/>
+                  <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="OcorrenciasAluno/index" endereco="OcorrenciasAluno"/>
+                  <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Aluno/Calendario/index" endereco="Calendario"/>
+                  <x-modulo nome="Desempenho" icon="bx bx-pencil" rota="Desempenho/index" endereco="Desempenho"/>
                   @endif 
                 </div>
              </div>

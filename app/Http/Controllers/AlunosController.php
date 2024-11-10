@@ -8,6 +8,8 @@ use App\Models\Matriculas;
 use App\Models\Escola;
 use App\Models\NEE;
 use App\Models\Turma;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Models\FeedbackTransferencia;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Renovacoes;
@@ -1185,7 +1187,9 @@ class AlunosController extends Controller
                 m.Sexo,
                 t.INITurma,
                 t.TERTurma,
-                t.MINFrequencia
+                t.MINFrequencia,
+                t.MediaPeriodo,
+                t.TPAvaliacao
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -2009,6 +2013,216 @@ class AlunosController extends Controller
         }
     }
 
+    public static function getAlunoByUser($IDAluno){
+        return DB::select("SELECT id FROM alunos WHERE IDUser = $IDAluno")[0]->id;
+    }
+
+    public static function getDadosBoletim($IDAluno){
+            $SQL = <<<SQL
+            SELECT 
+                d.NMDisciplina as Disciplina,
+                d.id as IDDisciplina,
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "1º BIM" 
+                AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas1B,
+            
+            (SELECT COUNT(f2.id) 
+            FROM frequencia f2 
+            INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+            WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "2º BIM" 
+            AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas2B,
+            
+            (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "3º BIM" 
+            AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas3B,
+            
+            (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "4º BIM" 
+            AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas4B,
+            
+            -- 1º Bimestre
+            CASE WHEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "1º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y')) > 0
+            THEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "1º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y'))
+            ELSE 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) 
+                INNER JOIN aulas au3 ON(at2.IDAula = au3.id) 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND au3.Estagio = '1º BIM' 
+                AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y'))
+            END as Nota1B,
+
+            -- 2º Bimestre
+            CASE WHEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "2º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y')) > 0
+            THEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "2º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y'))
+            ELSE 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) 
+                INNER JOIN aulas au3 ON(at2.IDAula = au3.id) 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND au3.Estagio = '2º BIM' 
+                AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y'))
+            END as Nota2B,
+
+            -- 3º Bimestre
+            CASE WHEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "3º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y')) > 0
+            THEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "3º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y'))
+            ELSE 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) 
+                INNER JOIN aulas au3 ON(at2.IDAula = au3.id) 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND au3.Estagio = '3º BIM' 
+                AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y'))
+            END as Nota3B,
+
+            -- 4º Bimestre
+            CASE WHEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "4º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y')) > 0
+            THEN 
+                (SELECT rec2.Nota 
+                FROM recuperacao rec2 
+                WHERE rec2.Estagio = "4º BIM" 
+                AND rec2.IDAluno = $IDAluno 
+                AND rec2.IDDisciplina = d.id 
+                AND rec2.created_at = DATE_FORMAT(NOW(), '%Y'))
+            ELSE 
+                (SELECT SUM(n2.Nota) 
+                FROM notas n2 
+                INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) 
+                INNER JOIN aulas au3 ON(at2.IDAula = au3.id) 
+                WHERE au3.IDDisciplina = d.id 
+                AND n2.IDAluno = a.id 
+                AND au3.Estagio = '4º BIM' 
+                AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y'))
+            END as Nota4B
+            FROM disciplinas d
+            INNER JOIN aulas au ON(d.id = au.IDDisciplina)
+            INNER JOIN frequencia f ON(au.id = f.IDAula)
+            INNER JOIN alunos a ON(a.id = f.IDAluno)
+            INNER JOIN atividades at ON(at.IDAula = au.id)
+            INNER JOIN notas n ON(at.id = n.IDAtividade)
+            WHERE a.id = $IDAluno
+            GROUP BY d.id
+
+            SQL;
+            
+        // echo $SQL;
+        // dd("Aqui");
+        $queryBoletim = DB::select($SQL);
+
+        return $queryBoletim;
+    }
+
+    public function getDesempenhoGeral($IDAluno){
+        $IDOrg = Auth::user()->id_org;
+        $IDAluno = self::getAlunoByUser(Auth::user()->id);
+        $DadosBoletim = self::getDadosBoletim($IDAluno);
+        
+        //ARMAZENAMENTO DAS NOTAS DO ALUNO
+        $boletins = array();
+        // Verificar se o aluno tem notas lançadas
+        if (!empty(self::getDadosBoletim($IDAluno))) {
+            
+            $boletins = array(
+                "DadosAluno" => self::getAluno($IDAluno),
+                "Disciplinas" => []
+            );
+            // Adicionar ao boletim somente se há dados
+            foreach ($DadosBoletim as $boletim) {
+                $boletins['Disciplinas'][] = array(
+                    "Disciplina" => $boletim->Disciplina,
+                    "IDDisciplina" => $boletim->IDDisciplina,
+                    "IDAluno" => $IDAluno,
+                    "Nota1B"=> $boletim->Nota1B,
+                    "Nota2B"=> $boletim->Nota2B,
+                    "Nota3B"=> $boletim->Nota3B,
+                    "Nota4B"=> $boletim->Nota4B,
+                    "Faltas1B"=> $boletim->Faltas1B,
+                    "Faltas2B"=> $boletim->Faltas2B,
+                    "Faltas3B"=> $boletim->Faltas3B,
+                    "Faltas4B"=> $boletim->Faltas4B,
+                );
+            }
+        }
+
+        //dd($boletins);
+
+        if(count($boletins) == 0){
+            
+            $dadosDesempenho = array(
+                "Boletim" => 0,
+                "Frequencia" => 0, 
+                "PFrequencia" => 0
+            );
+        }else{
+            $Frequencia = array_reduce($boletins['Disciplinas'], function ($total, $disciplina) {
+                return $total + $disciplina['Faltas1B'] + $disciplina['Faltas2B'] + $disciplina['Faltas3B'] + $disciplina['Faltas4B'];
+            }, 0);
+            $dadosDesempenho = array(
+                "Boletim" => $boletins,
+                "Frequencia" => $Frequencia, 
+                "PFrequencia" => ($Frequencia/200) * 100
+            );
+        }
+
+        return $dadosDesempenho;
+        
+    }
+
     public static function getTotalDisciplinaAno($IDAluno,$IDDisciplina){
         $SQL = <<<SQL
             SELECT 
@@ -2055,6 +2269,53 @@ class AlunosController extends Controller
         }
 
         return $Total;
+    }
+
+    public function matriculas(){
+        $IDAluno = self::getAlunoByUser(Auth::user()->id);
+        $SQLMatriculas = "SELECT
+            m.Nome as Aluno,
+            eDestino.Nome as Escola,
+            tr.created_at as DTMatricula
+        FROM transferencias tr
+        INNER JOIN alunos a ON(a.id = tr.IDAluno)
+        INNER JOIN matriculas m ON(m.id = a.IDMatricula)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
+        WHERE a.id = $IDAluno AND tr.Aprovado = 1  
+        ";
+
+        //dd($IDAluno);
+        $Matricula = self::getAluno($IDAluno);
+        $Matriculas = DB::select($SQLMatriculas);
+
+        return view('Alunos.matricula',[
+            "submodulos" => array([
+                "nome" => "Matrículas",
+                "endereco" => "index",
+                "rota" => "Matriculas/index"
+            ]),
+            "Matricula" => $Matricula,
+            "Matriculas" => $Matriculas
+        ]);
+    }
+
+    
+    public function desempenho(){
+        $IDAluno = self::getAlunoByUser(Auth::user()->id);
+        $Conceitos = FichaController::getFichaAluno($IDAluno);
+        $Boletim = self::getDesempenhoGeral($IDAluno);
+        //dd($Boletim['Boletim']);
+        return view('Alunos.desempenho',[
+            "submodulos" => array([
+                "nome" => "Desempenho",
+                "endereco" => "index",
+                "rota" => "Desempenho/index"
+            ]),
+            "Boletim" => $Boletim,
+            "TPAvaliacao" => "Nota",
+            "conceitos" => $Conceitos
+        ]);
     }
 
     public function save(Request $request){
@@ -2104,6 +2365,17 @@ class AlunosController extends Controller
                     $request->file('CNascimento')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CNascimento,'public');
                 }else{
                     $CNascimento = '';
+                }
+
+                if($request->credenciaisLogin){
+                    $rnd = rand(100000,999999);
+                    SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
+                    $UserAluno = User::create([
+                        'name' => $request->Nome,
+                        'email' => $request->Email,
+                        'tipo' => 7,
+                        'password' => Hash::make($rnd)
+                    ]);
                 }
 
                 $Pais = array(
@@ -2167,8 +2439,12 @@ class AlunosController extends Controller
                 $aluno = array(
                     'IDMatricula' => $createMatricula->id,
                     'STAluno' => 0,
-                    'IDTurma' => $request->IDTurma
+                    'IDTurma' => $request->IDTurma,
                 );
+
+                if($request->credenciaisLogin){
+                    $aluno['IDUser'] = $UserAluno->id;
+                }
 
                 $createAluno = Aluno::create($aluno);
 
@@ -2247,6 +2523,36 @@ class AlunosController extends Controller
                     $request->file('CNascimento')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CNascimento,'public');
                 }else{
                     $CNascimento = '';
+                }
+
+                $aluno = array(
+                    'STAluno' => 0,
+                    'IDTurma' => $request->IDTurma
+                );
+
+                if($request->credenciaisLogin){
+                    $rnd = rand(100000,999999);
+                    SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
+                    $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
+                    $Usuario = User::find($request->IDUser);
+                    if($Usuario){
+                        $Usuario->update([
+                            'name' => $request->Nome,
+                            'email' => $request->Email,
+                            'tipo' => 7,
+                            'password' => Hash::make($rnd)
+                        ]);
+                    }else{
+                        $UserAluno = User::create([
+                            'name' => $request->Nome,
+                            'email' => $request->Email,
+                            'tipo' => 7,
+                            'password' => Hash::make($rnd)
+                        ]);
+
+                        $aluno['IDUser'] = $UserAluno->id;
+                    }
+                    
                 }
 
                 $Pais = array(
@@ -2346,11 +2652,6 @@ class AlunosController extends Controller
                 //dd($matricula);
 
                 Matriculas::find($request->IDMatricula)->update($matricula);
-
-                $aluno = array(
-                    'STAluno' => 0,
-                    'IDTurma' => $request->IDTurma
-                );
 
                 $IDTurmaOrigem = Aluno::find($request->IDAluno)->IDTurma;
                 $IDEscola = Turma::find($IDTurmaOrigem)->IDEscola;

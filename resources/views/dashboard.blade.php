@@ -238,5 +238,36 @@
        </table>
        @endforeach
     </div>
+    @elseif(Auth::user()->tipo == 7)
+    <div class="shadow">
+      <div class="shadow">
+         {{-- <pre>
+            {{print_r($ficha)}}
+         </pre> --}}
+         @foreach($horariosAluno as $f)
+         <table class="table">
+            <thead class="bg-fr text-white">
+               <tr align="center">
+                  <th colspan="4">{{$f->Serie}} - {{$f->Turma}}</th>
+               </tr>
+              <tr>
+                <th scope="col">Dia</th>
+                <th scope="col">Turno</th>
+                <th scope="col">Disciplina</th>
+              </tr>
+            </thead>
+            <tbody>
+            @foreach(json_decode($f->Horarios) as $h)
+              <tr>
+                <td class="bg-primary text-white" align="center"><strong>{{$h->Dia}}</strong></td>
+                <td>{{$h->Inicio}} - {{$h->Termino}}</td>
+                <td>{{$h->Disciplina}}</td>
+              </tr>
+            @endforeach
+            </tbody>
+          </table>
+          @endforeach
+       </div>
+    </div>
     @endif
  </x-educacional-layout>

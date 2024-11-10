@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             "fornecedor" => \App\Http\Middleware\fornecedor::class,
             "secretario" => \App\Http\Middleware\secretario::class,
             "professor" => \App\Http\Middleware\professor::class,
+            "aluno" => \App\Http\Middleware\aluno::class,
             'secretarioDiretor' => \App\Http\Middleware\secretarioDiretor::class,
             'secretarioProfessor' => \App\Http\Middleware\secretarioProfessor::class,
             'time' => \App\Http\Middleware\time::class,

@@ -12,7 +12,8 @@ class Aluno extends Model
     protected $fillable = [
         'IDMatricula',
         'STAluno',
-        'IDTurma'
+        'IDTurma',
+        'IDUser'
     ];
 
     public function matricula()

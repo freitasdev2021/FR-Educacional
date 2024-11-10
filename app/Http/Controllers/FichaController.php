@@ -80,6 +80,19 @@ class FichaController extends Controller
         ));
     }
 
+    public static function getFichaAluno($IDAluno){
+        $SQL = "SELECT r.Respostas as respostas, m.Nome as nome 
+        FROM respostas_ficha r 
+        INNER JOIN ficha_avaliativa f ON f.id = r.IDFicha 
+        INNER JOIN alunos a ON r.IDAluno = a.id 
+        INNER JOIN matriculas m ON m.id = a.IDMatricula 
+        WHERE a.id=".$IDAluno;
+
+        $registros = DB::select($SQL);
+
+        return $registros;
+    }
+
     public function gerarFichaIndividual($id){
         $Aluno = AlunosController::getAluno($id);
         $SQL = <<<SQL

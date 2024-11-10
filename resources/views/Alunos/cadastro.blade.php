@@ -330,6 +330,16 @@
                             <label>Tipo de Transporte</label>
                             <input type="text" name="TPTransporte" class="form-control" value="{{isset($Registro) ? $Registro->TPTransporte : ''}}">
                         </div>
+                        
+                        <div class="checkboxEscolas">
+                            <div class="form-check escola">
+                                <br>
+                                <input class="form-check-input" type="checkbox" value="1" name="credenciaisLogin" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                 Enviar Credenciais de Acesso ao Portal do Aluno com o E-mail do Aluno Informado na Matrícula
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <br>
                     <div class="row">

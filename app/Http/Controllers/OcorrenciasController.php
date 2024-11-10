@@ -18,9 +18,23 @@ class OcorrenciasController extends Controller
     ]);
 
     public function index(){
-        return view('Ocorrencias.index',[
-            "submodulos" => self::submodulos
-        ]);
+        if(Auth::user()->tipo == 7){
+            $view = "Ocorrencias.aluno.index";
+            $content = [
+                "submodulos" => array([
+                    "rota" => 'OcorrenciasAluno/index',
+                    'endereco'=> 'index',
+                    'nome' => 'Ocorrências'
+                ])
+            ];
+        }else{
+            $view = "Ocorrencias.index";
+            $content = [
+                "submodulos" => self::submodulos
+            ];
+        }
+
+        return view($view,$content);
     }
 
     public function cadastro($id = null){
@@ -83,8 +97,14 @@ class OcorrenciasController extends Controller
         }
     }
 
-    public function getOcorrencias(){
+    public function getOcorrencias($IDAluno=null){
         $IDOrg = Auth::user()->id_org;
+        $WHERE = "";
+
+        if($IDAluno){
+            $WHERE = " AND o.IDAlvo=".$IDAluno;
+        }
+
         $registros = DB::select("SELECT 
             m.Nome as Alvo,
             o.id,
@@ -97,7 +117,7 @@ class OcorrenciasController extends Controller
             INNER JOIN matriculas m ON(m.id = a.IDMatricula)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
             INNER JOIN escolas e ON(e.id = t.IDEscola)
-            WHERE e.IDOrg = $IDOrg
+            WHERE e.IDOrg = $IDOrg $WHERE
             ");
         
         if(count($registros) > 0){

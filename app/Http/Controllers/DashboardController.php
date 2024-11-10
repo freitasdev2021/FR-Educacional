@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\PedagogosController;
+use App\Http\Controllers\AlunosController;
+use App\Http\Controllers\CalendarioController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -11,10 +13,11 @@ class DashboardController extends Controller
 {
 
     public function index(){
-       
+        //dd(CalendarioController::calendarioLetivo());
         $IDOrg = Auth::user()->id_org;
         return view('dashboard',[
             'ficha' => self::horariosProfessor(Auth::user()->id),
+            'horariosAluno' => (Auth::user()->tipo == 7) ? self::getHorariosAluno(AlunosController::getAlunoByUser(Auth::user()->id)) : [],
             'Matriculas' => self::alunos(''),
             'Alunos' => self::alunos(' AND m.Aprovado=1'),
             'Desistentes' => self::alunos(' AND a.STAluno=2'),
@@ -77,5 +80,39 @@ class DashboardController extends Controller
 
         return $turnos;
 
+    }
+
+    public static function getHorariosAluno($IDAluno){
+        $IDTurma = AlunosController::getAluno($IDAluno)->IDTurma;
+        $SQL = <<<SQL
+        SELECT 
+            t.Serie AS Serie,
+            t.Nome as Turma,
+            CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    DISTINCT
+                    '{'
+                    ,'"Inicio":"', tn.INITur, '"'
+                    ,',"Termino":"', tn.TERTur, '"'
+                    ,',"Disciplina":"', d.NMDisciplina, '"'
+                    ,',"Dia":"', tn.DiaSemana, '"'
+                    ,'}'
+                    SEPARATOR ','
+                ),
+                ']'
+            ) AS Horarios
+        FROM turnos tn
+        INNER JOIN turmas t ON tn.IDTurma = t.id
+        INNER JOIN alocacoes al ON t.IDEscola = al.IDEscola
+        INNER JOIN escolas e ON al.IDEscola = e.id
+        INNER JOIN professores p ON p.id = tn.IDProfessor
+        INNER JOIN users us ON us.IDProfissional = p.id
+        INNER JOIN disciplinas d ON d.id = tn.IDDisciplina
+        WHERE t.id = $IDTurma AND al.TPProfissional = 'PROF' 
+        GROUP BY t.id, t.Serie;
+        SQL;
+
+        return DB::select($SQL);
     }
 }
