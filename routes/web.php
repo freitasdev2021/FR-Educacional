@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecretariasController;
 use App\Http\Controllers\VagasController;
+use App\Http\Controllers\EADController;
 use App\Http\Controllers\AulasController;
 use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
@@ -132,8 +133,37 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Fichas/Respostas/Export/PDF/{id}/{IDTurma}', [FichaController::class, 'exportarRespostasPDF'])->name('Fichas/Respostas/Export/PDF');
         Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
         Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
-        //DADOS DO ALUNO
-        //LAUDOS
+        ////EAD
+        //view
+        Route::get('EAD',[EADController::class,'index'])->name('EAD/index');
+        Route::get('EAD/Instituicoes',[EADController::class,'instituicoes'])->name('EAD/Instituicoes');
+        Route::get('EAD/Cursos',[EADController::class,'cursos'])->name('EAD/Cursos');
+        Route::get('EAD/Etapas/{IDCurso}',[EADController::class,'etapas'])->name('EAD/Etapas');
+        Route::get('EAD/Aulas/{IDCurso}',[EADController::class,'aulas'])->name('EAD/Aulas');
+        //save
+        Route::post('EAD/Save',[EADController::class,'save'])->name("EAD/Save");
+        Route::post('EAD/Instituicoes/Save',[EADController::class,'saveInstituicoes'])->name('EAD/Instituicoes/Save');
+        Route::post('EAD/Aulas/Save',[EADController::class,'saveAula'])->name('EAD/Aulas/Save');
+        Route::post('EAD/Cursos/Save',[EADController::class,'saveCurso'])->name('EAD/Cursos/Save');
+        Route::post('EAD/Etapas/Save',[EADController::class,'saveEtapa'])->name('EAD/Etapas/Save');
+        //cadastro
+        Route::get('EAD/Instituicoes/Cadastro',[EADController::class,'cadastroInstituicoes'])->name('EAD/Instituicoes/Novo');
+        Route::get('EAD/Instituicoes/Cadastro/{id}',[EADController::class,'cadastroInstituicoes'])->name('EAD/Instituicoes/Edit');
+        //
+        Route::get('EAD/Aulas/Cadastro/{IDCurso}',[EADController::class,'cadastroAulas'])->name('EAD/Aulas/Novo');
+        Route::get('EAD/Aulas/Cadastro/{id}/{IDCurso}',[EADController::class,'cadastroAulas'])->name('EAD/Aulas/Edit');
+        //
+        Route::get('EAD/Cursos/Cadastro',[EADController::class,'cadastroCursos'])->name('EAD/Cursos/Novo');
+        Route::get('EAD/Cursos/Cadastro/{id}',[EADController::class,'cadastroCursos'])->name('EAD/Cursos/Edit');
+        //
+        Route::get('EAD/Etapas/Cadastro/{IDCurso}',[EADController::class,'cadastroEtapas'])->name('EAD/Etapas/Novo');
+        Route::get('EAD/Etapas/Cadastro/{id}/{IDCurso}',[EADController::class,'cadastroEtapas'])->name('EAD/Etapas/Edit');
+        //list
+        Route::get('Instituicoes/list',[EADController::class,'getInstituicoes'])->name('Instituicoes/list');
+        Route::get('Cursos/list',[EADController::class,'getCursos'])->name('EAD/Cursos/list');
+        Route::get('Etapas/list/{IDEtapa}',[EADController::class,'getEtapas'])->name('Etapas/list');
+        Route::get('Aulas/list/{IDEtapa}',[EADController::class,'getAulas'])->name('EAD/Aulas/list');
+        ////LAUDOS
         Route::get('Alunos/NEE/list/{IDAluno}',[AlunosController::class,'getNecessidades'])->name('Alunos/NEE/list');
         Route::get('Alunos/NEE/{IDAluno}',[AlunosController::class,'necessidades'])->name('Alunos/NEE');
         Route::get('Alunos/NEE/Cadastro/{IDAluno}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Novo');

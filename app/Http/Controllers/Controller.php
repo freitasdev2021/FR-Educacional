@@ -114,6 +114,22 @@ abstract class Controller
         return false;
     }
 
+    public function upload(string $file, string $url,bool $edit){
+        if(!$file){
+            return false;
+        }
+
+        if($edit){
+            $Arquivo = $request->file('RGPaisAnexo')->getClientOriginalName();
+            Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldRGPaisAnexo);
+            $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$RGPaisAnexo,'public');
+        }else{
+            $RGPaisAnexo = '';
+        }
+
+        return $Arquivo;
+    }
+
     public static function getEscolaDiretor($IDDiretor){
         $dirID = DB::select("SELECT IDProfissional FROM users WHERE id = $IDDiretor ")[0];
         $dir = Diretor::select('IDEscola')->where('id',$dirID->IDProfissional)->first();

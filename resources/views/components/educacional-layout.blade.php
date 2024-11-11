@@ -20,6 +20,7 @@
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
                   <x-modulo nome="Responsáveis" icon="bx bx-body" rota="Responsaveis/index" endereco="Responsaveis"/>
+                  <x-modulo nome="EAD" icon="bx bx-desktop" rota="EAD/index" endereco="EAD"/>
                   @if(Auth::user()->tipo == 6)
                   <x-modulo nome="Apoio" icon="bx bxs-universal-access" rota="Apoio/index" endereco="Apoio"/>
                   @endif
@@ -47,8 +48,8 @@
                   @elseif(Auth::user()->tipo == 7)
                   <x-modulo nome="Matrículas" icon="bx bxs-group" rota="Matriculas/index" endereco="Matriculas"/>
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="OcorrenciasAluno/index" endereco="OcorrenciasAluno"/>
-                  <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Aluno/Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Desempenho" icon="bx bx-pencil" rota="Desempenho/index" endereco="Desempenho"/>
+                  <x-modulo nome="EAD" icon="bx bx-desktop" rota="Calendario/index" endereco="Calendario"/>
                   @endif 
                 </div>
              </div>
