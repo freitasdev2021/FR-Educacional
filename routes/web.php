@@ -11,6 +11,7 @@ use App\Http\Controllers\OcorrenciasController;
 use App\Http\Controllers\PlanejamentosController;
 use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\RecuperacaoController;
+use App\Http\Controllers\BibliotecaController;
 use App\Http\Controllers\TurmasController;
 use App\Http\Controllers\ApoioController;
 use App\Http\Controllers\DiretoresController;
@@ -444,6 +445,25 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post('Merenda/Empenho/Save',[CardapioController::class,'saveEmpenho'])->name('Merenda/Empenho/Save');
         //AF
         Route::post('Merenda/AF/Save',[CardapioController::class,'saveAF'])->name('Merenda/AF/Save');
+        //BIBLIOTECA
+        Route::get('Biblioteca/list',[BibliotecaController::class,'getBibliotecas'])->name('Biblioteca/list');
+        Route::get('Biblioteca',[BibliotecaController::class,'index'])->name('Biblioteca/index');
+        Route::get('Biblioteca/Novo',[BibliotecaController::class,'cadastro'])->name('Biblioteca/Novo');
+        Route::get('Biblioteca/Cadastro/{id}',[BiliotecaController::class,'cadastro'])->name('Biblioteca/Edit');
+        Route::post('Biblioteca/Save',[BibliotecaController::class,'save'])->name('Biblioteca/Save');
+        //Leitores
+        Route::get('Biblioteca/Leitores/list',[BibliotecaController::class,'getBibliotecas'])->name('Biblioteca/Leitores/list');
+        Route::get('Biblioteca/Leitores',[BibliotecaController::class,'leitores'])->name('Biblioteca/Leitores/index');
+        Route::get('Biblioteca/Leitores/Novo',[BibliotecaController::class,'cadastroLeitores'])->name('Biblioteca/Leitores/Novo');
+        Route::get('Biblioteca/Leitores/Cadastro/{id}',[BiliotecaController::class,'cadastroLeitores'])->name('Biblioteca/Leitores/Edit');
+        Route::post('Biblioteca/Leitores/Save',[BibliotecaController::class,'saveLeitores'])->name('Biblioteca/Leitores/Save');
+        //Emprestimos
+        Route::get('Biblioteca/Emprestimos/list',[BibliotecaController::class,'getEmprestimos'])->name('Biblioteca/Emprestimos/list');
+        Route::get('Biblioteca/Emprestimos',[BibliotecaController::class,'emprestimos'])->name('Biblioteca/Emprestimos/index');
+        Route::get('Biblioteca/Emprestimos/Novo',[BibliotecaController::class,'cadastroEmprestimos'])->name('Biblioteca/Emprestimos/Novo');
+        Route::get('Biblioteca/Emprestimos/Cadastro/{id}',[BiliotecaController::class,'cadastroEmprestimos'])->name('Biblioteca/Emprestimos/Edit');
+        Route::post('Biblioteca/Emprestimos/Save',[BibliotecaController::class,'saveEmprestimos'])->name('Biblioteca/Emprestimos/Save');
+        //Gerar Codigo de Barras
         //
     });
     //CAMADA DE SEGURANÇA DO SECRETARIO
