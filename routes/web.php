@@ -410,6 +410,40 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Merenda/Movimentacoes/Novo',[CardapioController::class,'cadastroMovimentacoes'])->name('Merenda/Movimentacoes/Novo');
         Route::get('/Merenda/Movimentacoes/Cadastro/{id}',[CardapioController::class,'cadastroMovimentacoes'])->name('Merenda/Movimentacoes/Edit');
         Route::post('/Merenda/Movimentacoes/Save',[CardapioController::class,'saveMovimentacoes'])->name('Merenda/Movimentacoes/Save');
+        //ALIMENTOS
+        Route::get('/Merenda/Alimentos/list',[CardapioController::class,'getAlimentos'])->name('Merenda/Alimentos/list');
+        Route::get('/Merenda/Alimentos',[CardapioController::class,'alimentos'])->name('Merenda/Alimentos/index');
+        Route::get('/Merenda/Alimentos/Novo',[CardapioController::class,'cadastroAlimentos'])->name('Merenda/Alimentos/Novo');
+        Route::get('/Merenda/Alimentos/Cadastro/{id}',[CardapioController::class,'cadastroAlimentos'])->name('Merenda/Alimentos/Edit');
+        Route::post('/Merenda/Alimentos/Save',[CardapioController::class,'saveAlimentos'])->name('Merenda/Alimentos/Save');
+        //NUTRICIONISTAS
+        Route::get('/Merenda/Nutricionistas/list',[CardapioController::class,'getNutricionistas'])->name('Merenda/Nutricionistas/list');
+        Route::get('/Merenda/Nutricionistas',[CardapioController::class,'nutricionistas'])->name('Merenda/Nutricionistas/index');
+        Route::get('/Merenda/Nutricionistas/Novo',[CardapioController::class,'cadastroNutricionistas'])->name('Merenda/Nutricionistas/Novo');
+        Route::get('/Merenda/Nutricionistas/Cadastro/{id}',[CardapioController::class,'cadastroNutricionistas'])->name('Merenda/Nutricionistas/Edit');
+        Route::post('/Merenda/Nutricionistas/Save',[CardapioController::class,'saveNutricionistas'])->name('Merenda/Nutricionistas/Save');
+        //CONTRATOS
+        Route::get('/Merenda/Contratos/list',[CardapioController::class,'getContratos'])->name('Merenda/Contratos/list');
+        Route::get('/Merenda/Contratos',[CardapioController::class,'contratos'])->name('Merenda/Contratos/index');
+        Route::get('/Merenda/Contratos/Novo',[CardapioController::class,'cadastroContratos'])->name('Merenda/Contratos/Novo');
+        Route::get('/Merenda/Contratos/Cadastro/{id}',[CardapioController::class,'cadastroContratos'])->name('Merenda/Contratos/Edit');
+        Route::post('/Merenda/Contratos/Save',[CardapioController::class,'saveContratos'])->name('Merenda/Contratos/Save');
+        //RESTRICOES
+        Route::get('/Merenda/Restricoes/list',[CardapioController::class,'getRestricoes'])->name('Merenda/Restricoes/list');
+        Route::get('/Merenda/Restricoes',[CardapioController::class,'Restricoes'])->name('Merenda/Restricoes/index');
+        Route::get('/Merenda/Restricoes/Novo',[CardapioController::class,'cadastroRestricoes'])->name('Merenda/Restricoes/Novo');
+        Route::get('/Merenda/Restricoes/Cadastro/{id}',[CardapioController::class,'cadastroRestricoes'])->name('Merenda/Restricoes/Edit');
+        Route::post('/Merenda/Restricoes/Save',[CardapioController::class,'saveRestricoes'])->name('Merenda/Restricoes/Save');
+        //IMC
+        Route::get('/Merenda/IMC/list',[CardapioController::class,'getIMC'])->name('Merenda/IMC/list');
+        Route::get('/Merenda/IMC',[CardapioController::class,'IMC'])->name('Merenda/IMC/index');
+        Route::get('/Merenda/IMC/Novo',[CardapioController::class,'cadastroIMC'])->name('Merenda/IMC/Novo');
+        Route::get('/Merenda/IMC/Cadastro/{id}',[CardapioController::class,'cadastroIMC'])->name('Merenda/IMC/Edit');
+        Route::post('/Merenda/IMC/Save',[CardapioController::class,'saveIMC'])->name('Merenda/IMC/Save');
+        //EMPENHO
+        Route::post('Merenda/Empenho/Save',[CardapioController::class,'saveEmpenho'])->name('Merenda/Empenho/Save');
+        //AF
+        Route::post('Merenda/AF/Save',[CardapioController::class,'saveAF'])->name('Merenda/AF/Save');
         //
     });
     //CAMADA DE SEGURANÇA DO SECRETARIO

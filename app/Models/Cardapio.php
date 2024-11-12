@@ -13,6 +13,7 @@ class Cardapio extends Model
     protected $fillable = [
         'IDEscola',
         'Dia',
+        'Tipo',
         'Turno',
         'Descricao',
         'Foto',

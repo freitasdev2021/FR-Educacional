@@ -2318,6 +2318,71 @@ class AlunosController extends Controller
         ]);
     }
 
+    public static function getAlunosTurma($IDTurma){
+        $SQL = "SELECT
+            a.id as IDAluno, 
+            m.Nome as Nome,
+            t.Nome as Turma,
+            e.Nome as Escola,
+            t.Serie as Serie,
+            m.Nascimento as Nascimento,
+            a.STAluno,
+            m.Foto,
+            m.INEP,
+            m.Email,
+            ats.created_at as DTSituacao,
+            m.CPF,
+            resp.NMResponsavel,
+            r.ANO,
+            m.NEE,
+            m.Sexo,
+            m.created_at,
+            resp.CLResponsavel,
+            MAX(tr.Aprovado) as Aprovado,
+            cal.INIRematricula,
+            cal.TERRematricula,
+            cal.INIAno,
+            cal.TERAno,
+            r.ANO,
+            re.NMRestricao,
+            CASE WHEN cv.IDAluno IS NOT NULL THEN 'checked' ELSE '' END as Marcado
+        FROM matriculas m
+        INNER JOIN alunos a ON(a.IDMatricula = m.id)
+        LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+        INNER JOIN turmas t ON(a.IDTurma = t.id)
+        INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+        LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+        INNER JOIN escolas e ON(t.IDEscola = e.id)
+        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+        INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+        LEFT JOIN restricoes_alimentares re ON(re.IDAluno = a.id)
+        LEFT JOIN cardapio_vinculo cv ON(cv.IDAluno = a.id)
+        WHERE t.id = $IDTurma GROUP BY a.id ORDER BY m.Nome ASC 
+        ";
+        return DB::select($SQL);
+    }
+
+    public static function getAlunosTurmas(){
+        $idorg = Auth::user()->id_org;
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+
+        $SQL = "SELECT t.id as IDTurma,t.Nome as Turma,t.Serie,e.Nome as Escola FROM turmas t INNER JOIN escolas e ON(e.id = t.IDEscola) $WHERE";
+        $AlunosTurmas = [];
+        $Turmas = DB::select($SQL);
+
+        foreach($Turmas as $t){
+            $AlunosTurmas[$t->Serie." - ".$t->Turma] = self::getAlunosTurma($t->IDTurma);
+        }
+
+        return $AlunosTurmas;
+    }
+
     public function save(Request $request){
         try{
             $CDPasta = rand(0,99999999999);

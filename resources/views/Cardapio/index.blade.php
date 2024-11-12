@@ -23,6 +23,7 @@
                             <th style="text-align:center;" scope="col">Refeição</th>
                             <th style="text-align:center;" scope="col">Dia</th>
                             <th style="text-align:center;" scope="col">Turno</th>
+                            <th style="text-align:center;" scope="col">Tipo</th>
                             <th style="text-align:center;" scope="col">Opções</th>
                           </tr>
                         </thead>
