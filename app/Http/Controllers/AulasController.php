@@ -95,16 +95,23 @@ class AulasController extends Controller
     }
     //ATIVIDADES
     public function atividades(){
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
         if(in_array(Auth::user()->tipo,[6,6.5])){
             $submodulos = self::submodulosProfessor;
         }else{
             $submodulos = self::submodulos;
         }
 
-        return view('Aulas.atividades',[
+        $view = [
             'submodulos' => $submodulos,
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id)
-        ]);
+        ];
+
+        if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
+            $view['Turmas'] = EscolasController::getSelectTurmasEscola($IDEscolas);
+        }
+
+        return view('Aulas.atividades',$view);
     }
     //PROFESSORES DE ESCOLAS ESPECIFICAS
     public static function getProfessoresEscola($IDEscolas){

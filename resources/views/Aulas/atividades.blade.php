@@ -17,7 +17,7 @@
                         <select name="IDTurma" class="form-control">
                             <option value="">Filtre pela Turma</option>
                             @foreach($Turmas as $t)
-                            <option value="{{$t->IDTurma}}" {{isset($_GET['IDTurma']) && $_GET['IDTurma'] == $t->IDTurma ? 'selected' : ''}}>{{$t->Serie." - ".$t->Turma." - ".$t->Escola}}</option>
+                            <option value="{{$t->id}}" {{isset($_GET['IDTurma']) && $_GET['IDTurma'] == $t->id ? 'selected' : ''}}>{{$t->Serie}} - {{$t->Nome}}</option>
                             @endforeach
                         </select>
                     </div>
