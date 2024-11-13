@@ -286,6 +286,8 @@ class TurmasController extends Controller
 
             if($Estagio == "Ano"){
                 $andAno = "";
+                $GroupBy = "GROUP BY 
+                m.Nome, a.id, t.Periodo, d.NMDisciplina;";
                 $select = <<<SQL
                     (SELECT COUNT(f2.id) 
                     FROM frequencia f2 
@@ -308,7 +310,8 @@ class TurmasController extends Controller
                 SQL;
             }else{
                 $andAno = "AND au.Estagio = '".$Estagio."'";
-                
+                $GroupBy = "GROUP BY 
+                m.Nome, a.id, t.Periodo, d.NMDisciplina, au.Estagio;";
                 $select = <<<SQL
                 -- Soma das Notas do Aluno para a Disciplina e Estágio específicos
                     (SELECT SUM(n2.Nota) 
@@ -364,8 +367,7 @@ class TurmasController extends Controller
                 $andAno             -- Filtro para estágio (4º Bimestre)
                 AND DATE_FORMAT(au.created_at, '%Y') = $NOW -- Filtro para o ano de 2024
 
-            GROUP BY 
-                m.Nome, a.id, t.Periodo, d.NMDisciplina, au.Estagio;
+            $GroupBy
             SQL;
             $resultados = DB::select($SQL);
         }else{

@@ -183,6 +183,10 @@
 	--z-fixed: 100
 }
 
+.nav_link{
+	font-size:13px;
+}
+
 /* .dataTable tbody tr td{
 	display:flex;
 	justify-content:center;
