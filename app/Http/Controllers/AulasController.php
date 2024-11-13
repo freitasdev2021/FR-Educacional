@@ -75,16 +75,23 @@ class AulasController extends Controller
     ]);
     //LISTAGEM PRINCIPAL
     public function index(){
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
         if(in_array(Auth::user()->tipo,[6,6.5])){
             $submodulos = self::submodulosProfessor;
         }else{
             $submodulos = self::submodulos;
         }
 
-        return view('Aulas.index',[
+        $view = [
             'submodulos' => $submodulos,
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id)
-        ]);
+        ];
+
+        if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
+            $view['Turmas'] = EscolasController::getSelectTurmasEscola($IDEscolas);
+        }
+
+        return view('Aulas.index',$view);
     }
     //ATIVIDADES
     public function atividades(){
@@ -99,20 +106,50 @@ class AulasController extends Controller
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id)
         ]);
     }
+    //PROFESSORES DE ESCOLAS ESPECIFICAS
+    public static function getProfessoresEscola($IDEscolas){
+        $orgId = Auth::user()->id_org;
+        $AND = " AND a.IDEscola IN(".implode(",",$IDEscolas).")";
+        $SQL = <<<SQL
+        SELECT 
+            p.id AS IDProfessor,
+            p.Nome AS Professor,
+            us.id as USProfessor
+        FROM professores p
+        INNER JOIN alocacoes a ON a.IDProfissional = p.id
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN escolas e ON e.id = a.IDEscola
+        INNER JOIN organizacoes o ON e.IDOrg = o.id
+        WHERE o.id = $orgId $AND AND a.TPProfissional = "PROF"
+        GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
+        SQL;
+
+        return DB::select($SQL);
+    }
     //CADASTRO DE AULAS
     public function cadastro($id=null){
-
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+        //dd(self::getProfessoresEscola($IDEscolas));
         if(in_array(Auth::user()->tipo,[6,6.5])){
             $submodulos = self::submodulosProfessor;
         }else{
             $submodulos = self::submodulos;
         }
 
+        //
+        
+        //
+
         $view = [
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
             'submodulos' => $submodulos,
             'id' => ''
         ];
+
+        if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
+            $view['Professores'] = self::getProfessoresEscola($IDEscolas);
+            $view['Turmas'] = EscolasController::getSelectTurmasEscola($IDEscolas);
+        }
 
         if($id){
             $SQL = <<<SQL
@@ -304,7 +341,12 @@ class AulasController extends Controller
                 $mensagem = 'Aula Encerrada com Sucesso!';
             }else{
                 $AulaData = $request->all();
-                $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
+                if(Auth::user()->tipo == 6){
+                    $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
+                }else{
+                    $AulaData['IDProfessor'] = $request->IDProfessor;
+                }
+                
                 foreach($request->IDDisciplina as $d){
                     $AulaData['IDDisciplina'] = $d;
                     $AulaData['DSAula'] = $request->DSAula." - ".Disciplina::find($d)->NMDisciplina;

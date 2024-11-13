@@ -7,7 +7,7 @@
         </div>
         <div class="fr-card-body">
             <!--CABECALHO-->
-            @if(Auth::user()->tipo == 6)
+            @if(in_array(Auth::user()->tipo,[6,4,4.5,5.5,5]))
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
                     <a href="{{route('Aulas/Novo')}}" class="btn btn-fr">Adicionar</a>
@@ -17,7 +17,7 @@
                         <select name="IDTurma" class="form-control">
                             <option value="">Filtre pela Turma</option>
                             @foreach($Turmas as $t)
-                            <option value="{{$t->IDTurma}}" {{isset($_GET['IDTurma']) && $_GET['IDTurma'] == $t->IDTurma ? 'selected' : ''}}>{{$t->Serie." - ".$t->Turma." - ".$t->Escola}}</option>
+                            <option value="{{$t->id}}" {{isset($_GET['IDTurma']) && $_GET['IDTurma'] == $t->id ? 'selected' : ''}}>{{$t->Serie}} - {{$t->Nome}}</option>
                             @endforeach
                         </select>
                     </div>

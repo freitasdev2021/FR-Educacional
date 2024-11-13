@@ -59,15 +59,28 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '6' : '3'}}">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma" {{(isset($Registro->IDTurma)) ? 'disabled' : 'required'}}>
                                 <option value="">Selecione</option>
                                 @foreach($Turmas as $t)
-                                <option value="{{$t->IDTurma}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->IDTurma ? 'selected' : ''}}>{{$t->Turma." (".$t->Serie ." - ".$t->Escola.")"}}</option>
+                                <option value="{{$t->id}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->IDTurma ? 'selected' : ''}}>{{$t->Nome}} - {{$t->Serie}}</option>
                                 @endforeach
                             </select>
                         </div>
+                        @if(in_array(Auth::user()->tipo,[4,5,4.5,5.5]))
+                        <div class="col-sm-3">
+                            <label>Professor</label>
+                            <select class="form-control" name="IDProfessor" {{(isset($Registro->IDProfessor)) ? 'disabled' : 'required'}}>
+                                <option value="">Selecione</option>
+                                @if(Auth::user()->tipo == 6)
+                                @foreach($Professores as $p)
+                                <option value="{{$p->USProfessor}}" {{isset($Registro->IDProfessor) && $Registro->IDProfessor == $p->IDProfessor ? 'selected' : ''}}>{{$p->Professor}}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        @endif
                         <div class="col-sm-3">
                             <label>Conteúdo</label>
                             <input type="text" name="DSConteudo" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}" class="form-control" {{(isset($Registro->DSConteudo)) ? 'disabled' : 'required'}}>
@@ -116,11 +129,13 @@
                         <a class="btn btn-light col-auto" href="{{route('Aulas/index')}}">Voltar</a>
                     </div>
                 </form>
+                @if(Auth::user()->tipo == 6)
                 <script>
                     $("input[name=todosPresentes]").on("change",function(){
                         $('input[name="Chamada[]"]').prop('checked', $(this).prop('checked'));
                     })
                     //SELECIONA AS DISCIPLINAS
+                    
                     $("select[name=IDTurma]").on("change",function(){
                        $.ajax({
                           method : 'GET',
@@ -161,7 +176,43 @@
                     //     $("input[name=DSConteudo]").attr("value",$(this).val())
                     // })
                     //
-                </script>    
+                </script> 
+                @else
+                <script>
+                    $("input[name=todosPresentes]").on("change",function(){
+                        $('input[name="Chamada[]"]').prop('checked', $(this).prop('checked'));
+                    })
+                    //SELECIONA AS DISCIPLINAS
+                    
+                    $("select[name=IDProfessor]").on("change",function(){
+                        //alert($(this).val())
+                       $.ajax({
+                          method : 'GET',
+                          url : "/Professores/DisciplinasProfessor/"+$("select[name=IDTurma]").val()+"/"+$(this).val()
+                       }).done(function(response){
+                          $(".disciplinas").html(response)
+                       })
+
+                       $.ajax({
+                          method : 'GET',
+                          url : "/Aulas/ListaAlunos/"+$("select[name=IDTurma]").val()
+                       }).done(function(alun){
+                        //console.log(alun)
+                          $("#presencas").html(alun)
+                       })
+
+                    })
+
+                    $("select[name=IDTurma]").on("change",function(){
+                        $.ajax({
+                          method : 'GET',
+                          url : "/Professores/Turmas/"+$(this).val()
+                       }).done(function(turmas){
+                          $("select[name=IDProfessor]").html(turmas)
+                       })
+                    })
+                </script> 
+                @endif  
             </div>
             <!--//-->
         </div>

@@ -92,10 +92,34 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     });
     //CAMADA DE SEGURANÇA SECRETARIO E PROFESSOR
     Route::middleware('secretarioProfessor')->group(function(){
-        Route::get('/Professores/DisciplinasProfessor/{IDTurma}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
+        //Route::get('/Professores/DisciplinasProfessor/{IDTurma}/{IDProfessor?}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
+        //AULAS
+        Route::get('Professores/Turmas/{IDTurma}',[EscolasController::class,'getProfessoresTurmaHTML'])->name('Professores/Turmas');
+        Route::get('/Professores/DisciplinasProfessor/{IDTurma}/{IDProfessor?}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
+        Route::get('/Aulas/Presenca/Todos/{IDAula}',[AulasController::class,'presencaTodos'])->name('Aulas/Presenca/Todos');
+        Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
+        Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
+        Route::get('/Aulas/ListaAlunos/{IDTurma}',[AulasController::class,'getHtmlAlunosChamada'])->name('Aulas/ListaAlunos');
+        Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca');
+        Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
+        Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
+        Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo');
+        Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
+        Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
+        Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
+        Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');
+        //ATIVIDADES
+        Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
+        Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');
+        Route::get('/Aulas/Atividades/Novo',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Novo');
+        Route::get('/Aulas/Atividades/Cadastro/{id}',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Edit');
+        Route::get('/Aulas/Atividades/Exclusao/{id}',[AulasController::class,'excluirAtividade'])->name('Aulas/Atividades/Exclusao');
+        Route::get('/Aulas/Atividades/Correcao/{id}',[AulasController::class,'correcaoAtividades'])->name('Aulas/Atividades/Correcao');
+        Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save');
+        Route::post('/Aulas/Atividades/setNota',[AulasController::class,'setNota'])->name('Aulas/Atividades/setNota');
         Route::get('Secretaria/LivroPonto',[SecretariasController::class,'getLivroPonto'])->name('Secretaria/LivroPonto');
         //FICHA INDIVIDUAL
         Route::get('Alunos/Relatorio/Teste',[RelatoriosController::class,'getAlunosTurmasEditavel'])->name('Alunos/Relatorio/Teste');
@@ -216,28 +240,6 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Aulas/Recuperacao/Edit/{id}',[RecuperacaoController::class,'cadastro'])->name("Aulas/Recuperacao/Edit");
         Route::get('Aulas/Recuperacao/list',[RecuperacaoController::class,'getRecuperacoes'])->name("Aulas/Recuperacao/list");
         Route::post('Aulas/Recuperacao/Save',[RecuperacaoController::class,'save'])->name("Aulas/Recuperacao/Save");
-        //AULAS
-        Route::get('/Aulas/Presenca/Todos/{IDAula}',[AulasController::class,'presencaTodos'])->name('Aulas/Presenca/Todos');
-        Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
-        Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
-        Route::get('/Aulas/ListaAlunos/{IDTurma}',[AulasController::class,'getHtmlAlunosChamada'])->name('Aulas/ListaAlunos');
-        Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca')->middleware('professor');
-        Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
-        Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
-        Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo')->middleware('professor');
-        Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
-        Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
-        Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
-        Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');
-        //ATIVIDADES
-        Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
-        Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');
-        Route::get('/Aulas/Atividades/Novo',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Novo')->middleware('professor');
-        Route::get('/Aulas/Atividades/Cadastro/{id}',[AulasController::class,'cadastroAtividades'])->name('Aulas/Atividades/Edit');
-        Route::get('/Aulas/Atividades/Exclusao/{id}',[AulasController::class,'excluirAtividade'])->name('Aulas/Atividades/Exclusao')->middleware('professor');
-        Route::get('/Aulas/Atividades/Correcao/{id}',[AulasController::class,'correcaoAtividades'])->name('Aulas/Atividades/Correcao');
-        Route::post('/Aulas/Atividades/Save',[AulasController::class,'saveAtividades'])->name('Aulas/Atividades/Save')->middleware('professor');
-        Route::post('/Aulas/Atividades/setNota',[AulasController::class,'setNota'])->name('Aulas/Atividades/setNota')->middleware('professor');
         //OCORRENCIAS
         Route::get('Ocorrencias/list/{IDAluno?}',[OcorrenciasController::class,'getOcorrencias'])->name('Ocorrencias/list');
         Route::get('Ocorrencias',[OcorrenciasController::class,'index'])->name('Ocorrencias/index');

@@ -361,6 +361,28 @@ class EscolasController extends Controller
         return DB::select($SQL);
     }
 
+    public function getProfessoresTurmaHTML($IDTurma){
+        $AND = " AND tn.IDTurma = ".$IDTurma;
+
+        $SQL = "SELECT 
+            p.Nome as Professor,us.id as USProfessor 
+        FROM professores p 
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN turnos tn ON(p.id = tn.IDProfessor)
+        WHERE us.Tipo = 6 $AND";
+
+        $Query = DB::select($SQL);
+        ob_start();
+        echo "<option value=''>Selecione</option>";
+        foreach($Query as $q){
+        ?>
+        <option value="<?=$q->USProfessor?>"><?=$q->Professor?></option>
+        <?php
+        }
+
+        return ob_get_clean();
+    }
+
     public static function getProfessorDisciplina($IDDisciplina,$IDTurma){
         $SQL = <<<SQL
         SELECT
@@ -680,6 +702,10 @@ class EscolasController extends Controller
         }
 
         return $IDTurmas;
+    }
+
+    public static function getSelectTurmasEscola($IDEscolas){
+        return Turma::whereIn("IDEscola",$IDEscolas)->get();
     }
 
     public function getCurrentTurmasEscola(){

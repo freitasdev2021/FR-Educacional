@@ -299,7 +299,7 @@ a {
 .nav_link {
 	position: relative;
 	color: var(--first-color-light);
-	margin-bottom: 5%;
+	margin-bottom: 3%;
 	transition: .3s
 }
 

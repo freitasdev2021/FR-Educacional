@@ -411,8 +411,8 @@ class ProfessoresController extends Controller
     public static function getTurmasProfessor($id){
         $SQL = <<<SQL
         SELECT 
-            t.id as IDTurma,
-            t.Nome as Turma,
+            t.id,
+            t.Nome,
             t.Serie,
             e.Nome as Escola
         FROM turnos tn
@@ -429,8 +429,14 @@ class ProfessoresController extends Controller
 
     }
 
-    public function getDisciplinasTurmaProfessor($IDTurma){
-        $id = Auth::user()->id;
+    public function getDisciplinasTurmaProfessor($IDTurma,$IDProfessor=null){
+        
+        if(Auth::user()->tipo == 6){
+            $id = Auth::user()->id;   
+        }else{
+            $id = $IDProfessor;
+        }
+
         $SQL = <<<SQL
         SELECT
             d.id as IDDisciplina,
@@ -454,6 +460,7 @@ class ProfessoresController extends Controller
         <?php
         }
         return ob_get_clean();
+        //return json_encode(DB::select($SQL));
     }
 
     public function saveTurno(Request $request){
