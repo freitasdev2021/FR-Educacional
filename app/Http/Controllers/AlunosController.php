@@ -330,6 +330,8 @@ class AlunosController extends Controller
             $Turno = "no Turno Manhã";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
             $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
         }
         //        
         $Ano = date('Y');
@@ -457,6 +459,8 @@ class AlunosController extends Controller
             $Turno = "no Turno Manhã";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
             $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
         }
         //        
         $Ano = date('Y');
@@ -481,13 +485,14 @@ class AlunosController extends Controller
     }
 
     public static function getFrequenciaEscolarAluno($IDAluno){
+        $Ano = date('Y');
         $SQL = <<<SQL
             SELECT 
             (SELECT COUNT(f2.id) 
             FROM frequencia f2 
             INNER JOIN aulas au2 ON au2.id = f2.IDAula 
             WHERE f2.IDAluno = a.id 
-            AND DATE_FORMAT(au2.created_at, '%Y') = 2024
+            AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
             ) as FrequenciaAno
         FROM 
             alunos a
@@ -502,11 +507,15 @@ class AlunosController extends Controller
         INNER JOIN 
             notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
         WHERE 
-            DATE_FORMAT(au.created_at, '%Y') = 2024 AND a.id = $IDAluno
+            DATE_FORMAT(au.created_at, '%Y') = $Ano AND a.id = $IDAluno
         GROUP BY a.id
         SQL;
 
-        return DB::Select($SQL)[0];
+        if(isset(DB::Select($SQL)[0])){
+            return DB::Select($SQL)[0]->FrequenciaAno;
+        }else{
+            return 0;
+        }
     }
 
     public static function getPreMatricula($IDAluno){
@@ -622,7 +631,7 @@ class AlunosController extends Controller
         $pdf->AddPage(); // Adiciona uma página
         $Aluno = self::getAluno($IDAluno); 
         $Escola = Escola::find($Aluno->IDEscola);
-        $FrequenciaEscolar = self::getFrequenciaEscolarAluno($Aluno->IDAluno)->FrequenciaAno;
+        $FrequenciaEscolar = self::getFrequenciaEscolarAluno($Aluno->IDAluno);
         $PorcentagemFrequencia = ($FrequenciaEscolar/200) * 100 ."%";
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
@@ -654,6 +663,8 @@ class AlunosController extends Controller
             $Turno = "no Turno Manhã";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
             $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
         }
         $Ano = date('Y');
         // Inserir o texto da declaração
@@ -985,6 +996,8 @@ class AlunosController extends Controller
             $Turno = "no Turno Manhã";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
             $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
         }
         // Inserir o texto da declaração
         $declaracao = "Atestamos que $Aluno->NMResponsavel Responsavel pelo(a) Aluno(a) $Aluno->Nome, matriculado(a) na turma $Aluno->Turma $Aluno->Serie do turno $Turno, esteve presente na escola na data e horário especificados.";
@@ -1040,6 +1053,8 @@ class AlunosController extends Controller
             $Turno = "no Turno Manhã";
         } elseif (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))) {
             $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
         }
 
         // Texto do termo
