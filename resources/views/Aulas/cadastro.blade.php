@@ -21,21 +21,15 @@
                     </div>
                     <br>
                     @endif
-                    @if(isset($Registro->STAula) && $Registro->STAula == 2)
-                    <div class="col-sm-12 shadow p-2 bg-warning">
-                        <strong>Aula Encerrada</strong>
-                    </div>
-                    <br>
-                    @endif
-                    @if(isset($Registro->IDAula))
-                    <input type="hidden" name="id" value="{{$Registro->IDAula}}">
+                    @if(!empty($id))
+                    <input type="hidden" name="id" value="{{$id}}">
                     @endif
                     <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
                         <div class="col-sm-3">
                             <label>Etapa</label>
-                            <select name="Estagio" class="form-control" {{(isset($Registro)) ? 'disabled' : 'required'}}>
+                            <select name="Estagio" class="form-control">
                                 <optgroup label="Bimestre">
                                     <option value="1º BIM" {{isset($Registro) && $Registro->Estagio == "1º BIM" ? 'selected' : ''}}>1º Bimestre</option>
                                     <option value="2º BIM" {{isset($Registro) && $Registro->Estagio == "2º BIM" ? 'selected' : ''}}>2º Bimestre</option>
@@ -61,17 +55,17 @@
                         </div>
                         <div class="col-sm-{{(Auth::user()->tipo == 6) ? '6' : '3'}}">
                             <label>Turma</label>
-                            <select class="form-control" name="IDTurma" {{(isset($Registro->IDTurma)) ? 'disabled' : 'required'}}>
+                            <select class="form-control" name="IDTurma">
                                 <option value="">Selecione</option>
                                 @foreach($Turmas as $t)
-                                <option value="{{$t->id}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->IDTurma ? 'selected' : ''}}>{{$t->Nome}} - {{$t->Serie}}</option>
+                                <option value="{{$t->id}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Nome}} - {{$t->Serie}}</option>
                                 @endforeach
                             </select>
                         </div>
                         @if(in_array(Auth::user()->tipo,[4,5,4.5,5.5]))
                         <div class="col-sm-3">
                             <label>Professor</label>
-                            <select class="form-control" name="IDProfessor" {{(isset($Registro->IDProfessor)) ? 'disabled' : 'required'}}>
+                            <select class="form-control" name="IDProfessor">
                                 <option value="">Selecione</option>
                                 @if(Auth::user()->tipo == 6)
                                 @foreach($Professores as $p)
@@ -83,17 +77,17 @@
                         @endif
                         <div class="col-sm-3">
                             <label>Conteúdo</label>
-                            <input type="text" name="DSConteudo" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}" class="form-control" {{(isset($Registro->DSConteudo)) ? 'disabled' : 'required'}}>
+                            <input type="text" name="DSConteudo" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}" class="form-control">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-6">
                             <label>Data da Aula</label>
-                            <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" {{(isset($Registro->DTAula)) ? 'disabled' : 'required'}}>
+                            <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" >
                         </div>
                         <div class="col-sm-6">
                             <label>Descrição da Aula</label>
-                            <textarea name="DSAula" class="form-control" {{(isset($Registro->DSAula)) ? 'disabled' : 'required'}}>{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
+                            <textarea name="DSAula" class="form-control">{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
                         </div>
                     </div>
                     <br>
@@ -123,7 +117,7 @@
                     @endif
                     <div class="col-sm-12 text-left row">
                         @if(!isset($Registro->STAula) || $Registro->STAula < 2)
-                        <button type="submit" class="btn {{(isset($Registro->STAula) && $Registro->STAula == 1) ? 'btn-danger' : 'btn-fr'}} col-auto">{{(isset($Registro->STAula) && $Registro->STAula == 1) ? 'Encerrar' : 'Salvar'}}</button>
+                        <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         @endif
                         &nbsp;
                         <a class="btn btn-light col-auto" href="{{route('Aulas/index')}}">Voltar</a>
@@ -185,12 +179,15 @@
                     //SELECIONA AS DISCIPLINAS
                     
                     $("select[name=IDProfessor]").on("change",function(){
+                        IDAula = "{{$id}}";
                         //alert($(this).val())
                        $.ajax({
                           method : 'GET',
                           url : "/Professores/DisciplinasProfessor/"+$("select[name=IDTurma]").val()+"/"+$(this).val()
                        }).done(function(response){
-                          $(".disciplinas").html(response)
+                            if(!IDAula){
+                                $(".disciplinas").html(response)
+                            }
                        })
 
                        $.ajax({
@@ -213,6 +210,18 @@
                     })
                 </script> 
                 @endif  
+                @if(!empty($id) && Auth::user()->tipo!=6)
+                <script>
+                    var IDProfessor = "{{ $Registro->IDProfessor }}"
+                    $.ajax({
+                        method : 'GET',
+                        url : "/Professores/Turmas/"+$("select[name=IDTurma]").val()
+                    }).done(function(turmas){
+                        $("select[name=IDProfessor]").html(turmas)
+                        $("select[name=IDProfessor]").val(IDProfessor)
+                    })
+                </script>
+                @endif
             </div>
             <!--//-->
         </div>

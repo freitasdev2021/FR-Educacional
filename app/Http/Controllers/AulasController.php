@@ -169,14 +169,19 @@ class AulasController extends Controller
                 d.id as IDDisciplina,
                 a.DSConteudo,
                 a.Estagio,
-                a.DTAula
+                a.DTAula,
+                a.id as IDTurma,
+                us.id as IDProfessor
             FROM aulas a
+            INNER JOIN users us ON(us.IDProfissional = a.IDProfessor)
             INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
             INNER JOIN turmas t ON(t.id = a.IDTurma)
             WHERE a.id = $id
             SQL;
 
-            $aula = DB::select($SQL)[0];
+            //dd($SQL);
+
+            $aula = Aulas::find($id);
             $view['id'] = $id;
             $view['Registro'] = $aula;
             $view['submodulos'] = self::cadastroSubmodulos;
@@ -338,16 +343,23 @@ class AulasController extends Controller
     //
     public function save(Request $request){
         try{
+            $AulaData = $request->all();
             if($request->id){
+                //dd($AulaData);
                 $rout = 'Aulas/Edit';
                 Aulas::find($request->id)->update([
-                    'STAula' => 2
+                    "DTAula" => $request->DTAula,
+                    "Estagio" => $request->Estagio,
+                    "IDTurma" => $request->IDTurma,
+                    "DSConteudo" => $request->DSConteudo,
+                    "DSAula" => $request->DSAula,
+                    "IDProfessor" => $request->IDProfessor,
                 ]);
+
                 $aid = $request->id;
                 $status = 'success';
-                $mensagem = 'Aula Encerrada com Sucesso!';
+                $mensagem = 'Aula Atualizada com Sucesso!';
             }else{
-                $AulaData = $request->all();
                 if(Auth::user()->tipo == 6){
                     $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
                 }else{
