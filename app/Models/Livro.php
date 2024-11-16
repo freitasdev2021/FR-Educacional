@@ -16,6 +16,7 @@ class Livro extends Model
         "IDCodigo",
         "Leitor",
         "Editora",
+        "Autor",
         "Classificacao"
     ];
 }

@@ -451,21 +451,23 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Biblioteca/list',[BibliotecaController::class,'getBibliotecas'])->name('Biblioteca/list');
         Route::get('Biblioteca',[BibliotecaController::class,'index'])->name('Biblioteca/index');
         Route::get('Biblioteca/Novo',[BibliotecaController::class,'cadastro'])->name('Biblioteca/Novo');
-        Route::get('Biblioteca/Cadastro/{id}',[BiliotecaController::class,'cadastro'])->name('Biblioteca/Edit');
+        Route::get('Biblioteca/Cadastro/{id}',[BibliotecaController::class,'cadastro'])->name('Biblioteca/Edit');
         Route::post('Biblioteca/Save',[BibliotecaController::class,'save'])->name('Biblioteca/Save');
         //Leitores
-        Route::get('Biblioteca/Leitores/list',[BibliotecaController::class,'getBibliotecas'])->name('Biblioteca/Leitores/list');
+        Route::get('Biblioteca/Leitores/list',[BibliotecaController::class,'getLeitores'])->name('Biblioteca/Leitores/list');
         Route::get('Biblioteca/Leitores',[BibliotecaController::class,'leitores'])->name('Biblioteca/Leitores/index');
         Route::get('Biblioteca/Leitores/Novo',[BibliotecaController::class,'cadastroLeitores'])->name('Biblioteca/Leitores/Novo');
-        Route::get('Biblioteca/Leitores/Cadastro/{id}',[BiliotecaController::class,'cadastroLeitores'])->name('Biblioteca/Leitores/Edit');
+        Route::get('Biblioteca/Leitores/Cadastro/{id}',[BibliotecaController::class,'cadastroLeitores'])->name('Biblioteca/Leitores/Edit');
         Route::post('Biblioteca/Leitores/Save',[BibliotecaController::class,'saveLeitores'])->name('Biblioteca/Leitores/Save');
         //Emprestimos
         Route::get('Biblioteca/Emprestimos/list',[BibliotecaController::class,'getEmprestimos'])->name('Biblioteca/Emprestimos/list');
         Route::get('Biblioteca/Emprestimos',[BibliotecaController::class,'emprestimos'])->name('Biblioteca/Emprestimos/index');
         Route::get('Biblioteca/Emprestimos/Novo',[BibliotecaController::class,'cadastroEmprestimos'])->name('Biblioteca/Emprestimos/Novo');
-        Route::get('Biblioteca/Emprestimos/Cadastro/{id}',[BiliotecaController::class,'cadastroEmprestimos'])->name('Biblioteca/Emprestimos/Edit');
+        Route::get('Biblioteca/Emprestimos/Cadastro/{id}',[BibliotecaController::class,'cadastroEmprestimos'])->name('Biblioteca/Emprestimos/Edit');
         Route::post('Biblioteca/Emprestimos/Save',[BibliotecaController::class,'saveEmprestimos'])->name('Biblioteca/Emprestimos/Save');
         //Gerar Codigo de Barras
+        Route::get('Biblioteca/GerarEtiquetas',[BibliotecaController::class,'gerarEtiquetas'])->name('Biblioteca/GerarEtiquetas');
+        Route::get('Biblioteca/DevolverLivro/{IDEmprestimo}',[BibliotecaController::class,'devolverLivro'])->name('Biblioteca/DevolverLivro');
         //
     });
     //CAMADA DE SEGURANÇA DO SECRETARIO

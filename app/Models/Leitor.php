@@ -14,6 +14,8 @@ class Leitor extends Model
     protected $fillable = [
         "Nome",
         "Nascimento",
-        "EnderecoJSON"
+        "EnderecoJSON",
+        "Cargo",
+        "IDOrg"
     ];
 }

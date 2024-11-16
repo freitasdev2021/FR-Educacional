@@ -15,6 +15,7 @@ class Emprestimo extends Model
         "IDLeitor",
         "IDLivro",
         "Observacoes",
-        "Devolucao"
+        "Devolucao",
+        "STEmprestimo"
     ];
 }

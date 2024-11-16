@@ -12,6 +12,7 @@ class BARCode extends Model
     protected $table = "cod_livros";
 
     protected $fillable = [
-        "Codigo"
+        "Codigo",
+        "IDOrg"
     ];
 }

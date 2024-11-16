@@ -40,7 +40,7 @@
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
                   {{-- <x-modulo nome="Responsaveis" icon="bx bx-male-female" rota="Responsaveis/index" endereco="Responsaveis"/> --}}
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
-                  <x-modulo nome="Biblioteca" icon="bx bx-book" rota="Biblioteca/index" endereco="Bilioteca"/>
+                  <x-modulo nome="Biblioteca" icon="bx bx-book" rota="Biblioteca/index" endereco="Biblioteca"/>
                   <x-modulo nome="Funcionários" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   @if(in_array(Auth::user()->tipo,[5]))<x-modulo nome="Endereços" icon="bx bx-street-view" rota="Enderecos/index" endereco="Enderecos"/>@endif
