@@ -269,5 +269,24 @@
           @endforeach
        </div>
     </div>
+    @elseif(Auth::user()->tipo == 8)
+    <table class="table table-striped">
+      <thead>
+         <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Opções</th>
+         </tr>
+      </thead>
+      <tbody>
+         @foreach($Processos as $p)
+         <tr>
+            <th>{{$p->Nome}}</th>
+            <th>{{$p->Descricao}}</th>
+            <th><a href="{{route("Candidatura/Inscrever",$p->id)}}">Inscrever</a></th>
+         </tr>
+         @endforeach
+      </tbody>
+    </table>
     @endif
  </x-educacional-layout>

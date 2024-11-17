@@ -26,6 +26,7 @@
                   @endif
                   @endif
                   @if(in_array(Auth::user()->tipo,[2,2.5]))
+                  <x-modulo nome="Recrutamento" icon="bx bxs-notepad" rota="Recrutamento/index" endereco="Recrutamento"/>
                   <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>
                   @endif
                   @if(Auth::user()->tipo == 0)
@@ -51,7 +52,9 @@
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="OcorrenciasAluno/index" endereco="OcorrenciasAluno"/>
                   <x-modulo nome="Desempenho" icon="bx bx-pencil" rota="Desempenho/index" endereco="Desempenho"/>
                   <x-modulo nome="EAD" icon="bx bx-desktop" rota="Calendario/index" endereco="Calendario"/>
-                  @endif 
+                  @elseif(in_array(Auth::user()->tipo,[8]))
+                  <x-modulo nome="Candidatura" icon="bx bx-user" rota="Candidatura/index" endereco="Candidatura"/>
+                  @endif
                 </div>
              </div>
              <form action="{{route('logout')}}" method="POST">

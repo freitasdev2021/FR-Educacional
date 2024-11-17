@@ -23,7 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
             "diretor" => \App\Http\Middleware\diretor::class,
             "pedagogo" => \App\Http\Middleware\pedagogo::class,
             "coordenador" => \App\Http\Middleware\coordenador::class,
-            "STAcesso" => \App\Http\Middleware\STAcesso::class
+            "STAcesso" => \App\Http\Middleware\STAcesso::class,
+            "candidato" => \App\Http\Middleware\candidato::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

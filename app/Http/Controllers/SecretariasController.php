@@ -138,6 +138,10 @@ class SecretariasController extends Controller
         return $IDAlunos;
     }
 
+    public static function getOrg($IDOrg){
+        return Organizacao::find($IDOrg);
+    }
+
     public function cadastroAdministradores($id=null){
 
         $view = [

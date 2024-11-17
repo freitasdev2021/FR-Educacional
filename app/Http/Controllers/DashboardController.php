@@ -6,16 +6,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\PedagogosController;
 use App\Http\Controllers\AlunosController;
 use App\Http\Controllers\CalendarioController;
+use App\Models\ProcessoSeletivo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Candidato;
 class DashboardController extends Controller
 {
 
     public function index(){
         //dd(CalendarioController::calendarioLetivo());
         $IDOrg = Auth::user()->id_org;
-        return view('dashboard',[
+        $view = [
             'ficha' => self::horariosProfessor(Auth::user()->id),
             'horariosAluno' => (Auth::user()->tipo == 7) ? self::getHorariosAluno(AlunosController::getAlunoByUser(Auth::user()->id)) : [],
             'Matriculas' => self::alunos(''),
@@ -30,7 +32,16 @@ class DashboardController extends Controller
             'AMedico' => self::alunos(' AND m.AMedico > 0'),
             'APsicologico' => self::alunos(' AND m.APsicologico > 0'),
             'Usuarios' => DB::select("SELECT COUNT(u.id) as Usuarios FROM users u WHERE id_org=$IDOrg")[0]
-        ]);
+        ];
+
+        if(Auth::user()->tipo == 8){
+            $IDUser = Auth::user()->id;
+            $Candidatura = Candidato::where('IDUser',$IDUser)->first();
+            $IDCandidato = $Candidatura->id;
+            $view['Processos'] = DB::select("SELECT ps.id,ps.Nome,ps.Descricao FROM processos_seletivos ps LEFT JOIN inscricoes i ON(ps.id = i.IDProcesso) WHERE i.IDCandidato IS NULL");
+        }
+
+        return view('dashboard',$view);
     }
 
     public static function alunos($WHERE){

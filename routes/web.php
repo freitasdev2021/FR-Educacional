@@ -18,6 +18,7 @@ use App\Http\Controllers\DiretoresController;
 use App\Http\Controllers\DiarioController;
 use App\Http\Controllers\RelatoriosController;
 use App\Http\Controllers\ProfessoresController;
+use App\Http\Controllers\RecrutamentoController;
 use App\Http\Controllers\CardapioController;
 use App\Http\Controllers\PedagogosController;
 use App\Http\Controllers\ResponsaveisController;
@@ -34,6 +35,9 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('Recrutamento/Registro/{Orgao}/{ID}',[RecrutamentoController::class,'registro'])->name('Recrutamento/Registro');
+Route::patch("Recrutamento/Registrar/{IDOrg}",[RecrutamentoController::class,'registrar'])->name('Recrutamento/Registrar');
 
 Route::middleware(['auth','STAcesso'])->group(function () {
     Route::get('/',[DashboardController::class,'index'])->name('dashboard'); //DASHBOARD COMUM A TODOS
@@ -490,6 +494,25 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //PEDAGOGOS
         Route::get('/Pedagogos/Novo',[PedagogosController::class,'cadastro'])->name('Pedagogos/Novo');
         Route::post('/Pedagogos/Save',[PedagogosController::class,'save'])->name('Pedagogos/Save');
+        //PROCESSO SELETIVO
+        Route::get('Recrutamento/list',[RecrutamentoController::class,'getRecrutamento'])->name('Recrutamento/list');
+        Route::get('Recrutamento',[RecrutamentoController::class,'index'])->name('Recrutamento/index');
+        Route::get('Recrutamento/Cadastro',[RecrutamentoController::class,'cadastro'])->name('Recrutamento/Novo');
+        Route::get('Recrutamento/Cadastro/{id}',[RecrutamentoController::class,'cadastro'])->name('Recrutamento/Edit');
+        Route::post('Recrutamentos/Save',[RecrutamentoController::class,'save'])->name('Recrutamento/Save');
+        //INSCRITOS
+        Route::get('Recrutamento/Inscritos',[RecrutamentoController::class,'inscritos'])->name('Recrutamento/Inscritos/index');
+        Route::get('Recrutamento/Inscritos/list',[RecrutamentoController::class,'getInscritos'])->name('Recrutamento/Inscritos/list');
+    });
+    //CAMADA DE PROTEÇÃO DO CANDIDATO
+    Route::middleware('candidato')->group(function(){
+        //CANDIDATURA
+        Route::get('Candidatura/Inscrever/{id}',[RecrutamentoController::class,'inscrever'])->name('Candidatura/Inscrever');
+        Route::get('Candidatura',[RecrutamentoController::class,'candidatura'])->name('Candidatura/index');
+        Route::post('Candidatura/Save',[RecrutamentoController::class,'saveCandidatura'])->name('Candidatura/Save');
+        Route::post('Candidatura/Anexo/Save',[RecrutamentoController::class,'saveAnexo'])->name('Candidatura/Anexo/Save');
+        Route::post('Candidatura/Curso/Save',[RecrutamentoController::class,'saveCurso'])->name('Candidatura/Curso/Save');
+        //
     });
     //CAMADA DE SEGURANÇA DO PORTAL DO ALUNO
     Route::middleware('aluno')->group(function(){
