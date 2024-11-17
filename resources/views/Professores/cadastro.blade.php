@@ -106,7 +106,7 @@
                     </div>
                     @endif
                     <br>
-                    <label>Turnos</label>
+                    <label>Escolas Atuantes</label>
                     <div class="checkboxTurnos">
                         @foreach($EscolasRegistradas as $key => $e)
                             <div class="form-check turno">

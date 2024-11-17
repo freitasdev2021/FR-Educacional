@@ -10,6 +10,7 @@ use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Http\Controllers\PedagogosController;
 use App\Models\Alocacao;
 use App\Models\User;
+use App\Models\Contrato;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,10 @@ class ProfessoresController extends Controller
         "nome" => "Cadastro",
         "endereco" => "index",
         "rota" => "Professores/index"
+    ],[
+        "nome" => "Contratos",
+        "endereco" => "Contratos",
+        "rota" => "Professores/Contratos"
     ]);
 
     public const cadastroSubmodulos = array([
@@ -45,6 +50,157 @@ class ProfessoresController extends Controller
     public static function getProfessorByUser($IDUser){
         $SQL = "SELECT IDProfissional FROM users u WHERE u.tipo = 6 AND u.id = $IDUser  ";
         return DB::select($SQL)[0]->IDProfissional;
+    }
+
+    public function contratos(){
+        return view('Professores.contratos',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+    //PROFESSORES DE ESCOLAS ESPECIFICAS
+    public static function getProfessoresRede($IDRede){
+        
+        $SQL = <<<SQL
+        SELECT 
+            p.id AS IDProfessor,
+            p.Nome AS Professor,
+            us.id as USProfessor
+        FROM professores p
+        INNER JOIN alocacoes a ON a.IDProfissional = p.id
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN escolas e ON e.id = a.IDEscola
+        INNER JOIN organizacoes o ON e.IDOrg = o.id
+        WHERE o.id = $IDRede AND a.TPProfissional = "PROF"
+        GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
+        SQL;
+
+        return DB::select($SQL);
+    }
+
+    public function getContratos(){
+        $IDOrg = Auth::user()->id_org;
+        $SQL = <<<SQL
+            SELECT
+                c.id,
+                c.STContrato,
+                p.Nome as Professor,
+                c.Nome as Contrato,
+                c.Salario,
+                c.Inicio,
+                c.Termino
+            FROM contratos c
+            INNER JOIN professores p ON(p.id = c.IDProfessor)
+            INNER JOIN users u ON(p.IDUser = u.id)
+            WHERE u.id_org = $IDOrg
+        SQL;
+        $rows = DB::select($SQL);
+
+        if(count($rows) > 0){
+            foreach($rows as $r){
+                $Options = "<a href='".route('Professores/Contratos/Edit',$r->id)."' class='btn btn-primary btn-xs'>Abrir</a> ";
+                if($r->STContrato == 1){
+                    $Options .="&nbsp;  <a class='btn btn-danger btn-xs' href='".route('Professores/Contratos/Cancelar',$r->id)."'>Cancelar</a> ";
+                }else{
+                    $Options .="&nbsp;  <strong class='text-danger'>Cancelado</strong>";
+                }
+
+                $item = [];
+                $item[] = $r->Professor;
+                $item[] = $r->Contrato;
+                $item[] = $r->Salario;
+                $item[] = $r->Inicio;
+                $item[] = $r->Termino;
+                $item[] = $Options;
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($rows)),
+            "recordsFiltered" => intval(count($rows)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function cancelarContrato($id){
+        Contrato::find($id)->update([
+            "STContrato" => 0
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function cadastroContratos($id=null){
+        $view = [
+            "submodulos" => self::submodulos,
+            "Professores" => self::getProfessoresRede(Auth::user()->id_org),
+            "id" => ""
+        ];
+
+        if($id){
+            $Contrato = Contrato::find($id);
+            $view['Registro'] = $Contrato;
+            $view['Aditivos'] = json_decode($Contrato->Aditivos);
+            $view['id'] = $id;
+        }
+
+        return view('Professores.cadastroContratos',$view);
+    }
+
+    public function saveContratos(Request $request){
+        try{
+            $data = $request->all();
+
+            if($request->id){
+                Contrato::find($request->id)->update($data);
+                $mensagem = "Sala Editada com Sucesso!";
+                $rota = 'Professores/Contratos/Edit';
+                $aid = $request->id;
+            }else{
+                Contrato::create($data);
+                $mensagem = "Sala cadastrada com Sucesso!";
+                $aid = '';
+                $rota = 'Professores/Contratos/Novo';
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $rota = 'Professores/Contratos/Novo';
+            $mensagem = 'Erro '.$th;
+            $aid = '';
+            $status = 'error';
+        }finally{
+            return redirect()->route($rota,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function saveAditivos($IDContrato,Request $request){
+        $Contrato = Contrato::find($IDContrato);
+        if(!is_null($Contrato->Aditivos)){
+            $Aditivo = json_decode($Contrato->Aditivos,true);
+
+            array_push($Aditivo,array(
+                "Nome" => $request->Nome,
+                "Data" => $request->Data
+            ));
+
+            $Contrato->update([
+                "Aditivos" => json_encode($Aditivo)
+            ]);
+        }else{
+            $Contrato->update([
+                "Aditivos" => json_encode(array([
+                    "Nome" => $request->Nome,
+                    "Data" => $request->Data
+                ]))
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     public static function getEscolaProfessores(){

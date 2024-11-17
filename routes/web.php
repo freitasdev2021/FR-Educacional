@@ -491,6 +491,13 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //PROFESSORES
         Route::get('/Professores/Novo',[ProfessoresController::class,'cadastro'])->name('Professores/Novo');
         Route::post('/Professores/Save',[ProfessoresController::class,'save'])->name('Professores/Save');
+        Route::get('Professores/Contratos',[ProfessoresController::class,'contratos'])->name('Professores/Contratos');
+        Route::get('Professores/Contratos/list',[ProfessoresController::class,'getContratos'])->name('Professores/Contratos/list');
+        Route::get('Professores/Contratos/Cadastro',[ProfessoresController::class,'cadastroContratos'])->name('Professores/Contratos/Novo');
+        Route::get('Professores/Contratos/Cadastro/{id}',[ProfessoresController::class,'cadastroContratos'])->name('Professores/Contratos/Edit');
+        Route::get('Professores/Contratos/Cancelar/{id}',[ProfessoresController::class,'cancelarContrato'])->name('Professores/Contratos/Cancelar');
+        Route::post('Professores/Contratos/Save',[ProfessoresController::class,'saveContratos'])->name('Professores/Contratos/Save');
+        Route::patch('Professores/Aditivos/Save/{IDContrato}',[ProfessoresController::class,'saveAditivos'])->name('Professores/Aditivos/Save');
         //PEDAGOGOS
         Route::get('/Pedagogos/Novo',[PedagogosController::class,'cadastro'])->name('Pedagogos/Novo');
         Route::post('/Pedagogos/Save',[PedagogosController::class,'save'])->name('Pedagogos/Save');
