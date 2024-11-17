@@ -16,6 +16,7 @@ use App\Models\Renovacoes;
 use App\Models\Remanejo;
 use App\Models\Responsavel;
 use App\Models\Anexo;
+use App\Models\Espera;
 use Illuminate\Support\Facades\Auth;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,10 @@ class AlunosController extends Controller
         "nome" => 'Transferidos',
         "endereco" => "Transferidos",
         "rota" => "Alunos/Transferidos"
+    ],[
+        "nome" => "Lista de Espera",
+        "endereco" => "Espera",
+        "rota" => "Alunos/Espera"
     ]);
 
     public const professoresModulos = array([
@@ -2396,6 +2401,106 @@ class AlunosController extends Controller
         }
 
         return $AlunosTurmas;
+    }
+
+    public function saveEspera(Request $request){
+        try{
+            $data = $request->all();
+            if(Auth::user()->tipo == 4){
+                $data['IDEscola'] = self::getEscolaDiretor(Auth::user()->id);
+            }else{
+                $data['IDEscola'] = $request->IDEscola;
+            }
+
+            if($request->id){
+                Espera::find($request->id)->update($data);
+                $rota = 'Alunos/Espera/Edit';
+                $aid = $request->id;
+            }else{
+                Espera::create($data);
+                $aid = '';
+                $rota = 'Alunos/Espera/Novo';
+            }
+            $mensagem = "Salvamento Realizado com Sucesso!";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $rota = 'Alunos/Espera/Novo';
+            $mensagem = 'Erro '.$th;
+            $aid = '';
+            $status = 'error';
+        }finally{
+            return redirect()->route($rota,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function espera(){
+        return view('Alunos.espera',[
+            "submodulos" => self::submodulos
+        ]);
+    }
+
+    public function getEspera(){
+        $idorg = Auth::user()->id_org;
+        $AND = " WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+
+        $SQL = <<<SQL
+            SELECT 
+                le.id,
+                le.Aluno,
+                e.Nome as Escola,
+                le.Observacoes,
+                le.Contato
+            FROM lista_espera le
+            INNER JOIN escolas e ON(e.id = le.IDEscola)
+            $AND
+        SQL;
+
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->Escola;
+                $item[] = $r->Aluno;
+                $item[] = $r->Contato;
+                $item[] = $r->Observacoes;
+                $item[] = "<a href=".route('Alunos/Espera/Edit',$r->id)." class='btn btn-fr btn-xs'>Editar</a>&nbsp; <a href=".route('Alunos/Espera/Delete',$r->id)." class='btn btn-danger btn-xs'>Excluir</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function deleteEspera($id){
+        Espera::find($id)->delete();
+        return redirect()->back();
+    }
+
+    public function cadastroEspera($id=null){
+        $view = [
+            "submodulos" => self::submodulos,
+            "id" => ""
+        ];
+
+        if(Auth::user()->tipo == 2){
+            $IDEscolas = SecretariasController::getEscolasRede(Auth::user()->id_org);
+            $view['Escolas'] = Escola::findMany($IDEscolas);
+        }
+
+        if($id){
+            $view['id'] = $id;
+            $view['Registro'] = Espera::find($id);
+        }
+
+        return view('Alunos.cadastroEspera',$view);
     }
 
     public function save(Request $request){

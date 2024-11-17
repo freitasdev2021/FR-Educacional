@@ -140,6 +140,15 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get("Turmas/Boletins/{id}",[TurmasController::class,'gerarBoletins'])->name("Turmas/Boletins");
         Route::get('/Turmas/Desempenho/{IDTurma}',[TurmasController::class,'desempenho'])->name('Turmas/Desempenho');
         Route::get('/Turmas/Desempenho/list/{IDTurma}',[TurmasController::class,'getDesempenho'])->name('Turmas/Desempenho/list');
+        //LISTA DE ESPERA
+        Route::get('Alunos/Espera',[AlunosController::class,'espera'])->name('Alunos/Espera');
+        Route::get('Alunos/Espera/list',[AlunosController::class,'getEspera'])->name('Alunos/Espera/list');
+        Route::get('Alunos/Espera/Cadastro',[AlunosController::class,'cadastroEspera'])->name('Alunos/Espera/Novo');
+        Route::get('Alunos/Espera/Cadastro/{id}',[AlunosController::class,'cadastroEspera'])->name('Alunos/Espera/Edit');
+        Route::get('Alunos/Espera/Delete/{id}',[AlunosController::class,'deleteEspera'])->name('Alunos/Espera/Delete');
+        Route::get('Alunos/Espera/Designacao/{IDAluno}',[AlunosController::class,'designacaoEspera'])->name('Alunos/Espera/Designacao');
+        Route::post('Alunos/Espera/Save',[AlunosController::class,'saveEspera'])->name('Alunos/Espera/Save');
+        //
         //MATRICULA
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');
