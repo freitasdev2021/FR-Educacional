@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Turma;
+use App\Models\Metas;
+use App\Models\AEEPlanejamento;
+use App\Models\Escola;
 use App\Models\PlanejamentoAnual;
 use App\Http\Controllers\ProfessoresController;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +19,14 @@ class PlanejamentosController extends Controller
         "nome" => 'Planejamentos',
         'endereco' => 'index',
         'rota' => 'Planejamentos/index'
+    ],[
+        "nome" => "Metas",
+        "endereco" => "Metas",
+        "rota" => "Planejamentos/Metas"
+    ],[
+        "nome" => "AEE",
+        "endereco" => "AEE",
+        "rota" => "Planejamentos/AEE"
     ]);
 
     public const cadastroSubmodulos = array([
@@ -28,8 +39,24 @@ class PlanejamentosController extends Controller
         'rota' => 'Planejamentos/Componentes'
     ]);
 
+    public const aeeSubmodulos = array([
+        "nome" => 'Cadastro',
+        'endereco' => 'Planejamentos/Cadastro',
+        'rota' => 'Planejamentos/AEE/Cadastro'
+    ],[
+        "nome" => 'Planejamento',
+        'endereco' => 'AEE/Componentes',
+        'rota' => 'Planejamentos/AEE/Componentes'
+    ]);
+
     public function index(){
         return view('Planejamentos.index',[
+            'submodulos' => self::submodulos
+        ]);
+    }
+
+    public function aee(){
+        return view('Planejamentos.aee',[
             'submodulos' => self::submodulos
         ]);
     }
@@ -44,9 +71,98 @@ class PlanejamentosController extends Controller
         ]);
     }
 
+    public function componentesAee($id){
+        $rgs = DB::select("SELECT pa.PLConteudos,t.Periodo FROM planejamento_aee pa INNER JOIN turmas t ON(t.id = pa.IDTurma) WHERE pa.id = $id")[0];
+        //dd($rgs);
+        return view('Planejamentos.componentesAee',[
+            'submodulos' => self::aeeSubmodulos,
+            'id' => $id,
+            'Registro' => $rgs,
+            'Curriculo' => json_decode($rgs->PLConteudos)
+        ]);
+    }
+
+    public function metas(){
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+        $view = [
+            "submodulos" => self::submodulos,
+            "Escolas" => Escola::findMany($IDEscolas)
+        ];
+
+        if(isset($_GET['IDEscola'])){
+            $view['Registro'] = Metas::where('IDEscola',$_GET['IDEscola'])->first();
+            $view['IDEscola'] = $_GET['IDEscola'];
+        }
+
+        return view("Planejamentos.metas",$view);
+    }
+
+    public function saveMeta($IDEscola,Request $request){
+        if(Metas::where('IDEscola',$IDEscola)->exists()){
+            Metas::where('IDEscola',$IDEscola)->update([
+                "MSituacional" => $request->MSituacional,
+                "MOperacional" => $request->MOperacional,
+                "MConceitual" => $request->MConceitual,
+                "IDEscola" => $IDEscola
+            ]);
+        }else{
+            Metas::create([
+                "MSituacional" => $request->MSituacional,
+                "MOperacional" => $request->MOperacional,
+                "MConceitual" => $request->MConceitual,
+                "IDEscola" => $IDEscola
+            ]);
+        }
+        return redirect()->back();
+    }
+
+    public function saveObjetivo($IDEscola,Request $request){;
+        $Metas = Metas::where("IDEscola",$IDEscola)->first();
+        //dd($Metas);
+        if(!is_null($Metas->MetasJSON)){
+            $Meta = json_decode($Metas->MetasJSON,true);
+            array_push($Meta,array(
+                "Meta" => $request->Meta,
+                "Meio" => $request->Meio,
+                "Data" => $request->Data,
+                )
+            );
+
+            $Metas->update([
+                "MetasJSON" => json_encode($Meta)
+            ]);
+        }else{
+            $Metas->update([
+                "MetasJSON" => json_encode(array([
+                    "Meta" => $request->Meta,
+                    "Meio" => $request->Meio,
+                    "Data" => $request->Data
+                ]))
+            ]);
+        }
+
+        return redirect()->back();
+    }
+
     public function saveComponentes(Request $request){
         try{
             $plan =  PlanejamentoAnual::find($request->IDPlanejamento);
+            $plan->update([
+                'PLConteudos' => $request->PLConteudos
+            ]);
+            $retorno['mensagem'] = 'Planejamento Atualizado com Sucesso!';
+            $retorno['status'] = $request->IDPlanejamento;
+        }catch(\Throwable $th){
+            $retorno['status'] = 0;
+            $retorno['mensagem'] = $th->getMessage();
+        }finally{
+            return json_encode($retorno);
+        }
+    }
+
+    public function saveComponentesAee(Request $request){
+        try{
+            $plan =  AEEPlanejamento::find($request->IDPlanejamento);
             $plan->update([
                 'PLConteudos' => $request->PLConteudos
             ]);
@@ -297,6 +413,47 @@ class PlanejamentosController extends Controller
         return view('Planejamentos.cadastro',$view);
     }
 
+    public function cadastroAee($id=null){
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+        $view = [
+            'submodulos' => self::submodulos,
+            'id' => '',
+            "Turmas" => Turma::whereIn("IDEscola",$IDEscolas)->get()
+        ];
+
+        if($id){
+            $view['submodulos'] = self::aeeSubmodulos;
+            $view['id'] = $id;
+            $view['Registro'] = AEEPlanejamento::find($id);
+        }
+
+        return view('Planejamentos.cadastroAee',$view);
+    }
+
+    public function saveAee(Request $request){
+        try{
+            if($request->id){
+                AEEPlanejamento::find($request->id)->update($request->all());
+                $mensagem = 'Planejamento Alterado com Sucesso!';
+                $rout = 'Planejamentos/AEE/Cadastro';
+                $aid = $request->id;
+            }else{
+                $Planejamento = AEEPlanejamento::create($request->all());
+                $mensagem = 'Planejamento Criado com Sucesso! Agora Crie os Conteúdos e Abordagens de cada Período';
+                $rout = 'Planejamentos/AEE/Cadastro';
+                $aid = $Planejamento->id;
+            }
+            $status = 'success';
+        }catch(\Throwable $th){
+            $mensagem = 'Erro:'.$th->getMessage();
+            $rout = 'Planejamentos/AEE/Novo';
+            $aid = '';
+            $status = 'error';
+        }finally{
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
+        }
+    }
+
     public function save(Request $request){
         try{
             if($request->id){
@@ -339,6 +496,41 @@ class PlanejamentosController extends Controller
         }
     }
 
+    public function getPlanejamentosAee(){
+        $WHERE = " WHERE t.IDEscola IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+        $SQL = <<<SQL
+            SELECT
+                p.Nome,
+                t.Serie,
+                t.Nome as Turma,
+                p.id
+            FROM planejamento_aee p
+            INNER JOIN turmas t ON(t.id = p.IDTurma)
+            $WHERE
+        SQL;
+        $Planejamentos = DB::select($SQL);
+
+        if(count($Planejamentos) > 0){
+            foreach($Planejamentos as $p){
+                $item = [];
+                $item[] = $p->Nome;
+                $item[] = $p->Turma;
+                $item[] = "<a href='".route('Planejamentos/AEE/Cadastro',$p->id)."' class='btn btn-primary btn-xs'>Abrir</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($Planejamentos)),
+            "recordsFiltered" => intval(count($Planejamentos)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
     public function getPlanejamentos(){
         $arrTurmasT = [];
         if(Auth::user()->tipo == 6){
@@ -376,7 +568,7 @@ class PlanejamentosController extends Controller
                 $item = [];
                 $item[] = $p->NMPlanejamento;
                 // $item[] = json_decode($p->Turmas);
-                $item[] = "<a href='".route('Planejamentos/Cadastro',$p->IDPlanejamento)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = "<a href='".route('Planejamentos/Cadastro',$p->IDPlanejamento)."' class='btn btn-primary btn-xs'>Abrir</a>";
                 $itensJSON[] = $item;
             }
         }else{

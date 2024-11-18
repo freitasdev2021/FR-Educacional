@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CI;
 use App\Models\User;
+use App\Models\CIResposta;
 use App\Models\CIMensagem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,14 @@ class CIController extends Controller
         ]);
     }
 
+    public function encerrar($id){
+        CI::find($id)->update([
+            "STComunicacao"=> 0
+        ]);
+
+        return redirect()->back();
+    }
+
     public function destinatarioIndex(){
         $IDUser = Auth::user()->id;
 
@@ -47,6 +56,8 @@ class CIController extends Controller
         SELECT 
             ci.Assunto,
             ci.Mensagem,
+            ci.id,
+            ci.STComunicacao,
             CONCAT(
                 '[',
                 GROUP_CONCAT(
@@ -72,8 +83,20 @@ class CIController extends Controller
         
         return view('comunicacao_interna.destinatarioIndex',[
             "submodulos" => self::destinatarioSubmodulos,
-            "Comunicacoes" => DB::select($SQL)
+            "Comunicacoes" => DB::select($SQL),
+            "IDUser" => $IDUser,
+            "Respostas" => CIResposta::where('IDUser',$IDUser)->get()
         ]);
+    }
+
+    public function responder($IDUser,$IDComunicacao,Request $request){
+        CIResposta::create([
+            "IDUser" => $IDUser,
+            "IDComunicacao" => $IDComunicacao,
+            "Resposta" => $request->Mensagem
+        ]);
+
+        return redirect()->back();
     }
 
     public function getCi(){
@@ -82,7 +105,8 @@ class CIController extends Controller
         $SQL = <<<SQL
             SELECT 
                 Assunto,
-                id
+                id,
+                STComunicacao
             FROM comunicacao_interna ci
             WHERE ci.IDOrg = $IDOrg
         SQL;
@@ -90,9 +114,16 @@ class CIController extends Controller
         $registros = DB::select($SQL);
         if(count($registros) > 0){
             foreach($registros as $r){
+                $Options = "<a href=".route('CI/Edit',$r->id)." class='btn btn-fr btn-xs'>Abrir</a>";
+                if($r->STComunicacao){
+                    $Options .="&nbsp<a href=".route('CI/Encerrar',$r->id)." class='btn btn-fr btn-xs'>Encerrar</a>";
+                }else{
+                    $Options .=  "<strong class='text-danger'>Encerrada</strong>";
+                }
+
                 $item = [];
                 $item[] = $r->Assunto;
-                $item[] = "<a href=".route('CI/Edit',$r->id)." class='btn btn-fr btn-xs'>Abrir</a>&nbsp<a href=".route('CI/Delete',$r->id)." class='btn btn-fr btn-xs'>Encerrar</a>";
+                $item[] = $Options;
                 $itensJSON[] = $item;
             }
         }else{
@@ -152,6 +183,7 @@ class CIController extends Controller
             $view['Registro'] = CI::find($id);
             $view['id'] = $id;
             $view['submodulos'] = self::cadastroSubmodulos;
+            $view['Respostas'] = DB::select("SELECT u.name as Nome, r.Resposta FROM ci_respostas r INNER JOIN users u ON(r.IDUser = u.id) WHERE r.IDComunicacao = $id");
         }
 
         return view('comunicacao_interna.cadastro',$view);

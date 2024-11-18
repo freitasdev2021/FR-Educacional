@@ -239,14 +239,26 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Alunos/Situacao/Cadastro/{IDAluno}',[AlunosController::class,'cadastroSituacao'])->name('Alunos/Situacao/Novo');
         Route::post('/Alunos/Situacao/Save',[AlunosController::class,'saveSituacao'])->name('Alunos/Situacao/Save');
         //PLANEJAMENTOS
+        //PLANEJAMENTO AEE
+        Route::get('Planejamentos/AEE/list',[PlanejamentosController::class,'getPlanejamentosAee'])->name('Planejamentos/AEE/list');
+        Route::get('Planejamentos/AEE',[PlanejamentosController::class,'aee'])->name('Planejamentos/AEE');
+        Route::get('Planejamentos/AEE/Componentes/{id}',[PlanejamentosController::class,'componentesAee'])->name('Planejamentos/AEE/Componentes');
+        Route::get('Planejamentos/AEE/Novo',[PlanejamentosController::class,'cadastroAee'])->name('Planejamentos/AEE/Novo');
+        Route::get('Planejamentos/AEE/Cadastro/{id}',[PlanejamentosController::class,'cadastroAee'])->name('Planejamentos/AEE/Cadastro');
+        Route::post('Planejamentos/AEE/Save',[PlanejamentosController::class,'saveAee'])->name('Planejamentos/AEE/Save');
+        Route::post('/Planejamentos/AEE/Componentes/Save',[PlanejamentosController::class,'saveComponentesAee'])->name('Planejamentos/AEE/Componentes/Save');
+        //PLANEJAMENTO ESCOLAR
         Route::get('/Planejamentos/list',[PlanejamentosController::class,'getPlanejamentos'])->name('Planejamentos/list');
         Route::get('/Planejamentos',[PlanejamentosController::class,'index'])->name('Planejamentos/index');
+        Route::get('Planejamentos/Metas',[PlanejamentosController::class,'metas'])->name('Planejamentos/Metas');
         Route::get('/Planejamentos/{id}/Componentes',[PlanejamentosController::class,'componentes'])->name('Planejamentos/Componentes');
         Route::get('/Planejamentos/Novo',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Novo');
         Route::get('/Planejamentos/Cadastro/{id}',[PlanejamentosController::class,'cadastro'])->name('Planejamentos/Cadastro');
         Route::get('/Planejamentos/getConteudo/{IDDisciplina}/{IDTurma}/{TPAula}',[PlanejamentosController::class,'getPlanejamentoByTurma'])->name('Planejamentos/getConteudo');
         Route::post('/Planejamentos/Save',[PlanejamentosController::class,'save'])->name('Planejamentos/Save');
         Route::post('/Planejamentos/Componentes/Save',[PlanejamentosController::class,'saveComponentes'])->name('Planejamentos/Componentes/Save');
+        Route::patch("Planejamentos/Metas/Save/{IDEscola}",[PlanejamentosController::class,'saveMeta'])->name('Planejamentos/Metas/Save');
+        Route::patch("Planejamentos/Objetivos/Save/{IDEscola}",[PlanejamentosController::class,'saveObjetivo'])->name('Planejamentos/Objetivos/Save');
         //RECUPERAÇÃO
         Route::get('Aulas/Recuperacao',[RecuperacaoController::class,'index'])->name("Aulas/Recuperacao/index");
         Route::get('Aulas/Recuperacao/Novo',[RecuperacaoController::class,'cadastro'])->name("Aulas/Recuperacao/Novo");
@@ -483,7 +495,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Biblioteca/DevolverLivro/{IDEmprestimo}',[BibliotecaController::class,'devolverLivro'])->name('Biblioteca/DevolverLivro');
         //Destinatario
         Route::get('CI/Destinatario',[CIController::class,'destinatarioIndex'])->name('CI/Destinatario');
-        //
+        //Respostas
+        Route::patch('CI/Resposta/{IDUser}/{IDComunicacao}',[CIController::class,'responder'])->name('CI/Resposta');
     });
     //CAMADA DE SEGURANÇA DO SECRETARIO
     Route::middleware('secretario')->group(function(){
@@ -525,7 +538,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('CI',[CIController::class,'index'])->name('CI/index');
         Route::get('CI/Cadastro',[CIController::class,'cadastro'])->name('CI/Novo');
         Route::get('CI/Cadastro/{id}',[CIController::class,'cadastro'])->name('CI/Edit');
-        Route::get('CI/Delete/{id}',[CIController::class,'delete'])->name('CI/Delete');
+        Route::get('CI/Encerrar/{id}',[CIController::class,'encerrar'])->name('CI/Encerrar');
         Route::get('CI/Mensagens/Cadastro/{IDCi}',[CIController::class,'cadastroMensagens'])->name('CI/Mensagens/Novo');
         Route::get('CI/Mensagens/Cadastro/{IDCi}/{id}',[CIController::class,'cadastroMensagens'])->name('CI/Mensagens/Edit');
         Route::get('CI/list',[CIController::class,'getCi'])->name('CI/list');

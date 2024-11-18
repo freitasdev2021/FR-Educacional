@@ -9,15 +9,34 @@
         @foreach($Comunicacoes as $c)
           <div class="card">
              <div class="card-header bg-fr text-white">
-                {{$c->Assunto}}
+                {{$c->Assunto}} - {{($c->STComunicacao == 1) ? 'Ativa' : 'Encerrada'}}
              </div>
              <div class="card-body">
                 {!! $c->Mensagem !!}
                 <hr>
+                <label>Mensagens</label>
                 <ul>
                     @foreach(json_decode($c->Mensagens) as $m)
                     <li>{{$m->Mensagem}}</li>
                     @endforeach
+                </ul>
+                <hr>
+                <form action="{{route('CI/Resposta',['IDUser'=>$IDUser,'IDComunicacao'=>$c->id])}}" method="POST">
+                  @method("PATCH")
+                  @csrf
+                  <div>
+                     <label>Resposta</label>
+                     <textarea name="Mensagem" class="form-control"></textarea>
+                  </div>
+                  <br>
+                  <button class="btn btn-fr">Responder</button>
+                </form>
+                <br>
+                <label>Respostas</label>
+                <ul>
+                  @foreach($Respostas as $r)
+                  <li>{{$r->Resposta}}</li>
+                  @endforeach
                 </ul>
              </div>
           </div>

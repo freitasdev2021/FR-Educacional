@@ -51,6 +51,17 @@
                             <textarea name="Mensagem" id="mensagem" rows="20">{{isset($Registro) ? $Registro->Mensagem : ''}}</textarea>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <hr>
+                            <label>Respostas</label>
+                            <ul>
+                                @foreach($Respostas as $r)
+                                <li>{{$r->Nome}} : {{$r->Resposta}}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
                     <br>
                     <div class="col-sm-12 text-left row">
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
