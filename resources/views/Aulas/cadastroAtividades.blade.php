@@ -29,7 +29,7 @@
                         <!--CADASTRO-->
                         <div class="col-sm-6">
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-sm-12">
                                     <label>Aula da Atividade</label>
                                     <select class="form-control" name="IDAula" data-alunos="{{route('Aulas/getAlunos')}}">
                                         <option value="">Selecione</option>
@@ -37,10 +37,6 @@
                                         <option value="{{$a->id}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->DSAula}}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label>Data de Entrega</label>
-                                    <input type="datetime-local" class="form-control" name="DTEntrega" value="{{isset($Registro->DTEntrega) ? $Registro->DTEntrega : ''}}">
                                 </div>
                             </div>
                             <div class="row">
@@ -53,42 +49,26 @@
                                     <input type="number" class="form-control" name="Pontuacao" value="{{isset($Registro->Pontuacao) ? $Registro->Pontuacao : '0'}}">
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <label>Descrição da Atividade</label>
-                                    <textarea name="DSAtividade" class="form-control">{{isset($Registro->DSAtividade) ? $Registro->DSAtividade : ''}}</textarea>
-                                </div>
-                            </div>
                         </div>
                         <!--ATRIBUIÇÕES DO CARGO-->
+                        @if(!isset($Registro->id))
                         <div class="col-sm-6" align="center">
-                            <label col="col-sm-6">Atribuições das Atividades</label>
-                            @if(isset($Registro->id))
-                            ( <input type="checkbox" name="alterarAtt"> Alterar Atribuições )
-                            @else
-                            ( <input type="checkbox" name="todosPresentes"> Todos Presentes )
-                            @endif
+                            <label col="col-sm-6">Notas das Atividades</label>
                             <table>
                                 <table class="table table-sm tabela">
                                     <thead>
                                       <tr>
                                         <th style="text-align:center;" scope="col">Aluno</th>
-                                        <th style="text-align:center;" scope="col">Atividade</th>
+                                        <th style="text-align:center;" scope="col">Nota</th>
                                       </tr>
                                     </thead>
                                     <tbody id="aulaAlunos">
-                                      @if(isset($Registro->id))
-                                        @foreach($Alunos as $at)
-                                            <tr>
-                                                <td><?=$at->Aluno ?></td>
-                                                <td><input type="checkbox" {{$at->Atribuido}} value="<?=$at->IDAluno?>" name="Aluno[]"></td>
-                                            </tr>
-                                        @endforeach
-                                      @endif
+                                      
                                     </tbody>
                                 </table>
                             </table>
                         </div>
+                        @endif
                     </div>
                     <br>
                     <div class="col-sm-12 text-left row">
@@ -105,9 +85,6 @@
     </div>
     <script>
         $(document).ready(function(){
-            $("input[name=todosPresentes]").on("change",function(){
-                $('input[name="Aluno[]"]').prop('checked', $(this).prop('checked'));
-            })
             $("select[name=IDAula]").on("change",function(){
                 $.ajax({
                     method : "POST",

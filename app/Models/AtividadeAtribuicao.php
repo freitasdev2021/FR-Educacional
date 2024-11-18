@@ -12,9 +12,6 @@ class AtividadeAtribuicao extends Model
     protected $table = 'atividades_atribuicoes';
     protected $fillable = [
         'IDAluno',
-        'DTEntrega',
-        'Realizado',
-        'Feedback',
         'IDAtividade'
     ];
 

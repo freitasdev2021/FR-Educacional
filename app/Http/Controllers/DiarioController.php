@@ -85,7 +85,6 @@ class DiarioController extends Controller
                             '[',
                             GROUP_CONCAT(
                                 '{'
-                                ,'"Atividade":"', atv.DSAtividade, '"'
                                 ,',"Conteudo":"', atv.TPConteudo, '"'
                                 ,'}'
                                 SEPARATOR ','
@@ -129,7 +128,6 @@ class DiarioController extends Controller
                             '[',
                             GROUP_CONCAT(
                                 '{'
-                                ,'"Atividade":"', atv.DSAtividade, '"'
                                 ,',"Conteudo":"', atv.TPConteudo, '"'
                                 ,'}'
                                 SEPARATOR ','
@@ -172,7 +170,6 @@ class DiarioController extends Controller
                             '[',
                             GROUP_CONCAT(
                                 '{'
-                                ,'"Atividade":"', atv.DSAtividade, '"'
                                 ,',"Conteudo":"', atv.TPConteudo, '"'
                                 ,'}'
                                 SEPARATOR ','

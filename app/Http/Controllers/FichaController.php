@@ -402,7 +402,7 @@ class FichaController extends Controller
         return view('Fichas.formulario',array(
            "Ficha" => json_decode(Ficha::find($id)->Formulario),
            'id' => $id,
-           "Alunos" => EscolasController::getNomeAlunosEscola(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)),
+           "Alunos" => ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional),
            'submodulos'=> self::submodulos
         ));
     }

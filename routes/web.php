@@ -113,6 +113,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
         Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo');
         Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
+        Route::get('Aulas/Delete/{id}',[AulasController::class,'deleteAula'])->name('Aulas/Delete');
         Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
         Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
         Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');

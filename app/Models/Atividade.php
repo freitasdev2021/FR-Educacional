@@ -13,9 +13,7 @@ class Atividade extends Model
         'IDAula',
         'STDelete',
         'IDDisciplina',
-        'DTEntrega',
         'TPConteudo',
-        'DSAtividade',
         'Pontuacao',
     ];
 

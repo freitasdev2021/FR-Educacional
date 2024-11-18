@@ -1761,7 +1761,6 @@ class AlunosController extends Controller
                 SELECT 
                     at.TPConteudo, 
                     a.Estagio,
-                    at.DTEntrega as Data,
                     t.TPAvaliacao,
                     d.NMDisciplina as Disciplina,
                     n.Conceito,
@@ -1796,7 +1795,6 @@ class AlunosController extends Controller
                 $item[] = $r->TPConteudo;
                 $item[] = ($r->TPAvaliacao == "Nota") ? $r->Nota : $r->Conceito;
                 $item[] = $r->Estagio;
-                $item[] = self::data($r->Data,'d/m/Y');
                 $itensJSON[] = $item;
             }
         }else{
@@ -3159,8 +3157,12 @@ class AlunosController extends Controller
 
     public function getAlunos(){
         $idorg = Auth::user()->id_org;
-
-        $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+        if(Auth::user()->tipo == 6){
+            $AND = " AND a.id IN(".implode(",",ProfessoresController::getIdAlunosProfessor(Auth::user()->IDProfissional)).")";
+        }else{
+            $AND = " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+        }
+        
 
         if(isset($_GET['Status']) && !empty($_GET['Status'])){
             $AND .= " AND a.STAluno=".$_GET['Status'];

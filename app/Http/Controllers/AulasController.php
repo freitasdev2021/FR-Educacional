@@ -288,7 +288,10 @@ class AulasController extends Controller
         ?>
             <tr>
                 <td><?=$at->Aluno?></td>
-                <td><input type="checkbox" value="<?=$at->IDAluno?>" name="Aluno[]"></td>
+                <td>
+                    <input type="hidden" value="<?=$at->IDAluno?>" name="Aluno[]">
+                    <input type="text" name="Nota[]">
+                </td>
             </tr>
         <?php
         }
@@ -341,9 +344,20 @@ class AulasController extends Controller
         }
     }
     //
+    public function deleteAula($IDAula){
+        Chamada::where("IDAula",$IDAula)->delete();
+        Aulas::find($IDAula)->delete();
+        return redirect()->back();
+    }
+    //
     public function save(Request $request){
         try{
             $AulaData = $request->all();
+            if(Auth::user()->tipo == 6){
+                $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
+            }else{
+                $AulaData['IDProfessor'] = $request->IDProfessor;
+            }
             if($request->id){
                 //dd($AulaData);
                 $rout = 'Aulas/Edit';
@@ -353,19 +367,13 @@ class AulasController extends Controller
                     "IDTurma" => $request->IDTurma,
                     "DSConteudo" => $request->DSConteudo,
                     "DSAula" => $request->DSAula,
-                    "IDProfessor" => $request->IDProfessor,
+                    "IDProfessor" => $AulaData['IDProfessor'],
                 ]);
 
                 $aid = $request->id;
                 $status = 'success';
                 $mensagem = 'Aula Atualizada com Sucesso!';
             }else{
-                if(Auth::user()->tipo == 6){
-                    $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
-                }else{
-                    $AulaData['IDProfessor'] = $request->IDProfessor;
-                }
-                
                 foreach($request->IDDisciplina as $d){
                     $AulaData['IDDisciplina'] = $d;
                     $AulaData['DSAula'] = $request->DSAula." - ".Disciplina::find($d)->NMDisciplina;
@@ -397,24 +405,51 @@ class AulasController extends Controller
         try{
             if($request->id){
                 Atividade::find($request->id)->update($request->all());
-                if($request->alterarAtt){
-                    AtividadeAtribuicao::where('IDAtividade',$request->id)->delete();
-                    foreach($request->Aluno as $a){
-                        AtividadeAtribuicao::create([
-                            "IDAtividade" => $request->id,
-                            "IDAluno" => $a
-                        ]);
-                    }
-                }
                 //
                 $rout = 'Aulas/Atividades/Edit';
                 $aid = $request->id;
                 $status = 'success';
                 $mensagem = 'Atividade Alterada com Sucesso!';
             }else{
-                $Atividade = Atividade::create($request->all());
-                
-                foreach($request->Aluno as $a){
+                //dd($request->all());
+                $Atividade = Atividade::create([
+                    "IDAula" => $request->IDAula,
+                    "TPConteudo" => $request->TPConteudo,
+                    "Pontuacao" => $request->Pontuacao
+                ]);
+                $AlunosPresentes = Chamada::where('IDAula',$request->IDAula)->pluck("IDAluno")->toArray();
+                //
+                $Notas = [];
+                $Aluno = [];
+                foreach($request->Nota as $nt){
+                    if(!is_null($nt)){
+                        array_push($Notas,$nt);
+                    }
+                }
+                //
+                foreach($request->Aluno as $al){
+                    array_push($Aluno,$al);
+                }
+                //
+                for($i=0;$i<count($Notas);$i++){
+                    $Pontos[] = [
+                        "IDAtividade" => $Atividade->id,
+                        "IDAluno" => $Aluno[$i]
+                    ];
+                    
+                    if(is_numeric($Notas[$i])){
+                        $Pontos[$i]['Nota'] = $Notas[$i];
+                    }else{
+                        $Pontos[$i]['Conceito'] = $Notas[$i]; 
+                    }
+                }
+                //dd($Pontos);
+                foreach($Pontos as $p){
+                    Nota::create($p);
+                }
+                //
+                //
+                foreach($AlunosPresentes as $a){
                     AtividadeAtribuicao::create([
                         "IDAtividade" => $Atividade->id,
                         "IDAluno" => $a
@@ -426,7 +461,7 @@ class AulasController extends Controller
                 $mensagem = 'Atividade Cadastrada com Sucesso!';
             }
         }catch(\Throwable $th){
-            $rout = 'Aulas/Novo';
+            $rout = 'Aulas/Atividades/Novo';
             $aid = '';
             $status = 'error';
             $mensagem = 'Erro: '.$th->getMessage();
@@ -477,7 +512,7 @@ class AulasController extends Controller
                 $item[] = $a->DSConteudo;
                 $item[] = $a->Frequencia;
                 $item[] = self::data($a->DTAula,'d/m/Y');
-                $item[] = "<a href=".route('Aulas/Edit',$a->IDAula)." class='btn btn-fr btn-xs'>Abrir Diário</a>";
+                $item[] = "<a href=".route('Aulas/Edit',$a->IDAula)." class='btn btn-fr btn-xs'>Abrir Diário</a>&nbsp;<a href=".route('Aulas/Delete',$a->IDAula)." class='btn btn-danger btn-xs'>Delete</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -511,11 +546,11 @@ class AulasController extends Controller
 
         $SQL = <<<SQL
         SELECT
-            atv.DSAtividade,
             p.Nome as Professor,
             t.Nome as Turma,
             a.DSAula as Aula,
             atv.id as IDAtividade,
+            atv.TPConteudo as Atividade,
             atv.created_at as Aplicada,
             COUNT(n.IDAtividade) as Cumpridos,
             (SELECT COUNT(IDAluno) FROM atividades a2 INNER JOIN atividades_atribuicoes ata ON(a2.id = ata.IDAtividade) WHERE ata.IDAtividade = atv.id AND atv.id = a2.id) as Designados,
@@ -533,7 +568,7 @@ class AulasController extends Controller
         if(count($atividades) > 0){
             foreach($atividades as $a){
                 $item = [];
-                $item[] = $a->DSAtividade;
+                $item[] = $a->Atividade;
                 $item[] = $a->Professor;
                 $item[] = $a->Turma;
                 $item[] = $a->Aula;
