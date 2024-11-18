@@ -28,6 +28,7 @@
                   @if(in_array(Auth::user()->tipo,[2,2.5]))
                   <x-modulo nome="Recrutamento" icon="bx bxs-notepad" rota="Recrutamento/index" endereco="Recrutamento"/>
                   <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>
+                  <x-modulo nome="Comunicação Interna" icon="bx bx-envelope" rota="CI/index" endereco="CI"/>
                   @endif
                   @if(Auth::user()->tipo == 0)
                   <x-modulo nome="Secretarías" icon="bx bx-buildings" rota="Secretarias/index" endereco="Secretarias"/>
@@ -39,7 +40,6 @@
                   <x-modulo nome="Pedagogos" icon="bx bx-library" rota="Pedagogos/index" endereco="Pedagogos"/>
                   @if(in_array(Auth::user()->tipo,[4,4.5]))<x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>@endif
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
-                  {{-- <x-modulo nome="Responsaveis" icon="bx bx-male-female" rota="Responsaveis/index" endereco="Responsaveis"/> --}}
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Biblioteca" icon="bx bx-book" rota="Biblioteca/index" endereco="Biblioteca"/>
                   <x-modulo nome="Funcionários" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
@@ -54,6 +54,9 @@
                   <x-modulo nome="EAD" icon="bx bx-desktop" rota="Calendario/index" endereco="Calendario"/>
                   @elseif(in_array(Auth::user()->tipo,[8]))
                   <x-modulo nome="Candidatura" icon="bx bx-user" rota="Candidatura/index" endereco="Candidatura"/>
+                  @endif
+                  @if(in_array(Auth::user()->tipo,[2,2.5,3,4,4.5,5,5.5,6,6.5]))
+                  <x-modulo nome="Comunicação Interna" icon="bx bx-envelope" rota="CI/Destinatario" endereco="CI"/>
                   @endif
                 </div>
              </div>

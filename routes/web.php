@@ -29,6 +29,7 @@ use App\Http\Controllers\TransporteController;
 use App\Http\Controllers\EnderecosController;
 use App\Http\Controllers\SalasController;
 use App\Http\Controllers\UsuariosController;
+use App\Http\Controllers\CIController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -148,7 +149,6 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/Espera/Delete/{id}',[AlunosController::class,'deleteEspera'])->name('Alunos/Espera/Delete');
         Route::get('Alunos/Espera/Designacao/{IDAluno}',[AlunosController::class,'designacaoEspera'])->name('Alunos/Espera/Designacao');
         Route::post('Alunos/Espera/Save',[AlunosController::class,'saveEspera'])->name('Alunos/Espera/Save');
-        //
         //MATRICULA
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');
@@ -481,6 +481,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //Gerar Codigo de Barras
         Route::get('Biblioteca/GerarEtiquetas',[BibliotecaController::class,'gerarEtiquetas'])->name('Biblioteca/GerarEtiquetas');
         Route::get('Biblioteca/DevolverLivro/{IDEmprestimo}',[BibliotecaController::class,'devolverLivro'])->name('Biblioteca/DevolverLivro');
+        //Destinatario
+        Route::get('CI/Destinatario',[CIController::class,'destinatarioIndex'])->name('CI/Destinatario');
         //
     });
     //CAMADA DE SEGURANÇA DO SECRETARIO
@@ -519,6 +521,19 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //INSCRITOS
         Route::get('Recrutamento/Inscritos',[RecrutamentoController::class,'inscritos'])->name('Recrutamento/Inscritos/index');
         Route::get('Recrutamento/Inscritos/list',[RecrutamentoController::class,'getInscritos'])->name('Recrutamento/Inscritos/list');
+        //COMUNICAÇÃO INTERNA
+        Route::get('CI',[CIController::class,'index'])->name('CI/index');
+        Route::get('CI/Cadastro',[CIController::class,'cadastro'])->name('CI/Novo');
+        Route::get('CI/Cadastro/{id}',[CIController::class,'cadastro'])->name('CI/Edit');
+        Route::get('CI/Delete/{id}',[CIController::class,'delete'])->name('CI/Delete');
+        Route::get('CI/Mensagens/Cadastro/{IDCi}',[CIController::class,'cadastroMensagens'])->name('CI/Mensagens/Novo');
+        Route::get('CI/Mensagens/Cadastro/{IDCi}/{id}',[CIController::class,'cadastroMensagens'])->name('CI/Mensagens/Edit');
+        Route::get('CI/list',[CIController::class,'getCi'])->name('CI/list');
+        Route::get('CI/Mensagens/{IDCi}',[CIController::class,'mensagens'])->name('CI/Mensagens');
+        Route::get('CI/Mensagens/list/{IDCi}',[CIController::class,'getMensagens'])->name('CI/Mensagens/list');
+        Route::post('CI/Save',[CIController::class,'save'])->name('CI/Save');
+        Route::patch('CI/Mensagens/Save/{IDCi}',[CIController::class,'saveMensagens'])->name('CI/Mensagens/Save');
+        //
     });
     //CAMADA DE PROTEÇÃO DO CANDIDATO
     Route::middleware('candidato')->group(function(){
