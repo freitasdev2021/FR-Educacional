@@ -671,11 +671,11 @@ class AulasController extends Controller
             GROUP BY m.Nome, m.id
         SQL;
 
-        $frequencia = array_filter(DB::select($SQL), function ($arr){
+        $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
             $DTSaida = Carbon::parse($arr->DTSaida);
 
-            if (is_null($arr->DTSaida) || ($DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula))) {
+            if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
                 return $arr;
             }
         });
