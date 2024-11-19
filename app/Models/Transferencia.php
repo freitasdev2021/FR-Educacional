@@ -14,7 +14,8 @@ class Transferencia extends Model
         'Aprovado',
         'IDEscolaDestino',
         'IDEscolaOrigem',
-        'Justificativa'
+        'Justificativa',
+        'DTTransferencia'
     ];
 
     public function aluno()

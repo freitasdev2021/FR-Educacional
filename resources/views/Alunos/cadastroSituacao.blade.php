@@ -21,7 +21,7 @@
                 <div class="col-sm-12 p-2">
                     <input type="hidden" value="{{$id}}" name="IDAluno">
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-6">
                             <label>Nova Situação</label>
                             <select name="STAluno" class="form-control" required>
                                 <option value="">Selecione</option>
@@ -32,6 +32,10 @@
                                 <option value="4">Egresso</option>
                                 <option value="5">Transferido Para Outra Rede</option>
                             </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>Data da Situação</label>
+                            <input type="date" class="form-control" name="DTSituacao">
                         </div>
                     </div>
                     <div class="row">

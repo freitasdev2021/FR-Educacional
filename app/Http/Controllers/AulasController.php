@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ProfessoresController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class AulasController extends Controller
 {
@@ -603,16 +604,27 @@ class AulasController extends Controller
                 m.Nome AS Aluno,
                 au.STAula,
                 m.id AS IDAluno,
-                CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente
+                CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente,
+                au.DTAula,
+                a.DTEntrada,
+                a.DTSaida
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
             INNER JOIN turmas t ON a.IDTurma = t.id
             INNER JOIN aulas au ON t.id = au.IDTurma
             LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
-            WHERE t.id = au.IDTurma AND au.id = $IDAula AND STAluno = 0
+            WHERE t.id = au.IDTurma AND au.id = $IDAula 
             GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
         SQL;
-        $frequencia = DB::select($SQL);
+        $frequencia = array_filter(DB::select($SQL), function ($arr){
+            $DTEntrada = Carbon::parse($arr->DTEntrada);
+            $DTSaida = Carbon::parse($arr->DTSaida);
+            $DTAula = Carbon::parse($arr->DTAula);
+            
+            if (is_null($arr->DTSaida) || ($DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula))) {
+                return $arr;
+            }
+        });
         $rota = route('Aulas/setPresenca');
         if(count($frequencia) > 0){
             foreach($frequencia as $f){
@@ -644,18 +656,30 @@ class AulasController extends Controller
         echo json_encode($resultados);
     }
     //
-    public function getHtmlAlunosChamada($IDTurma){
+    public function getHtmlAlunosChamada($IDTurma,$DTAula){
         $SQL = <<<SQL
             SELECT 
                 m.Nome AS Aluno,
-                m.id AS IDAluno
+                m.id AS IDAluno,
+                a.DTSaida,
+                a.DTEntrada
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
             INNER JOIN turmas t ON a.IDTurma = t.id
-            WHERE t.id = $IDTurma AND STAluno = 0
+            WHERE t.id = $IDTurma
+            
             GROUP BY m.Nome, m.id
         SQL;
-        $frequencia = DB::select($SQL);
+
+        $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula) {
+            $DTEntrada = Carbon::parse($arr->DTEntrada);
+            $DTSaida = Carbon::parse($arr->DTSaida);
+        
+            if (is_null($arr->DTSaida) || ($DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula))) {
+                return $arr;
+            }
+        });
+
         ob_start();
         foreach($frequencia as $f){
             ?>

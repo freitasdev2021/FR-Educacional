@@ -13,6 +13,7 @@ class Situacao extends Model
     protected $fillable = [
         'IDAluno',
         'Justificativa',
-        'STAluno'
+        'STAluno',
+        'DTSituacao'
     ];
 }

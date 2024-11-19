@@ -9,11 +9,14 @@ class Aluno extends Model
 {
     use HasFactory;
     protected $table = 'alunos';
+    
     protected $fillable = [
         'IDMatricula',
         'STAluno',
         'IDTurma',
-        'IDUser'
+        'IDUser',
+        "DTEntrada",
+        "DTSaida"
     ];
 
     public function matricula()

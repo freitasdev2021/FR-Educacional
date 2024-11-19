@@ -1209,7 +1209,8 @@ class AlunosController extends Controller
                 t.TERTurma,
                 t.MINFrequencia,
                 t.MediaPeriodo,
-                t.TPAvaliacao
+                t.TPAvaliacao,
+                a.DTEntrada
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -1887,7 +1888,7 @@ class AlunosController extends Controller
             eDestino.Nome as EscolaDestino,
             eOrigem.Nome as EscolaOrigem,
             tr.Justificativa,
-            tr.created_at as DTTransferencia
+            tr.DTTransferencia
         FROM transferencias tr
         INNER JOIN alunos a ON(a.id = tr.IDAluno)
         INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -2623,6 +2624,7 @@ class AlunosController extends Controller
                     'IDMatricula' => $createMatricula->id,
                     'STAluno' => 0,
                     'IDTurma' => $request->IDTurma,
+                    'DTEntrada' => $request->DTEntrada
                 );
 
                 if($request->credenciaisLogin){
@@ -2710,7 +2712,8 @@ class AlunosController extends Controller
 
                 $aluno = array(
                     'STAluno' => 0,
-                    'IDTurma' => $request->IDTurma
+                    'IDTurma' => $request->IDTurma,
+                    'DTEntrada' => $request->DTEntrada
                 );
 
                 if($request->credenciaisLogin){
@@ -3012,13 +3015,19 @@ class AlunosController extends Controller
             }else{
                 DB::update('UPDATE escolas SET QTVagas = QTVagas - 1');
             }
+
             Situacao::create([
                 'Justificativa' => $request->Justificativa,
                 'IDAluno' => $request->IDAluno,
-                'STAluno' => $request->STAluno
+                'STAluno' => $request->STAluno,
+                'DTSituacao' => $request->DTSituacao
             ]);
 
-            Aluno::where('id',$request->IDAluno)->update(['STAluno'=> $request->STAluno]);
+            if($request->STAluno !=0){
+                Aluno::where('id',$request->IDAluno)->update(['STAluno'=> $request->STAluno,'DTSaida'=>$request->DTSituacao]);
+            }else{
+                Aluno::where('id',$request->IDAluno)->update(['STAluno'=> $request->STAluno,'DTSaida'=>NULL]);
+            }
 
             $status = 'success';
             $mensagem = "Situação Atualizada com Sucesso!";
@@ -3037,6 +3046,7 @@ class AlunosController extends Controller
     public function cancelaTransferencia(Request $request){
         try{
             Transferencia::find($request->IDTransferencia)->delete();
+            Aluno::where('id',$request->IDAluno)->update(['STAluno'=> 0,'DTSaida' => null]);
             $status = 'success';
             $mensagem = "Transferência Cancelada com Sucesso!";
             $rout = 'Alunos/Transferencias';
@@ -3053,6 +3063,24 @@ class AlunosController extends Controller
 
     public function saveTransferencias(Request $request){
         try{
+
+            if($request->IDEscolaDestino == 0){
+                //dd("Teste");
+                $IDMatricula = Aluno::find($request->IDAluno)->IDMatricula;
+                Matriculas::find($IDMatricula)->update([
+                    "STAluno" => 5
+                ]);
+
+                Aluno::where('id',$request->IDAluno)->update(['STAluno'=> 5,'DTSaida'=>$request->DTTransferencia]);
+
+                Situacao::create([
+                    'Justificativa' => $request->Justificativa,
+                    'IDAluno' => $request->IDAluno,
+                    'STAluno' => 5,
+                    'DTSituacao' => $request->DTTransferencia
+                ]);
+            }
+            
             if($request->IDEscolaOrigem !=0){
                 Transferencia::create($request->all());
             }else{
@@ -3084,7 +3112,7 @@ class AlunosController extends Controller
             tr.Aprovado,
             CASE WHEN tr.IDEscolaDestino = 0 THEN 'Escola Fora da Rede' ELSE eDestino.Nome END as Destino,
             t.Nome as Turma,
-            tr.created_at as DTTransferencia,
+            tr.DTTransferencia,
             CASE WHEN ft.Feedback IS NOT NULL THEN ft.Feedback ELSE '' END as Feedback
         FROM transferencias tr
         INNER JOIN alunos a ON(a.id = tr.IDAluno)
@@ -3268,7 +3296,7 @@ class AlunosController extends Controller
             at.STAluno,
             a.STAluno as alunoST,
             at.Justificativa,
-            at.created_at
+            at.DTSituacao
         FROM matriculas m
         INNER JOIN alunos a ON(a.IDMatricula = m.id)
         INNER JOIN turmas t ON(t.id = a.IDTurma)
@@ -3304,7 +3332,7 @@ class AlunosController extends Controller
 
                 $item = [];
                 $item[] = $Situacao;
-                $item[] = Controller::data($r->created_at,'d/m/Y');
+                $item[] = Controller::data($r->DTSituacao,'d/m/Y');
                 $item[] = $r->Justificativa;
                 $itensJSON[] = $item;
             }

@@ -27,7 +27,11 @@
                     <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
+                            <label>Data da Aula</label>
+                            <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" >
+                        </div>
+                        <div class="col-sm-2">
                             <label>Etapa</label>
                             <select name="Estagio" class="form-control">
                                 <optgroup label="Bimestre">
@@ -53,7 +57,7 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '6' : '3'}}">
+                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '6' : '2'}}">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma">
                                 <option value="">Selecione</option>
@@ -63,7 +67,7 @@
                             </select>
                         </div>
                         @if(in_array(Auth::user()->tipo,[4,5,4.5,5.5]))
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Professor</label>
                             <select class="form-control" name="IDProfessor">
                                 <option value="">Selecione</option>
@@ -75,17 +79,13 @@
                             </select>
                         </div>
                         @endif
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label>Conteúdo</label>
                             <input type="text" name="DSConteudo" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}" class="form-control">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label>Data da Aula</label>
-                            <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" >
-                        </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-12">
                             <label>Descrição da Aula</label>
                             <textarea name="DSAula" class="form-control">{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
                         </div>
@@ -140,7 +140,7 @@
 
                        $.ajax({
                           method : 'GET',
-                          url : "/Aulas/ListaAlunos/"+$(this).val()
+                          url : "/Aulas/ListaAlunos/"+$(this).val()+"/"+$("input[name=DTAula]").val()
                        }).done(function(alun){
                         //console.log(alun)
                           $("#presencas").html(alun)
@@ -192,7 +192,7 @@
 
                        $.ajax({
                           method : 'GET',
-                          url : "/Aulas/ListaAlunos/"+$("select[name=IDTurma]").val()
+                          url : "/Aulas/ListaAlunos/"+$("select[name=IDTurma]").val()+"/"+$("input[name=DTAula]").val()
                        }).done(function(alun){
                         //console.log(alun)
                           $("#presencas").html(alun)

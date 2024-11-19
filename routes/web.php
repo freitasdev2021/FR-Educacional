@@ -107,7 +107,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Aulas/Presenca/Todos/{IDAula}',[AulasController::class,'presencaTodos'])->name('Aulas/Presenca/Todos');
         Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
         Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
-        Route::get('/Aulas/ListaAlunos/{IDTurma}',[AulasController::class,'getHtmlAlunosChamada'])->name('Aulas/ListaAlunos');
+        Route::get('/Aulas/ListaAlunos/{IDTurma}/{DTAula}',[AulasController::class,'getHtmlAlunosChamada'])->name('Aulas/ListaAlunos');
         Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca');
         Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
         Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');

@@ -330,7 +330,10 @@
                             <label>Tipo de Transporte</label>
                             <input type="text" name="TPTransporte" class="form-control" value="{{isset($Registro) ? $Registro->TPTransporte : ''}}">
                         </div>
-                        
+                        <div class="col-sm-3">
+                            <label>Data de Entrada</label>
+                            <input type="date" name="DTEntrada" class="form-control" value="{{isset($Registro) ? $Registro->DTEntrada : ''}}">
+                        </div>
                         <div class="checkboxEscolas">
                             <div class="form-check escola">
                                 <br>
