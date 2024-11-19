@@ -620,7 +620,7 @@ class AulasController extends Controller
             $DTEntrada = Carbon::parse($arr->DTEntrada);
             $DTSaida = Carbon::parse($arr->DTSaida);
             $DTAula = Carbon::parse($arr->DTAula);
-            
+
             if (is_null($arr->DTSaida) || ($DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula))) {
                 return $arr;
             }
@@ -675,7 +675,7 @@ class AulasController extends Controller
             $DTEntrada = Carbon::parse($arr->DTEntrada);
             $DTSaida = Carbon::parse($arr->DTSaida);
         
-            if (is_null($arr->DTSaida) || ($DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula))) {
+            if (is_null($arr->DTSaida) || empty($arr->DTSaida) || $DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula)) {
                 return $arr;
             }
         });
