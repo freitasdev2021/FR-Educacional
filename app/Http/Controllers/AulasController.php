@@ -608,8 +608,8 @@ class AulasController extends Controller
                 CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente,
                 a.DTEntrada,
                 a.DTSaida,
-                MAX(r.created_at) as DTRemanejamento,
-                MAX(r.IDTurmaOrigem) as IDTurmaOrigem,
+                r.created_at as DTRemanejamento,
+                r.IDTurmaOrigem as IDTurmaOrigem,
                 a.IDTurma
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
@@ -637,7 +637,7 @@ class AulasController extends Controller
                 return $alunos;
             }
         });
-        dd($frequencia);
+        
         $rota = route('Aulas/setPresenca');
         if(count($frequencia) > 0){
             foreach($frequencia as $f){
