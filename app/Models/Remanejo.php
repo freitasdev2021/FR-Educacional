@@ -15,6 +15,7 @@ class Remanejo extends Model
         'IDAluno',
         'IDTurmaOrigem',
         'IDTurmaDestino',
-        'IDEscola'
+        'IDEscola',
+        'created_at'
     ];
 }

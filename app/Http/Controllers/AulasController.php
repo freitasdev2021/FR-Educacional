@@ -383,7 +383,8 @@ class AulasController extends Controller
                         Chamada::create(array(
                             "Presenca" => 0,
                             "IDAluno" => $ch,
-                            "IDAula" => $Aula->id
+                            "IDAula" => $Aula->id,
+                            'created_at' => $Aula->DTAula
                         ));
                     }
                 }
@@ -602,29 +603,41 @@ class AulasController extends Controller
         $SQL = <<<SQL
             SELECT 
                 m.Nome AS Aluno,
-                au.STAula,
+                f.created_at as DTAula,
                 m.id AS IDAluno,
                 CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente,
-                au.DTAula,
                 a.DTEntrada,
-                a.DTSaida
+                a.DTSaida,
+                MAX(r.created_at) as DTRemanejamento,
+                MAX(r.IDTurmaOrigem) as IDTurmaOrigem,
+                a.IDTurma
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
-            INNER JOIN turmas t ON a.IDTurma = t.id
-            INNER JOIN aulas au ON t.id = au.IDTurma
-            LEFT JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
-            WHERE t.id = au.IDTurma AND au.id = $IDAula 
-            GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
+            LEFT JOIN remanejados r ON(r.IDAluno = a.id)
+            LEFT JOIN frequencia f ON $IDAula = f.IDAula AND m.id = f.IDAluno
+            WHERE f.IDAula = $IDAula 
+            GROUP BY m.Nome, m.id, f.IDAluno
         SQL;
-        $frequencia = array_filter(DB::select($SQL), function ($arr){
+        $frequencia = array_filter(DB::select($SQL), function ($arr) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
             $DTSaida = Carbon::parse($arr->DTSaida);
             $DTAula = Carbon::parse($arr->DTAula);
+            $remanejadosDaTurma = [];
+            $naoRemanejados = [];
 
-            if (is_null($arr->DTSaida) || ($DTEntrada->lte($DTAula) && $DTSaida->gt($DTAula))) {
-                return $arr;
+            if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
+                if(!is_null($arr->DTRemanejamento) && $arr->IDTurmaOrigem == $arr->IDTurma && $DTRemanejamento->gt($DTAula)){
+                    $remanejadosDaTurma = $arr;
+                }
+
+                $naoRemanejados = $arr;
+
+                $alunos = (array)$remanejadosDaTurma + (array)$naoRemanejados;
+
+                return $alunos;
             }
         });
+        dd($frequencia);
         $rota = route('Aulas/setPresenca');
         if(count($frequencia) > 0){
             foreach($frequencia as $f){
@@ -662,24 +675,37 @@ class AulasController extends Controller
                 m.Nome AS Aluno,
                 m.id AS IDAluno,
                 a.DTSaida,
-                a.DTEntrada
+                a.DTEntrada,
+                a.IDTurma,
+                r.created_at as DTRemanejamento,
+                r.IDTurmaOrigem as IDTurmaOrigem
             FROM alunos a
             INNER JOIN matriculas m ON m.id = a.IDMatricula
-            INNER JOIN turmas t ON a.IDTurma = t.id
-            WHERE t.id = $IDTurma
-            
+            LEFT JOIN remanejados r ON(r.IDAluno = a.id)
             GROUP BY m.Nome, m.id
         SQL;
 
-        $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula) {
+        $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula,$IDTurma) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
             $DTSaida = Carbon::parse($arr->DTSaida);
-
+            $DTRemanejamento = Carbon::parse($arr->DTRemanejamento);
+            $remanejadosDaTurma = [];
+            $naoRemanejados = [];
             if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
-                return $arr;
+                if(!is_null($arr->DTRemanejamento) && $arr->IDTurmaOrigem == $IDTurma && $DTRemanejamento->lt($DTAula)){
+                    $remanejadosDaTurma = $arr;
+                }
+
+                if($arr->IDTurma == $IDTurma){
+                    $naoRemanejados = $arr;
+                }
+
+                $alunos = (array)$remanejadosDaTurma + (array)$naoRemanejados;
+
+                return $alunos;
             }
         });
-
+        //dd($frequencia);
         ob_start();
         foreach($frequencia as $f){
             ?>

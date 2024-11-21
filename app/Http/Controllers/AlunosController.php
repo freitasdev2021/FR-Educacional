@@ -1855,8 +1855,18 @@ class AlunosController extends Controller
         try{
             if($request->IDTurma != 0){
                 $IDEscola = self::getEscolaDiretor(Auth::user()->id);
-                Aluno::find($request->IDAluno)->update(['IDTurma'=>$request->IDTurma]);
-                Transferencia::find($request->IDTransferencia)->update(['Aprovado'=> 1]);
+                $Aluno = Aluno::find($request->IDAluno);
+                $Transferencia = Transferencia::find($request->IDTransferencia);
+                Remanejo::create([
+                    "IDTurmaOrigem" => $Aluno->IDTurma,
+                    "IDTurmaDestino" => $request->IDTurma,
+                    "IDAluno" => $request->IDAluno,
+                    "IDEscola" => $IDEscola,
+                    "created_at" => $Transferencia->DTTransferencia
+                ]);
+
+                $Aluno->update(['IDTurma'=>$request->IDTurma]);
+                $Transferencia->update(['Aprovado'=> 1]);
                 DB::update("UPDATE escolas SET QTVagas = QTVagas-1 WHERE id = $IDEscola");
                 $mensagem = 'Transferência Realizada com Sucesso!';
             }else{

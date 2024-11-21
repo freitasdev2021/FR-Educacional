@@ -14,6 +14,7 @@ class Chamada extends Model
     protected $fillable = [
         'Presenca',
         'IDAluno',
-        'IDAula'
+        'IDAula',
+        'created_at'
     ];
 }
