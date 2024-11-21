@@ -647,10 +647,6 @@ class AulasController extends Controller
                     $checked = 'checked';
                 }
 
-                if($f->STAula == 2){
-                    $disabled = 'disabled';
-                }   
-
                 $item = [];
                 $item[] = $f->Aluno;
                 $item[] = "<div><input type='checkbox' name='Presenca' onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked ></div>";
