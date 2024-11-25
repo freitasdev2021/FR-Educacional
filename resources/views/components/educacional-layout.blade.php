@@ -60,7 +60,6 @@
                   @endif
                 </div>
              </div>
-             </div>
              <form action="{{route('logout')}}" method="POST">
                @csrf
                <button class="nav_link sair" type="submit"><i class='bx bx-log-out nav_icon'></i> <span class="nav_name">Sair</span> </button>
