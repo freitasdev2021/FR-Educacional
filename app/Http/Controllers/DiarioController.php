@@ -80,6 +80,7 @@ class DiarioController extends Controller
                 au.DSAula as Aula,
                 au.created_at,
                 au.Estagio,
+                au.DTAula,
                 (
                     SELECT
                         CONCAT(

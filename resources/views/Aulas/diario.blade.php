@@ -60,11 +60,11 @@
           @foreach($relatorios as $r)
           <div class="card">
              <div class="card-header bg-fr text-white">
-                {{$r->Professor}} - {{$r->Turma." (".$r->Serie.")"}} - {{date('d/m/Y', strtotime($r->created_at))}}
+                {{$r->Professor}} - {{$r->Turma." (".$r->Serie.")"}} - {{date('d/m/Y', strtotime($r->DTAula))}}
              </div>
              <div class="card-body">
                 {{-- <h5 class="card-title">{{$r->Aula}}</h5> --}}
-                @if($r->conteudoLecionado)
+                @if($r->conteudoLecionado && is_array(json_decode($r->conteudoLecionado)))
                 @foreach(json_decode($r->conteudoLecionado) as $cl)
                 <div class="card">
                     <div class="card-body">
