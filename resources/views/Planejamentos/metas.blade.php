@@ -75,7 +75,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if($Registro->MetasJSON)
+                        @if(isset($Registro) && $Registro->MetasJSON)
                         @foreach(json_decode($Registro->MetasJSON) as $m)
                         <tr>
                             <td>{{$m->Meta}}</td>

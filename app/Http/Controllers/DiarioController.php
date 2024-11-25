@@ -28,11 +28,12 @@ class DiarioController extends Controller
             ));
         }
         $IDProfessores = implode(",",ProfessoresController::getEscolaProfessores());
+    
         return view("Aulas.diario",[
             "submodulos" => self::submodulos,
             "relatorios" => self::getRelatoriosProfessor(),
             "Data" => array_unique($Data),
-            "Professores" => array_unique($Professores),
+            "Professores" => Professor::findMany($IDProfessores),
             "Estagio" => array_unique($Estagio),
             "ProfessoresComentario" => array_map("unserialize", array_unique(array_map("serialize", $ProfComentarios))),
             "ComentariosProfessor" => DB::select("SELECT c.id,c.created_at,p.Nome as Professor,c.Titulo,c.Comentario FROM comentarios c INNER JOIN professores p ON(c.IDProfessor = p.id) WHERE p.id IN($IDProfessores)"),

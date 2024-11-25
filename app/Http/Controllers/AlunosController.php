@@ -2499,10 +2499,8 @@ class AlunosController extends Controller
             "id" => ""
         ];
 
-        if(Auth::user()->tipo == 2){
-            $IDEscolas = SecretariasController::getEscolasRede(Auth::user()->id_org);
-            $view['Escolas'] = Escola::findMany($IDEscolas);
-        }
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+        $view['Escolas'] = Escola::findMany($IDEscolas);
 
         if($id){
             $view['id'] = $id;

@@ -86,7 +86,8 @@ class PlanejamentosController extends Controller
         $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
         $view = [
             "submodulos" => self::submodulos,
-            "Escolas" => Escola::findMany($IDEscolas)
+            "Escolas" => Escola::findMany($IDEscolas),
+            'IDEscola' => ''
         ];
 
         if(isset($_GET['IDEscola'])){

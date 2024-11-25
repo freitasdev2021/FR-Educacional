@@ -11,53 +11,9 @@
              <div>
                 <a href="{{route('dashboard')}}" class="nav_logo"><i class='bx bx-book-reader text-white'></i><span class="nav_logo-name">FR Educacional</span> </a>
                 <div class="nav_list"> 
-                  @if(in_array(Auth::user()->tipo,[5,6,5.5]))
-                  <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
-                  <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
-                  <x-modulo nome="Turmas" icon="bx bxs-graduation" rota="Turmas/index" endereco="Turmas"/>
-                  <x-modulo nome="Aulas" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>
-                  <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Planejamentos/index" endereco="Planejamentos"/>
-                  <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>
-                  <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
-                  <x-modulo nome="Responsáveis" icon="bx bx-body" rota="Responsaveis/index" endereco="Responsaveis"/>
-                  <x-modulo nome="EAD" icon="bx bx-desktop" rota="EAD/index" endereco="EAD"/>
-                  @if(Auth::user()->tipo == 6)
-                  <x-modulo nome="Apoio" icon="bx bxs-universal-access" rota="Apoio/index" endereco="Apoio"/>
-                  @endif
-                  @endif
-                  @if(in_array(Auth::user()->tipo,[2,2.5]))
-                  <x-modulo nome="Recrutamento" icon="bx bxs-notepad" rota="Recrutamento/index" endereco="Recrutamento"/>
-                  <x-modulo nome="Diretores" icon="bx bxs-briefcase-alt" rota="Diretores/index" endereco="Diretores"/>
-                  <x-modulo nome="Comunicação Interna" icon="bx bx-envelope" rota="CI/index" endereco="CI"/>
-                  @endif
-                  @if(Auth::user()->tipo == 0)
-                  <x-modulo nome="Secretarías" icon="bx bx-buildings" rota="Secretarias/index" endereco="Secretarias"/>
-                  <x-modulo nome="Usuários" icon="bx bx-user" rota="Usuarios/indexFornecedor" endereco="Usuarios"/>
-                  @elseif(in_array(Auth::user()->tipo,[2,4,4.5,2.5]))
-                  <x-modulo nome="Escola{{(in_array(Auth::user()->tipo,[2,2.5])) ? 's' : ''}}" icon="bx bxs-school" rota="Escolas/index" endereco="Escolas"/>
-                  <x-modulo nome="Professores" icon="bx bxs-book-reader" rota="Professores/index" endereco="Professores"/>
-                  @if(in_array(Auth::user()->tipo,[2,4]))<x-modulo nome="Aulas" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>@endif
-                  <x-modulo nome="Pedagogos" icon="bx bx-library" rota="Pedagogos/index" endereco="Pedagogos"/>
-                  @if(in_array(Auth::user()->tipo,[4,4.5]))<x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>@endif
-                  <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
-                  <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
-                  <x-modulo nome="Biblioteca" icon="bx bx-book" rota="Biblioteca/index" endereco="Biblioteca"/>
-                  <x-modulo nome="Funcionários" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>
-                  <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
-                  @if(in_array(Auth::user()->tipo,[5]))<x-modulo nome="Endereços" icon="bx bx-street-view" rota="Enderecos/index" endereco="Enderecos"/>@endif
-                  @if(in_array(Auth::user()->tipo,[4.5,4]))<x-modulo nome="Merenda" icon="bx bx-fork" rota="Merenda/index" endereco="Merenda"/>@endif
-                  <x-modulo nome="Transporte" icon="bx bx-bus-school" rota="Transporte/index" endereco="Transporte"/>
-                  @elseif(Auth::user()->tipo == 7)
-                  <x-modulo nome="Matrículas" icon="bx bxs-group" rota="Matriculas/index" endereco="Matriculas"/>
-                  <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="OcorrenciasAluno/index" endereco="OcorrenciasAluno"/>
-                  <x-modulo nome="Desempenho" icon="bx bx-pencil" rota="Desempenho/index" endereco="Desempenho"/>
-                  <x-modulo nome="EAD" icon="bx bx-desktop" rota="Calendario/index" endereco="Calendario"/>
-                  @elseif(in_array(Auth::user()->tipo,[8]))
-                  <x-modulo nome="Candidatura" icon="bx bx-user" rota="Candidatura/index" endereco="Candidatura"/>
-                  @endif
-                  @if(in_array(Auth::user()->tipo,[2,2.5,3,4,4.5,5,5.5,6,6.5]))
-                  <x-modulo nome="Comunicação Interna" icon="bx bx-envelope" rota="CI/Destinatario" endereco="CI"/>
-                  @endif
+                  @foreach($modulos[Auth::user()->tipo] as $m)
+                  <x-modulo nome="{{$m['nome']}}" icon="{{$m['icon']}}" rota="{{$m['rota']}}" endereco="{{$m['endereco']}}"/>
+                  @endforeach
                 </div>
              </div>
              <form action="{{route('logout')}}" method="POST">
