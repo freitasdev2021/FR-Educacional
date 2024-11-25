@@ -145,7 +145,7 @@ class TurmasController extends Controller
         $view = [
             'submodulos' => self::professoresSubmodulos,
             'id' => $IDTurma,
-            'Disciplinas' => ProfessoresController::getDisciplinasProfessor(Auth::user()->IDProfissional),
+            'Disciplinas' => EscolasController::getListDisciplinasEscola(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)),
             'Estagios' => $Estagios,
             'Turma' => Turma::find($IDTurma)
         ];

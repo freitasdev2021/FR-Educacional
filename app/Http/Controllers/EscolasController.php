@@ -361,6 +361,20 @@ class EscolasController extends Controller
         return DB::select($SQL);
     }
 
+    public static function getListDisciplinasEscola($ARREscolas){
+        $IDEscolas = implode(',',$ARREscolas);
+        $SQL = <<<SQL
+        SELECT
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
+        FROM disciplinas d
+        INNER JOIN alocacoes_disciplinas al ON(al.IDDisciplina = d.id)
+        WHERE al.IDEscola IN($IDEscolas)
+        SQL;
+
+        return DB::select($SQL);
+    }
+
     public function getProfessoresTurmaHTML($IDTurma){
         $AND = " AND tn.IDTurma = ".$IDTurma;
 
@@ -611,8 +625,8 @@ class EscolasController extends Controller
                 $item[] = $t->QTAlunos;
                 $item[] = 200 - $t->Frequencia;
                 $item[] = ($t->Frequencia/$Estagios)*100.." %";
-                (in_array(Auth::user()->tipo,[4,2,2.5,4.5])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a>" : '';
-                (in_array(Auth::user()->tipo,[4,6,3,5])) ? $item[] = "<a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
+                (in_array(Auth::user()->tipo,[4,2,2.5,4.5])) ? $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a> <a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>" : '';
+               
                 $itensJSON[] = $item;
             }
         }else{
