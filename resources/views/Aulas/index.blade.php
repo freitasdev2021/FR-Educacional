@@ -107,7 +107,7 @@
                                         @if(isset($a->CTAula) && ($ctaItems = json_decode($a->CTAula)) && is_array($ctaItems))
                                         <ul>
                                             @foreach($ctaItems as $cta)
-                                                <li>{{ $cta->Aula }} - {{ $cta->Disciplina }}</li>
+                                                <li>{{ $cta->Disciplina }}</li>
                                             @endforeach
                                         </ul>
                                         <h3>Conteúdo:</h3>
@@ -120,10 +120,6 @@
                                         <form action="{{route('Aulas/Alterar',$a->Hash)}}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <div class="col-sm-12">
-                                                <label>Nome</label>
-                                                <input type="text" name="DSAula" value="{{explode(' - ',$a->DSAula)[0]}}" class="form-control">
-                                            </div>
                                             <div class="col-sm-12">
                                                 <label>Descrição da Aula</label>
                                                 <textarea class="form-control" name="DSConteudo">{{$a->DSConteudo}}</textarea>

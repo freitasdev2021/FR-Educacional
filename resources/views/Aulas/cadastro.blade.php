@@ -27,7 +27,7 @@
                     <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                             <label>Data da Aula</label>
                             <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" >
                         </div>
@@ -77,15 +77,11 @@
                             </select>
                         </div>
                         @endif
-                        <div class="col-sm-2">
-                            <label>Conteúdo</label>
-                            <input type="text" name="DSConteudo" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}" class="form-control">
-                        </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
                             <label>Descrição da Aula</label>
-                            <textarea name="DSAula" class="form-control">{{(isset($Registro->DSAula)) ? $Registro->DSAula : ''}}</textarea>
+                            <textarea name="DSConteudo" class="form-control">{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}</textarea>
                         </div>
                     </div>
                     <br>

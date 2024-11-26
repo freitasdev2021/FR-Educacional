@@ -105,7 +105,6 @@ class AulasController extends Controller
             p.Nome as Professor,
             p.id as IDProfessor,
             a.Hash,
-            a.DSAula,
             t.id as IDTurma,
             CONCAT('[', GROUP_CONCAT('"', d.id, '"' SEPARATOR ','), ']') AS Disciplinas,
             CONCAT(
@@ -114,7 +113,6 @@ class AulasController extends Controller
                     DISTINCT
                     '{'
                     ,'"Disciplina":"', d.NMDisciplina, '"'
-                    ,',"Aula":"', a.DSAula, '"'
                     ,',"Conteudo":"', a.DSConteudo, '"'
                     ,',"Data":"', a.DTAula, '"'
                     ,',"Frequencia":"', (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id), '"'
@@ -169,7 +167,6 @@ class AulasController extends Controller
             "IDTurma"=>$request->IDTurma,
             "DSConteudo"=>$request->DSConteudo,
             "Estagio"=>$request->Estagio,
-            "DSAula"=>$request->DSAula,
             "IDProfessor"=>$request->IDProfessor
         ];
 
@@ -252,7 +249,6 @@ class AulasController extends Controller
             $SQL = <<<SQL
             SELECT
                 a.id as IDAula,
-                a.DSAula,
                 a.STAula,
                 d.NMDisciplina,
                 a.IDTurma,
@@ -295,12 +291,12 @@ class AulasController extends Controller
         ];
 
         if(Auth::user()->tipo == 6){
-            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSAula','aulas.Hash','disciplinas.NMDisciplina')
+            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id') // Faz o join
             ->where('aulas.IDProfessor', Auth::user()->IDProfissional) // Filtra pelo professor logado
             ->get();
         }else{
-            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSAula','aulas.Hash','disciplinas.NMDisciplina')
+            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id') // Faz o join
             ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola()) // Filtra pelo professor logado
             ->get();
@@ -473,7 +469,6 @@ class AulasController extends Controller
                     "Estagio" => $request->Estagio,
                     "IDTurma" => $request->IDTurma,
                     "DSConteudo" => $request->DSConteudo,
-                    "DSAula" => $request->DSAula,
                     "IDProfessor" => $AulaData['IDProfessor']
                 ]);
 
@@ -484,7 +479,6 @@ class AulasController extends Controller
                 $Hash = self::randomHash();
                 foreach($request->IDDisciplina as $d){
                     $AulaData['IDDisciplina'] = $d;
-                    $AulaData['DSAula'] = $request->DSAula;
                     $AulaData['Hash'] = $Hash;
                     $Aula = Aulas::create($AulaData);
                     foreach($request->Chamada as $ch){
@@ -581,80 +575,6 @@ class AulasController extends Controller
         }
     }
     //
-    public function getAulas(){
-        $IDProf = Auth::user()->IDProfissional;
-
-        if(Auth::user()->tipo == 6){
-            $WHERE = "WHERE a.IDProfessor = $IDProf";
-        }else{
-            $WHERE = "WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
-        }
-
-        if(isset($_GET['IDTurma'])){
-            $WHERE .=" AND a.IDTurma=".$_GET['IDTurma'];
-        }
-
-        if(isset($_GET['Estagio'])){
-            $WHERE .=" AND a.Estagio='".$_GET['Estagio']."'";
-        }
-
-        $SQL = <<<SQL
-        SELECT
-        SELECT
-            a.id as IDAula,
-            a.DSAula,
-            d.NMDisciplina,
-        SELECT 
-            a.id as IDAula,
-            a.DSAula,
-            d.NMDisciplina,
-            a.DSConteudo,
-            CONCAT(
-                '[',
-                GROUP_CONCAT(
-                    DISTINCT
-                    '{'
-                    ,'"Disciplina":"', d.NMDisciplina, '"'
-                    ,',"Aula":"', a.DSAula, '"'
-                    ,',"Conteudo":"', a.DSConteudo, '"'
-                    ,',"Data":"', a.DTAula, '"'
-                    ,',"Frequencia":"', (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id), '"'
-                    ,'}'
-                    SEPARATOR ','
-                ),
-                ']'
-            ) AS CTAula
-        FROM aulas a 
-        INNER JOIN turmas t ON(t.id = a.IDTurma) 
-        INNER JOIN escolas e ON(t.IDEscola = e.id) 
-        INNER JOIN disciplinas d ON(d.id = a.IDDisciplina) 
-        LEFT JOIN frequencia f ON(f.IDAula = a.id) 
-        $WHERE GROUP BY DSConteudo
-        SQL;
-        
-        $aulas = DB::select($SQL);
-        if(count($aulas) > 0){
-            foreach($aulas as $a){
-                $item = [];
-                $item[] = $a->DSConteudo;
-                $item[] = $a->CTAula;
-                $item[] = self::data($a->DTAula,'d/m/Y');
-                $item[] = "<a href=".route('Aulas/Edit',$a->DSConteudo)." class='btn btn-fr btn-xs'>Abrir Diário</a>&nbsp;<a href=".route('Aulas/Delete',$a->DSConteudo)." class='btn btn-danger btn-xs'>Delete</a>";
-                $itensJSON[] = $item;
-            }
-        }else{
-            $itensJSON = [];
-        }
-        
-        $resultados = [
-            "recordsTotal" => intval(count($aulas)),
-            "recordsFiltered" => intval(count($aulas)),
-            "data" => $itensJSON 
-        ];
-        
-        echo json_encode($resultados);
-    }
-    //
     public function getAtividades(){
         $IDProf = Auth::user()->IDProfissional;
         if(Auth::user()->tipo == 6){
@@ -675,7 +595,7 @@ class AulasController extends Controller
         SELECT
             p.Nome as Professor,
             t.Nome as Turma,
-            a.DSAula as Aula,
+            a.DSConteudo as Aula,
             atv.id as IDAtividade,
             atv.TPConteudo as Atividade,
             atv.created_at as Aplicada,

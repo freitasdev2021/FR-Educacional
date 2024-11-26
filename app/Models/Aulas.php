@@ -14,7 +14,6 @@ class Aulas extends Model
         'id',
         'IDTurma',
         'DSConteudo',
-        'DSAula',
         'IDProfessor',
         'IDDisciplina',
         'STAula',

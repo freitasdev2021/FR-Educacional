@@ -30,18 +30,18 @@
                         <div class="col-sm-6">
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <label>Aula da Atividade</label>
+                                    <label>Conteudo/Disciplina</label>
                                     <select class="form-control" name="IDAula" data-alunos="{{route('Aulas/getAlunos')}}">
                                         <option value="">Selecione</option>
                                         @foreach($Aulas as $a)
-                                        <option value="{{$a->id}}" data-hash="{{$a->Hash}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->DSAula}} - {{$a->NMDisciplina}}</option>
+                                        <option value="{{$a->id}}" data-hash="{{$a->Hash}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->DSConteudo}} - {{$a->NMDisciplina}}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-10">
-                                    <label>Conteudo</label>
+                                    <label>Descrição da Atividade</label>
                                     <input type="text" class="form-control" name="TPConteudo" value="{{isset($Registro->TPConteudo) ? $Registro->TPConteudo : ''}}">
                                 </div>
                                 <div class="col-sm-2">

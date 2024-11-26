@@ -16,13 +16,13 @@ use App\Models\Escola;
 class FichaController extends Controller
 {
     public const submodulos = array([
-        'nome' => 'Formulários',
+        'nome' => 'Fichas',
         'rota' => 'Fichas/index',
         'endereco' => 'index'
     ]);
 
     public const cadastroSubmodulos = array([
-        'nome' => 'Formulários',
+        'nome' => 'Fichas',
         'rota' => 'Fichas/index',
         'endereco' => 'index'
     ],[
