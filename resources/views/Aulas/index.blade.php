@@ -104,17 +104,17 @@
                                                 : '' 
                                         }}
                                         </p>
+                                        @if(isset($a->CTAula) && ($ctaItems = json_decode($a->CTAula)) && is_array($ctaItems))
                                         <ul>
-                                            @if(isset($a->CTAula) && ($ctaItems = json_decode($a->CTAula)) && is_array($ctaItems))
-                                                @foreach($ctaItems as $cta)
-                                                    <li>{{ $cta->Aula }} - {{ $cta->Disciplina }}</li>
-                                                @endforeach
-                                            @endif
+                                            @foreach($ctaItems as $cta)
+                                                <li>{{ $cta->Aula }} - {{ $cta->Disciplina }}</li>
+                                            @endforeach
                                         </ul>
                                         <h3>Conteúdo:</h3>
                                         <p>
                                             {{$cta->Conteudo}}
                                         </p>
+                                        @endif
                                     </div>
                                     <div class="col-sm-6">
                                         <form action="{{route('Aulas/Alterar',$a->Hash)}}" method="POST">
