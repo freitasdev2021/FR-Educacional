@@ -76,6 +76,65 @@ class AulasController extends Controller
     ]);
     //LISTAGEM PRINCIPAL
     public function index(){
+        //CONSULTA E FILTROS
+        $IDProf = Auth::user()->IDProfissional;
+
+        if(Auth::user()->tipo == 6){
+            $WHERE = "WHERE a.IDProfessor = $IDProf";
+        }else{
+            $WHERE = "WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+        }
+
+        if(isset($_GET['IDTurma']) && !empty($_GET['IDTurma'])){
+            $WHERE .=" AND a.IDTurma='".$_GET['IDTurma']."'";
+        }
+
+        if(isset($_GET['Estagio']) && !empty($_GET['Estagio'])){
+            $WHERE .=" AND a.Estagio='".$_GET['Estagio']."'";
+        }
+
+        if(isset($_GET['Professor']) && !empty($_GET['Professor'])){
+            $WHERE .=" AND p.id='".$_GET['Professor']."'";
+        }
+
+        $SQL = <<<SQL
+        SELECT 
+            a.DSConteudo,
+            a.DTAula,
+            a.Estagio,
+            p.Nome as Professor,
+            p.id as IDProfessor,
+            a.Hash,
+            a.DSAula,
+            t.id as IDTurma,
+            CONCAT('[', GROUP_CONCAT('"', d.id, '"' SEPARATOR ','), ']') AS Disciplinas,
+            CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    DISTINCT
+                    '{'
+                    ,'"Disciplina":"', d.NMDisciplina, '"'
+                    ,',"Aula":"', a.DSAula, '"'
+                    ,',"Conteudo":"', a.DSConteudo, '"'
+                    ,',"Data":"', a.DTAula, '"'
+                    ,',"Frequencia":"', (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id), '"'
+                    ,'}'
+                    SEPARATOR ','
+                ),
+                ']'
+            ) AS CTAula
+        FROM aulas a 
+        INNER JOIN professores p ON(p.id = a.IDProfessor)
+        INNER JOIN turmas t ON(t.id = a.IDTurma) 
+        INNER JOIN escolas e ON(t.IDEscola = e.id) 
+        INNER JOIN disciplinas d ON(d.id = a.IDDisciplina) 
+        LEFT JOIN frequencia f ON(f.IDAula = a.id) 
+        $WHERE GROUP BY a.Hash
+        SQL;
+        
+        $aulas = DB::select($SQL);
+       
+        //RESTO DA VIEW
         $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
         if(in_array(Auth::user()->tipo,[6,6.5])){
             $submodulos = self::submodulosProfessor;
@@ -85,14 +144,44 @@ class AulasController extends Controller
 
         $view = [
             'submodulos' => $submodulos,
-            'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id)
+            'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
+            'Aulas' => $aulas
         ];
+
+        if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
+            $view['Professores'] = self::getProfessoresEscola($IDEscolas);
+            $view['Turmas'] = EscolasController::getSelectTurmasEscola($IDEscolas);
+        }
 
         if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
             $view['Turmas'] = EscolasController::getSelectTurmasEscola($IDEscolas);
         }
 
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $view['Professores'] = ProfessoresController::getProfessoresRede(Auth::user()->id_org);
+        }
+
         return view('Aulas.index',$view);
+    }
+    //ALTERAR AULA
+    public function alterarAula(Request $request,$Hash){
+        $AulaData = [
+            "IDTurma"=>$request->IDTurma,
+            "DSConteudo"=>$request->DSConteudo,
+            "Estagio"=>$request->Estagio,
+            "DSAula"=>$request->DSAula,
+            "IDProfessor"=>$request->IDProfessor
+        ];
+
+        if(Auth::user()->tipo == 6){
+            $AulaData['IDProfessor'] = Auth::user()->IDProfissional;
+        }else{
+            $AulaData['IDProfessor'] = $request->IDProfessor;
+        }
+
+        Aulas::where('Hash',$Hash)->update($AulaData);
+
+        return redirect()->back();
     }
     //ATIVIDADES
     public function atividades(){
@@ -193,7 +282,7 @@ class AulasController extends Controller
 
     //CADASTRO DE ATIVIDADES
     public function cadastroAtividades($id=null){
-
+        $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
         if(in_array(Auth::user()->tipo,[6,6.5])){
             $submodulos = self::submodulosProfessor;
         }else{
@@ -202,9 +291,20 @@ class AulasController extends Controller
 
         $view = [
             'submodulos' => $submodulos,
-            'id' => '',
-            'Aulas' => Aulas::select('id','DSAula')->where('IDProfessor',Auth::user()->IDProfissional)->get() 
+            'id' => ''
         ];
+
+        if(Auth::user()->tipo == 6){
+            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSAula','aulas.Hash','disciplinas.NMDisciplina')
+            ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id') // Faz o join
+            ->where('aulas.IDProfessor', Auth::user()->IDProfissional) // Filtra pelo professor logado
+            ->get();
+        }else{
+            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSAula','aulas.Hash','disciplinas.NMDisciplina')
+            ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id') // Faz o join
+            ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola()) // Filtra pelo professor logado
+            ->get();
+        }
 
         if($id){
             //
@@ -269,6 +369,7 @@ class AulasController extends Controller
     }
     //
     public function getAulaAlunos(Request $request){
+        $HashAula = $request->HashAula;
         $SQL = <<<SQL
             SELECT 
                 m.Nome AS Aluno,
@@ -277,8 +378,8 @@ class AulasController extends Controller
             INNER JOIN matriculas m ON m.id = a.IDMatricula
             INNER JOIN turmas t ON a.IDTurma = t.id
             INNER JOIN aulas au ON t.id = au.IDTurma
-            INNER JOIN frequencia f ON au.id = f.IDAula AND m.id = f.IDAluno
-            WHERE t.id = au.IDTurma AND au.id = $request->IDAula
+            INNER JOIN frequencia f ON au.Hash = f.HashAula AND m.id = f.IDAluno
+            WHERE t.id = au.IDTurma AND au.Hash = '$HashAula'
             GROUP BY m.Nome, au.STAula, m.id, f.IDAluno
         SQL;
 
@@ -345,9 +446,13 @@ class AulasController extends Controller
         }
     }
     //
-    public function deleteAula($IDAula){
-        Chamada::where("IDAula",$IDAula)->delete();
-        Aulas::find($IDAula)->delete();
+    public function deleteAula($Hash){
+        $IDAula = Aulas::where('Hash',$Hash)->pluck('id')->toArray();
+        
+        Chamada::whereIn("IDAula",$IDAula)->delete();
+        Aulas::whereIn('id',$IDAula)->delete();
+        Atividade::whereIn('IDAula',$IDAula)->delete();
+
         return redirect()->back();
     }
     //
@@ -361,6 +466,7 @@ class AulasController extends Controller
             }
             if($request->id){
                 //dd($AulaData);
+                
                 $rout = 'Aulas/Edit';
                 Aulas::find($request->id)->update([
                     "DTAula" => $request->DTAula,
@@ -368,23 +474,26 @@ class AulasController extends Controller
                     "IDTurma" => $request->IDTurma,
                     "DSConteudo" => $request->DSConteudo,
                     "DSAula" => $request->DSAula,
-                    "IDProfessor" => $AulaData['IDProfessor'],
+                    "IDProfessor" => $AulaData['IDProfessor']
                 ]);
 
                 $aid = $request->id;
                 $status = 'success';
                 $mensagem = 'Aula Atualizada com Sucesso!';
             }else{
+                $Hash = self::randomHash();
                 foreach($request->IDDisciplina as $d){
                     $AulaData['IDDisciplina'] = $d;
-                    $AulaData['DSAula'] = $request->DSAula." - ".Disciplina::find($d)->NMDisciplina;
+                    $AulaData['DSAula'] = $request->DSAula;
+                    $AulaData['Hash'] = $Hash;
                     $Aula = Aulas::create($AulaData);
                     foreach($request->Chamada as $ch){
                         Chamada::create(array(
                             "Presenca" => 0,
                             "IDAluno" => $ch,
                             "IDAula" => $Aula->id,
-                            'created_at' => $Aula->DTAula
+                            'created_at' => $Aula->DTAula,
+                            'HashAula'=>$Hash
                         ));
                     }
                 }
@@ -491,30 +600,46 @@ class AulasController extends Controller
 
         $SQL = <<<SQL
         SELECT
+        SELECT
+            a.id as IDAula,
+            a.DSAula,
+            d.NMDisciplina,
+        SELECT 
             a.id as IDAula,
             a.DSAula,
             d.NMDisciplina,
             a.DSConteudo,
-            a.DTAula,
-            (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id) as Frequencia
-        FROM aulas a
-        INNER JOIN turmas t ON(t.id = a.IDTurma)
-        INNER JOIN escolas e ON(t.IDEscola = e.id)
-        INNER JOIN disciplinas d ON(d.id = a.IDDisciplina)
-        LEFT JOIN frequencia f ON(f.IDAula = a.id)
-        $WHERE GROUP BY a.id
+            CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    DISTINCT
+                    '{'
+                    ,'"Disciplina":"', d.NMDisciplina, '"'
+                    ,',"Aula":"', a.DSAula, '"'
+                    ,',"Conteudo":"', a.DSConteudo, '"'
+                    ,',"Data":"', a.DTAula, '"'
+                    ,',"Frequencia":"', (SELECT COUNT(f2.id) FROM frequencia f2 WHERE f2.IDAula = a.id), '"'
+                    ,'}'
+                    SEPARATOR ','
+                ),
+                ']'
+            ) AS CTAula
+        FROM aulas a 
+        INNER JOIN turmas t ON(t.id = a.IDTurma) 
+        INNER JOIN escolas e ON(t.IDEscola = e.id) 
+        INNER JOIN disciplinas d ON(d.id = a.IDDisciplina) 
+        LEFT JOIN frequencia f ON(f.IDAula = a.id) 
+        $WHERE GROUP BY DSConteudo
         SQL;
-
+        
         $aulas = DB::select($SQL);
         if(count($aulas) > 0){
             foreach($aulas as $a){
                 $item = [];
-                $item[] = $a->DSAula;
-                $item[] = $a->NMDisciplina;
                 $item[] = $a->DSConteudo;
-                $item[] = $a->Frequencia;
+                $item[] = $a->CTAula;
                 $item[] = self::data($a->DTAula,'d/m/Y');
-                $item[] = "<a href=".route('Aulas/Edit',$a->IDAula)." class='btn btn-fr btn-xs'>Abrir Diário</a>&nbsp;<a href=".route('Aulas/Delete',$a->IDAula)." class='btn btn-danger btn-xs'>Delete</a>";
+                $item[] = "<a href=".route('Aulas/Edit',$a->DSConteudo)." class='btn btn-fr btn-xs'>Abrir Diário</a>&nbsp;<a href=".route('Aulas/Delete',$a->DSConteudo)." class='btn btn-danger btn-xs'>Delete</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -561,12 +686,14 @@ class AulasController extends Controller
         FROM atividades atv
         LEFT JOIN aulas a ON(a.id = atv.IDAula)
         LEFT JOIN professores p ON(p.id = a.IDProfessor)
-        LEFT JOIN turmas t ON(t.id = a.IDProfessor)
+        LEFT JOIN turmas t ON(t.id = a.IDTurma)
+        LEFT JOIN turnos tur ON(tur.IDTurma = t.id)
         LEFT JOIN notas n ON(atv.id = n.IDAtividade)
         WHERE $WHERE AND atv.STDelete = 0 GROUP BY atv.id
         SQL;
         //dd($SQL);
         $atividades = DB::select($SQL);
+        //dd($atividades);
         if(count($atividades) > 0){
             foreach($atividades as $a){
                 $item = [];
@@ -592,39 +719,43 @@ class AulasController extends Controller
         echo json_encode($resultados);
     }
     //
-    public function chamada($IDAula){
+    public function chamada($Hash){
         return view('Aulas.chamada',[
             'submodulos' => self::cadastroSubmodulos,
-            'id' => $IDAula
+            'id' => $Hash
         ]);
     }
     //
-    public function getAulaPresenca($IDAula){
+    public function getAulaPresenca($Hash){
+        $ARRId = Aulas::where('Hash',$Hash)->pluck('IDTurma')->toArray();
+        $DTAula = Aulas::where('Hash',$Hash)->pluck('DTAula')->toArray()[0];
+        //dd($ARRId);
+        $IDTurma = implode(',',$ARRId);
         $SQL = <<<SQL
-            SELECT 
-                m.Nome AS Aluno,
-                f.created_at as DTAula,
-                m.id AS IDAluno,
-                CASE WHEN f.IDAluno IS NOT NULL THEN 1 ELSE 0 END AS Presente,
-                a.DTEntrada,
-                a.DTSaida,
-                r.created_at as DTRemanejamento,
-                r.IDTurmaOrigem as IDTurmaOrigem,
-                a.IDTurma
-            FROM alunos a
-            INNER JOIN matriculas m ON m.id = a.IDMatricula
-            LEFT JOIN remanejados r ON(r.IDAluno = a.id)
-            LEFT JOIN frequencia f ON $IDAula = f.IDAula AND m.id = f.IDAluno
-            WHERE f.IDAula = $IDAula 
-            GROUP BY m.Nome, m.id, f.IDAluno
+           SELECT 
+            m.Nome AS Aluno,
+            m.id AS IDAluno,
+            CASE WHEN COUNT(f.IDAluno) > 0 THEN 1 ELSE 0 END AS Presente, -- Presente se houver presença registrada
+            MAX(a.DTEntrada) AS DTEntrada,
+            MAX(a.DTSaida) AS DTSaida,
+            MAX(r.created_at) AS DTRemanejamento,
+            MAX(r.IDTurmaOrigem) AS IDTurmaOrigem,
+            a.IDTurma,
+            f.HashAula
+        FROM alunos a
+        INNER JOIN matriculas m ON m.id = a.IDMatricula
+        LEFT JOIN remanejados r ON r.IDAluno = a.id
+        LEFT JOIN frequencia f ON f.HashAula = '$Hash' AND m.id = f.IDAluno
+        WHERE a.IDTurma IN($IDTurma)
+        GROUP BY m.Nome, m.id, a.IDTurma;
         SQL;
-        $frequencia = array_filter(DB::select($SQL), function ($arr) {
+        
+        $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
             $DTSaida = Carbon::parse($arr->DTSaida);
-            $DTAula = Carbon::parse($arr->DTAula);
             $remanejadosDaTurma = [];
             $naoRemanejados = [];
-
+            
             if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
                 if(!is_null($arr->DTRemanejamento) && $arr->IDTurmaOrigem == $arr->IDTurma && $DTRemanejamento->gt($DTAula)){
                     $remanejadosDaTurma = $arr;
@@ -647,9 +778,11 @@ class AulasController extends Controller
                     $checked = 'checked';
                 }
 
+                $HashAula = $Hash;
+
                 $item = [];
                 $item[] = $f->Aluno;
-                $item[] = "<div><input type='checkbox' name='Presenca' onchange='setPresenca({$f->IDAluno}, {$IDAula}, {$f->Presente}, \"{$rota}\")' $checked ></div>";
+                $item[] = "<div><input type='checkbox' name='Presenca' onchange='setPresenca({$f->IDAluno}, \"{$HashAula}\", {$f->Presente}, \"{$rota}\")' $checked ></div>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -748,11 +881,19 @@ class AulasController extends Controller
     //
     public function setPresenca(Request $request){
         try{
-            $Vez = Chamada::where('IDAluno',$request->IDAluno)->where("IDAula",$request->IDAula)->first();
+            $Vez = Chamada::where('IDAluno',$request->IDAluno)->where("HashAula",$request->HashAula)->first();
             if($Vez){
-                Chamada::where('IDAluno',$request->IDAluno)->where("IDAula",$request->IDAula)->delete();
+                Chamada::where('IDAluno',$request->IDAluno)->where("HashAula",$request->HashAula)->delete();
             }else{
-                Chamada::create($request->all());
+                $IDAula = Aulas::where('Hash',$request->HashAula)->pluck('id')->toArray();
+                foreach($IDAula as $id){
+                    Chamada::create([
+                        "IDAula" => $id,
+                        "HashAula"=> $request->HashAula,
+                        "IDAluno"=> $request->IDAluno
+                    ]);
+                }
+                
             }
             $retorno = "";
         }catch(\Throwable $th){

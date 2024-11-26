@@ -19,7 +19,7 @@ class DiarioController extends Controller
         $ProfComentarios = array();
         $Estagio = array();
         foreach(self::paraFiltros() as $d){
-            array_push($Data,$d->created_at);
+            array_push($Data,$d->DTAula);
             array_push($Professores,$d->Professor);
             array_push($Estagio,$d->Estagio);
             array_push($ProfComentarios,array(
@@ -67,7 +67,7 @@ class DiarioController extends Controller
 
             if(isset($_GET['Data']) && !empty($_GET['Data'])){
                 $Data = $_GET['Data'];
-                $WHERE .= " AND au.created_at = '$Data'";
+                $WHERE .= " AND au.DTAula = '$Data'";
             }
         }
 
@@ -82,31 +82,33 @@ class DiarioController extends Controller
                 au.Estagio,
                 au.DTAula,
                 (
-                    SELECT
-                        CONCAT(
-                            '[',
-                            GROUP_CONCAT(
-                                '{'
-                                ,',"Conteudo":"', atv.TPConteudo, '"'
-                                ,'}'
-                                SEPARATOR ','
-                            ),
-                            ']'
-                        )
-                    FROM 
-                        atividades atv
-                    INNER JOIN 
-                        aulas au2 ON(au2.id = atv.IDAula) 
-                    WHERE 
-                        atv.IDAula = au.id
-                ) AS conteudoLecionado
+                SELECT
+                    CONCAT(
+                        '[',
+                        GROUP_CONCAT(
+                            CONCAT(
+                                '{',
+                                '"Conteudo":"', atv.TPConteudo, '"',
+                                '}'
+                            )
+                            SEPARATOR ','
+                        ),
+                        ']'
+                    )
+                FROM 
+                    atividades atv
+                INNER JOIN 
+                    aulas au2 ON au2.id = atv.IDAula
+                WHERE 
+                    atv.IDAula = au.id
+            ) AS conteudoLecionado
             FROM 
                 aulas au 
             INNER JOIN professores p ON(p.id = au.IDProfessor)
             INNER JOIN turmas t ON(t.id = au.IDTurma)
             $WHERE
         SQL;
-
+        //dd($SQL);
         return DB::select($SQL);
 
     }
@@ -124,6 +126,7 @@ class DiarioController extends Controller
                 au.DSAula as Aula,
                 au.created_at,
                 au.Estagio,
+                au.DTAula,
                 (
                     SELECT
                         CONCAT(

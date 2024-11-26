@@ -19,6 +19,14 @@ abstract class Controller
         ];
     }
 
+    public function randomHash() {
+        // Gerar uma string única baseada no ID exclusivo da máquina, timestamp, e dados aleatórios.
+        $dadosUnicos = uniqid(bin2hex(random_bytes(10)), true);
+    
+        // Gerar o hash final usando SHA-256 para maior segurança.
+        return hash('sha256', $dadosUnicos);
+    }
+
     public static function cpfCnpj($val, $mask) {
         $maskared = '';
         $k = 0;

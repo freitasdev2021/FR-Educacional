@@ -105,18 +105,19 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Professores/Turmas/{IDTurma}',[EscolasController::class,'getProfessoresTurmaHTML'])->name('Professores/Turmas');
         Route::get('/Professores/DisciplinasProfessor/{IDTurma}/{IDProfessor?}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
         Route::get('/Aulas/Presenca/Todos/{IDAula}',[AulasController::class,'presencaTodos'])->name('Aulas/Presenca/Todos');
-        Route::get('/Aulas/Presenca/{IDAula}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
-        Route::get('/Aulas/Presenca/list/{IDAula}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
+        Route::get('/Aulas/Presenca/{Hash}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
+        Route::get('/Aulas/Presenca/list/{Hash}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
         Route::get('/Aulas/ListaAlunos/{IDTurma}/{DTAula}',[AulasController::class,'getHtmlAlunosChamada'])->name('Aulas/ListaAlunos');
         Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca');
         Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
         Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
         Route::get('/Aulas/Novo',[AulasController::class,'cadastro'])->name('Aulas/Novo');
         Route::get('/Aulas/Cadastro/{id}',[AulasController::class,'cadastro'])->name('Aulas/Edit');
-        Route::get('Aulas/Delete/{id}',[AulasController::class,'deleteAula'])->name('Aulas/Delete');
+        Route::get('Aulas/Delete/{Hash}',[AulasController::class,'deleteAula'])->name('Aulas/Delete');
         Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
         Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
         Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');
+        Route::patch('Aulas/Alterar/{Hash}',[AulasController::class,'alterarAula'])->name('Aulas/Alterar');
         //ATIVIDADES
         Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
         Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');

@@ -30,7 +30,7 @@
         </div>
     </div>
     <script>
-        function setPresenca(IDAluno,IDAula,Status,Rota){
+        function setPresenca(IDAluno,HashAula,Status,Rota){
             if(Status){
                 St = 0
             }else{
@@ -44,7 +44,7 @@
                 url : Rota,
                 data : {
                     IDAluno : IDAluno,
-                    IDAula : IDAula,
+                    HashAula : HashAula,
                     Status : St
                 },
                 headers : {

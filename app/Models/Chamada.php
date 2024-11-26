@@ -15,6 +15,7 @@ class Chamada extends Model
         'Presenca',
         'IDAluno',
         'IDAula',
+        'HashAula',
         'created_at'
     ];
 }

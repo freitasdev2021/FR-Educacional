@@ -68,8 +68,6 @@
                 @foreach(json_decode($r->conteudoLecionado) as $cl)
                 <div class="card">
                     <div class="card-body">
-                       <h5 class="card-title">{{$cl->Atividade}}</h5>
-                       <br>
                        <p class="card-text">{{$cl->Conteudo}}</p>
                     </div>
                  </div>

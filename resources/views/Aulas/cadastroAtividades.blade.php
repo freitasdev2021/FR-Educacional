@@ -34,7 +34,7 @@
                                     <select class="form-control" name="IDAula" data-alunos="{{route('Aulas/getAlunos')}}">
                                         <option value="">Selecione</option>
                                         @foreach($Aulas as $a)
-                                        <option value="{{$a->id}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->DSAula}}</option>
+                                        <option value="{{$a->id}}" data-hash="{{$a->Hash}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->DSAula}} - {{$a->NMDisciplina}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -72,7 +72,7 @@
                     </div>
                     <br>
                     <div class="col-sm-12 text-left row">
-                        @if(Auth::user()->tipo == 6)
+                        @if(in_array(Auth::user()->tipo,[4,4.5,6,5,6,5,5.5]))
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         &nbsp;
                         @endif
@@ -90,7 +90,7 @@
                     method : "POST",
                     url : $(this).attr("data-alunos"),
                     data : {
-                        IDAula : $(this).val()
+                        HashAula : $("option:selected",this).attr("data-hash")
                     },
                     headers : {
                         "X-CSRF-TOKEN" : $('meta[name="csrf-token"]').attr('content')

@@ -71,11 +71,9 @@
                             <label>Professor</label>
                             <select class="form-control" name="IDProfessor">
                                 <option value="">Selecione</option>
-                                @if(Auth::user()->tipo == 6)
                                 @foreach($Professores as $p)
                                 <option value="{{$p->USProfessor}}" {{isset($Registro->IDProfessor) && $Registro->IDProfessor == $p->IDProfessor ? 'selected' : ''}}>{{$p->Professor}}</option>
                                 @endforeach
-                                @endif
                             </select>
                         </div>
                         @endif

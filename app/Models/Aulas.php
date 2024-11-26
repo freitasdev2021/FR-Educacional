@@ -11,6 +11,7 @@ class Aulas extends Model
     protected $table = "aulas";
 
     protected $fillable = [
+        'id',
         'IDTurma',
         'DSConteudo',
         'DSAula',
@@ -18,6 +19,7 @@ class Aulas extends Model
         'IDDisciplina',
         'STAula',
         'Estagio',
-        'DTAula'
+        'DTAula',
+        'Hash'
     ];
 }
