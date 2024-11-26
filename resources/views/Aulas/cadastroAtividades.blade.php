@@ -30,11 +30,11 @@
                         <div class="col-sm-6">
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <label>Conteudo/Disciplina</label>
+                                    <label>Disciplina</label>
                                     <select class="form-control" name="IDAula" data-alunos="{{route('Aulas/getAlunos')}}">
                                         <option value="">Selecione</option>
                                         @foreach($Aulas as $a)
-                                        <option value="{{$a->id}}" data-hash="{{$a->Hash}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->DSConteudo}}/{{$a->NMDisciplina}} - {{$a->Estagio}} - {{$a->Turma}} - {{$a->Serie}}</option>
+                                        <option value="{{$a->id}}" data-hash="{{$a->Hash}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->NMDisciplina}} - {{$a->Estagio}} - {{$a->Turma}} - {{$a->Serie}}</option>
                                         @endforeach
                                     </select>
                                 </div>
