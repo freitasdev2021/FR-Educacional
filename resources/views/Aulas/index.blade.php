@@ -96,7 +96,7 @@
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <strong>Vieram a Aula:</strong>
-                                        <p>{{json_decode($a->CTAula)[0]->Frequencia}}</p>
+                                        <p>{{isset($a->CTAula) && json_decode($a->CTAula)[0]->Frequencia ? json_decode($a->CTAula)[0]->Frequencia : '' }}</p>
                                         <ul>
                                             @foreach(json_decode($a->CTAula) as $cta)
                                             <li>{{$cta->Aula}} - {{$cta->Disciplina}}</li>
