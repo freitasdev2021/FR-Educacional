@@ -25,7 +25,7 @@
                     <label>Aluno</label>
                     <select name="IDAluno" class="form-control">
                         @foreach($Alunos as $a)
-                        <option value="{{$a->id}}">{{$a->Aluno}} - {{$a->Turma}}</option>
+                        <option value="{{$a->id}}">{{$a->Aluno}} - {{$a->Turma}} - {{$a->Serie}} - {{$a->Escola}}</option>
                         @endforeach
                     </select>
                 </div>

@@ -21,7 +21,7 @@
                             <select name="IDEscola" class="form-control">
                                 <option value="">Selecione</option>
                                 @foreach($Escolas as $e)
-                                <option value="{{$e['IDEscola']}}" {{isset($Registro) && $Registro->IDEscola == $e['IDEscola'] ? 'selected' : ''}}>{{$e['Nome']}}</option>
+                                <option value="{{$e->id}}" {{isset($Registro) && $Registro->IDEscola == $e->id ? 'selected' : ''}}>{{$e->Nome}}</option>
                                 @endforeach
                             </select>
                         </div>

@@ -41,7 +41,7 @@ class FichaController extends Controller
         $view = array(
             'id' => '',
             'submodulos' => self::submodulos,
-            'Escolas' => Escola::all()->whereIn('id',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
+            'Escolas' => Escola::findMany(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
         );
 
         if($id){
@@ -399,10 +399,11 @@ class FichaController extends Controller
     }
 
     public function visualizar($id){
+        $IDAlunos = implode(",",EscolasController::getAlunosEscola(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)));
         return view('Fichas.formulario',array(
            "Ficha" => json_decode(Ficha::find($id)->Formulario),
            'id' => $id,
-           "Alunos" => ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional),
+           "Alunos" => (Auth::user()->tipo == 6) ? ProfessoresController::getAlunosProfessor(Auth::user()->IDProfissional) : DB::select("SELECT m.Nome as Aluno,a.id, t.Nome as Turma,t.Serie,e.Nome as Escola FROM alunos a INNER JOIN matriculas m ON(m.id = a.IDMatricula) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(e.id = t.IDEscola) WHERE a.id IN($IDAlunos)") ,
            'submodulos'=> self::submodulos
         ));
     }
