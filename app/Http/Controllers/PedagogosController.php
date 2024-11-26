@@ -160,7 +160,7 @@ class PedagogosController extends Controller
                 $aid = $request->id;
                 if($request->credenciais){
                     $rnd = rand(100000,999999);
-                    SMTPController::send($request->email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->email));
+                    SMTPController::send($request->Email,"FR Educacional",'Mail.senha',array("Senha"=>$rnd,"Email"=>$request->Email));
                     $mensagem = 'Salvamento Feito com Sucesso! as Novas Credenciais de Login foram Enviadas no Email Cadastrado';
                     $Usuario = User::find($request->IDUser);
                     $Usuario->update([
