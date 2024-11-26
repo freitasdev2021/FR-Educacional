@@ -292,12 +292,12 @@ class AulasController extends Controller
 
         if(Auth::user()->tipo == 6){
             $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
-            ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDDisciplina') // Faz o join
+            ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
             ->where('aulas.IDProfessor', Auth::user()->IDProfissional) // Filtra pelo professor logado
             ->get();
         }else{
             $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
-            ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDDisciplina') // Faz o join
+            ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
             ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola()) // Filtra pelo professor logado
             ->get();
         }
