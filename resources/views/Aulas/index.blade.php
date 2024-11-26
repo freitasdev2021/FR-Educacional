@@ -96,11 +96,20 @@
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <strong>Vieram a Aula:</strong>
-                                        <p>{{isset($a->CTAula) && json_decode($a->CTAula)[0]->Frequencia ? json_decode($a->CTAula)[0]->Frequencia : '' }}</p>
+                                        <p>{{ 
+                                            isset($a->CTAula) && 
+                                            ($decodedCTAula = json_decode($a->CTAula)) && 
+                                            isset($decodedCTAula[0]->Frequencia) 
+                                                ? $decodedCTAula[0]->Frequencia 
+                                                : '' 
+                                        }}
+                                        </p>
                                         <ul>
-                                            @foreach(json_decode($a->CTAula) as $cta)
-                                            <li>{{$cta->Aula}} - {{$cta->Disciplina}}</li>
-                                            @endforeach
+                                            @if(isset($a->CTAula) && ($ctaItems = json_decode($a->CTAula)) && is_array($ctaItems))
+                                                @foreach($ctaItems as $cta)
+                                                    <li>{{ $cta->Aula }} - {{ $cta->Disciplina }}</li>
+                                                @endforeach
+                                            @endif
                                         </ul>
                                         <h3>Conteúdo:</h3>
                                         <p>
