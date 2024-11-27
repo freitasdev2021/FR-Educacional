@@ -97,6 +97,8 @@ class AulasController extends Controller
             $WHERE .=" AND p.id='".$_GET['Professor']."'";
         }
 
+        //dd($WHERE);
+
         $SQL = <<<SQL
         SELECT 
             a.DSConteudo,

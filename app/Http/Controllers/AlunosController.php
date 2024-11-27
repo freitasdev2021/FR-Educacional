@@ -1742,7 +1742,7 @@ class AlunosController extends Controller
             d.id as IDDisciplina
         FROM disciplinas d 
         INNER JOIN alocacoes_disciplinas ad ON(d.id = ad.IDDisciplina)
-        INNER JOIN escolas e ON(e.id = ad.IDDisciplina)
+        INNER JOIN escolas e ON(e.id = ad.IDEscola)
         WHERE e.IDOrg = $IDOrg GROUP BY d.id"));
         return view('Alunos.atividades',[
             'submodulos' => $submodulos,
@@ -1765,6 +1765,7 @@ class AlunosController extends Controller
                     t.TPAvaliacao,
                     d.NMDisciplina as Disciplina,
                     n.Conceito,
+                    a.DTAula,
                     MAX(CASE WHEN att.IDAluno = n.IDAluno THEN n.Nota ELSE 0 END) as Nota -- Pega a maior nota para evitar duplicações
                 FROM 
                     atividades at
@@ -1796,6 +1797,7 @@ class AlunosController extends Controller
                 $item[] = $r->TPConteudo;
                 $item[] = ($r->TPAvaliacao == "Nota") ? $r->Nota : $r->Conceito;
                 $item[] = $r->Estagio;
+                $item[] = date('d/m/Y', strtotime($r->DTAula));
                 $itensJSON[] = $item;
             }
         }else{
