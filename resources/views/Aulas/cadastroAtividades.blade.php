@@ -30,18 +30,38 @@
                         <div class="col-sm-6">
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <label>Disciplina</label>
-                                    <select class="form-control" name="IDAula" data-alunos="{{route('Aulas/getAlunos')}}">
+                                    <label>Lançamento</label>
+                                    <select class="form-control" name="IDAula" data-alunos="{{ route('Aulas/getAlunos') }}">
                                         <option value="">Selecione</option>
-                                        @foreach($Aulas as $a)
-                                        <option value="{{$a->id}}" data-hash="{{$a->Hash}}" {{(isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : ''}}>{{$a->NMDisciplina}} - {{$a->Estagio}} - {{$a->Turma}} - {{$a->Serie}}</option>
+                                
+                                        {{-- Agrupando dinamicamente por tipo de conteúdo --}}
+                                        @php
+                                            $agrupados = $Aulas->groupBy('TPConteudo');
+                                        @endphp
+                                
+                                        {{-- Exibindo opções agrupadas --}}
+                                        @foreach ($agrupados as $tipo => $aulas)
+                                            @if ($tipo == 1)
+                                                <optgroup label="Avaliações">
+                                            @else
+                                                <optgroup label="Aulas">
+                                            @endif
+                                
+                                            @foreach ($aulas as $a)
+                                                <option value="{{ $a->id }}" data-hash="{{ $a->Hash }}" 
+                                                    {{ (isset($Registro) && $Registro->IDAula == $a->id) ? 'selected' : '' }}>
+                                                    {{ $a->DSConteudo }} - {{ $a->NMDisciplina }} - {{ $a->Estagio }} - {{ $a->Turma }} - {{ $a->Serie }}
+                                                </option>
+                                            @endforeach
+                                
+                                            </optgroup>
                                         @endforeach
                                     </select>
-                                </div>
+                                </div>                                
                             </div>
                             <div class="row">
                                 <div class="col-sm-10">
-                                    <label>Descrição da Atividade</label>
+                                    <label>Descrição</label>
                                     <input type="text" class="form-control" name="TPConteudo" value="{{isset($Registro->TPConteudo) ? $Registro->TPConteudo : ''}}">
                                 </div>
                                 <div class="col-sm-2">
@@ -53,7 +73,7 @@
                         <!--ATRIBUIÇÕES DO CARGO-->
                         @if(!isset($Registro->id))
                         <div class="col-sm-6" align="center">
-                            <label col="col-sm-6">Notas das Atividades</label>
+                            <label col="col-sm-6">Notas</label>
                             <table>
                                 <table class="table table-sm tabela">
                                     <thead>

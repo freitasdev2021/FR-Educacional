@@ -542,7 +542,7 @@ class EscolasController extends Controller
         $idorg = Auth::user()->id_org;
 
         if(Auth::user()->tipo == 6){
-            $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY')).')';
+            $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'ARRAY')).')';
             //dd(ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY'));
         }else{
             $AND = " AND t.IDEscola IN(".implode(",",self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
@@ -573,8 +573,7 @@ class EscolasController extends Controller
         $idorg = Auth::user()->id_org;
 
         if(Auth::user()->tipo == 6){
-            $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY')).')';
-            //dd(ProfessoresController::getIdTurmasProfessor(Auth::user()->IDProfissional,'ARRAY'));
+            $AND = ' AND t.id IN('.implode(',',ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'tes')).')';
         }else{
             $AND = " AND t.IDEscola IN(".implode(",",self::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
         }
@@ -623,8 +622,6 @@ class EscolasController extends Controller
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $t->Escola : '';
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = $t->INITurma." - ".$t->TERTurma : '';
                 $item[] = $t->QTAlunos;
-                $item[] = 200 - $t->Frequencia;
-                $item[] = ($t->Frequencia/$Estagios)*100.." %";
                 $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a> <a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>";
                
                 $itensJSON[] = $item;

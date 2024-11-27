@@ -18,11 +18,11 @@ class AulasController extends Controller
 {
 
     const submodulos = array([
-        'nome' => 'Aulas',
+        'nome' => 'Aulas e Avaliações',
         'rota' => 'Aulas/index',
         'endereco' => 'index'
     ],[
-        'nome' => 'Atividades e Avaliações',
+        'nome' => 'Conteudos',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
     ],[
@@ -36,11 +36,11 @@ class AulasController extends Controller
     ]);
     //
     const submodulosProfessor = array([
-        'nome' => 'Aulas',
+        'nome' => 'Aulas e Avaliações',
         'rota' => 'Aulas/index',
         'endereco' => 'index'
     ],[
-        'nome' => 'Atividades e Avaliações',
+        'nome' => 'Conteudos',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
     ],[
@@ -50,7 +50,7 @@ class AulasController extends Controller
     ]);
     //
     const cadastroSubmodulos = array([
-        'nome' => 'Aulas',
+        'nome' => 'Aulas e Avaliações',
         'rota' => 'Aulas/Edit',
         'endereco' => 'Edit'
     ],[
@@ -60,7 +60,7 @@ class AulasController extends Controller
     ]);
     //
     const cadastroAtividades = array([
-        'nome' => 'Atividades e Avaliações',
+        'nome' => 'Conteudos',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
     ],[
@@ -97,6 +97,10 @@ class AulasController extends Controller
             $WHERE .=" AND p.id='".$_GET['Professor']."'";
         }
 
+        if(isset($_GET['TPConteudo']) && !empty($_GET['TPConteudo'])){
+            $WHERE .=" AND a.TPConteudo='".$_GET['TPConteudo']."'";
+        }
+
         //dd($WHERE);
 
         $SQL = <<<SQL
@@ -129,7 +133,7 @@ class AulasController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id) 
         INNER JOIN disciplinas d ON(d.id = a.IDDisciplina) 
         LEFT JOIN frequencia f ON(f.IDAula = a.id) 
-        $WHERE GROUP BY a.Hash
+        $WHERE GROUP BY a.Hash ORDER BY DTAula ASC
         SQL;
         
         $aulas = DB::select($SQL);
@@ -293,12 +297,12 @@ class AulasController extends Controller
         ];
 
         if(Auth::user()->tipo == 6){
-            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
+            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.TPConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
             ->where('aulas.IDProfessor', Auth::user()->IDProfissional) // Filtra pelo professor logado
             ->get();
         }else{
-            $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
+            $view['Aulas'] = Aulas::select('aulas.id','aulas.TPConteudo','aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
             ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola()) // Filtra pelo professor logado
             ->get();
@@ -496,7 +500,7 @@ class AulasController extends Controller
                 $rout = 'Aulas/Novo';
                 $aid = '';
                 $status = 'success';
-                $mensagem = 'Aula Iniciada com Sucesso!';
+                $mensagem = 'Aula Lançada com Sucesso!';
             }
         }catch(\Throwable $th){
             $rout = 'Aulas/Novo';

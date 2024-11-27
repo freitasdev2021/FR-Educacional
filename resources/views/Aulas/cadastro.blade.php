@@ -28,7 +28,7 @@
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
                         <div class="col-sm-4">
-                            <label>Data da Aula</label>
+                            <label>Data</label>
                             <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" >
                         </div>
                         <div class="col-sm-2">
@@ -57,13 +57,20 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '6' : '2'}}">
+                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '3' : '2'}}">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma">
                                 <option value="">Selecione</option>
                                 @foreach($Turmas as $t)
                                 <option value="{{$t->id}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Nome}} - {{$t->Serie}}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Tipo de Lançamento</label>
+                            <select class="form-control" name="TPConteudo">
+                                <option value="0">Aula</option>
+                                <option value="1">Avaliação</option>
                             </select>
                         </div>
                         @if(in_array(Auth::user()->tipo,[4,5,4.5,5.5]))
@@ -80,7 +87,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
-                            <label>Descrição da Aula</label>
+                            <label>Descrição</label>
                             <textarea name="DSConteudo" class="form-control">{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}</textarea>
                         </div>
                     </div>

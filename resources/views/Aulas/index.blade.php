@@ -52,6 +52,13 @@
                             </optgroup>
                         </select>
                     </div>
+                    <div class="col-auto">
+                        <select class="form-control" name="TPConteudo">
+                            <option value="">Aulas ou Avaliações</option>
+                            <option value="0">Aulas</option>
+                            <option value="1">Avaliações</option>
+                        </select> 
+                    </div>
                     @if(in_array(Auth::user()->tipo,[2,2.5,4,4.5,5,5.5]))
                     <div class="col-auto">
                         <select name="Professor" class="form-control">
@@ -78,7 +85,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading{{$key}}">
                             <button 
-                                class="accordion-button @if($key != 0) collapsed @endif" 
+                                class="accordion-button " 
                                 type="button" 
                                 data-bs-toggle="collapse" 
                                 data-bs-target="#collapse{{$key}}" 
@@ -89,7 +96,7 @@
                         </h2>
                         <div 
                             id="collapse{{$key}}" 
-                            class="acordiao accordion-collapse collapse @if($key == 0) show @endif" 
+                            class="acordiao accordion-collapse collapse " 
                             aria-labelledby="heading{{$key}}" 
                             data-bs-parent="#accordionExample">
                             <div class="accordion-body">

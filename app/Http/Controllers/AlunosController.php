@@ -493,10 +493,10 @@ class AlunosController extends Controller
         $Ano = date('Y');
         $SQL = <<<SQL
             SELECT 
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
             FROM frequencia f2 
             INNER JOIN aulas au2 ON au2.id = f2.IDAula 
-            WHERE f2.IDAluno = a.id 
+            WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
             AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
             ) as FrequenciaAno
         FROM 
@@ -1566,11 +1566,11 @@ class AlunosController extends Controller
                     SELECT 
                         d.NMDisciplina as Disciplina,
                         t.MINFrequencia,
-                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
-                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
-                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
-                        50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
-                        (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as FrequenciaAno,
+                        (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
+                        (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
+                        (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
+                        (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
+                        (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as FrequenciaAno,
                         CASE WHEN 
                             (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
                         THEN
@@ -2053,28 +2053,28 @@ class AlunosController extends Controller
             SELECT 
                 d.NMDisciplina as Disciplina,
                 d.id as IDDisciplina,
-                (SELECT COUNT(f2.id) 
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "1º BIM" 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "1º BIM" 
                 AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas1B,
             
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
             FROM frequencia f2 
             INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-            WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "2º BIM" 
+            WHERE au2.TPConteudo = 0 AND f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "2º BIM" 
             AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas2B,
             
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "3º BIM" 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "3º BIM" 
             AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas3B,
             
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "4º BIM" 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = $IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "4º BIM" 
             AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas4B,
             
             -- 1º Bimestre
@@ -2260,10 +2260,10 @@ class AlunosController extends Controller
                 d.NMDisciplina as Disciplina,
                 m.Nome,
                 a.id as IDAluno,
-                (SELECT COUNT(f2.id) 
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
-                WHERE f2.IDAluno = a.id 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
                 AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
                 ) as FrequenciaAno,

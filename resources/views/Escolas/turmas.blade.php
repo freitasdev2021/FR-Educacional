@@ -25,8 +25,6 @@
                         @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escolas</th>@endif
                         @if (in_array(Auth::user()->tipo,[2,4])) <th style="text-align:center;" scope="col">Inicio e Término</th> @endif
                         <th style="text-align:center;" scope="col">Alunos</th>
-                        <th style="text-align:center;" scope="col">Faltas (Anual)</th>
-                        <th style="text-align:center;" scope="col">Frequência (Anual)</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

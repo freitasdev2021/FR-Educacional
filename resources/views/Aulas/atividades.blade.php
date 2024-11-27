@@ -60,7 +60,7 @@
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Aulas/Atividades/list')}}{{ isset($_GET['IDTurma']) && !empty($_GET['IDTurma']) ? '?IDTurma=' . $_GET['IDTurma'] : '' }}{{ isset($_GET['Estagio']) && !empty($_GET['Estagio']) ? (isset($_GET['IDTurma']) && !empty($_GET['IDTurma']) ? '&' : '?') . 'Estagio=' . $_GET['Estagio'] : '' }}">
                     <thead>
                       <tr>
-                        <th style="text-align:center;" scope="col">Atividade</th>
+                        <th style="text-align:center;" scope="col">Lançamento</th>
                         <th style="text-align:center;" scope="col">Professor</th>
                         <th style="text-align:center;" scope="col">Turma</th>
                         <th style="text-align:center;" scope="col">Aula</th>

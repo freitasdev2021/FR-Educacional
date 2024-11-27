@@ -15,7 +15,7 @@
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Calendário" icon="bx bx-calendar" rota="Calendario/index" endereco="Calendario"/>
                   <x-modulo nome="Turmas" icon="bx bxs-graduation" rota="Turmas/index" endereco="Turmas"/>
-                  <x-modulo nome="Aulas" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>
+                  <x-modulo nome="Lançamentos" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>
                   <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Planejamentos/index" endereco="Planejamentos"/>
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
@@ -36,7 +36,7 @@
                   @elseif(in_array(Auth::user()->tipo,[2,4,4.5,2.5]))
                   <x-modulo nome="Escola{{(in_array(Auth::user()->tipo,[2,2.5])) ? 's' : ''}}" icon="bx bxs-school" rota="Escolas/index" endereco="Escolas"/>
                   <x-modulo nome="Professores" icon="bx bxs-book-reader" rota="Professores/index" endereco="Professores"/>
-                  @if(in_array(Auth::user()->tipo,[2,4]))<x-modulo nome="Aulas" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>@endif
+                  @if(in_array(Auth::user()->tipo,[2,4]))<x-modulo nome="Lançamentos" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>@endif
                   <x-modulo nome="Pedagogos" icon="bx bx-library" rota="Pedagogos/index" endereco="Pedagogos"/>
                   @if(in_array(Auth::user()->tipo,[4,4.5]))<x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>@endif
                   <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>

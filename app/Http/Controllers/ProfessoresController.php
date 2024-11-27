@@ -224,13 +224,30 @@ class ProfessoresController extends Controller
 
     public static function getIdTurmasProfessor($IDProfissional,$Tipo){
         $return = array();
+        $SQL = <<<SQL
+        SELECT 
+            t.id,
+            t.Nome,
+            t.Serie,
+            e.Nome as Escola
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        WHERE us.id = $IDProfissional GROUP BY t.Nome,t.Serie
+        SQL;
+        $Turmas = DB::select($SQL);
         if($Tipo == "ARRAY"){
-            $Turmas = DB::select("SELECT t.id FROM turmas t INNER JOIN turnos tur ON(t.id = tur.IDTurma) WHERE tur.IDProfessor = $IDProfissional")[0];
             foreach($Turmas as $t){
                 array_push($return,$t);
             }
         }else{
-
+            foreach($Turmas as $t){
+                array_push($return,$t->id);
+            }
         }
 
         return $return;

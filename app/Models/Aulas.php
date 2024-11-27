@@ -19,6 +19,7 @@ class Aulas extends Model
         'STAula',
         'Estagio',
         'DTAula',
-        'Hash'
+        'Hash',
+        'TPConteudo'
     ];
 }

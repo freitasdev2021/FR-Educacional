@@ -164,13 +164,14 @@ class RelatoriosController extends Controller
                 ) as RecBim,
 
                 -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
-                (SELECT COUNT(f2.id) 
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
-                WHERE f2.IDAluno = a.id 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
                 AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
                 ) as FrequenciaAno,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as FreqTur,
                 (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
                 (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
                 -- Caso em que é verificado se a nota é inferior à média
@@ -212,7 +213,7 @@ class RelatoriosController extends Controller
             $QueryRec = DB::select($SQL);
             $Recuperacoes = [];
             foreach($QueryRec as $r){
-                $Frequencia = ($r->FrequenciaAno / 200) * 100 . " %";
+                $FrequenciaPorc = ($r->FrequenciaAno / $r->FreqTur) * 100 . " %";
                 $MediaTotal = $r->MediaPeriodo * 4;       
                 if($r->TPAvaliacao == "Nota"){
                     if($r->RecBim > 0){
@@ -450,13 +451,14 @@ class RelatoriosController extends Controller
                 ) as RecBim,
 
                 -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
-                (SELECT COUNT(f2.id) 
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
                 AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
                 ) as FrequenciaAno,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as FreqDisc,
                 (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
                 (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
                 -- Caso em que é verificado se a nota é inferior à média
@@ -497,7 +499,8 @@ class RelatoriosController extends Controller
             $QueryRec = DB::select($SQL);
             $Recuperacoes = [];
             foreach($QueryRec as $r){
-                $Frequencia = ($r->FrequenciaAno / 200) * 100 . " %";
+                $FrequenciaPorc = ($r->FrequenciaAno / 200) * 100 . " %";
+                $Frequencia = 100 - $FrequenciaPorc;
                 $MediaTotal = $r->MediaPeriodo * 4;       
                 if($r->TPAvaliacao == "Nota"){
                     if($r->RecBim > 0){
@@ -1279,10 +1282,10 @@ class RelatoriosController extends Controller
             SELECT 
                 d.NMDisciplina as Disciplina,
                 d.id as IDDisciplina,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
                 CASE WHEN 
                     (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $a->IDAluno AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
                 THEN
@@ -1501,28 +1504,28 @@ class RelatoriosController extends Controller
             SELECT 
                 d.NMDisciplina as Disciplina,
                 d.id as IDDisciplina,
-                (SELECT COUNT(f2.id) 
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "1º BIM" 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "1º BIM" 
                 AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas1B,
             
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
             FROM frequencia f2 
             INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-            WHERE f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "2º BIM" 
+            WHERE au2.TPConteudo = 0 AND f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "2º BIM" 
             AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas2B,
             
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "3º BIM" 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "3º BIM" 
             AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas3B,
             
-            (SELECT COUNT(f2.id) 
+            (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) 
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "4º BIM" 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = $a->IDAluno AND au2.IDDisciplina = d.id AND au2.Estagio = "4º BIM" 
             AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(), '%Y')) as Faltas4B,
             
             -- 1º Bimestre
@@ -1748,7 +1751,7 @@ class RelatoriosController extends Controller
                 }
                 $pdf->Cell(11, 7, $d['Nota1B'], 1, 0, 'C',true);
                 $pdf->SetTextColor(0, 0, 0);
-                $pdf->Cell(11, 7, 50-$d['Faltas1B'], 1, 0, 'C');
+                $pdf->Cell(11, 7, $d['Faltas1B'], 1, 0, 'C');
                 $pdf->Cell(11, 7, ($d['Faltas1B']/50)*100, 1, 0, 'C');
                 /////
                 if($row['DadosAluno']->MediaPeriodo < $d['Nota2B']){
@@ -1759,7 +1762,7 @@ class RelatoriosController extends Controller
                 }
                 $pdf->Cell(11, 7, $d['Nota2B'], 1, 0, 'C',true);
                 $pdf->SetTextColor(0, 0, 0);
-                $pdf->Cell(11, 7, 50-$d['Faltas2B'], 1, 0, 'C');
+                $pdf->Cell(11, 7, $d['Faltas2B'], 1, 0, 'C');
                 $pdf->Cell(11, 7, ($d['Faltas2B']/50)*100, 1, 0, 'C');
                 ////
                 if($row['DadosAluno']->MediaPeriodo < $d['Nota3B']){
@@ -1770,7 +1773,7 @@ class RelatoriosController extends Controller
                 }
                 $pdf->Cell(11, 7, $d['Nota3B'], 1, 0, 'C',true);
                 $pdf->SetTextColor(0, 0, 0);
-                $pdf->Cell(11, 7, 50-$d['Faltas3B'], 1, 0, 'C');
+                $pdf->Cell(11, 7, $d['Faltas3B'], 1, 0, 'C');
                 $pdf->Cell(11, 7, ($d['Faltas3B']/50)*100, 1, 0, 'C');
                 ////
                 if($row['DadosAluno']->MediaPeriodo < $d['Nota4B']){
@@ -1781,7 +1784,7 @@ class RelatoriosController extends Controller
                 }
                 $pdf->Cell(11, 7, $d['Nota4B'], 1, 0, 'C',true);
                 $pdf->SetTextColor(0, 0, 0);
-                $pdf->Cell(11, 7, 50-$d['Faltas4B'], 1, 0, 'C');
+                $pdf->Cell(11, 7, $d['Faltas4B'], 1, 0, 'C');
                 $pdf->Cell(11, 7, ($d['Faltas4B']/50)*100, 1, 0, 'C');
                 ////
                 $Total = AlunosController::getTotalDisciplinaAno($d['IDAluno'],$d['IDDisciplina']);
@@ -1795,7 +1798,7 @@ class RelatoriosController extends Controller
                 
                 $pdf->Cell(11, 7, $Total, 1, 0, 'C',true);
                 $pdf->SetTextColor(0, 0, 0);
-                $pdf->Cell(11, 7, 50-$faltasGeral, 1, 0, 'C');
+                $pdf->Cell(11, 7, $faltasGeral, 1, 0, 'C');
                 $pdf->Cell(11, 7, ($faltasGeral/200)*100, 1, 1, 'C');
                 ////
             }
@@ -1856,10 +1859,10 @@ class RelatoriosController extends Controller
             $SQL = <<<SQL
             SELECT 
                 d.NMDisciplina as Disciplina,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
-                50 - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE f2.IDAluno = $a->IDAluno AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
                 CASE WHEN 
                     (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $a->IDAluno AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
                 THEN
