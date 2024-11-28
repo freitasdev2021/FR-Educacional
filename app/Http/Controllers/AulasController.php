@@ -97,7 +97,7 @@ class AulasController extends Controller
             $WHERE .=" AND p.id='".$_GET['Professor']."'";
         }
 
-        if(isset($_GET['TPConteudo']) && !empty($_GET['TPConteudo'])){
+        if(isset($_GET['TPConteudo'])  && $_GET['TPConteudo'] !== ''){
             $WHERE .=" AND a.TPConteudo='".$_GET['TPConteudo']."'";
         }
 
@@ -135,7 +135,7 @@ class AulasController extends Controller
         LEFT JOIN frequencia f ON(f.IDAula = a.id) 
         $WHERE GROUP BY a.Hash ORDER BY DTAula ASC
         SQL;
-        
+        dd($SQL);
         $aulas = DB::select($SQL);
        
         //RESTO DA VIEW
