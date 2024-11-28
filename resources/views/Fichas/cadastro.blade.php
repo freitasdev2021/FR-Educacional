@@ -1,222 +1,135 @@
 <x-educacional-layout>
-    {{-- <form action="{{route('FichasSave')}}" method="POST"> --}}
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header bg-fr text-white">
-                    <strong>Elaborar Formulário</strong>
-                </div>
-                @if(isset($id))
-                <input type="hidden" name="id" value="{{$id}}">
-                @endif
-                <div class="card-body periudos">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <label>Titulo</label>
-                            <input type="text" name="Titulo" class="form-control" value="{{isset($Registro) ? $Registro->Titulo : ''}}">
-                        </div>
+    <div class="fr-card p-0 shadow col-sm-12">
+        <div class="fr-card-header">
+           @foreach($submodulos as $s)
+            <x-submodulo nome="{{$s['nome']}}" endereco="{{$s['endereco']}}" rota="{{route($s['rota'],$id)}}" icon="bx bx-list-ul"/>
+           @endforeach
+        </div>
+        <div class="fr-card-body">
+            <!--LISTAS-->
+            <div class="col-sm-12 p-2 center-form">
+                <form action="{{route('Fichas/Save')}}" method="POST">
+                    @csrf
+                    @method("POST")
+                    @if(session('success'))
+                    <div class="col-sm-12 shadow p-2 bg-success text-white">
+                        <strong>{{session('success')}}</strong>
                     </div>
+                    @elseif(session('error'))
+                    <div class="col-sm-12 shadow p-2 bg-danger text-white">
+                        <strong>{{session('error')}}</strong>
+                    </div>
+                    <br>
+                    @endif
+                    @if(isset($Registro->id))
+                    <input type="hidden" name="id" value="{{$Registro->id}}">
+                    @endif
                     <div class="row">
-                        <div class="col-sm-12">
-                            <label>Escola</label>
-                            <select name="IDEscola" class="form-control">
-                                <option value="">Selecione</option>
-                                @foreach($Escolas as $e)
-                                <option value="{{$e->id}}" {{isset($Registro) && $Registro->IDEscola == $e->id ? 'selected' : ''}}>{{$e->Nome}}</option>
-                                @endforeach
-                            </select>
+                        <!--CADASTRO-->
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label>Turma</label>
+                                    <select class="form-control" name="IDTurma" data-alunos="{{ route('Turmas/AlunosHtml') }}">
+                                        <option value="">Selecione</option>
+                                        @foreach($Turmas as $t)
+                                            <option value="{{$t->id}}" {{isset($Registro) && $Registro->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Nome}} - {{$t->Serie}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>                                
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Descrição</label>
+                                    <input type="text" class="form-control" name="NMConceito" value="{{isset($Registro->NMConceito) ? $Registro->NMConceito : ''}}">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label>Estagio</label>
+                                    <select name="Etapa" class="form-control">
+                                        <option value="">Selecione</option>
+                                        <optgroup label="Bimestre">
+                                            <option value="1º BIM" {{ isset($Registro->Etapa) && $Registro->Etapa == "1º BIM" ? 'selected' : '' }}>1º Bimestre</option>
+                                            <option value="2º BIM" {{ isset($Registro->Etapa) && $Registro->Etapa == "2º BIM" ? 'selected' : '' }}>2º Bimestre</option>
+                                            <option value="3º BIM" {{ isset($Registro->Etapa) && $Registro->Etapa == "3º BIM" ? 'selected' : '' }}>3º Bimestre</option>
+                                            <option value="4º BIM" {{ isset($Registro->Etapa) && $Registro->Etapa == "4º BIM" ? 'selected' : '' }}>4º Bimestre</option>
+                                        </optgroup>
+                                        
+                                        <optgroup label="Trimestre">
+                                            <option value="1º TRI" {{ isset($Registro->Etapa) && $Registro->Etapa == "1º TRI" ? 'selected' : '' }}>1º Trimestre</option>
+                                            <option value="2º TRI" {{ isset($Registro->Etapa) && $Registro->Etapa == "2º TRI" ? 'selected' : '' }}>2º Trimestre</option>
+                                            <option value="3º TRI" {{ isset($Registro->Etapa) && $Registro->Etapa == "3º TRI" ? 'selected' : '' }}>3º Trimestre</option>
+                                        </optgroup>
+                                        
+                                        <optgroup label="Semestre">
+                                            <option value="1º SEM" {{ isset($Registro->Etapa) && $Registro->Etapa == "1º SEM" ? 'selected' : '' }}>1º Semestre</option>
+                                            <option value="2º SEM" {{ isset($Registro->Etapa) && $Registro->Etapa == "2º SEM" ? 'selected' : '' }}>2º Semestre</option>
+                                        </optgroup>
+                                        
+                                        <optgroup label="Periodo">
+                                            <option value="1º PER" {{ isset($Registro->Etapa) && $Registro->Etapa == "1º PER" ? 'selected' : '' }}>1º Período</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!--ATRIBUIÇÕES DO CARGO-->
+                        
+                        <div class="col-sm-6" align="center">
+                            <label col="col-sm-6">Conceitos</label>
+                            <table>
+                                <table class="table table-sm tabela">
+                                    <thead>
+                                      <tr>
+                                        <th style="text-align:center;" scope="col">Aluno</th>
+                                        <th style="text-align:center;" scope="col">Conceito</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody id="aulaAlunos">
+                                        @if(isset($Registro->id))
+                                        @foreach($Conceitos as $c)
+                                        <tr>
+                                            <td><?=$c->Aluno?></td>
+                                            <td>
+                                                <input type="hidden" value="<?=$c->IDAluno?>" name="Aluno[]">
+                                                <input type="text" name="Conceito[]" value="{{$c->Conceito}}">
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </table>
                         </div>
                     </div>
                     <br>
-                    <!--conteudo do card-->
-                    {{-- <button class="btn btn-light col-sm-12 btnComponente">Adicionar Componente</button> --}}
-                    <select name="AdicionarComponente" class="form-control">
-                        <option value="">Adicionar Conceito</option>
-                        <option value="Dissertativa">Dissertativa</option>
-                        <option value="Objetiva">Objetiva</option>
-                    </select>
-                    <br>
-                    <!--OBJETIVAS-->
-                    <div class="objetivaModel" style="display:none;">
-                        <table class="table table-bordered border-primary text-center bimestri primeiroBimestre bimestral" data-periodo='primeiroBimestre'>
-                            <thead>
-                                <tr>
-                                    <th colspan="2"><strong>Enunciado</strong></th>
-                                </tr>
-                                <tr>
-                                    <th colspan="2"><strong contenteditable="true" style="padding:5px;" class="componente"></strong></th>
-                                </tr>
-                                <tr>
-                                    <th><strong>Opção</strong></th>
-                                    <th>Excluir</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="display:none;" class="conteudoModel">
-                                    <td contenteditable="true" class="conteudo"></td>
-                                    <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
-                                </tr>
-                                <tr id="adcButton">
-                                    <td colspan="2" style="padding:0px;"><button class="btn btn-light col-sm-12 btnConteudo" type="button">Adicionar Opção</button></td>
-                                </tr>
-                                <tr id="rmvButton">
-                                    <td colspan="2" style="padding:0px;"><button class="btn btn-danger col-sm-12 btnRemoveComponente" type="button">RemoveR</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!--DISSERTATIVAS-->
-                    <div class="dissertativaModel" style="display:none;">
-                        <table class="table table-bordered border-primary text-center bimestri primeiroBimestre bimestral" data-periodo='primeiroBimestre'>
-                            <thead>
-                                <tr>
-                                    <th><strong>Enunciado</strong></th>
-                                </tr>
-                                <tr>
-                                    <th colspan="2"><strong contenteditable="true" style="padding:5px;" class="componente"></strong></th>
-                                </tr>
-                                <tr id="rmvButton">
-                                    <td colspan="2" style="padding:0px;"><button class="btn btn-danger col-sm-12 btnRemoveComponente" type="button">Remover</button></td>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <!--FIM DOS MODELOS-->
-                    <div class="componentes">
-                        <!--PRIMEIRO BIMESTRE PHP-->
-                        @if(isset($Formulario))
-                            @foreach(json_decode($Formulario->Formulario) as $f)
-                                @if(!empty($f->Conteudo))
-                                    <table class="table table-bordered border-primary text-center bimestri primeiroBimestre bimestral" data-periodo='primeiroBimestre'>
-                                        <thead>
-                                            <tr>
-                                                <th colspan="2"><strong>Enunciado</strong></th>
-                                            </tr>
-                                            <tr>
-                                                <th colspan="2"><strong contenteditable="true" style="padding:5px;" class="componente">{{$f->Conteudo}}</strong></th>
-                                            </tr>
-                                            @if(count($f->Conteudos) > 0)
-                                            <tr>
-                                                <th><strong>Conteúdo</strong></th>
-                                                <th>Excluir</th>
-                                            </tr>
-                                            @endif
-                                        </thead>
-                                        <tbody>
-                                            <tr style="display:none;" class="conteudoModel">
-                                                <td contenteditable="true" class="conteudo"></td>
-                                                <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
-                                            </tr>
-                                            @if(count($f->Conteudos) > 0)
-                                                @foreach($f->Conteudos as $fc)
-                                                <tr class="conteudoModel">
-                                                    <td contenteditable="true" class="conteudo">{{$fc}}</td>
-                                                    <td><button class='btn btn-danger btn-xs btnRemoveConteudo'>X</button></td>
-                                                </tr>
-                                                @endforeach
-                                                <tr id="adcButton">
-                                                    <td colspan="2" style="padding:0px;"><button class="btn btn-light col-sm-12 btnConteudo" type="button">Adicionar Opção</button></td>
-                                                </tr>
-                                            @endif
-                                            <tr id="rmvButton">
-                                                <td colspan="2" style="padding:0px;"><button class="btn btn-default col-sm-12 btnRemoveComponente" type="button">Remover Conceito</button></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                @endif
-                            @endforeach
+                    <div class="col-sm-12 text-left row">
+                        @if(in_array(Auth::user()->tipo,[4,4.5,6,5,6,5,5.5]))
+                        <button type="submit" class="btn btn-fr col-auto">Salvar</button>
+                        &nbsp;
                         @endif
-                        <!------------------------->
-                    </div>
-                    <br>
-                    <div class="row">
-                        <button class="btn btn-success saveEnunciado col-auto">Salvar</button>
                         <a class="btn btn-light col-auto" href="{{route('Fichas/index')}}">Voltar</a>
                     </div>
-                    <!---->
-                </div>
+                </form>    
             </div>
+            <!--//-->
         </div>
-    {{-- </form> --}}
+    </div>
     <script>
-        //COMPONENTES
-        // $(".btnComponente").on("click",function(){
-        //     $(this).parents(".card-body").find(".componentes").append($(this).parents('.card-body').find(".componenteModel").html())
-        // })
-        //BOTÃO DE ADICIONAR COMPONENTE
-        $("select[name=AdicionarComponente]").on("change",function(){
-            //alert("aa")
-            if($(this).val() == "Objetiva"){
-                //alert("aa")
-                $(this).parents(".card-body").find(".componentes").append($(this).parents('.card-body').find(".objetivaModel").html())
-            }else{
-                $(this).parents(".card-body").find(".componentes").append($(this).parents('.card-body').find(".dissertativaModel").html())
-            }
-        })
-        //REMOVER COMPONENTE
-        $(".componentes").on("click", ".btnRemoveComponente", function() {
-            $(this).parents('.bimestri').remove()
-        });
-        //OPÇÕES DE DISSERTATIVAS
-        $(".componentes").on("click", ".btnConteudo", function() {
-            var $closestComponent = $(this).closest(".bimestri");
-            $("<tr>" + $(".conteudoModel").html() + "</tr>").insertBefore($closestComponent.find("#adcButton"));
-        });
-        //
-        $(".bimestre").on("click",".btnRemoveConteudo",function(){
-            $(this).parents("tr").remove()
-        })
-        //MONTAGEM DO  JSON
-        $(".saveEnunciado").on("click",function(){
-            var enunciados = []
-                var conteudos = []
-
-            $(".bimestral").each(function(){
-                //PRIMEIRO BIMESTRE
-                enunciados.push({
-                        Conteudo : $(".componente",this).text(),
-                        Conteudos  : $.map($('.conteudo',this), function(element) {
-                            if($(element).text() != ''){
-                                return $(element).text();
-                            }
-                        })
+        $(document).ready(function(){
+            $("select[name=IDTurma]").on("change",function(){
+                $.ajax({
+                    method : "POST",
+                    url : $(this).attr("data-alunos"),
+                    data : {
+                        IDTurma : $(this).val()
+                    },
+                    headers : {
+                        "X-CSRF-TOKEN" : $('meta[name="csrf-token"]').attr('content')
+                    }
+                }).done(function(resp){
+                    $("#aulaAlunos").html(resp)
                 })
-                //
             })
-            
-            var submit = {
-                Titulo : $("input[name=Titulo]").val(),
-                IDEscola : $("select[name=IDEscola]").val(),
-                Formulario : JSON.stringify(enunciados)
-            }
-
-            if($("input[name=id]").val() > 0){
-                submit.id = $("input[name=id]").val()
-            }
-            // console.log(submit)
-            // return false
-            //console.log()
-            //
-            //console.log(planejamento)
-            //AJAX QUE ENVIA OS DADOS PARA O SERVIDOR
-            $.ajax({
-                method : 'POST',
-                url : "{{route('Fichas/Save')}}",
-                data : submit,
-                headers : {
-                    'X-CSRF-TOKEN' : '{{csrf_token()}}'
-                }
-            }).done(function(resp){
-                // console.log(resp)
-                // return false
-                r = JSON.parse(resp)
-                if(r.status == 'error'){
-                    alert("Houve um erro: "+r.mensagem)
-                }else{
-                    alert("Ficha Avaliativa Salva")
-                }
-            })
-            //
         })
-        //
     </script>
 </x-educacional-layout>

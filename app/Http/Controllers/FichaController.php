@@ -10,6 +10,10 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Ficha;
 use App\Models\Resposta;
+use App\Models\Aluno;
+use App\Models\Matricula;
+use App\Models\Turma;
+use App\Models\Conceito;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Models\Escola;
 
@@ -31,10 +35,61 @@ class FichaController extends Controller
         'endereco' => 'Respostas'
     ]);
     public function index(){
-        return view('Fichas.index',[
+        $AND = " ";
+
+        if(isset($_GET['Etapa']) && !empty($_GET['Etapa'])){
+            $AND .=" AND c.Etapa='".$_GET['Etapa']."'";
+        }
+
+        if(isset($_GET['Turma']) && !empty($_GET['Turma'])){
+            $AND .=" AND c.IDTurma='".$_GET['Turma']."'";
+        }
+
+        $view = [
             'submodulos' => self::submodulos,
-            'id' => ''
-        ]);
+            'id' => '',
+            "AND"=> $AND
+        ];
+
+        if(Auth::user()->tipo == 6){
+            $IDTurmas = ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'sds');
+            $view['Turmas'] = Turma::findMany($IDTurmas);
+        }else{
+            $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+            $view['Turmas'] = Turma::where('IDEscola',$IDEscolas)->get();
+        }
+
+        return view('Fichas.index',$view);
+    }
+
+    public function getSelectAlunosFicha(Request $request){
+        $IDTurma = $request->IDTurma;
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                m.id AS IDAluno
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            INNER JOIN turmas t ON a.IDTurma = t.id
+            WHERE t.id = '$IDTurma'
+            GROUP BY m.Nome, m.id
+        SQL;
+
+        $alunos = DB::select($SQL);
+
+        ob_start();
+        foreach($alunos as $a){
+        ?>
+            <tr>
+                <td><?=$a->Aluno?></td>
+                <td>
+                    <input type="hidden" value="<?=$a->IDAluno?>" name="Aluno[]">
+                    <input type="text" name="Conceito[]">
+                </td>
+            </tr>
+        <?php
+        }
+        return ob_get_clean();
     }
 
     public function cadastro($id = null){
@@ -44,12 +99,21 @@ class FichaController extends Controller
             'Escolas' => Escola::findMany(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
         );
 
+        if(Auth::user()->tipo == 6){
+            $IDTurmas = ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'sds');
+            $view['Turmas'] = Turma::findMany($IDTurmas);
+        }else{
+            $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+            $view['Turmas'] = Turma::where('IDEscola',$IDEscolas)->get();
+        }
+        
+
         if($id){
-            $rsp = Ficha::find($id);
+            $Conceito = Conceito::find($id);
             $view['id'] = $id;
-            $view['Registro'] = Ficha::find($id);
+            $view['Registro'] = $Conceito;
             $view['submodulos'] = self::cadastroSubmodulos;
-            $view['Formulario'] = json_decode($rsp);
+            $view['Conceitos'] = json_decode($Conceito->ConceitosJSON);
         }
 
         return view('Fichas.cadastro', $view);
@@ -286,116 +350,53 @@ class FichaController extends Controller
         ]);
     }
 
-    public function exportarRespostasPDF($id,$IDTurma=null)
-    {
-        $AND = "";
-        if($IDTurma > 0){
-            $AND .=" AND a.IDTurma=".$IDTurma;
-        }
-        // Consulta os dados dos registros
-        $registros = DB::select("
-            SELECT r.Respostas, r.id, m.Nome 
-            FROM respostas_ficha r 
-            INNER JOIN ficha_avaliativa f ON (f.id = r.IDFicha) 
-            INNER JOIN alunos a ON (r.IDAluno = a.id)
-            INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-            WHERE f.id = $id $AND");
-    
-        // Inicializa o PDF
-        $pdf = new Fpdf();
-        $pdf->SetMargins(20, 20, 20); // Margens de 20 em todos os lados
-    
-        // Obtém informações da escola
-        $IDAluno = Resposta::where('IDFicha', $id)->first()->IDAluno;
-        $Escola = DB::select("
-            SELECT e.id, e.Cidade, e.UF, e.Foto, m.Nome as Aluno, e.Foto, e.Nome as Escola 
-            FROM escolas e 
-            INNER JOIN turmas t ON(t.IDEscola = e.id) 
-            INNER JOIN alunos a ON(t.id = a.IDTurma ) 
-            INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-            WHERE a.id = :IDAluno", ['IDAluno' => $IDAluno])[0];
-    
-        // Cabeçalho com a logo e nome da escola
-        $pdf->AddPage();
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30);
+    public function exportarRespostasPDF($IDTurma,$Etapa){
+        $Fichas = Conceito::select('ConceitosJSON','NMConceito')->where('IDTurma',$IDTurma)->where('Etapa',$Etapa)->get();
+        $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $pdf = new FPDF(); //Cria o PDF
+        $pdf->AddPage(); // Adiciona a página
+        //CABECALHO DO BOLETIM
+        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
+        // Definir fonte e título
         $pdf->SetFont('Arial', 'B', 16);
-        $pdf->SetXY(50, 15);
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Escola), 0, 1, 'C');
-        $pdf->Ln(30);
-    
-        //$boletinsPorPagina = 0;
-    
-        foreach ($registros as $registro) {
-            // Verifica se precisa de uma nova página a cada 2 boletins
-            // if ($boletinsPorPagina % 2 == 0 && $boletinsPorPagina > 0) {
-            //     $pdf->AddPage();
-            // }
-    
-            // Nome do Aluno
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(30, 15); // Ajuste o valor X conforme necessário para centralizar
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Nome), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." - ".$Escola->Cidade."/".$Escola->UF), 0, 1, 'C');
+        $pdf->Ln(20);
+        //CABECALHO DO BOLETIM
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 10, "Ficha Individual", 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->Ln(3);
+        //
+        foreach($Fichas->toArray() as $ta){
+             //
             $pdf->SetFont('Arial', 'B', 10);
-            $pdf->Cell(0, 10, 'Aluno: ' . self::utfConvert($registro->Nome), 1, 1, 'L');
-            $pdf->Ln(5);
-    
-            // Cabeçalho da tabela
-            $pdf->SetFont('Arial', 'B', 10);
-            $pdf->Cell(150, 8, 'Conteudo', 1, 0, 'C');  // Ajuste de largura para o conteúdo
-            $pdf->Cell(20, 8, 'Resposta', 1, 1, 'C');   // Ajuste de largura para a resposta
-    
-            // Adiciona as respostas com alinhamento dinâmico
-            $pdf->SetFont('Arial', '', 9);
-            $respostas = json_decode($registro->Respostas, true);
-    
-            foreach ($respostas as $resposta) {
-                $conteudo = self::utfConvert($resposta['Conteudo']);
-                $respostaTexto = self::utfConvert($resposta['Resposta']);
-                
-                // Limite de caracteres por linha para a coluna de Conteúdo
-                $lineWidthContent = 90; // Ajuste esse valor conforme necessário para a largura da célula
-    
-                // Quebra o conteúdo em várias linhas com `wordwrap`
-                $wrappedContent = wordwrap($conteudo, $lineWidthContent, PHP_EOL);
-    
-                // Divide as linhas do conteúdo e calcula a altura total
-                $lines = explode(PHP_EOL, $wrappedContent);
-                $cellHeight = 8 * count($lines);
-    
-                // Verifica se a altura atual + altura da célula ultrapassa o limite da página
-                if ($pdf->GetY() + $cellHeight > $pdf->GetPageHeight() - 20) {
-                    $pdf->AddPage(); // Adiciona uma nova página se não houver espaço suficiente
-                    $boletinsPorPagina = 0; // Reinicia a contagem de boletins na nova página
-    
-                    // Redesenha o cabeçalho e nome do aluno
-                    $pdf->SetFont('Arial', 'B', 10);
-                    $pdf->Cell(0, 10, 'Aluno: ' . self::utfConvert($registro->Nome), 1, 1, 'L');
-                    $pdf->Ln(5);
-                    $pdf->Cell(150, 8, 'Conteudo', 1, 0, 'C');
-                    $pdf->Cell(20, 8, 'Resposta', 1, 1, 'C');
-                    $pdf->SetFont('Arial', '', 9);
-                }
-    
-                // Exibe cada linha do conteúdo
-                $yBefore = $pdf->GetY();
-                foreach ($lines as $line) {
-                    $pdf->Cell(150, 8, $line, 0, 2); // Imprime cada linha na mesma célula
-                }
-                // Borda ao redor de toda a célula de conteúdo
-                $pdf->Rect(20, $yBefore, 150, $cellHeight);
-    
-                // Alinha a coluna "Resposta" ao lado do conteúdo
-                $pdf->SetXY(170, $yBefore);
-                $pdf->Cell(20, $cellHeight, $respostaTexto, 1, 1, 'C');
-                
-                // Define a posição Y para a próxima linha de conteúdo
-                $pdf->SetY($yBefore + $cellHeight);
+            $pdf->Cell(190, 7, $ta['NMConceito'], 1, 0, 'C');
+            $pdf->Ln();
+            $pdf->Cell(100, 7, 'Aluno', 1, 0, 'C');
+            $pdf->Cell(90, 7, 'Conceito', 1, 0, 'C');
+            $pdf->SetFont('Arial', '', 8);
+            //
+            foreach(json_decode($ta['ConceitosJSON']) as $c){
+                $pdf->Ln();
+                $pdf->Cell(100, 7, self::utfConvert($c->Aluno), 1, 0, 'C');
+                $pdf->Cell(90, 7, self::utfConvert($c->Conceito), 1, 0, 'C');
             }
-    
-            $pdf->Ln(10); // Espaço entre boletins
-            
+            $pdf->Ln(15);
+            //
+            // echo "<pre>";
+            // print_r($ta['NMConceito']);
+            // print_r(json_decode($ta['ConceitosJSON']));
+            // echo "</pre>";
         }
-    
-        // Saída do PDF
-        $pdf->Output();
+        //IMPRESSÃO
+        $pdf->Output('I', 'ficha.pdf');
         exit;
+        //
     }
 
     public function visualizar($id){
@@ -453,54 +454,81 @@ class FichaController extends Controller
 
     public function save(Request $request){
         try{
-            $data = $request->all();
-            $arrayFormParsed = [];
-            
-            $arrayForm = array_map(function($a){
-                if(!empty($a['Conteudo'])){
-                    return $a;
-                }
-            },json_decode($data['Formulario'],true));
-            
-            foreach($arrayForm as $af){
-                if(!is_null($af)){
-                    array_push($arrayFormParsed,$af);
-                }
+            $Conceitos = [];
+            $Aluno = [];
+            foreach($request->Conceito as $ct){
+                array_push($Conceitos,$ct);
             }
-            
-            $data['Ficha'] = json_encode($arrayFormParsed);
-            
-            if(!$request->id){
-                //MailController::send($request->email,'Confirmação - Organizador','Mail.cadastroorganizador',array('Senha'=> $RandPW,'Email'=> $request->email));
-                Ficha::create($data);
+            //
+            foreach($request->Aluno as $al){
+                array_push($Aluno,$al);
+            }
+            //
+            for($i=0;$i<count($Conceitos);$i++){
+                $IDAluno = $Aluno[$i];
+                $Al = DB::select("SELECT m.Nome FROM alunos a INNER JOIN matriculas m ON(m.id = a.IDMatricula) WHERE a.id = $IDAluno")[0];
+                $Conceituados[] = [
+                    "IDAluno" => $IDAluno,
+                    "Aluno" => $Al->Nome,
+                    "Conceito" => $Conceitos[$i],
+                ];
+            }
+
+            $JSONConceitos = json_encode($Conceituados);
+            if($request->id){
+                Conceito::find($request->id)->update([  
+                    "ConceitosJSON"=> $JSONConceitos,
+                    "IDTurma"=> $request->IDTurma,
+                    "Etapa" => $request->Etapa,
+                    "NMConceito"=>$request->NMConceito
+                ]);
+
+                $rout = "Fichas/Edit";
+                $aid = $request->id;
             }else{
-                Ficha::find($request->id)->update($data);
+                Conceito::create([  
+                    "ConceitosJSON"=> $JSONConceitos,
+                    "IDTurma"=> $request->IDTurma,
+                    "Etapa" => $request->Etapa,
+                    "NMConceito"=>$request->NMConceito
+                ]);
+
+                $rout = 'Fichas/Novo';
+                $aid = "";
             }
-            $situacao['mensagem'] = "Salvo";
-            $situacao['status'] = 'success';
+            
+            $status = 'success';
+            $mensagem = 'Conceito Lançado com Sucesso';
         }catch(\Throwable $th){
-            $situacao['mensagem'] = 'Erro '. $th->getMessage();
-            $situacao['status'] = 'success';
+            $status = 'error';
+            $mensagem = 'Erro ao lançar Conceitos:'. $th->getMessage();
+            $aid = '';
+            $rout = "Fichas/index";
         }finally{
-            return json_encode($situacao);
+            //dd($Conceituados);
+            return redirect()->route($rout,$aid)->with($status,$mensagem);
         }
     }
 
-    public function getFichas(){
-        $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+    public function getFichas($AND){
+        if(Auth::user()->tipo == 6){
+            $ID = implode(",",ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'sds'));
+        }else{
+            $ID = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+        }
 
-        $registros = DB::select("SELECT f.Titulo,e.Nome as Escola,f.id as IDFicha FROM ficha_avaliativa f INNER JOIN escolas e ON(e.id = f.IDEscola) AND e.id IN($IDEscolas) ");
+        //dd($AND);
+
+        $registros = DB::select("SELECT c.id as IDFicha,c.NMConceito,c.Etapa,t.Nome as Turma,t.Serie FROM conceitos c INNER JOIN turmas t ON(c.IDTurma = t.id) WHERE c.IDTurma IN($ID) $AND ");
         
         if(count($registros) > 0){
             foreach($registros as $r){
                 $item = [];
-                $item[] = $r->Titulo;
-                $item[] = $r->Escola;
+                $item[] = $r->NMConceito;
+                $item[] = $r->Turma ." - ".$r->Serie;
+                $item[] = $r->Etapa;
                 $item[] = "
-                <a class='btn btn-danger btn-xs' href=".route('Fichas/Respostas/Export/PDF',["id"=>$r->IDFicha,"IDTurma"=>0],).">Exportar (PDF)</a>&nbsp
-                <a class='btn btn-secondary btn-xs' href=".route('Fichas/Respostas',$r->IDFicha).">Respostas</a>&nbsp
-                <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Editar Ficha</a>&nbsp
-                <a class='btn btn-primary btn-xs' href=".route('Fichas/Visualizar',$r->IDFicha).">Avaliar Aluno</a>&nbsp
+                <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Abrir</a>&nbsp
                 ";
                 $itensJSON[] = $item;
             }

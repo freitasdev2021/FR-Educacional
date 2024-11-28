@@ -117,6 +117,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Aulas/Chamada/{id}',[AulasController::class,'chamada'])->name('Aulas/Chamada');
         Route::post('/Aulas/Save',[AulasController::class,'save'])->name('Aulas/Save');
         Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');
+        Route::post('/Turmas/AlunosHtml',[FichaController::class,'getSelectAlunosFicha'])->name('Turmas/AlunosHtml');
         Route::patch('Aulas/Alterar/{Hash}',[AulasController::class,'alterarAula'])->name('Aulas/Alterar');
         //ATIVIDADES
         Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
@@ -165,12 +166,12 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //FICHA AVALIATIVA
         Route::post('Fichas/Save',[FichaController::class,'save'])->name('Fichas/Save');
         Route::get('Fichas',[FichaController::class,'index'])->name('Fichas/index');
-        Route::get('Fichas/list',[FichaController::class,'getFichas'])->name('Fichas/list');
+        Route::get('Fichas/list/{AND}',[FichaController::class,'getFichas'])->name('Fichas/list');
         Route::get('Fichas/Cadastro',[FichaController::class,'cadastro'])->name('Fichas/Novo');
         Route::get('Fichas/Cadastro/{id}',[FichaController::class,'cadastro'])->name('Fichas/Edit');
         Route::get('Fichas/Respostas/{id}',[FichaController::class,'respostas'])->name('Fichas/Respostas');
         Route::get('Fichas/Respostas/Export/{id}', [FichaController::class, 'exportRespostas'])->name('Fichas/Respostas/Export');
-        Route::get('Fichas/Respostas/Export/PDF/{id}/{IDTurma}', [FichaController::class, 'exportarRespostasPDF'])->name('Fichas/Respostas/Export/PDF');
+        Route::get('Fichas/Imprimir/{IDTurma}/{Etapa}', [FichaController::class, 'exportarRespostasPDF'])->name('Fichas/Imprimir');
         Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
         Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
         ////EAD
