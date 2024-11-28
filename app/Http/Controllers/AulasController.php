@@ -135,7 +135,7 @@ class AulasController extends Controller
         LEFT JOIN frequencia f ON(f.IDAula = a.id) 
         $WHERE GROUP BY a.Hash ORDER BY DTAula ASC
         SQL;
-        dd($SQL);
+        //dd($SQL);
         $aulas = DB::select($SQL);
        
         //RESTO DA VIEW
