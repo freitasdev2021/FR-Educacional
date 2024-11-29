@@ -633,7 +633,7 @@ class ProfessoresController extends Controller
         INNER JOIN users us ON(us.IDProfissional = p.id)
         INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
         INNER JOIN turnos tur ON(tur.IDDisciplina = d.id)
-        WHERE us.id = $id AND t.id = $IDTurma GROUP BY d.id
+        WHERE p.id = $id AND t.id = $IDTurma GROUP BY d.id
         SQL;
         ob_start();
         foreach(DB::select($SQL) as $tp){
@@ -641,6 +641,38 @@ class ProfessoresController extends Controller
         <div>
             <input type="checkbox" name="IDDisciplina[]" value="<?=$tp->IDDisciplina?>"><?=$tp->Disciplina?>
         </div>
+        <?php
+        }
+        return ob_get_clean();
+        //return json_encode(DB::select($SQL));
+    }
+
+    public function getSelectDisciplinasTurmaProfessor($IDTurma,$IDProfessor=null){
+        
+        if(Auth::user()->tipo == 6){
+            $id = Auth::user()->id;   
+        }else{
+            $id = $IDProfessor;
+        }
+
+        $SQL = <<<SQL
+        SELECT
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
+        FROM turnos tn
+        INNER JOIN turmas t ON(tn.IDTurma = t.id)
+        INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+        INNER JOIN escolas e ON(al.IDEscola = e.id)
+        INNER JOIN professores p ON(p.id = tn.IDProfessor)
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+        INNER JOIN turnos tur ON(tur.IDDisciplina = d.id)
+        WHERE p.id = $id AND t.id = $IDTurma GROUP BY d.id
+        SQL;
+        ob_start();
+        foreach(DB::select($SQL) as $tp){
+        ?>
+        <option value="<?=$tp->IDDisciplina?>"><?=$tp->Disciplina?></option>
         <?php
         }
         return ob_get_clean();

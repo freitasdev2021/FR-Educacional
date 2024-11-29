@@ -30,6 +30,7 @@ use App\Http\Controllers\EnderecosController;
 use App\Http\Controllers\SalasController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\CIController;
+use App\Http\Controllers\AvaliacoesController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -104,10 +105,14 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //AULAS
         Route::get('Professores/Turmas/{IDTurma}',[EscolasController::class,'getProfessoresTurmaHTML'])->name('Professores/Turmas');
         Route::get('/Professores/DisciplinasProfessor/{IDTurma}/{IDProfessor?}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
+        Route::get('/Professores/SelectDisciplinasProfessor/{IDTurma}/{IDProfessor?}',[ProfessoresController::class,'getSelectDisciplinasTurmaProfessor'])->name('Professores/SelectDisciplinasProfessor');
         Route::get('/Aulas/Presenca/Todos/{IDAula}',[AulasController::class,'presencaTodos'])->name('Aulas/Presenca/Todos');
         Route::get('/Aulas/Presenca/{Hash}',[AulasController::class,'chamada'])->name('Aulas/Presenca');
+        Route::get('/Avaliacoes/Nota/{Hash}',[AulasController::class,'chamada'])->name('Avaliacoes/Notas');
         Route::get('/Aulas/Presenca/list/{Hash}',[AulasController::class,'getAulaPresenca'])->name('Aulas/Presenca/list');
+        Route::get('/Avaliacoes/Nota/list/{Hash}',[AulasController::class,'getAvaliacaoNota'])->name('Avaliacoes/Nota/list');
         Route::get('/Aulas/ListaAlunos/{IDTurma}/{DTAula}',[AulasController::class,'getHtmlAlunosChamada'])->name('Aulas/ListaAlunos');
+        Route::get('/Aulas/ListaAlunosAvaliacao/{IDTurma}/{DTAula}',[AulasController::class,'getHtmlAlunosAvaliacao'])->name('Aulas/ListaAlunosAvaliacao');
         Route::post('/Aulas/setPresenca',[AulasController::class,'setPresenca'])->name('Aulas/setPresenca');
         Route::get('/Aulas/list',[AulasController::class,'getAulas'])->name('Aulas/list');
         Route::get('/Aulas',[AulasController::class,'index'])->name('Aulas/index');
@@ -119,6 +124,12 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post('/Aulas/getAlunos',[AulasController::class,'getAulaAlunos'])->name('Aulas/getAlunos');
         Route::post('/Turmas/AlunosHtml',[FichaController::class,'getSelectAlunosFicha'])->name('Turmas/AlunosHtml');
         Route::patch('Aulas/Alterar/{Hash}',[AulasController::class,'alterarAula'])->name('Aulas/Alterar');
+        //AVALICAÇÕES
+        Route::get('Aulas/Avaliacoes',[AvaliacoesController::class,'index'])->name("Aulas/Avaliacoes/index");
+        Route::get('Aulas/Avaliacoes/Novo',[AvaliacoesController::class,'cadastro'])->name("Aulas/Avaliacoes/Novo");
+        Route::get('Aulas/Avaliacoes/Edit/{id}',[AvaliacoesController::class,'cadastro'])->name("Aulas/Avaliacoes/Edit");
+        Route::get('Aulas/Avaliacoes/list',[AvaliacoesController::class,'getAvaliacoes'])->name("Aulas/Avaliacoes/list");
+        Route::post('Aulas/Avaliacoes/Save',[AvaliacoesController::class,'save'])->name("Aulas/Avaliacoes/Save");
         //ATIVIDADES
         Route::get('/Aulas/Atividades/list',[AulasController::class,'getAtividades'])->name('Aulas/Atividades/list');
         Route::get('/Aulas/Atividades',[AulasController::class,'atividades'])->name('Aulas/Atividades/index');

@@ -17,12 +17,12 @@ use Carbon\Carbon;
 class AulasController extends Controller
 {
 
-    const submodulos = array([
-        'nome' => 'Aulas e Avaliações',
+    public const submodulos = array([
+        'nome' => 'Aulas',
         'rota' => 'Aulas/index',
         'endereco' => 'index'
     ],[
-        'nome' => 'Conteudos',
+        'nome' => 'Notas e Atividades',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
     ],[
@@ -33,24 +33,32 @@ class AulasController extends Controller
         'nome' => 'Diário',
         'rota' => 'Aulas/Diario/index',
         'endereco' => 'Diario'
+    ],[
+        'nome' => 'Avaliacoes',
+        'rota' => 'Aulas/Avaliacoes/index',
+        'endereco' => 'Avaliacoes'
     ]);
     //
-    const submodulosProfessor = array([
-        'nome' => 'Aulas e Avaliações',
+    public const submodulosProfessor = array([
+        'nome' => 'Aulas',
         'rota' => 'Aulas/index',
         'endereco' => 'index'
     ],[
-        'nome' => 'Conteudos',
+        'nome' => 'Notas e Atividades',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
     ],[
         'nome' => 'Recuperação',
         'rota' => 'Aulas/Recuperacao/index',
         'endereco' => 'Recuperacao'
+    ],[
+        'nome' => 'Avaliacoes',
+        'rota' => 'Aulas/Avaliacoes/index',
+        'endereco' => 'Avaliacoes'
     ]);
     //
-    const cadastroSubmodulos = array([
-        'nome' => 'Aulas e Avaliações',
+    public const cadastroSubmodulos = array([
+        'nome' => 'Aulas',
         'rota' => 'Aulas/Edit',
         'endereco' => 'Edit'
     ],[
@@ -59,7 +67,7 @@ class AulasController extends Controller
         'rota' => 'Aulas/Presenca'
     ]);
     //
-    const cadastroAtividades = array([
+    public const cadastroAtividades = array([
         'nome' => 'Conteudos',
         'rota' => 'Aulas/Atividades/index',
         'endereco' => 'Atividades'
@@ -69,7 +77,7 @@ class AulasController extends Controller
         'rota' => 'Aulas/Atividades/Correcao'
     ]);
     //
-    const cadastroCorrecaoAtividades = array([
+    public const cadastroCorrecaoAtividades = array([
         'nome' => 'Lançar Notas',
         'endereco' => 'Atividades',
         'rota' => 'Aulas/Atividades/Correcao'
@@ -80,9 +88,9 @@ class AulasController extends Controller
         $IDProf = Auth::user()->IDProfissional;
 
         if(Auth::user()->tipo == 6){
-            $WHERE = "WHERE a.IDProfessor = $IDProf";
+            $WHERE = "WHERE a.IDProfessor = $IDProf AND a.TPConteudo=0";
         }else{
-            $WHERE = "WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+            $WHERE = "WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).") AND a.TPConteudo=0";
         }
 
         if(isset($_GET['IDTurma']) && !empty($_GET['IDTurma'])){
@@ -299,12 +307,12 @@ class AulasController extends Controller
         if(Auth::user()->tipo == 6){
             $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.TPConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
-            ->where('aulas.IDProfessor', Auth::user()->IDProfissional) // Filtra pelo professor logado
+            ->where('aulas.IDProfessor', Auth::user()->IDProfissional)->where('TPConteudo',0) // Filtra pelo professor logado
             ->get();
         }else{
             $view['Aulas'] = Aulas::select('aulas.id','aulas.TPConteudo','aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
-            ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola()) // Filtra pelo professor logado
+            ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola())->where('TPConteudo',0) // Filtra pelo professor logado
             ->get();
         }
 
@@ -406,6 +414,9 @@ class AulasController extends Controller
         try{
             $Notas = [];
             $Aluno = [];
+            $IDAula = Atividade::find($request->IDAtividade)->IDAula;
+            $TPConteudo = Aulas::find($IDAula)->TPConteudo;
+
             foreach($request->Pontuacao as $nt){
                 if(!is_null($nt)){
                     array_push($Notas,$nt);
@@ -436,6 +447,17 @@ class AulasController extends Controller
                 Nota::create($p);
             }
             //
+            if($TPConteudo == 1){
+                Chamada::where('IDAula',$IDAula)->delete();
+                foreach($Pontos as $p){
+                    Chamada::create(array(
+                        "Presenca" => 0,
+                        "IDAluno" => $p['IDAluno'],
+                        "IDAula" => $IDAula
+                    ));
+                }
+            }
+            //
             $aid = $request->IDAtividade;
             $status = 'success';
             $mensagem = 'Notas Lançadas com Sucesso';
@@ -450,11 +472,17 @@ class AulasController extends Controller
     //
     public function deleteAula($Hash){
         $IDAula = Aulas::where('Hash',$Hash)->pluck('id')->toArray();
-        
+    
+        $Atividades = Atividade::whereIn('IDAula',$IDAula)->get();
+        $IDAtividades = [];
+        foreach($Atividades->toArray() as $atId){
+            array_push($IDAtividades,$atId['id']);
+        }
+        Nota::whereIn('IDAtividade',$IDAtividades)->delete();
+        AtividadeAtribuicao::whereIn('IDAtividade',$IDAtividades)->delete();
         Chamada::whereIn("IDAula",$IDAula)->delete();
         Aulas::whereIn('id',$IDAula)->delete();
-        Atividade::whereIn('IDAula',$IDAula)->delete();
-
+        Atividade::where('IDAula',$IDAula)->delete();
         return redirect()->back();
     }
     //
@@ -608,7 +636,8 @@ class AulasController extends Controller
             COUNT(n.IDAtividade) as Cumpridos,
             (SELECT COUNT(IDAluno) FROM atividades a2 INNER JOIN atividades_atribuicoes ata ON(a2.id = ata.IDAtividade) WHERE ata.IDAtividade = atv.id AND atv.id = a2.id) as Designados,
             SUM(atv.Pontuacao) as Pontuacao,
-            SUM(n.Nota) as Nota
+            SUM(n.Nota) as Nota,
+            a.TPConteudo
         FROM atividades atv
         LEFT JOIN aulas a ON(a.id = atv.IDAula)
         LEFT JOIN professores p ON(p.id = a.IDProfessor)
@@ -622,14 +651,20 @@ class AulasController extends Controller
         //dd($atividades);
         if(count($atividades) > 0){
             foreach($atividades as $a){
+                $Opcoes = "<a href=".route('Aulas/Atividades/Exclusao',$a->IDAtividade)." class='btn btn-danger btn-xs'>Excluir</a>&nbsp;";
+                if($a->TPConteudo == 1){
+                    $Opcoes .= "<a href=".route('Aulas/Atividades/Correcao',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a>";
+                }else{
+                    $Opcoes .= "<a href=".route('Aulas/Atividades/Edit',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a>";
+                }
+
                 $item = [];
                 $item[] = $a->Atividade;
                 $item[] = $a->Professor;
                 $item[] = $a->Turma;
                 $item[] = $a->Aula;
                 $item[] = self::data($a->Aplicada,'d/m/Y');
-                $item[] = "<a href=".route('Aulas/Atividades/Edit',$a->IDAtividade)." class='btn btn-fr btn-xs'>Editar</a> 
-                <a href=".route('Aulas/Atividades/Exclusao',$a->IDAtividade)." class='btn btn-danger btn-xs'>Excluir</a>";
+                $item[] = $Opcoes;
                 $itensJSON[] = $item;
             }
         }else{
@@ -647,6 +682,13 @@ class AulasController extends Controller
     //
     public function chamada($Hash){
         return view('Aulas.chamada',[
+            'submodulos' => self::cadastroSubmodulos,
+            'id' => $Hash
+        ]);
+    }
+    //
+    public function notaAvaliacao($Hash){
+        return view('Avaliacoes.notas',[
             'submodulos' => self::cadastroSubmodulos,
             'id' => $Hash
         ]);
@@ -767,6 +809,59 @@ class AulasController extends Controller
             <tr>
                 <th><?=$f->Aluno?></th>
                 <th><input type='checkbox' name='Chamada[]' value='<?=$f->IDAluno?>'></th>
+            </tr>
+            <?php
+        }
+
+        return ob_get_clean();
+    }
+    //
+    public function getHtmlAlunosAvaliacao($IDTurma,$DTAula){
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome AS Aluno,
+                m.id AS IDAluno,
+                a.DTSaida,
+                a.DTEntrada,
+                a.IDTurma,
+                r.created_at as DTRemanejamento,
+                r.IDTurmaOrigem as IDTurmaOrigem
+            FROM alunos a
+            INNER JOIN matriculas m ON m.id = a.IDMatricula
+            LEFT JOIN remanejados r ON(r.IDAluno = a.id)
+            GROUP BY m.Nome, m.id
+        SQL;
+
+        $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula,$IDTurma) {
+            $DTEntrada = Carbon::parse($arr->DTEntrada);
+            $DTSaida = Carbon::parse($arr->DTSaida);
+            $DTRemanejamento = Carbon::parse($arr->DTRemanejamento);
+            $remanejadosDaTurma = [];
+            $naoRemanejados = [];
+            if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
+                if(!is_null($arr->DTRemanejamento) && $arr->IDTurmaOrigem == $IDTurma && $DTRemanejamento->lt($DTAula)){
+                    $remanejadosDaTurma = $arr;
+                }
+
+                if($arr->IDTurma == $IDTurma){
+                    $naoRemanejados = $arr;
+                }
+
+                $alunos = (array)$remanejadosDaTurma + (array)$naoRemanejados;
+
+                return $alunos;
+            }
+        });
+        //dd($frequencia);
+        ob_start();
+        foreach($frequencia as $f){
+            ?>
+            <tr>
+                <th><?=$f->Aluno?></th>
+                <th>
+                    <input type='hidden' name='Aluno[]' value='<?=$f->IDAluno?>'>
+                    <input type="text" name="Nota[]">
+                </th>
             </tr>
             <?php
         }

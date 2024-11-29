@@ -379,18 +379,18 @@ class EscolasController extends Controller
         $AND = " AND tn.IDTurma = ".$IDTurma;
 
         $SQL = "SELECT 
-            p.Nome as Professor,us.id as USProfessor 
+            p.Nome as Professor,us.id as USProfessor,p.id as IDProfessor 
         FROM professores p 
         INNER JOIN users us ON(us.IDProfissional = p.id)
         INNER JOIN turnos tn ON(p.id = tn.IDProfessor)
-        WHERE us.Tipo = 6 $AND";
+        WHERE us.Tipo = 6 $AND GROUP BY p.id";
 
         $Query = DB::select($SQL);
         ob_start();
         echo "<option value=''>Selecione</option>";
         foreach($Query as $q){
         ?>
-        <option value="<?=$q->USProfessor?>"><?=$q->Professor?></option>
+        <option value="<?=$q->IDProfessor?>"><?=$q->Professor?></option>
         <?php
         }
 

@@ -15,7 +15,7 @@
             @if(in_array(Auth::user()->tipo,[6,4,4.5,5.5,5]))
             <div class="col-sm-12 p-2 row">
                 <div class="col-auto">
-                    <a href="{{route('Aulas/Novo')}}" class="btn btn-fr">Adicionar</a>
+                    <a href="{{route('Aulas/Avaliacoes/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
                 <form class="row col-auto" method="GET">
                     <div class="col-auto">
@@ -51,13 +51,6 @@
                                 <option value="1º PER" {{ isset($_GET['Estagio']) && $_GET['Estagio'] == "1º PER" ? 'selected' : '' }}>1º Período</option>
                             </optgroup>
                         </select>
-                    </div>
-                    <div class="col-auto">
-                        <select class="form-control" name="TPConteudo">
-                            <option value="">Aulas ou Avaliações</option>
-                            <option value="0">Aulas</option>
-                            <option value="1">Avaliações</option>
-                        </select> 
                     </div>
                     @if(in_array(Auth::user()->tipo,[2,2.5,4,4.5,5,5.5]))
                     <div class="col-auto">
@@ -102,7 +95,7 @@
                             <div class="accordion-body">
                                 <div class="row">
                                     <div class="col-sm-6">
-                                        <strong>Vieram a Aula:</strong>
+                                        <strong>Fizeram a Avaliação:</strong>
                                         <p>{{ 
                                             isset($a->CTAula) && 
                                             ($decodedCTAula = json_decode($a->CTAula)) && 
@@ -128,7 +121,7 @@
                                             @csrf
                                             @method('PATCH')
                                             <div class="col-sm-12">
-                                                <label>Descrição da Aula</label>
+                                                <label>Descrição da Avaliação</label>
                                                 <textarea class="form-control" name="DSConteudo">{{$a->DSConteudo}}</textarea>
                                             </div>
                                             <div class="d-flex">
@@ -182,8 +175,6 @@
                                             <br>
                                             <div class="col-auto">
                                                 <button type="submit" class="btn btn-primary">Alterar</button>
-                                                &nbsp;
-                                                <a href="{{route('Aulas/Presenca',$a->Hash)}}" class="btn btn-warning">Lista de Chamada</a>
                                                 &nbsp;
                                                 <a href="{{route('Aulas/Delete',$a->Hash)}}" class="btn btn-danger">Excluir</a>
                                             </div>

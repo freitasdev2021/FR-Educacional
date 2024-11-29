@@ -8,7 +8,7 @@
         <div class="fr-card-body">
             <!--LISTAS-->
             <div class="col-sm-12 p-2 center-form">
-                <form action="{{route('Aulas/Save')}}" method="POST">
+                <form action="{{route('Aulas/Avaliacoes/Save')}}" method="POST">
                     @csrf
                     @method("POST")
                     @if(session('success'))
@@ -57,7 +57,7 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '6' : '3'}}">
+                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '2' : '3'}}">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma">
                                 <option value="">Selecione</option>
@@ -66,16 +66,25 @@
                                 @endforeach
                             </select>
                         </div>
-                        <input type="hidden" name="TPConteudo" value="0">
                         @if(in_array(Auth::user()->tipo,[4,5,4.5,5.5]))
                         <div class="col-sm-2">
                             <label>Professor</label>
                             <select class="form-control" name="IDProfessor">
-                                <option value="">Selecione</option>
                                 
                             </select>
                         </div>
                         @endif
+                        <div class="col-sm-1">
+                            <label>Pontuacao</label>
+                            <input type="number" name="Pontuacao" class="form-control">
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Disciplina</label>
+                            <select class="form-control" name="IDDisciplina">
+
+                            </select>
+                        </div>
+                        <input type="hidden" name="TPConteudo" value="1">
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
@@ -90,15 +99,11 @@
                     <br>
                     @if(!$id)
                     <div class="col-sm-12 p-2">
-                        <div>
-                            <input type="checkbox" name="todosPresentes">Todos Presentes
-                        </div>
-                        <br>
                         <table class="table table-sm tabela">
                             <thead>
                               <tr>
                                 <th style="text-align:center;" scope="col">Aluno</th>
-                                <th style="text-align:center;" scope="col">Presente</th>
+                                <th style="text-align:center;" scope="col">Nota</th>
                               </tr>
                             </thead>
                             <tbody id="presencas">
@@ -113,7 +118,7 @@
                         <button type="submit" class="btn btn-fr col-auto">Salvar</button>
                         @endif
                         &nbsp;
-                        <a class="btn btn-light col-auto" href="{{route('Aulas/index')}}">Voltar</a>
+                        <a class="btn btn-light col-auto" href="{{route('Aulas/Avaliacoes/index')}}">Voltar</a>
                     </div>
                 </form>
                 @if(Auth::user()->tipo == 6)
@@ -126,43 +131,20 @@
                     $("select[name=IDTurma]").on("change",function(){
                        $.ajax({
                           method : 'GET',
-                          url : "/Professores/DisciplinasProfessor/"+$(this).val()
+                          url : "/Professores/SelectDisciplinasProfessor/"+$(this).val()
                        }).done(function(response){
-                          $(".disciplinas").html(response)
+                          $("select[name=IDDisciplina]").html(response)
                        })
 
                        $.ajax({
                           method : 'GET',
-                          url : "/Aulas/ListaAlunos/"+$(this).val()+"/"+$("input[name=DTAula]").val()
+                          url : "/Aulas/ListaAlunosAvaliacao/"+$(this).val()+"/"+$("input[name=DTAula]").val()
                        }).done(function(alun){
                         //console.log(alun)
                           $("#presencas").html(alun)
                        })
 
                     })
-                    //SELECIONA OS CONTEUDOS DO PLANEJAMENTO
-                    // $("select[name=IDDisciplina]").on("change",function(){
-                    //    $.ajax({
-                    //       method : 'GET',
-                    //       url : "/Planejamentos/getConteudo/"+$(this).val()+"/"+$("select[name=IDTurma]").val()+"/"+$("select[name=TPAula]").val()
-                    //    }).done(function(response){
-                    //       $("select[name=DSConteudo]").html(response)
-                    //       $("input[name=Estagio]").val($("select[name=DSConteudo] option:selected").attr("data-estagio"))
-                    //    })
-                    // })
-                    //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
-                    // $("select[name=DSConteudo]").on("change",function(){
-                    //     //$("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
-                    //     if($(this).val() == "PDF"){
-                    //         $(".externo").show()
-                    //     }else{
-                    //         $(".externo").hide()
-                    //     }
-
-                    //     $("input[name=DSConteudo]").val($(this).val())
-                    //     $("input[name=DSConteudo]").attr("value",$(this).val())
-                    // })
-                    //
                 </script> 
                 @else
                 <script>
@@ -176,16 +158,16 @@
                         //alert($(this).val())
                        $.ajax({
                           method : 'GET',
-                          url : "/Professores/DisciplinasProfessor/"+$("select[name=IDTurma]").val()+"/"+$(this).val()
+                          url : "/Professores/SelectDisciplinasProfessor/"+$("select[name=IDTurma]").val()+"/"+$(this).val()
                        }).done(function(response){
                             if(!IDAula){
-                                $(".disciplinas").html(response)
+                                $("select[name=IDDisciplina]").html(response)
                             }
                        })
 
                        $.ajax({
                           method : 'GET',
-                          url : "/Aulas/ListaAlunos/"+$("select[name=IDTurma]").val()+"/"+$("input[name=DTAula]").val()
+                          url : "/Aulas/ListaAlunosAvaliacao/"+$("select[name=IDTurma]").val()+"/"+$("input[name=DTAula]").val()
                        }).done(function(alun){
                         //console.log(alun)
                           $("#presencas").html(alun)

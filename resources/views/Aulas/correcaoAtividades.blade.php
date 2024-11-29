@@ -42,7 +42,6 @@
                       </table>
                       <div class="col-sm-12">
                         <button class="col-auto btn bg-fr text-white">Salvar</button>
-                        <a class="btn col-auto btn-default" href="{{route('Aulas/Atividades/Edit',$id)}}">Voltar</a>
                       </div>
                 </form>
             </div>
