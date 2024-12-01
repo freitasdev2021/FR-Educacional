@@ -52,13 +52,6 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <select class="form-control" name="TPConteudo">
-                            <option value="">Aulas ou Avaliações</option>
-                            <option value="0">Aulas</option>
-                            <option value="1">Avaliações</option>
-                        </select> 
-                    </div>
                     @if(in_array(Auth::user()->tipo,[2,2.5,4,4.5,5,5.5]))
                     <div class="col-auto">
                         <select name="Professor" class="form-control">

@@ -1451,7 +1451,7 @@ class AlunosController extends Controller
                     (SELECT COUNT(f2.id) 
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE f2.IDAluno = a.id 
+                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
                      AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
                 END) as Frequencia_{$ano},
@@ -1459,7 +1459,7 @@ class AlunosController extends Controller
                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE f2.IDAluno = a.id 
+                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
                      AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
                 END) as CargaDisciplina_{$ano},
@@ -1467,7 +1467,7 @@ class AlunosController extends Controller
                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE f2.IDAluno = a.id 
+                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
                 END) as CargaTotal_{$ano},
             ";
@@ -1477,7 +1477,7 @@ class AlunosController extends Controller
             (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = a.id 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                 AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
             END) as CargaTotal_{$ano},
             ";

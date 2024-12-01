@@ -105,10 +105,6 @@ class AulasController extends Controller
             $WHERE .=" AND p.id='".$_GET['Professor']."'";
         }
 
-        if(isset($_GET['TPConteudo'])  && $_GET['TPConteudo'] !== ''){
-            $WHERE .=" AND a.TPConteudo='".$_GET['TPConteudo']."'";
-        }
-
         //dd($WHERE);
 
         $SQL = <<<SQL
@@ -345,7 +341,7 @@ class AulasController extends Controller
     }
     //
     public function excluirAtividade($id){
-        Atividade::find($id)->update(["STDelete"=>1]);
+        Atividade::find($id)->delete();
         return redirect()->back();
     }
     //
