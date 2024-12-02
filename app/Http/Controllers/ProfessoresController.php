@@ -616,7 +616,7 @@ class ProfessoresController extends Controller
     public function getDisciplinasTurmaProfessor($IDTurma,$IDProfessor=null){
         
         if(Auth::user()->tipo == 6){
-            $id = Auth::user()->id;   
+            $id = Auth::user()->IDProfissional;   
         }else{
             $id = $IDProfessor;
         }
@@ -650,7 +650,7 @@ class ProfessoresController extends Controller
     public function getSelectDisciplinasTurmaProfessor($IDTurma,$IDProfessor=null){
         
         if(Auth::user()->tipo == 6){
-            $id = Auth::user()->id;   
+            $id = Auth::user()->IDProfissional;   
         }else{
             $id = $IDProfessor;
         }

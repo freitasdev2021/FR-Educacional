@@ -140,29 +140,6 @@
                        })
 
                     })
-                    //SELECIONA OS CONTEUDOS DO PLANEJAMENTO
-                    // $("select[name=IDDisciplina]").on("change",function(){
-                    //    $.ajax({
-                    //       method : 'GET',
-                    //       url : "/Planejamentos/getConteudo/"+$(this).val()+"/"+$("select[name=IDTurma]").val()+"/"+$("select[name=TPAula]").val()
-                    //    }).done(function(response){
-                    //       $("select[name=DSConteudo]").html(response)
-                    //       $("input[name=Estagio]").val($("select[name=DSConteudo] option:selected").attr("data-estagio"))
-                    //    })
-                    // })
-                    //SELECIONA OS CONTEUDOS E PEGA O ESTÁGIO
-                    // $("select[name=DSConteudo]").on("change",function(){
-                    //     //$("input[name=Estagio]").val($("option:selected",this).attr("data-estagio"))
-                    //     if($(this).val() == "PDF"){
-                    //         $(".externo").show()
-                    //     }else{
-                    //         $(".externo").hide()
-                    //     }
-
-                    //     $("input[name=DSConteudo]").val($(this).val())
-                    //     $("input[name=DSConteudo]").attr("value",$(this).val())
-                    // })
-                    //
                 </script> 
                 @else
                 <script>
