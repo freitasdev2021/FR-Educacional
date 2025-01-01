@@ -179,7 +179,7 @@ class TurmasController extends Controller
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
+                AND DATE_FORMAT(au2.DTAula, '%Y') = $Ano
                 ) as Frequencia,
                 t.MediaPeriodo,
                 -- Caso em que é verificado se a nota é inferior à média
@@ -215,7 +215,7 @@ class TurmasController extends Controller
                 notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
             WHERE 
                                     -- Filtro para turma específica
-                DATE_FORMAT(au.created_at, '%Y') = $Ano -- Filtro para o ano de 2024
+                DATE_FORMAT(au.DTAula, '%Y') = $Ano -- Filtro para o ano de 2024
                 AND t.id = $IDTurma
             GROUP BY 
                 a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia -- Corrigido o GROUP BY
@@ -295,7 +295,7 @@ class TurmasController extends Controller
                     INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                     AND au2.IDDisciplina = d.id 
-                    AND DATE_FORMAT(au2.created_at, '%Y') = $NOW
+                    AND DATE_FORMAT(au2.DTAula, '%Y') = $NOW
                     ) as FrequenciaAno,
                     (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecAno,
                     (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
@@ -326,13 +326,13 @@ class TurmasController extends Controller
                     ) as Total,
                     (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = '$Estagio' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
                     -- Frequência (quantidade de presenças) do Aluno para a Disciplina e Estágio específicos
-                    (SELECT COUNT(DISTINCT auFreq.Hash) AS total FROM aulas auFreq WHERE auFreq.TPConteudo = 0 AND auFreq.DTAula > a.DTAula AND auFreq.IDTurma = au.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(), '%Y') AND auFreq.Estagio = '$Estagio' ) as FreqDisc,
+                    (SELECT COUNT(DISTINCT auFreq.Hash) AS total FROM aulas auFreq WHERE auFreq.TPConteudo = 0 AND auFreq.DTAula > au.DTAula AND auFreq.IDTurma = au.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(), '%Y') AND auFreq.Estagio = '$Estagio' ) as FreqDisc,
                     (SELECT COUNT(DISTINCT auFreq.Hash) AS total FROM aulas auFreq WHERE auFreq.TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = t.id AND auFreq.IDTurma = au.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(), '%Y')) - (SELECT COUNT(f2.id) 
                     FROM frequencia f2 
                     INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                     AND au2.IDDisciplina = d.id AND au2.Estagio = '$Estagio' 
-                    AND DATE_FORMAT(au2.created_at, '%Y') = $NOW
+                    AND DATE_FORMAT(au2.DTAula, '%Y') = $NOW
                     ) as Frequencia,
                 SQL;
             }
@@ -366,7 +366,7 @@ class TurmasController extends Controller
                 a.IDTurma = $IDTurma                          -- Filtro para turma específica
                 AND au.IDDisciplina = $Disciplina                -- Filtro para disciplina específica
                 $andAno             -- Filtro para estágio (4º Bimestre)
-                AND DATE_FORMAT(au.created_at, '%Y') = $NOW -- Filtro para o ano de 2024
+                AND DATE_FORMAT(au.DTAula, '%Y') = $NOW -- Filtro para o ano de 2024
 
             $GroupBy
             SQL;
@@ -495,7 +495,7 @@ class TurmasController extends Controller
                     INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                     AND au2.IDDisciplina = d.id 
-                    AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
+                    AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')
                     ) as FrequenciaAno,
                     (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "ANUAL" AND rec2.IDAluno = $a AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as RecAn,
                     (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Nota,
@@ -509,7 +509,7 @@ class TurmasController extends Controller
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                      WHERE f2.IDAluno = a.id 
-                     AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as CargaHoraria 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as CargaHoraria 
                 FROM disciplinas d
                 INNER JOIN aulas au ON(d.id = au.IDDisciplina)
                 INNER JOIN frequencia f ON(au.id = f.IDAula)
@@ -688,7 +688,7 @@ class TurmasController extends Controller
             INNER JOIN turmas t ON(a.IDTurma = t.id)
             INNER JOIN atividades at ON(at.IDAula = au.id)
             INNER JOIN notas n ON(at.id = n.IDAtividade)
-            WHERE a.id = $a
+            WHERE a.id = $a AND DATE_FORMAT(au.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')
             GROUP BY d.id 
         SQL;
         $queryBoletim = DB::select($SQL);

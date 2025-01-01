@@ -78,7 +78,6 @@ class DiarioController extends Controller
                 t.Nome as Turma,
                 t.Serie as Serie,
                 au.DSConteudo as Aula,
-                au.created_at,
                 au.Estagio,
                 au.DTAula,
                 (
@@ -124,7 +123,6 @@ class DiarioController extends Controller
                 t.Nome as Turma,
                 t.Serie as Serie,
                 au.DSConteudo as Aula,
-                au.created_at,
                 au.Estagio,
                 au.DTAula,
                 (
@@ -166,7 +164,7 @@ class DiarioController extends Controller
                 p.id as IDProfessor,
                 t.Nome as Turma,
                 t.Serie as Serie,
-                au.created_at,
+                au.DTAula,
                 au.Estagio,
                 (
                     SELECT
@@ -191,7 +189,7 @@ class DiarioController extends Controller
                 aulas au 
             INNER JOIN professores p ON(p.id = au.IDProfessor)
             INNER JOIN turmas t ON(t.id = au.IDTurma)
-            WHERE p.id = $Professor AND au.Estagio = '$Estagio' AND au.created_at = '$Data' 
+            WHERE p.id = $Professor AND au.Estagio = '$Estagio' AND au.DTAula = '$Data' 
         SQL;
 
         $Diario = DB::select($SQL);
@@ -225,7 +223,7 @@ class DiarioController extends Controller
             $pdf->Cell(0, 10, 'Turma: ' . $aula->Turma, 0, 1);
             $pdf->Cell(0, 10, self::utfConvert("Série: ") . self::utfConvert($aula->Serie), 0, 1);
             $pdf->Cell(0, 10, 'Aula: ' . self::utfConvert($aula->Aula), 0, 1);
-            $pdf->Cell(0, 10, 'Data: ' . self::data($aula->created_at,'d/m/Y'), 0, 1);
+            $pdf->Cell(0, 10, 'Data: ' . self::data($aula->DTAula,'d/m/Y'), 0, 1);
             $pdf->Cell(0, 10, self::utfConvert("Estágio: ") . self::utfConvert($aula->Estagio), 0, 1);
             $pdf->Ln(5); // Espaço após as informações da aula
 

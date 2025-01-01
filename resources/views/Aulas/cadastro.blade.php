@@ -135,7 +135,7 @@
                           method : 'GET',
                           url : "/Aulas/ListaAlunos/"+$(this).val()+"/"+$("input[name=DTAula]").val()
                        }).done(function(alun){
-                        //console.log(alun)
+                        console.log(alun)
                           $("#presencas").html(alun)
                        })
 

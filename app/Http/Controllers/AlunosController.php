@@ -497,7 +497,7 @@ class AlunosController extends Controller
             FROM frequencia f2 
             INNER JOIN aulas au2 ON au2.id = f2.IDAula 
             WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-            AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
+            AND DATE_FORMAT(au2.DTAula, '%Y') = $Ano
             ) as FrequenciaAno
         FROM 
             alunos a
@@ -512,7 +512,7 @@ class AlunosController extends Controller
         INNER JOIN 
             notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
         WHERE 
-            DATE_FORMAT(au.created_at, '%Y') = $Ano AND a.id = $IDAluno
+            DATE_FORMAT(au.DTAula, '%Y') = $Ano AND a.id = $IDAluno
         GROUP BY a.id
         SQL;
 
@@ -743,7 +743,7 @@ class AlunosController extends Controller
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = $Ano
+                AND DATE_FORMAT(au2.DTAula, '%Y') = $Ano
                 ) as Frequencia,
                 t.MediaPeriodo,
                 -- Caso em que é verificado se a nota é inferior à média
@@ -779,7 +779,7 @@ class AlunosController extends Controller
                 notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
             WHERE 
                                     -- Filtro para turma específica
-                DATE_FORMAT(au.created_at, '%Y') = $Ano -- Filtro para o ano de 2024
+                DATE_FORMAT(au.DTAula, '%Y') = $Ano -- Filtro para o ano de 2024
                 AND a.id = $IDAluno
             GROUP BY 
                 a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia -- Corrigido o GROUP BY
@@ -1232,7 +1232,7 @@ class AlunosController extends Controller
         ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
         ->join('alunos', 'alunos.id', '=', 'frequencia.IDAluno')
         ->where('alunos.id', $id)
-        ->select(DB::raw('DISTINCT YEAR(aulas.created_at) as ano'))
+        ->select(DB::raw('DISTINCT YEAR(aulas.DTAula) as ano'))
         ->orderBy('ano')
         ->pluck('ano')
         ->toArray();
@@ -1245,42 +1245,42 @@ class AlunosController extends Controller
         $selectCargas = "";
         foreach ($anos as $ano) {
             $selectYears .= "
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecBim_{$ano},
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecAn_{$ano},
-            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as PontRec_{$ano},
-            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id ) END) as Total_{$ano}, 
-            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecBim_{$ano},
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecAn_{$ano},
+            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as PontRec_{$ano},
+            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(au3.DTAula, '%Y') = {$ano} ) END) as Total_{$ano}, 
+            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
                     (SELECT COUNT(f2.id) 
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE f2.IDAluno = a.id 
+                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
                 END) as Frequencia_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE f2.IDAluno = a.id 
+                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
                 END) as CargaDisciplina_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE f2.IDAluno = a.id 
-                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
                 END) as CargaTotal_{$ano},
             ";
 
             $selectCargas .="
-            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
             (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE f2.IDAluno = a.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
+                AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
             END) as CargaTotal_{$ano},
             ";
         }
@@ -1421,7 +1421,7 @@ class AlunosController extends Controller
         $pdf->Cell(90, 10, "_________________________", 0, 1, 'C');
 
         // Saída do PDF
-        $pdf->Output("D",'Historico_'.rand(1,100).".pdf");
+        $pdf->Output("I",'Historico_'.rand(1,100).".pdf");
         exit;
     }
 
@@ -1431,7 +1431,7 @@ class AlunosController extends Controller
             ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
             ->join('alunos', 'alunos.id', '=', 'frequencia.IDAluno')
             ->where('alunos.id', $id)
-            ->select(DB::raw('DISTINCT YEAR(aulas.created_at) as ano'))
+            ->select(DB::raw('DISTINCT YEAR(aulas.DTAula) as ano'))
             ->orderBy('ano')
             ->pluck('ano')
             ->toArray();
@@ -1443,42 +1443,42 @@ class AlunosController extends Controller
         $selectYears = '';
         foreach ($anos as $ano) {
             $selectYears .= "
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecBim_{$ano},
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as RecAn_{$ano},
-            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id ) as PontRec_{$ano},
-            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id ) END) as Total_{$ano}, 
-            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecBim_{$ano},
+            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecAn_{$ano},
+            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as PontRec_{$ano},
+            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(au3.DTAula, '%Y') = {$ano} ) END) as Total_{$ano}, 
+            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
                     (SELECT COUNT(f2.id) 
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                      WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
                 END) as Frequencia_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                      WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                      AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
                 END) as CargaDisciplina_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
                      FROM frequencia f2 
                      INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                      WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
                 END) as CargaTotal_{$ano},
             ";
 
             $selectCargas .="
-            MAX(CASE WHEN DATE_FORMAT(au.created_at, '%Y') = {$ano} THEN 
+            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
             (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
                 FROM frequencia f2 
                 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                 WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = {$ano}) 
+                AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
             END) as CargaTotal_{$ano},
             ";
         }
@@ -2266,7 +2266,7 @@ class AlunosController extends Controller
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')
+                AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')
                 ) as FrequenciaAno,
                 (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "ANUAL" AND rec2.IDAluno = $IDAluno AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as RecAn,
                 (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Nota,
@@ -2280,7 +2280,7 @@ class AlunosController extends Controller
                     FROM frequencia f2 
                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
                     WHERE f2.IDAluno = a.id 
-                    AND DATE_FORMAT(au2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as CargaHoraria 
+                    AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as CargaHoraria 
             FROM disciplinas d
             INNER JOIN aulas au ON(d.id = au.IDDisciplina)
             INNER JOIN frequencia f ON(au.id = f.IDAula)

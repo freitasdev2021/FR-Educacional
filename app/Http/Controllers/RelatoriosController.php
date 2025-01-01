@@ -169,7 +169,7 @@ class RelatoriosController extends Controller
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
+                AND DATE_FORMAT(au2.DTAula, '%Y') = $ANO
                 ) as FrequenciaAno,
                 (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as FreqTur,
                 (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
@@ -205,7 +205,7 @@ class RelatoriosController extends Controller
             INNER JOIN 
                 notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
             WHERE 
-                DATE_FORMAT(au.created_at, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
+                DATE_FORMAT(au.DTAula, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
             GROUP BY 
                 a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia
             SQL;
@@ -309,7 +309,7 @@ class RelatoriosController extends Controller
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
+                AND DATE_FORMAT(au2.DTAula, '%Y') = $ANO
                 ) as FrequenciaAno,
                 (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
                 (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
@@ -342,7 +342,7 @@ class RelatoriosController extends Controller
             INNER JOIN 
                 notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
             WHERE 
-                DATE_FORMAT(au.created_at, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
+                DATE_FORMAT(au.DTAula, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
             GROUP BY 
                 a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia
             SQL;
@@ -456,7 +456,7 @@ class RelatoriosController extends Controller
                 INNER JOIN aulas au2 ON au2.id = f2.IDAula 
                 WHERE f2.IDAluno = a.id 
                 AND au2.IDDisciplina = d.id 
-                AND DATE_FORMAT(au2.created_at, '%Y') = $ANO
+                AND DATE_FORMAT(au2.DTAula, '%Y') = $ANO
                 ) as FrequenciaAno,
                 (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.IDTurma = a.IDTurma AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as FreqDisc,
                 (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as RecBim,
@@ -491,7 +491,7 @@ class RelatoriosController extends Controller
             INNER JOIN 
                 notas n ON n.IDAluno = a.id            -- Relaciona notas com alunos
             WHERE 
-                DATE_FORMAT(au.created_at, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
+                DATE_FORMAT(au.DTAula, '%Y') = $ANO AND a.IDTurma = $t->IDTurma
             GROUP BY 
                 a.id, d.id, m.Nome, t.MediaPeriodo, t.TPAvaliacao, t.MINFrequencia
             SQL;

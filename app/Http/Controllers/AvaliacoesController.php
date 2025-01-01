@@ -50,6 +50,8 @@ class AvaliacoesController extends Controller
             $WHERE .=" AND p.id='".$_GET['Professor']."'";
         }
 
+        $WHERE .= " AND DATE_FORMAT(a.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')";
+
         //dd($WHERE);
 
         $SQL = <<<SQL

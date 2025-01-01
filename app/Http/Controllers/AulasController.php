@@ -105,6 +105,8 @@ class AulasController extends Controller
             $WHERE .=" AND p.id='".$_GET['Professor']."'";
         }
 
+        $WHERE .= " AND DATE_FORMAT(a.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')";
+
         //dd($WHERE);
 
         $SQL = <<<SQL
@@ -621,6 +623,8 @@ class AulasController extends Controller
             $WHERE .=" AND a.Estagio='".$_GET['Estagio']."'";
         }
 
+        $WHERE .= " AND DATE_FORMAT(a.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')";
+
         $SQL = <<<SQL
         SELECT
             p.Nome as Professor,
@@ -716,11 +720,13 @@ class AulasController extends Controller
         
         $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
-            $DTSaida = Carbon::parse($arr->DTSaida);
+            $DTSaida = !is_null($arr->DTSaida) 
+            ? Carbon::parse($arr->DTSaida) 
+            : Carbon::createFromFormat('Y-m-d', '9999-12-31');
             $remanejadosDaTurma = [];
             $naoRemanejados = [];
             
-            if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
+            if ($DTEntrada->lte($DTAula) && $DTSaida->gte($DTAula)) {
                 if(!is_null($arr->DTRemanejamento) && $arr->IDTurmaOrigem == $arr->IDTurma && $DTRemanejamento->gt($DTAula)){
                     $remanejadosDaTurma = $arr;
                 }
@@ -780,11 +786,14 @@ class AulasController extends Controller
 
         $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula,$IDTurma) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
-            $DTSaida = Carbon::parse($arr->DTSaida);
+            $DTSaida = !is_null($arr->DTSaida) 
+            ? Carbon::parse($arr->DTSaida) 
+            : Carbon::createFromFormat('Y-m-d', '9999-12-31');
+
             $DTRemanejamento = Carbon::parse($arr->DTRemanejamento);
             $remanejadosDaTurma = [];
             $naoRemanejados = [];
-            if ($DTEntrada->lt($DTAula) && $DTSaida->gt($DTAula)) {
+            if ($DTEntrada->lte($DTAula) && $DTSaida->gte($DTAula)) {
                 if(!is_null($arr->DTRemanejamento) && $arr->IDTurmaOrigem == $IDTurma && $DTRemanejamento->lt($DTAula)){
                     $remanejadosDaTurma = $arr;
                 }
@@ -830,7 +839,9 @@ class AulasController extends Controller
 
         $frequencia = array_filter(DB::select($SQL), function ($arr) use ($DTAula,$IDTurma) {
             $DTEntrada = Carbon::parse($arr->DTEntrada);
-            $DTSaida = Carbon::parse($arr->DTSaida);
+            $DTSaida = !is_null($arr->DTSaida) 
+            ? Carbon::parse($arr->DTSaida) 
+            : Carbon::createFromFormat('Y-m-d', '9999-12-31');
             $DTRemanejamento = Carbon::parse($arr->DTRemanejamento);
             $remanejadosDaTurma = [];
             $naoRemanejados = [];
