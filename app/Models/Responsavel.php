@@ -11,7 +11,6 @@ class Responsavel extends Model
     protected $table = 'responsavel';
     protected $fillable = [
         'IDAluno',
-        'RGPaisAnexo',
         'RGPais',
         'NMResponsavel',
         'EmailResponsavel',

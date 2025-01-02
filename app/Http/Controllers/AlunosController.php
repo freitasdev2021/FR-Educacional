@@ -261,11 +261,6 @@ class AlunosController extends Controller
             m.AMedico,
             m.APsicologico,
             m.CDPasta,
-            m.AnexoRG,
-            re.RGPaisAnexo,
-            m.CResidencia,
-            m.Historico,
-            re.RGPaisAnexo,
             cal.INIRematricula,
             cal.TERRematricula,
             r.ANO,
@@ -1183,11 +1178,6 @@ class AlunosController extends Controller
                 m.AMedico,
                 m.APsicologico,
                 m.CDPasta,
-                m.AnexoRG,
-                re.RGPaisAnexo,
-                m.CResidencia,
-                m.Historico,
-                re.RGPaisAnexo,
                 cal.INIRematricula,
                 cal.TERRematricula,
                 r.ANO,
@@ -2520,46 +2510,12 @@ class AlunosController extends Controller
             //
             if(!$request->IDMatricula || !$request->IDAluno){
 
-                if($request->file('CResidencia')){
-                    $CResidencia = $request->file('CResidencia')->getClientOriginalName();
-                    $request->file('CResidencia')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CResidencia,'public');
-                }else{
-                    $CResidencia = '';
-                }
-    
-                if($request->file('RGPaisAnexo')){
-                    $RGPaisAnexo = $request->file('RGPaisAnexo')->getClientOriginalName();
-                    $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$RGPaisAnexo,'public');
-                }else{
-                    $RGPaisAnexo = '';
-                }
-    
-                if($request->file('AnexoRG')){
-                    $AnexoRG = $request->file('AnexoRG')->getClientOriginalName();
-                    $request->file('AnexoRG')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$AnexoRG,'public');
-                }else{
-                    $AnexoRG = '';
-                }
-    
-                if($request->file('Historico')){
-                    $Historico = $request->file('Historico')->getClientOriginalName();
-                    $request->file('Historico')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$Historico,'public');
-                }else{
-                    $Historico = '';
-                }
     
                 if($request->file('Foto')){
                     $Foto = $request->file('Foto')->getClientOriginalName();
                     $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$Foto,'public');
                 }else{
                     $Foto = '';
-                }
-
-                if($request->file('CNascimento')){
-                    $CNascimento = $request->file('CNascimento')->getClientOriginalName();
-                    $request->file('CNascimento')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CNascimento,'public');
-                }else{
-                    $CNascimento = '';
                 }
 
                 if($request->credenciaisLogin){
@@ -2587,13 +2543,9 @@ class AlunosController extends Controller
                 );
     
                 $matricula = array(
-                    'AnexoRG' => $AnexoRG,
-                    'CResidencia' => $CResidencia,
-                    'CNascimento' => $CNascimento,
                     "SUS" => $request->SUS,
                     "Passaporte" => $request->Passaporte,
                     "CNH" => $request->CNH,
-                    'Historico' => $Historico,
                     'Nome' => $request->Nome,
                     'CPF' => preg_replace('/\D/', '', $request->CPF),
                     'RG' => preg_replace('/\D/', '', $request->RG),
@@ -2655,7 +2607,6 @@ class AlunosController extends Controller
 
                 $responsavel = array(
                     'IDAluno' => $createAluno->id,
-                    'RGPaisAnexo' => $RGPaisAnexo,
                     'RGPais' => preg_replace('/\D/', '', $request->RGPais),
                     'NMResponsavel' => $request->NMResponsavel,
                     'EmailResponsavel' => $request->EmailResponsavel,
@@ -2672,39 +2623,6 @@ class AlunosController extends Controller
                 $rout = 'Alunos/Novo';
             }else{
                 
-                if($request->file('CResidencia')){
-                    $CResidencia = $request->file('CResidencia')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldCResidencia);
-                    $request->file('CResidencia')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$CResidencia,'public');
-                }else{
-                    $CResidencia = '';
-                }
-    
-                if($request->file('RGPaisAnexo')){
-                    $RGPaisAnexo = $request->file('RGPaisAnexo')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldRGPaisAnexo);
-                    $request->file('RGPaisAnexo')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$RGPaisAnexo,'public');
-                }else{
-                    $RGPaisAnexo = '';
-                }
-
-                //dd($RGPaisAnexo);
-    
-                if($request->file('AnexoRG')){
-                    $AnexoRG = $request->file('AnexoRG')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldAnexoRG);
-                    $request->file('AnexoRG')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$AnexoRG,'public');
-                }else{
-                    $AnexoRG = '';
-                }
-    
-                if($request->file('Historico')){
-                    $Historico = $request->file('Historico')->getClientOriginalName();
-                    Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'. $request->CDPasta . '/' . $request->oldHistorico);
-                    $request->file('Historico')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Historico,'public');
-                }else{
-                    $Historico = '';
-                }
     
                 if($request->file('Foto')){
                     $Foto = $request->file('Foto')->getClientOriginalName();
@@ -2712,13 +2630,6 @@ class AlunosController extends Controller
                     $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$request->CDPasta,$Foto,'public');
                 }else{
                     $Foto = '';
-                }
-
-                if($request->file('CNascimento')){
-                    $CNascimento = $request->file('CNascimento')->getClientOriginalName();
-                    $request->file('CNascimento')->storeAs('organizacao_'.Auth::user()->id_org.'_alunos/aluno_'.$CDPasta,$CNascimento,'public');
-                }else{
-                    $CNascimento = '';
                 }
 
                 $aluno = array(
@@ -2766,10 +2677,6 @@ class AlunosController extends Controller
                 );
     
                 $matricula = array(
-                    'AnexoRG' => $AnexoRG,
-                    'CResidencia' => $CResidencia,
-                    'Historico' => $Historico,
-                    'CNascimento' => $CNascimento,
                     "SUS" => $request->SUS,
                     "Passaporte" => $request->Passaporte,
                     "CNH" => $request->CNH,
@@ -2810,18 +2717,6 @@ class AlunosController extends Controller
 
                 $matricula['PaisJSON'] = json_encode($Pais);
 
-                if(empty($Historico)){
-                    unset($matricula['Historico']);
-                }
-
-                if(empty($AnexoRG)){
-                    unset($matricula['AnexoRG']);
-                }
-
-                if(empty($CResidencia)){
-                    unset($matricula['CResidencia']);
-                }
-
                 if(empty($Foto)){
                     unset($matricula['Foto']);
                 }
@@ -2832,10 +2727,6 @@ class AlunosController extends Controller
 
                 if(empty($request->CPF)){
                     unset($matricula['CPF']);
-                }
-
-                if(empty($RGPaisAnexo)){
-                    unset($matricula['RGPaisAnexo']);
                 }
 
                 if(is_null($request->Nome)){
@@ -2867,7 +2758,6 @@ class AlunosController extends Controller
                 Aluno::find($request->IDAluno)->update($aluno);
 
                 $responsavel = array(
-                    'RGPaisAnexo' => $RGPaisAnexo,
                     'RGPais' => preg_replace('/\D/', '', $request->RGPais),
                     'NMResponsavel' => $request->NMResponsavel,
                     'EmailResponsavel' => $request->EmailResponsavel,

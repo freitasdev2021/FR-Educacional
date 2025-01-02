@@ -21,11 +21,6 @@
                 @if(isset($Registro->IDAluno) && isset($Registro->IDMatricula))
                 <input type="hidden" value="{{$Registro->IDAluno}}" name="IDAluno">
                 <input type="hidden" value="{{$Registro->IDMatricula}}" name="IDMatricula">
-                <input type="hidden" name="oldAnexoRG" value="{{$Registro->AnexoRG}}">
-                <input type="hidden" name="oldRGPaisAnexo" value="{{$Registro->RGPaisAnexo}}">
-                <input type="hidden" name="oldCResidencia" value="{{$Registro->CResidencia}}">
-                <input type="hidden" name="oldCNascimento" value="{{$Registro->CNascimento}}">
-                <input type="hidden" name="oldHistorico" value="{{$Registro->Historico}}">
                 <input type="hidden" name="oldFoto" value="{{$Registro->Foto}}">
                 <input type="hidden" name="CDPasta" value="{{$Registro->CDPasta}}">
                 @endif
@@ -199,28 +194,6 @@
                         <div class="col-sm-4">
                             <label>Celular Aluno</label>
                             <input type="text" name="Celular" class="form-control" maxlength="50" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}" minlength="3">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <label>RG do Responsavel</label>
-                            <input type="file" class="form-control" name="RGPaisAnexo" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
-                        </div>
-                        <div class="col-sm-2">
-                            <label>RG do Aluno</label>
-                            <input type="file" class="form-control" name="AnexoRG" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
-                        </div>
-                        <div class="col-sm-2">
-                            <label>Comprovante de Residência</label>
-                            <input type="file" class="form-control" name="CResidencia" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
-                        </div>
-                        <div class="col-sm-2">
-                            <label>Histórico Escolar</label>
-                            <input type="file" class="form-control" name="Historico" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Certidão de Nascimento</label>
-                            <input type="file" class="form-control" name="CNascimento" accept="application/pdf" {{!isset($Registro) ? '' : ''}}>
                         </div>
                     </div>
                     <div class="row">

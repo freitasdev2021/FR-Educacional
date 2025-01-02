@@ -12,10 +12,6 @@ class Matriculas extends Model
     protected $table = 'matriculas';
 
     protected $fillable = [
-        'AnexoRG',
-        'CResidencia',
-        'RGPaisAnexo',
-        'Historico',
         'Nome',
         'CPF',
         'RG',
