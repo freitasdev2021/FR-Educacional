@@ -72,10 +72,10 @@ class CalendarioController extends Controller
     public function umAnoDepois()
     {
         // Data inicial - hoje
-        $startDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->INIAno);
+        $startDate = Carbon::parse(Calendario::whereYear('INIAno',date('Y'))->where('IDOrg', Auth::user()->id_org)->first()->INIAno);
 
         // Data final - daqui a um ano
-        $endDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
+        $endDate = Carbon::parse(Calendario::whereYear('TERAno',date('Y'))->where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
 
         // Intervalo de 1 dia
         $interval = new DateInterval('P1D');
@@ -97,10 +97,10 @@ class CalendarioController extends Controller
 
     public static function calendarioLetivo(){
         // Data inicial - hoje
-        $startDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->INIAno);
+        $startDate = Carbon::parse(Calendario::whereYear('INIAno',date('Y'))->where('IDOrg', Auth::user()->id_org)->first()->INIAno);
 
         // Data final - daqui a um ano
-        $endDate = Carbon::parse(Calendario::where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
+        $endDate = Carbon::parse(Calendario::whereYear('TERAno',date('Y'))->where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
 
         // Intervalo de 1 dia
         $interval = new DateInterval('P1D');
@@ -116,6 +116,135 @@ class CalendarioController extends Controller
 
         // Exibe as datas (ou retorna como resposta JSON, ou qualquer outro uso que você desejar)
         return $dates;
+    }
+
+    public static function ferias(){
+        $dates = [];
+        $Ferias = FeriasAlunos::select('DTInicio','DTTermino')->whereIn('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org))->whereYear('DTInicio',date('Y'))->get();
+
+        foreach($Ferias as $f){
+            array_push($dates,[
+                'Inicio'=>$f->DTInicio,
+                'Termino'=>$f->DTTermino
+            ]);
+        }
+
+        return $dates;
+    }
+
+    public static function feriados(){
+        $dates = [];
+        $Recessos = CalendarioFeriado::select('DTInicio','DTTermino')->whereIn('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org))->whereYear('DTInicio',date('Y'))->get();
+
+        foreach($Recessos as $r){
+            array_push($dates,[
+                'Inicio'=>$r->DTInicio,
+                'Termino'=>$r->DTTermino
+            ]);
+        }
+
+        return $dates;
+    }
+
+    public function intervaloFeriados($calendario,$feriados){
+        $intervalos = array();
+        foreach($feriados as $f){
+            $startDate = Carbon::parse($f['Inicio']);
+
+            // Data final - daqui a um ano
+            $endDate = Carbon::parse($f['Termino'])->addDay();
+    
+            // Intervalo de 1 dia
+            $interval = new DateInterval('P1D');
+    
+            // Cria o período de datas
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            foreach($period as $p){
+                array_push($intervalos,$p->format('Y-m-d'));
+            }
+        }
+
+        //DESCONTANDO DO CALENDARIO LETIVO
+        foreach($intervalos as $in){
+            $key = array_search($in, $calendario);
+            if ($key !== false) {
+                unset($calendario[$key]);
+            }
+        }
+
+        return $calendario;
+    }
+
+    public static function recessos(){
+        $dates = [];
+        $Recessos = Paralizacao::select('DTInicio','DTTermino')->whereIn('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org))->whereYear('DTInicio',date('Y'))->get();
+
+        foreach($Recessos as $r){
+            array_push($dates,[
+                'Inicio'=>$r->DTInicio,
+                'Termino'=>$r->DTTermino
+            ]);
+        }
+
+        return $dates;
+    }
+
+    public function intervaloRecessos($calendario,$recessos){
+        $intervalos = array();
+        foreach($recessos as $f){
+            $startDate = Carbon::parse($f['Inicio']);
+
+            // Data final - daqui a um ano
+            $endDate = Carbon::parse($f['Termino'])->addDay();
+    
+            // Intervalo de 1 dia
+            $interval = new DateInterval('P1D');
+    
+            // Cria o período de datas
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            foreach($period as $p){
+                array_push($intervalos,$p->format('Y-m-d'));
+            }
+        }
+
+        //DESCONTANDO DO CALENDARIO LETIVO
+        foreach($intervalos as $in){
+            $key = array_search($in, $calendario);
+            if ($key !== false) {
+                unset($calendario[$key]);
+            }
+        }
+
+        return $calendario;
+    }
+
+    public function intervaloFerias($calendario,$ferias){
+        $intervalos = array();
+        foreach($ferias as $f){
+            $startDate = Carbon::parse($f['Inicio']);
+
+            // Data final - daqui a um ano
+            $endDate = Carbon::parse($f['Termino'])->addDay();
+    
+            // Intervalo de 1 dia
+            $interval = new DateInterval('P1D');
+    
+            // Cria o período de datas
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            foreach($period as $p){
+                array_push($intervalos,$p->format('Y-m-d'));
+            }
+        }
+
+        //DESCONTANDO DO CALENDARIO LETIVO
+        foreach($intervalos as $in){
+            $key = array_search($in, $calendario);
+            if ($key !== false) {
+                unset($calendario[$key]);
+            }
+        }
+
+        return $calendario;
     }
 
     public function index(){
@@ -638,6 +767,45 @@ class CalendarioController extends Controller
         ];
         
         echo json_encode($resultados);
+    }
+
+    public function diasLetivos(){
+        $Dias = array();
+        $AnoLetivo = self::calendarioLetivo();
+        $FeriasAlunos = FeriasAlunos::whereYear('DTInicio',date('Y'))->select('DTInicio','DTTermino')->whereIn("IDEscola",SecretariasController::getEscolasRede(Auth::user()->id_org))->first();
+        $sabadosLetivos = SabadoLetivo::whereYear('Data',date('Y'))->whereIn('IDEscola', SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck('Data')->toArray();
+        $feriados = CalendarioFeriado::whereYear('DTInicio',date('Y'))->whereIn('IDEscola', SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck("DTInicio")->toArray();
+        $recessos = Paralizacao::whereYear('DTInicio',date('Y'))->whereIn('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck('DTInicio')->toArray();
+        $recuperacao = array_filter(
+            array_map(function($ret) {
+                // Converte a data para 'Y-m-d', removendo a hora
+                return date('Y-m-d', strtotime($ret));
+            }, CalendarioRecuperacao::whereYear('DTInicio',date('Y'))->whereIn('IDEscola', SecretariasController::getEscolasRede(Auth::user()->id_org))->pluck("DTInicio")->toArray()),
+            function($ret) {
+                // Aqui você pode aplicar uma condição adicional, se necessário
+                return !empty($ret); // Exemplo de filtro para remover datas vazias
+            }
+        );
+        
+        foreach($AnoLetivo as $an){
+            $Dia = Carbon::parse($an);
+
+            if($Dia->format('D') != "Sat" && $Dia->format('D') != "Sun"){
+                array_push($Dias,$Dia->format('Y-m-d'));
+            }
+        }
+
+        $DiasLetivos = array_merge($Dias,array_unique($sabadosLetivos));
+
+        usort($DiasLetivos,function($a,$b){
+            return strtotime($a) - strtotime($b);
+        });
+        
+        $DiasLetivos = self::intervaloFerias($DiasLetivos,self::ferias());
+        $DiasLetivos = self::intervaloRecessos($DiasLetivos,self::recessos());
+        $DiasLetivos = self::intervaloFeriados($DiasLetivos,self::feriados());
+
+        dd($DiasLetivos);
     }
 
     public function getFeriasProfissionais(){

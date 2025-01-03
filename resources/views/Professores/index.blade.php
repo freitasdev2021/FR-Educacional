@@ -12,12 +12,12 @@
                 <div class="col-auto">
                     <a href="{{route('Professores/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
-            <hr>
             @endif
                 <div class="col-auto">
                     <a href="{{route('Professores/Imprimir')}}" class="btn btn-fr">Imprimir</a>
                 </div>
             </div>
+            <hr>
             <!--LISTAS-->
             <div class="col-sm-12 p-2">
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Professores/list')}}">

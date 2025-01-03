@@ -337,6 +337,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Escolas/Vagas/list',[VagasController::class,'getVagas'])->name('Escolas/Vagas/list');
         Route::post('Escolas/Vagas/Save',[VagasController::class,'save'])->name('Escolas/Vagas/Save');
         //CALENDARIO
+        Route::get('Calendario/Dias',[CalendarioController::class,'diasLetivos'])->name('Calendario/Dias');
         Route::get('Calendario/Gerar',[CalendarioController::class,'gerarCalendario'])->name('Calendario/Gerar');
         Route::post('Calendario/Rematricula',[CalendarioController::class,'rematricula'])->name('Calendario/Rematricula');
         Route::get('/Calendario',[CalendarioController::class,'index'])->name('Calendario/index');
