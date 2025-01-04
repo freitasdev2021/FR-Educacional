@@ -1744,9 +1744,11 @@ class AlunosController extends Controller
 
     public function getAtividadesAluno($IDAluno){
         $AND = "";
+        $Ano = date('Y');
         $registros = [];
         if(isset($_GET['Disciplina'])){
             $AND = " AND d.id=".$_GET['Disciplina']." AND a.Estagio='".$_GET['Estagio']."'";
+            $AND .= " AND DATE_FORMAT(a.DTAula, '%Y') = $Ano"; 
             $idorg = Auth::user()->id_org;
             $SQL = "
                 SELECT 
@@ -2282,12 +2284,16 @@ class AlunosController extends Controller
             GROUP BY m.Nome, m.id, d.id
         SQL;
     
-        $queryBoletim = DB::select($SQL)[0];
+        $queryBoletim = DB::select($SQL);
 
-        if($queryBoletim->RecAn > 0){
-            $Total = $queryBoletim->RecAno;
+        if(count($queryBoletim) == 0){
+           $Total = 0; 
         }else{
-            $Total = $queryBoletim->Nota;
+            if($queryBoletim[0]->RecAn > 0){
+                $Total = $queryBoletim[0]->RecAno;
+            }else{
+                $Total = $queryBoletim[0]->Nota;
+            }
         }
 
         return $Total;
@@ -2324,6 +2330,7 @@ class AlunosController extends Controller
 
     
     public function desempenho(){
+        
         $IDAluno = self::getAlunoByUser(Auth::user()->id);
         $Conceitos = FichaController::getFichaAluno($IDAluno);
         $Boletim = self::getDesempenhoGeral($IDAluno);

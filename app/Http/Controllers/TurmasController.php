@@ -423,7 +423,12 @@ class TurmasController extends Controller
                         $Resultado = "Conceito Sob. Avaliação";
                     }
                 }else{
-                    $FrequenciaPorc = ($r->Frequencia / $r->FreqDisc) * 100 ;
+                    if($r->Frequencia == 0 || $r->FreqDisc == 0){
+                        $FrequenciaPorc = 0 ;
+                    }else{
+                        $FrequenciaPorc = ($r->Frequencia / $r->FreqDisc) * 100 ;
+                    }
+                    
                     $Frequencia = number_format(100 - $FrequenciaPorc,1,'.',''). " %";
                     
                     if($r->TPAvaliacao == "Nota"){

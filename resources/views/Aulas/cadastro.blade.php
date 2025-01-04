@@ -29,7 +29,11 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <label>Data</label>
-                            <input type="date" name="DTAula" class="form-control" value="{{isset($Registro->DTAula) ? $Registro->DTAula : ''}}" >
+                            <select name="DTAula" class="form-control">
+                                @foreach($Datas as $d)
+                                <option value="{{$d}}">{{date('d/m/Y',strtotime($d))}}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-sm-2">
                             <label>Etapa</label>
@@ -133,7 +137,7 @@
 
                        $.ajax({
                           method : 'GET',
-                          url : "/Aulas/ListaAlunos/"+$(this).val()+"/"+$("input[name=DTAula]").val()
+                          url : "/Aulas/ListaAlunos/"+$(this).val()+"/"+$("select[name=DTAula]").val()
                        }).done(function(alun){
                         console.log(alun)
                           $("#presencas").html(alun)
@@ -162,7 +166,7 @@
 
                        $.ajax({
                           method : 'GET',
-                          url : "/Aulas/ListaAlunos/"+$("select[name=IDTurma]").val()+"/"+$("input[name=DTAula]").val()
+                          url : "/Aulas/ListaAlunos/"+$("select[name=IDTurma]").val()+"/"+$("select[name=DTAula]").val()
                        }).done(function(alun){
                         //console.log(alun)
                           $("#presencas").html(alun)

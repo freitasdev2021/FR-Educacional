@@ -146,7 +146,7 @@ class CalendarioController extends Controller
         return $dates;
     }
 
-    public function intervaloFeriados($calendario,$feriados){
+    public static function intervaloFeriados($calendario,$feriados){
         $intervalos = array();
         foreach($feriados as $f){
             $startDate = Carbon::parse($f['Inicio']);
@@ -189,7 +189,7 @@ class CalendarioController extends Controller
         return $dates;
     }
 
-    public function intervaloRecessos($calendario,$recessos){
+    public static function intervaloRecessos($calendario,$recessos){
         $intervalos = array();
         foreach($recessos as $f){
             $startDate = Carbon::parse($f['Inicio']);
@@ -218,7 +218,7 @@ class CalendarioController extends Controller
         return $calendario;
     }
 
-    public function intervaloFerias($calendario,$ferias){
+    public static function intervaloFerias($calendario,$ferias){
         $intervalos = array();
         foreach($ferias as $f){
             $startDate = Carbon::parse($f['Inicio']);
@@ -769,7 +769,7 @@ class CalendarioController extends Controller
         echo json_encode($resultados);
     }
 
-    public function diasLetivos(){
+    public static function diasLetivos(){
         $Dias = array();
         $AnoLetivo = self::calendarioLetivo();
         $FeriasAlunos = FeriasAlunos::whereYear('DTInicio',date('Y'))->select('DTInicio','DTTermino')->whereIn("IDEscola",SecretariasController::getEscolasRede(Auth::user()->id_org))->first();
@@ -805,7 +805,7 @@ class CalendarioController extends Controller
         $DiasLetivos = self::intervaloRecessos($DiasLetivos,self::recessos());
         $DiasLetivos = self::intervaloFeriados($DiasLetivos,self::feriados());
 
-        dd($DiasLetivos);
+        return $DiasLetivos;
     }
 
     public function getFeriasProfissionais(){

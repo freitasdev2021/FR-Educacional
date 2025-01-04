@@ -10,6 +10,7 @@ use App\Models\Nota;
 use App\Models\Chamada;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProfessoresController;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -249,7 +250,8 @@ class AulasController extends Controller
         $view = [
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
             'submodulos' => $submodulos,
-            'id' => ''
+            'id' => '',
+            'Datas'=> CalendarioController::diasLetivos()
         ];
 
         if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
@@ -305,12 +307,12 @@ class AulasController extends Controller
         if(Auth::user()->tipo == 6){
             $view['Aulas'] = Aulas::select('aulas.id', 'aulas.DSConteudo','aulas.TPConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
-            ->where('aulas.IDProfessor', Auth::user()->IDProfissional)->where('TPConteudo',0) // Filtra pelo professor logado
+            ->where('aulas.IDProfessor', Auth::user()->IDProfissional)->where('TPConteudo',0)->whereYear('aulas.DTAula',date('Y')) // Filtra pelo professor logado
             ->get();
         }else{
             $view['Aulas'] = Aulas::select('aulas.id','aulas.TPConteudo','aulas.DSConteudo','aulas.Hash','disciplinas.NMDisciplina','aulas.Estagio','turmas.Serie','turmas.Nome as Turma')
             ->join('disciplinas', 'aulas.IDDisciplina', '=', 'disciplinas.id')->join('turmas','turmas.id','=','aulas.IDTurma') // Faz o join
-            ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola())->where('TPConteudo',0) // Filtra pelo professor logado
+            ->whereIn('disciplinas.id',EscolasController::getDisciplinasEscola())->where('TPConteudo',0)->whereYear('aulas.DTAula',date('Y')) // Filtra pelo professor logado
             ->get();
         }
 

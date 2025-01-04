@@ -18,36 +18,6 @@
                     </thead>
                     <tbody>
                       <tr>
-                        <td>Ocorrências</td>
-                        <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Ocorrencias')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Remanejados</td>
-                        <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Remanejados')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Evadidos</td>
-                        <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Evadidos')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Responsaveis</td>
-                        <td>Nominal</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Responsaveis')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Alunos por Turma e Faixa</td>
-                        <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','TurmaFaixa')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Alunos Usuários de Transporte</td>
-                        <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','QTTransporte')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
                         <td>Alunos Usuários Transporte</td>
                         <td>Nominal</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','NMTransporte')}}">Imprimir</a></td>
@@ -61,11 +31,6 @@
                         <td>Lista de Turmas</td>
                         <td>Nominal</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Lista de Turmas')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Lista de Turmas - Editavel</td>
-                        <td>Nominal</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/Imprimir','Lista de Turmas')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Alunos por Sexo</td>
@@ -101,11 +66,6 @@
                         <td>Boletim Informativo</td>
                         <td>Nominal e Quantitativo</td>
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getBoletimInformativo')}}">Imprimir</a></td>
-                      </tr>
-                      <tr>
-                        <td>Alunos Matrículados</td>
-                        <td>Nominal</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','getAlunosMatriculados')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Alunos do Último Censo</td>

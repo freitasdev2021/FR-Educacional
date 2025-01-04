@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Atividade;
 use App\Models\AtividadeAtribuicao;
 use App\Http\Controllers\AulasController;
+use App\Http\Controllers\CalendarioController;
 use App\Models\Aulas;
 use App\Models\Disciplina;
 use App\Models\Nota;
@@ -211,7 +212,8 @@ class AvaliacoesController extends Controller
         $view = [
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
             'submodulos' => $submodulos,
-            'id' => ''
+            'id' => '',
+            'Datas'=> CalendarioController::diasLetivos()
         ];
 
         if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
