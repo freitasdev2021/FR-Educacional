@@ -345,149 +345,84 @@
                             <a href="{{route('Alunos/Comprovante/Responsabilidade',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Termo de Ciência e Responsabilidade</a>
                         </div>
                         @endif
+                    </form>
                     </div>
-                    @elseif(in_array(Auth::user()->tipo,[5.5,6.5,5,6]))
-                    <div>
-                        <div class="d-flex justify-content-center mb-4">
-                            <img id="selectedAvatar" src="{{!isset($Registro->Foto) ? asset('img/kidAvatar.png') : url("storage/organizacao_".Auth::user()->id_org."alunos/aluno_$Registro->CDPasta/$Registro->Foto")}}"
-                            class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover;" alt="example placeholder" />
-                        </div>
-                    </div>
+                    @if(isset($Registro->IDAluno) && isset($Registro->IDMatricula))
                     <hr>
+                    <h5>Remanejamentos e Reclassificações do Aluno</h5>
                     <div class="row">
-                        <div class="col-sm-4">
-                            <label>Nome completo do Aluno</label>
-                            <input type="text" class="form-control" name="Nome" value="{{isset($Registro->Nome) ? $Registro->Nome : ''}}" disabled> 
+                        <div class="col-sm-6">
+                            <form action="{{route('Alunos/Reclassificar')}}" method="POST">
+                                @csrf
+                                <input type="hidden" name="IDAluno" value="{{$Registro->IDAluno}}">
+                                <label>Série de Destino</label>
+                                <select class="form-control" name="IDTurma">
+                                    <option value="">Selecione</option>
+                                    @foreach($Turmas as $t)
+                                    <option value="{{$t->IDTurma}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->IDTurma ? 'selected' : ''}}>{{$t->Turma." (".$t->Serie.") - ". $t->Escola}}</option>
+                                    @endforeach
+                                </select>
+                                <br>
+                                <table class="table">
+                                    <thead class="bg-fr text-white">
+                                        <tr align="center">
+                                            <th colspan="2">Reclassificações</th>
+                                        </tr>
+                                        <tr align="center">
+                                            <th scope="col">Origem</th>
+                                            <th scope="col">Destino</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($Reclassificacoes as $rc)
+                                    <tr>
+                                        <td>{{$rc->Origem}}</td>
+                                        <td>{{$rc->Destino}}</td>
+                                    </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                                <button class="btn btn-fr">Reclassificar</button>
+                            </form>
                         </div>
-                        <div class="col-sm-2">
-                            <label>RG do Aluno</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->RG) ? $Registro->RG : ''}}" name="RG" disabled> 
-                        </div>
-                        <div class="col-sm-2">
-                            <label>CPF do Aluno</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->CPF) ? $Registro->CPF : ''}}" name="CPF" disabled> 
-                        </div>
-                        <div class="col-sm-2">
-                            <label>Email do Aluno</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->Email) ? $Registro->Email : ''}}" name="Email" disabled> 
-                        </div>
-                        <div class="col-sm-2">
-                            <label>Nascimento do Aluno</label>
-                            <input type="date" class="form-control" value="{{isset($Registro->Nascimento) ? $Registro->Nascimento : ''}}" name="Nascimento" disabled> 
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-3">
-                        <label>Nome completo do Responsavel</label>
-                        <input type="text" class="form-control" value="{{isset($Registro->NMResponsavel) ? $Registro->NMResponsavel : ''}}" name="NMResponsavel" disabled> 
-                        </div>
-                        <div class="col-sm-3">
-                            <label>RG do Responsavel</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->RGPais) ? $Registro->RGPais : ''}}" name="RGPais" disabled> 
-                        </div>
-                        <div class="col-sm-3">
-                            <label>CPF do Responsavel</label>
-                            <input type="text" class="form-control" value="{{isset($Registro->CPFResponsavel) ? $Registro->CPFResponsavel : ''}}" name="CPFResponsavel" disabled> 
-                        </div>
-                        <div class="col-sm-3">
-                            <label>Email do Responsavel</label>
-                            <input type="email" class="form-control" value="{{isset($Registro->EmailResponsavel) ? $Registro->EmailResponsavel : ''}}" name="EmailResponsavel" disabled> 
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <label>CEP</label>
-                            <input type="text" name="CEP" class="form-control" disabled value="{{isset($Registro->CEP) ? $Registro->CEP : ''}}">
-                        </div>
-                        <div class="col-sm-5">
-                            <label>Rua</label>
-                            <input type="text" name="Rua" class="form-control" maxlength="50" value="{{isset($Registro->Rua) ? $Registro->Rua : ''}}" disabled>
-                        </div>
-                        <div class="col-sm-3">
-                            <label>Bairro</label>
-                            <input type="text" name="Bairro" class="form-control" maxlength="50" value="{{isset($Registro->Bairro) ? $Registro->Bairro : ''}}" minlength="2" disabled>
-                        </div>
-                        <div class="col-sm-1">
-                            <label>UF</label>
-                            <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Registro->UF) ? $Registro->UF : ''}}" disabled>
-                        </div>
-                        <div class="col-sm-1">
-                            <label>Numero</label>
-                            <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Registro->Numero) ? $Registro->Numero : ''}}" disabled>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label>Cidade</label>
-                            <input type="text" name="Cidade" class="form-control" maxlength="50" value="{{isset($Registro->Cidade) ? $Registro->Cidade : ''}}" minlength="3" disabled>
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Celular Responsavel</label>
-                            <input type="text" name="CLResponsavel" class="form-control" maxlength="50" value="{{isset($Registro->CLResponsavel) ? $Registro->CLResponsavel : ''}}" minlength="3" disabled>
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Celular Aluno</label>
-                            <input type="text" name="Celular" class="form-control" maxlength="50" value="{{isset($Registro->Celular) ? $Registro->Celular : ''}}" minlength="3" disabled>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <label>Turma</label>
-                            <select class="form-control" name="IDTurma" disabled>
-                                <option value="">Selecione</option>
-                                @foreach($Turmas as $t)
-                                <option value="{{$t->id}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->id ? 'selected' : ''}}>{{$t->Nome." (".$t->Serie.")"}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-sm-3">
-                            <label>Possui NEE</label>
-                            <select class="form-control" name="NEE" disabled>
-                                <option value="1" {{isset($Registro->NEE) && $Registro->NEE == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->NEE) && $Registro->NEE == '0' ? 'selected' : ''}}>Não</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-3">
-                            <label>Acompanhamento Médico</label>
-                            <select class="form-control" name="AMedico" disabled>
-                                <option value="1" {{isset($Registro->AMedico) && $Registro->AMedico == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->AMedico) && $Registro->AMedico == '0' ? 'selected' : ''}}>Não</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-3">
-                            <label>Acompanhamento Psicológico</label>
-                            <select class="form-control" name="APsicologico" disabled>
-                                <option value="1" {{isset($Registro->APsicologico) && $Registro->APsicologico == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->APsicologico) && $Registro->APsicologico == '0' ? 'selected' : ''}}>Não</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label>Tem Alergia?</label>
-                            <select class="form-control" name="Alergia" disabled>
-                                <option value="1" {{isset($Registro->Alergia) && $Registro->Alergia == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->Alergia) && $Registro->Alergia == '0' ? 'selected' : ''}}>Não</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Utiliza Transporte Escolar?</label>
-                            <select class="form-control" name="Transporte" disabled>
-                                <option value="1" {{isset($Registro->Transporte) && $Registro->Transporte == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->Transporte) && $Registro->Transporte == '0' ? 'selected' : ''}}>Não</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-4">
-                            <label>Recebe Bolsa Família?</label>
-                            <select class="form-control" name="BolsaFamilia" disabled>
-                                <option value="1" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '1' ? 'selected' : ''}}>Sim</option>
-                                <option value="0" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '0' ? 'selected' : ''}}>Não</option>
-                            </select>
+                        <div class="col-sm-6">
+                            <form action="{{route('Alunos/Remanejar')}}" method="POST">
+                                @csrf
+                                <input type="hidden" name="IDAluno" value="{{$Registro->IDAluno}}">
+                                <label>Turma de Destino</label>
+                                <select class="form-control" name="IDTurma">
+                                    <option value="">Selecione</option>
+                                    @foreach($Turmas as $t)
+                                    <option value="{{$t->IDTurma}}" {{isset($Registro->IDTurma) && $Registro->IDTurma == $t->IDTurma ? 'selected' : ''}}>{{$t->Turma." (".$t->Serie.") - ". $t->Escola}}</option>
+                                    @endforeach
+                                </select>
+                                <br>
+                                <table class="table">
+                                    <thead class="bg-fr text-white">
+                                        <tr align="center">
+                                            <th colspan="2">Remanejamentos - {{date('Y')}}</th>
+                                        </tr>
+                                        <tr align="center">
+                                            <th scope="col">Origem</th>
+                                            <th scope="col">Destino</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($Remanejamentos as $rm)
+                                        <tr>
+                                            <td>{{$rc->Origem}} - {{$rm->OrigemNome}}</td>
+                                            <td>{{$rc->Destino}} - {{$rm->DestinoNome}}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                <button class="btn btn-fr">Remanejar</button>
+                            </form>
                         </div>
                     </div>
                     @endif
+                    @endif
                 </div>
-            </form>
             @if(isset($Registro) && $Vencimento->lt($Hoje) && $Registro->ANO <= date('Y'))
             <form class="form-controls" id="formRenova" method="POST" action="{{route('Alunos/Renovar')}}" style="display:hidden">
                 @csrf

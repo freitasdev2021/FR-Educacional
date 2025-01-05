@@ -9,6 +9,7 @@ use App\Models\Escola;
 use App\Models\NEE;
 use App\Models\Turma;
 use App\Models\User;
+use App\Models\Reclassificar;
 use Illuminate\Support\Facades\Hash;
 use App\Models\FeedbackTransferencia;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -222,61 +223,55 @@ class AlunosController extends Controller
         }
     }
 
+    public function reclassificar(Request $request){
+        try{
+            $IDTurmaOrigem = Aluno::find($request->IDAluno)->IDTurma;
+            $IDEscola = Turma::find($IDTurmaOrigem)->IDEscola;
+            if($request->IDTurma != $IDTurmaOrigem){
+                Aluno::find($request->IDAluno)->update([
+                    "IDTurma" => $request->IDTurma
+                ]);
+                Reclassificar::create([
+                    "IDTurmaAntiga" => $IDTurmaOrigem,
+                    "IDTurmaNova" => $request->IDTurma,
+                    "IDAluno" => $request->IDAluno,
+                    "IDEscola" => $IDEscola
+                ]);
+                Remanejo::where('IDAluno',$request->IDAluno)->delete();
+            }
+        }catch(\Throwable $th){
+
+        }finally{
+            return redirect()->route('Alunos/Edit',$request->IDAluno)->with('Reclassificado','Aluno Reclassificado');
+        }
+    }
+
+    public function remanejar(Request $request){
+        try{
+            $IDTurmaOrigem = Aluno::find($request->IDAluno)->IDTurma;
+            $IDEscola = Turma::find($IDTurmaOrigem)->IDEscola;
+            if($request->IDTurma != $IDTurmaOrigem){
+                Aluno::find($request->IDAluno)->update([
+                    "IDTurma" => $request->IDTurma
+                ]);
+                Remanejo::create([
+                    "IDTurmaOrigem" => $IDTurmaOrigem,
+                    "IDTurmaDestino" => $request->IDTurma,
+                    "IDAluno" => $request->IDAluno,
+                    "IDEscola" => $IDEscola
+                ]);
+            }
+        }catch(\Thwrowable $th){
+
+        }finally{
+            return redirect()->route('Alunos/Edit',$request->IDAluno)->with('Remanejado','Aluno Remanejado');
+        }
+    }
+
     public function ficha($id){
         $idorg = Auth::user()->id_org;
-        $SQL = "SELECT 
-            a.id as IDAluno, 
-            m.id as IDMatricula,
-            m.Nome as Nome,
-            t.Nome as Turma,
-            e.Nome as Escola,
-            t.Serie as Serie,
-            m.Nascimento as Nascimento,
-            a.STAluno,
-            m.Foto,
-            re.Escolaridade,
-            re.Profissao,
-            m.Email,
-            m.RG,
-            m.CPF,
-            re.NMResponsavel,
-            re.RGPais,
-            re.CPFResponsavel,
-            re.EmailResponsavel,
-            m.CEP,
-            m.Rua,
-            m.Bairro,
-            m.UF,
-            m.CNascimento,
-            m.Numero,
-            m.Cidade,
-            re.CLResponsavel,
-            a.IDTurma,
-            m.Numero,
-            m.Celular,
-            m.NEE,
-            m.Alergia,
-            m.Transporte,
-            m.BolsaFamilia,
-            m.AMedico,
-            m.APsicologico,
-            m.CDPasta,
-            cal.INIRematricula,
-            cal.TERRematricula,
-            r.ANO,
-            m.PaisJSON,
-            m.Quilombola
-        FROM matriculas m
-        INNER JOIN alunos a ON(a.IDMatricula = m.id)
-        INNER JOIN turmas t ON(a.IDTurma = t.id)
-        INNER JOIN renovacoes r ON(r.IDAluno = a.id)
-        INNER JOIN escolas e ON(t.IDEscola = e.id)
-        INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-        INNER JOIN responsavel re ON(re.IDAluno = a.id)
-        INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
-        WHERE o.id = $idorg AND a.id = $id  
-        ";
-        $Ficha = DB::select($SQL)[0];
+        
+        $Ficha = self::getAluno($id);
         return view('Alunos.ficha',[
             'submodulos' => self::cadastroSubmodulos,
             'id' => $id,
@@ -1935,14 +1930,41 @@ class AlunosController extends Controller
 
         $view = [
             'submodulos' => $submodulos,
-            'id' => '',
             'Turmas' => Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
             ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')->whereIn('turmas.IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
             ->get()
         ];
 
         if($id){
+            $ReclassificacoesSQL = "SELECT 
+                td.Serie as Destino,
+                tor.Serie as Origem 
+            FROM 
+                reclassificacoes rc 
+            INNER JOIN 
+                alunos al ON(al.id = rc.IDAluno)
+            INNER JOIN 
+                turmas as tor ON(tor.id = rc.IDTurmaAntiga)
+            INNER JOIN
+                turmas as td ON(td.id = rc.IDTurmaNova)
+            WHERE al.id = $id
+            ";
 
+            $RemanejamentosSQL = "SELECT 
+                td.Serie as Destino,
+                tor.Serie as Origem,
+                tor.Nome as OrigemNome,
+                td.Nome as DestinoNome 
+            FROM 
+                remanejados rm 
+            INNER JOIN 
+                alunos al ON(al.id = rm.IDAluno)
+            INNER JOIN 
+                turmas as tor ON(tor.id = rm.IDTurmaOrigem)
+            INNER JOIN
+                turmas as td ON(td.id = rm.IDTurmaDestino)
+            WHERE al.id = $id
+            ";
             $Registro = self::getAluno($id);
             $Vencimento = Carbon::parse($Registro->INIRematricula);
             $Hoje = Carbon::parse(date('Y-m-d'));
@@ -1958,6 +1980,8 @@ class AlunosController extends Controller
             $view['Pais'] = json_decode($Registro->PaisJSON);
             $view['Vencimento'] = $Vencimento;
             $view['Hoje'] = $Hoje;
+            $view['Remanejamentos'] = DB::select($RemanejamentosSQL);
+            $view['Reclassificacoes'] = DB::select($ReclassificacoesSQL);
         }
 
         return view('Alunos.cadastro',$view);
@@ -2752,15 +2776,6 @@ class AlunosController extends Controller
                 $IDEscola = Turma::find($IDTurmaOrigem)->IDEscola;
 
                 //dd($IDEscola);
-
-                if($request->IDTurma != $IDTurmaOrigem){
-                    Remanejo::create([
-                        "IDTurmaOrigem" => $IDTurmaOrigem,
-                        "IDTurmaDestino" => $request->IDTurma,
-                        "IDAluno" => $request->IDAluno,
-                        "IDEscola" => $IDEscola
-                    ]);
-                }
 
                 Aluno::find($request->IDAluno)->update($aluno);
 

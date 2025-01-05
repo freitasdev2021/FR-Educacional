@@ -172,6 +172,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('/Alunos/Novo',[AlunosController::class,'cadastro'])->name('Alunos/Novo');
         Route::get('/Alunos/Cadastro/{id}',[AlunosController::class,'cadastro'])->name('Alunos/Edit');
         Route::post('/Alunos/Save',[AlunosController::class,'save'])->name('Alunos/Save');
+        Route::post('Alunos/Reclassificar',[AlunosController::class,'reclassificar'])->name('Alunos/Reclassificar');
+        Route::post('Alunos/Remanejar',[AlunosController::class,'remanejar'])->name('Alunos/Remanejar');
         Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
         Route::post('/Alunos/Transferidos/Matricular',[AlunosController::class,'matricularTransferido'])->name('Alunos/Transferidos/Matricular');
         //FICHA AVALIATIVA
