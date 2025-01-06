@@ -2631,6 +2631,7 @@ class RelatoriosController extends Controller
     }
 
     public function getHorarios(){
+        $IDOrg = Auth::user()->id_org;
         $SQL = <<<SQL
         SELECT 
             tn.DiaSemana,
@@ -2656,7 +2657,7 @@ class RelatoriosController extends Controller
         INNER JOIN professores p ON p.id = tn.IDProfessor
         INNER JOIN users us ON us.IDProfissional = p.id
         INNER JOIN disciplinas d ON d.id = tn.IDDisciplina
-        WHERE al.TPProfissional = 'PROF' 
+        WHERE al.TPProfissional = 'PROF' AND e.IDOrg = $IDOrg 
         GROUP BY tn.DiaSemana;
         SQL;
 
