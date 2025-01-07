@@ -1932,7 +1932,8 @@ class AlunosController extends Controller
             'submodulos' => $submodulos,
             'Turmas' => Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
             ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')->whereIn('turmas.IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
-            ->get()
+            ->get(),
+            'id' => ''
         ];
 
         if($id){
