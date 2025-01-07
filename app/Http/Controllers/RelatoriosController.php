@@ -55,8 +55,10 @@ class RelatoriosController extends Controller
             return  self::dependenciasEscola();
             case "Lista de Turmas":
             return  self::getAlunosTurmas();
-            case "Alunos por Sexo":
-            return  self::QTAlunosSexo();
+            case "Alunos por Turma":
+            return  self::QTAlunosTurma();
+            case "Alunos Matriculados":
+            return  self::QTAlunosEscola();
             case "NMTransporte":
             return self::getTransporte();
             case "BolsaFamilia":
@@ -2382,7 +2384,99 @@ class RelatoriosController extends Controller
         return $QTAlunos;
     }
 
-    public function QTAlunosSexo(){
+    public function QTAlunosEscola(){
+        $idorg = Auth::user()->id_org;
+        $WHERE = "WHERE ";
+        if(in_array(Auth::user()->tipo,[2,2.5])){
+            $WHERE .= "e.IDOrg=".Auth::user()->id_org;;
+        }else{
+            $WHERE .="e.id = ".self::getEscolaDiretor(Auth::user()->id);
+        }
+
+        $SQL = "SELECT e.id as IDEscola,e.Nome as Escola FROM escolas e $WHERE";
+
+        $Escolas = DB::select($SQL);
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        // Definir margens
+        $pdf->SetMargins(40, 40, 40); // Margens esquerda, superior e direita
+
+        $pdf->SetFont('Arial', 'B', 16);
+
+        $pdf->Cell(0, 10, self::utfConvert("Alunos Matriculados"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Ln(10);
+        $pageCount = 0;
+        foreach($Escolas as $e){
+            $Alunos = "SELECT
+                COUNT(a.id) as Quantidade,
+                MAX(m.Sexo) as Sexo
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE e.id = $e->IDEscola AND a.STAluno = 0 GROUP BY m.Sexo
+            ";
+
+            $QTAlunosSQL = "SELECT
+                a.id
+            FROM matriculas m
+            INNER JOIN alunos a ON(a.IDMatricula = m.id)
+            LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
+            INNER JOIN turmas t ON(a.IDTurma = t.id)
+            INNER JOIN renovacoes r ON(r.IDAluno = a.id)
+            LEFT JOIN alteracoes_situacao ats ON(ats.IDAluno = a.id)
+            INNER JOIN escolas e ON(t.IDEscola = e.id)
+            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
+            INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
+            INNER JOIN responsavel resp ON(a.id = resp.IDAluno)
+            WHERE e.id = $e->IDEscola AND a.STAluno = 0 GROUP BY m.id
+            ";
+
+            $QTAlunos = DB::select($QTAlunosSQL);
+            //dd(count($QTAlunos));
+            //ADICIONAR PAGINAS
+            //$pdf->AddPage();
+
+            // Definir fonte para o corpo do relatório
+            $pdf->SetFont('Arial', '', 10);
+            //CABECALHO DA TABELA
+            $pdf->Cell(135,10,self::utfConvert("Escola ".$e->Escola),1);
+            $pdf->Ln();
+            $pdf->Cell(30, 8, self::utfConvert('Sexo'), 1);
+            $pdf->Cell(75, 8, self::utfConvert('Quantidade'), 1);
+            $pdf->Cell(30, 8, self::utfConvert('Porcentagem'), 1);
+            $pdf->Ln();
+            $pdf->SetFont('Arial', '', 8);
+            //CORPO DAS TURMAS
+            foreach(DB::select($Alunos) as $num => $al){
+                $Porcentagem = ($al->Quantidade/count($QTAlunos)) * 100;
+                $pdf->Cell(30, 8, self::utfConvert($al->Sexo), 1);
+                $pdf->Cell(75, 8, self::utfConvert($al->Quantidade), 1);
+                $pdf->Cell(30, 8, number_format($Porcentagem,2,",")."%", 1);
+                $pdf->Ln();
+            }
+            $pdf->Cell(30,8,"Total",1);
+            $pdf->Cell(105,8,count($QTAlunos),1);
+            $pdf->Ln(10);
+            $pageCount++;
+            //
+        }
+
+        $pdf->Ln();
+        $pdf->Cell(0, 10, self::utfConvert("Emitido Por ".Auth::user()->name." no Dia ".date('d/m/Y H:i')), 0, 1, 'C');
+        //DOWNLOAD
+        $pdf->Output('I',"Lista de Turmas".'.pdf');
+        exit;
+    }
+
+    public function QTAlunosTurma(){
         $idorg = Auth::user()->id_org;
         $WHERE = "WHERE ";
         if(in_array(Auth::user()->tipo,[2,2.5])){
@@ -2402,7 +2496,7 @@ class RelatoriosController extends Controller
 
         $pdf->SetFont('Arial', 'B', 16);
 
-        $pdf->Cell(0, 10, self::utfConvert("Alunos por Sexo"), 0, 1, 'C'); // Nome da escola centralizado
+        $pdf->Cell(0, 10, self::utfConvert("Alunos por Turma"), 0, 1, 'C'); // Nome da escola centralizado
         $pdf->Ln(10);
         $pageCount = 0;
         foreach($Turmas as $t){
@@ -2457,9 +2551,11 @@ class RelatoriosController extends Controller
                 $Porcentagem = ($al->Quantidade/count($QTAlunos)) * 100;
                 $pdf->Cell(30, 8, self::utfConvert($al->Sexo), 1);
                 $pdf->Cell(75, 8, self::utfConvert($al->Quantidade), 1);
-                $pdf->Cell(30, 8, round($Porcentagem), 1);
+                $pdf->Cell(30, 8, number_format($Porcentagem,2,",")."%", 1);
                 $pdf->Ln();
             }
+            $pdf->Cell(30,8,"Total",1);
+            $pdf->Cell(105,8,count($QTAlunos),1);
             $pdf->Ln(10);
             $pageCount++;
             //

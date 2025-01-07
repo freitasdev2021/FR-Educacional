@@ -33,9 +33,14 @@
                         <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Lista de Turmas')}}">Imprimir</a></td>
                       </tr>
                       <tr>
-                        <td>Alunos por Sexo</td>
+                        <td>Alunos por Turma</td>
                         <td>Quantitativo</td>
-                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Alunos por Sexo')}}">Imprimir</a></td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Alunos por Turma')}}">Imprimir</a></td>
+                      </tr>
+                      <tr>
+                        <td>Alunos Matrículados</td>
+                        <td>Quantitativo</td>
+                        <td><a class="btn btn-xs btn-primary" href="{{route('Escolas/Relatorios/ImprimirDireto','Alunos Matriculados')}}">Imprimir</a></td>
                       </tr>
                       <tr>
                         <td>Alunos do Bolsa Família</td>

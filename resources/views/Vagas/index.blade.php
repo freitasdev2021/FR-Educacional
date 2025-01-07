@@ -24,7 +24,7 @@
                         <th style="text-align:center;" scope="col">Início da Matricula</th>
                         <th style="text-align:center;" scope="col">Término da Matricula</th>
                         <th style="text-align:center;" scope="col">Quantidade</th>
-                        <th style="text-align:center;" scope="col">Opções</th>
+                        {{-- <th style="text-align:center;" scope="col">Opções</th> --}}
                       </tr>
                     </thead>
                     <tbody>

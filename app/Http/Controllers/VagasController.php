@@ -94,7 +94,8 @@ class VagasController extends Controller
                 $item[] = $r->INIMatricula;
                 $item[] = $r->TERMatricula;
                 $item[] = $r->QTVagas;
-                $item[] = "<a href='".route('Escolas/Vagas/Excluir',["IDVaga"=>$r->id,"IDEscola"=>$r->IDEscola])."' class='btn btn-danger btn-xs'>Excluir</a>";
+                //$item[] = "<a href='".route('Escolas/Vagas/Excluir',["IDVaga"=>$r->id,"IDEscola"=>$r->IDEscola])."' class='btn btn-danger btn-xs'>Excluir</a>";
+                $item[] = "";
                 $itensJSON[] = $item;
             }
         }else{
