@@ -34,25 +34,27 @@ class VagasController extends Controller
         return view('Vagas.cadastro',$view);
     }
 
+    public function excluir($IDVaga,$IDEscola){
+        $QTVagas = Vaga::find($IDVaga)->QTVagas;
+        Escola::find($IDEscola)->update([
+            "QTVagas" => Escola::find($IDEscola)->QTVagas - $QTVagas
+        ]);
+
+        Vaga::find($IDVaga)->delete();
+
+        return redirect()->back();
+
+    }
+
     public function save(Request $request){
         try{
             $data = $request->all();
-
-            if($request->id){
-                Escola::find($request->IDEscola)->update([
-                    "QTVagas" => Escola::find($request->IDEscola)->QTVagas + $request->QTVagas
-                ]);
-                Vaga::find($request->id)->update($data);
-                $mensagem = "Vaga Editada com Sucesso!";
-                $aid = $request->id;
-            }else{
-                Escola::find($request->IDEscola)->update([
-                    "QTVagas" => Escola::find($request->IDEscola)->QTVagas + $request->QTVagas
-                ]);
-                Vaga::create($data);
-                $mensagem = "Vaga cadastrada com Sucesso!";
-                $aid = '';
-            }
+            Escola::find($request->IDEscola)->update([
+                "QTVagas" => Escola::find($request->IDEscola)->QTVagas + $request->QTVagas
+            ]);
+            Vaga::create($data);
+            $mensagem = "Vaga cadastrada com Sucesso!";
+            $aid = '';
             $status = 'success';
             $rota = 'Escolas/Vagas/Novo';
         }catch(\Throwable $th){
@@ -74,14 +76,15 @@ class VagasController extends Controller
                     v.Faixa,
                     v.INIMatricula,
                     v.TERMatricula,
-                    v.QTVagas
+                    v.QTVagas,
+                    v.IDEscola
                 FROM vagas v
                 INNER JOIN escolas e ON(v.IDEscola = e.id)
                 WHERE e.IDOrg = $IDOrg
             SQL;
             $registros = DB::select($SQL);
         }else{
-            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id')->whereIn('IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->get();
+            $registros = Vaga::select('Faixa','INIMatricula','TERMatricula','QTVagas','id','IDEscola')->whereIn('IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))->get();
         }
         
         if(count($registros) > 0){
@@ -91,7 +94,7 @@ class VagasController extends Controller
                 $item[] = $r->INIMatricula;
                 $item[] = $r->TERMatricula;
                 $item[] = $r->QTVagas;
-                $item[] = "<a href='".route('Escolas/Vagas/Edit',$r->id)."' class='btn btn-primary btn-xs'>Abrir</a>";
+                $item[] = "<a href='".route('Escolas/Vagas/Excluir',["IDVaga"=>$r->id,"IDEscola"=>$r->IDEscola])."' class='btn btn-danger btn-xs'>Excluir</a>";
                 $itensJSON[] = $item;
             }
         }else{

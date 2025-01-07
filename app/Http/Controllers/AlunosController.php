@@ -2995,6 +2995,10 @@ class AlunosController extends Controller
                     "STAluno" => 5
                 ]);
 
+                Escola::find($request->IDEscolaOrigem)->update([
+                    "QTVagas" => Escola::find($request->IDEscolaOrigem)->QTVagas - 1
+                ]);
+
                 Aluno::where('id',$request->IDAluno)->update(['STAluno'=> 5,'DTSaida'=>$request->DTTransferencia]);
 
                 Situacao::create([
@@ -3007,7 +3011,13 @@ class AlunosController extends Controller
             
             if($request->IDEscolaOrigem !=0){
                 Transferencia::create($request->all());
+                Escola::find($request->IDEscolaOrigem)->update([
+                    "QTVagas" => Escola::find($request->IDEscolaOrigem)->QTVagas - 1
+                ]);
             }else{
+                Escola::find($request->IDEscolaOrigem)->update([
+                    "QTVagas" => Escola::find($request->IDEscolaOrigem)->QTVagas - 1
+                ]);
                 $trs = $request->all();
                 $trs['Aprovado'] = 3;
                 Transferencia::create($trs);

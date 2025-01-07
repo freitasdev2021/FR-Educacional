@@ -336,6 +336,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Escolas/Vagas',[VagasController::class,'index'])->name('Escolas/Vagas');
         Route::get('Escolas/Vagas/Cadastro',[VagasController::class,'cadastro'])->name('Escolas/Vagas/Novo');
         Route::get('Escolas/Vagas/Cadastro/{IDVaga}',[VagasController::class,'cadastro'])->name('Escolas/Vagas/Edit');
+        Route::get('Escolas/Vagas/Excluir/{IDVaga}/{IDEscola}',[VagasController::class,'excluir'])->name('Escolas/Vagas/Excluir');
         Route::get('Escolas/Vagas/list',[VagasController::class,'getVagas'])->name('Escolas/Vagas/list');
         Route::post('Escolas/Vagas/Save',[VagasController::class,'save'])->name('Escolas/Vagas/Save');
         //CALENDARIO
