@@ -2024,8 +2024,18 @@ class AlunosController extends Controller
                         "Nascimento" => (DateTime::createFromFormat('d/m/Y', $row['Nascimento'])) ? DateTime::createFromFormat('d/m/Y', $row['Nascimento'])->format('Y-m-d') : null,
                         "CPF" => preg_replace('/\D/', '', $row['CPF']),
                         "Observacoes" => $row['Observacoes'],
-                        "Cor" => "pardo",
-                        "CDPasta" => rand(0, 99999999999) // Adiciona o campo CDPasta
+                        "Cor" => $row['Cor'],
+                        "CDPasta" => rand(0, 99999999999), // Adiciona o campo CDPasta
+                        "PaisJSON" => json_encode($row['PaisJSON'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                        "Observacoes"=> $row['Observacoes'],
+                        "UF"=> $row['UF'],
+                        "Cidade" => $row['Cidade'],
+                        "Bairro"=> $row['Bairro'],
+                        "Numero"=> is_numeric($row['Numero']) ? $row['Numero'] : '',
+                        "CEP" => is_numeric($row['CEP']) ? $row['CEP'] : '',
+                        "Celular" => preg_replace('/\D/', '', $row['Celular']),
+                        "NEE" => !is_null($row['NEE']) ? 1 : 0
+                        //"Nascimento" (strtotime($row['Nascimento']) !== false) ? DateTime::createFromFormat('d/m/Y', $row['Nascimento'])->format('Y-m-d') : null
                     ]);
             
                     // Verifica se a matrícula foi criada
@@ -2034,7 +2044,8 @@ class AlunosController extends Controller
                         $aluno = Aluno::create([
                             "IDMatricula" => $matricula->id,
                             "STAluno" => 0,
-                            "IDTurma" => $IDTurma
+                            "IDTurma" => $IDTurma,
+                            "Nascimento" => (DateTime::createFromFormat('d/m/Y', $row['DTEntrada'])) ? DateTime::createFromFormat('d/m/Y', $row['DTEntrada'])->format('Y-m-d') : null,
                         ]);
             
                         // Verifica se o aluno foi criado
@@ -2043,14 +2054,15 @@ class AlunosController extends Controller
                             Responsavel::create([
                                 "IDAluno" => $aluno->id,
                                 "CLResponsavel" => preg_replace('/\D/', '', $row['CLResponsavel']),
-                                "NMResponsavel" => $row['NMResponsavel'],
+                                "NMResponsavel" => !is_null($row['NMResponsavel']) ? 'Não informado' : '',
+                                "CPFResponsavel" => preg_replace('/\D/', '', $row['CPFResponsavel'])
                             ]);
             
                             // Criar renovações
                             Renovacoes::create([
                                 "IDAluno" => $aluno->id,
                                 "Aprovado" => 1,
-                                "ANO" => date('Y')
+                                "ANO" => date('Y')+1
                             ]);
                         }
                     }

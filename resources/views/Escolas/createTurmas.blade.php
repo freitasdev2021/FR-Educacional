@@ -172,7 +172,7 @@
                         </tbody>
                     </table>
                 </div>
-                @if(Auth::user()->email == "turruchel7320@uorak.com")
+                @if(Auth::user()->email == "sugey9086@uorak.com")
                 <h5>Importar Alunos</h5>
                 <form action="{{route('Alunos/Importar',$id)}}" method="POST" enctype="multipart/form-data">
                     @csrf
