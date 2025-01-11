@@ -209,6 +209,7 @@
                         <div class="col-sm-1">
                             <label>Cor</label>
                             <select name="Cor" class="form-control">
+                                <option value="branco" {{isset($Registro->Cor) && $Registro->Cor == "Não Informado" ? 'selected' : ''}}>Não Informado</option>
                                 <option value="branco" {{isset($Registro->Cor) && $Registro->Cor == "branco" ? 'selected' : ''}}>Branco</option>
                                 <option value="preto" {{isset($Registro->Cor) && $Registro->Cor == "preto" ? 'selected' : ''}}>Preto</option>
                                 <option value="pardo" {{isset($Registro->Cor) && $Registro->Cor == "pardo" ? 'selected' : ''}}>Pardo</option>
@@ -219,13 +220,14 @@
                         <div class="col-sm-1">
                             <label>Sexo<strong class="text-danger">*</strong></label>
                             <select name="Sexo" class="form-control" required>
-                                <option value="M" {{isset($Registro->Cor) && $Registro->Cor == "M" ? 'selected' : ''}}>Masculino</option>
-                                <option value="F" {{isset($Registro->Cor) && $Registro->Cor == "F" ? 'selected' : ''}}>Feminino</option>
+                                <option value="M" {{isset($Registro->Sexo) && $Registro->Sexo == "M" ? 'selected' : ''}}>Masculino</option>
+                                <option value="F" {{isset($Registro->Sexo) && $Registro->Sexo == "F" ? 'selected' : ''}}>Feminino</option>
                             </select>
                         </div>
                         <div class="col-sm-3">
                             <label>Necessidades Especiais</label>
-                            <select class="form-control" name="NEE" >
+                            <select class="form-control" name="NEE">
+                                <option value="0" {{isset($Registro->NEE) && $Registro->NEE == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->NEE) && $Registro->NEE == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->NEE) && $Registro->NEE == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -233,6 +235,7 @@
                         <div class="col-sm-2">
                             <label>Acompanhamento Médico</label>
                             <select class="form-control" name="AMedico">
+                                <option value="0" {{isset($Registro->AMedico) && $Registro->AMedico == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->AMedico) && $Registro->AMedico == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->AMedico) && $Registro->AMedico == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -240,6 +243,7 @@
                         <div class="col-sm-2">
                             <label>Acompanhamento Psicológico</label>
                             <select class="form-control" name="APsicologico">
+                                <option value="0" {{isset($Registro->APsicologico) && $Registro->APsicologico == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->APsicologico) && $Registro->APsicologico == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->APsicologico) && $Registro->APsicologico == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -249,6 +253,7 @@
                         <div class="col-sm-2">
                             <label>Tem Alergia?</label>
                             <select class="form-control" name="Alergia">
+                                <option value="0" {{isset($Registro->Alergia) && $Registro->Alergia == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->Alergia) && $Registro->Alergia == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Alergia) && $Registro->Alergia == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -256,6 +261,7 @@
                         <div class="col-sm-4">
                             <label>Utiliza Transporte Escolar?</label>
                             <select class="form-control" name="Transporte">
+                                <option value="0" {{isset($Registro->Transporte) && $Registro->Transporte == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->Transporte) && $Registro->Transporte == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Transporte) && $Registro->Transporte == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -263,6 +269,7 @@
                         <div class="col-sm-4">
                             <label>Recebe Bolsa Família?</label>
                             <select class="form-control" name="BolsaFamilia">
+                                <option value="0" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->BolsaFamilia) && $Registro->BolsaFamilia == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -270,6 +277,7 @@
                         <div class="col-sm-2">
                             <label>Quilombola</label>
                             <select class="form-control" name="Quilombola">
+                                <option value="0" {{isset($Registro->Quilombola) && $Registro->Quilombola == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->Quilombola) && $Registro->Quilombola == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->Quilombola) && $Registro->Quilombola == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -277,6 +285,7 @@
                         <div class="col-sm-3">
                             <label>Ensino Religioso</label>
                             <select class="form-control" name="EReligioso">
+                                <option value="0" {{isset($Registro->EReligioso) && $Registro->EReligioso == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->EReligioso) && $Registro->EReligioso == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->EReligioso) && $Registro->EReligioso == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -284,6 +293,7 @@
                         <div class="col-sm-3">
                             <label>Educação Física</label>
                             <select class="form-control" name="EFisica">
+                                <option value="0" {{isset($Registro->EFisica) && $Registro->EFisica == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->EFisica) && $Registro->EFisica == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->EFisica) && $Registro->EFisica == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -291,6 +301,7 @@
                         <div class="col-sm-3">
                             <label>Permite Utilização da Imagem</label>
                             <select class="form-control" name="DireitoImagem">
+                                <option value="0" {{isset($Registro->DireitoImagem) && $Registro->DireitoImagem == '0' ? 'selected' : ''}}>Não Informado</option>
                                 <option value="1" {{isset($Registro->DireitoImagem) && $Registro->DireitoImagem == '1' ? 'selected' : ''}}>Sim</option>
                                 <option value="0" {{isset($Registro->DireitoImagem) && $Registro->DireitoImagem == '0' ? 'selected' : ''}}>Não</option>
                             </select>
@@ -300,8 +311,12 @@
                             <input type="text" name="Observacoes" class="form-control" value="{{isset($Registro) ? $Registro->Observacoes : ''}}">
                         </div>
                         <div class="col-sm-3">
-                            <label>Tipo de Transporte</label>
-                            <input type="text" name="TPTransporte" class="form-control" value="{{isset($Registro) ? $Registro->TPTransporte : ''}}">
+                            <label>Rota</label>
+                            <select name="IDRota" class="form-control">
+                                @foreach($Rotas as $r)
+                                <option value="{{$r->IDRota}}" class="rowRota" {{isset($Registro) && $Registro->IDRota == $r->IDRota ? 'selected' : ''}}>{{$r->Descricao}} - {{$r->Motorista}}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-sm-3">
                             <label>Data de Entrada</label>
@@ -432,6 +447,23 @@
         </div>
     </div>
     <script>
+        @if($Registro->IDRota > 0)
+            $(".rowRota").show()
+        @else
+            $(".rowRota").hide()
+            $("select[name=IDRota]").val("")
+        @endif
+
+        
+
+        $("select[name=Transporte]").on("change",function(){
+            if($(this).val() > 0){
+                $(".rowRota").show()
+            }else{
+                $(".rowRota").hide()
+            }
+        })
+
         $('input[name=CEP]').on("change",function(e){
             if( $(this).val().length == 9){
                 var cep = $(this).val();

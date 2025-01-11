@@ -48,7 +48,7 @@ class Matriculas extends Model
         'NIS',
         'INEP',
         'Naturalidade',
-        'TPTransporte'
+        'IDRota'
     ];
 
     public function escola()

@@ -91,7 +91,7 @@ class TransporteController extends Controller
         ]);
     }
     //
-    public function getRotas(){
+    public static function SQLRotas(){
         $idorg = Auth::user()->id_org;
         $SQL = "SELECT 
             m.Nome as Motorista,
@@ -108,7 +108,13 @@ class TransporteController extends Controller
         WHERE o.id = $idorg
         ";
 
-        $registros = DB::select($SQL);
+        return DB::select($SQL);
+    }
+    //
+    public function getRotas(){
+        
+
+        $registros = self::SQLRotas();
         if(count($registros) > 0){
             foreach($registros as $r){
                 $item = [];

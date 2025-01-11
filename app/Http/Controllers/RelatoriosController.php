@@ -2624,7 +2624,7 @@ class RelatoriosController extends Controller
                 m.Rua,
                 m.Numero,
                 m.Bairro,
-                m.TPTransporte
+                m.IDRota
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
@@ -2654,7 +2654,7 @@ class RelatoriosController extends Controller
             //CORPO DAS TURMAS
             foreach(DB::select($Alunos) as $num => $al){
                 $pdf->Cell(65, 8, self::utfConvert($al->Nome), 1);
-                $pdf->Cell(25, 8, self::utfConvert($al->TPTransporte), 1);
+                $pdf->Cell(25, 8, self::utfConvert($al->IDRota), 1);
                 $pdf->Cell(90, 8, self::utfConvert($al->Rua.", ".$al->Numero." - ".$al->Bairro." ".$al->Cidade." ".$al->UF), 1);
                 $pdf->Cell(25, 8, self::utfConvert("Motorista"), 1);
                 $pdf->Ln();

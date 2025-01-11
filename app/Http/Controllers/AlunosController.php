@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Aluno;
 use App\Models\Matriculas;
+use App\Http\Controllers\TransporteController;
 use App\Models\Escola;
 use App\Models\NEE;
 use App\Models\Turma;
@@ -1187,7 +1188,7 @@ class AlunosController extends Controller
                 m.Naturalidade,
                 m.NIS,
                 m.INEP,
-                m.TPTransporte,
+                m.IDRota,
                 m.Cor,
                 m.Sexo,
                 t.INITurma,
@@ -1933,9 +1934,10 @@ class AlunosController extends Controller
             'Turmas' => Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
             ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')->whereIn('turmas.IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
             ->get(),
-            'id' => ''
+            'id' => '',
+            "Rotas" => TransporteController::SQLRotas()
         ];
-
+        
         if($id){
             $ReclassificacoesSQL = "SELECT 
                 td.Serie as Destino,
@@ -2620,7 +2622,7 @@ class AlunosController extends Controller
                     "INEP" => $request->INEP,
                     "NIS" => $request->NIS,
                     "Naturalidade" => $request->Naturalidade,
-                    "TPTransporte" => $request->TPTransporte
+                    "IDRota" => $request->IDRota
                 );
 
                 $matricula['PaisJSON'] = json_encode($Pais);
@@ -2754,7 +2756,7 @@ class AlunosController extends Controller
                     "INEP" => $request->INEP,
                     "NIS" => $request->NIS,
                     "Naturalidade" => $request->Naturalidade,
-                    "TPTransporte" => $request->TPTransporte
+                    "IDRota" => $request->IDRota
                 );
 
                 //dd($matricula);
