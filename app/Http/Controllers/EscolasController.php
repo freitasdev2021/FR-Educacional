@@ -454,7 +454,7 @@ class EscolasController extends Controller
             if($request->id){
 
                 alocacoesDisciplinas::where('IDDisciplina',$request->id)->delete();
-                Disciplina::find($request->id)->update(['NMDisciplina'=>$request->NMDisciplina,'Obrigatoria' =>$request->Obrigatoria]);
+                Disciplina::find($request->id)->update(['NMDisciplina'=>$request->NMDisciplina,'Obrigatoria' =>$request->Obrigatoria,'CargaHoraria'=>$request->CargaHoraria]);
 
                 foreach($request->Escola as $df){
                     alocacoesDisciplinas::create([
@@ -465,7 +465,7 @@ class EscolasController extends Controller
                 $rout = 'Escolas/Disciplinas/Cadastro';
                 $aid = $request->id;
             }else{
-                $crieite = Disciplina::create(['NMDisciplina'=>$request->NMDisciplina,'Obrigatoria' =>$request->Obrigatoria]);
+                $crieite = Disciplina::create(['NMDisciplina'=>$request->NMDisciplina,'Obrigatoria' =>$request->Obrigatoria,'CargaHoraria'=>$request->CargaHoraria]);
                 foreach($request->Escola as $e){
                     alocacoesDisciplinas::create([
                         "IDDisciplina" => $crieite->id,

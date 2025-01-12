@@ -476,7 +476,7 @@ class TurmasController extends Controller
         SQL;
 
         foreach(DB::select($SQL) as $s){
-            array_push($disciplinas,$s->Disciplina);
+            array_push($disciplinas,$s);
         }
         return $disciplinas;
     }
@@ -550,9 +550,9 @@ class TurmasController extends Controller
 
                         $frequenciaAno = $boletim->FrequenciaAno;
                         $porcFreq = ($frequenciaAno/$boletim->FreqDisc) * 100;
-                        $ata[$boletim->Nome]["Frequência (%)"] = 100 - $porcFreq ;
-                        $ata[$boletim->Nome]["Faltas"] = $frequenciaAno;
-                        $ata[$boletim->Nome]['Carga Horária'] = date('H:i', strtotime($boletim->CargaHoraria));
+                        // $ata[$boletim->Nome]["Frequência (%)"] = 100 - $porcFreq ;
+                        // $ata[$boletim->Nome]["Faltas"] = $frequenciaAno;
+                        // $ata[$boletim->Nome]['Carga Horária'] = date('H:i', strtotime($boletim->CargaHoraria));
 
                         if(AlunosController::getResultadoAno($boletim->IDAluno,date('Y')) == "Aprovado"){
                             $ata[$boletim->Nome]['Resultado'] = "A";
@@ -585,7 +585,7 @@ class TurmasController extends Controller
         // $pdf->Ln(5);
         
         // Definir a fonte para as disciplinas (texto vertical)
-        $disciplinas = self::getDisciplinasTurma($IDTurma);
+        $disciplinasAta = self::getDisciplinasTurma($IDTurma);
         $colWidth = 10; // Ajuste para a largura das colunas
         $rowHeight = 7; // Altura das linhas
         
@@ -594,12 +594,12 @@ class TurmasController extends Controller
         $yPos = 85; // Posição Y para as disciplinas
         $pdf->SetY($yPos); // Posição Y inicial
 
-        $disciplinas[] = "Carga Horária";
-        $disciplinas[] = "Faltas";
-        $disciplinas[] = "Frequência (%)";
+        // $disciplinas[] = "Carga Horária";
+        // $disciplinas[] = "Faltas";
+        // $disciplinas[] = "Frequência (%)";
         $disciplinas[] = "Resultado";
         // Imprimir as disciplinas verticalmente com bordas
-        foreach ($disciplinas as $disciplina) {
+        foreach ($disciplinasAta as $disciplina) {
             $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
             $pdf->SetFont('Arial', 'B', 10);
         
@@ -610,7 +610,7 @@ class TurmasController extends Controller
             $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
         
             // Imprimir o nome da disciplina com borda preta
-            $pdf->Cell(45, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
+            $pdf->Cell(45, $colWidth, self::utfConvert($disciplina->Disciplina), 0, 1, 'L');
         
             // Voltar à rotação normal
             $pdf->Rotate(0);
@@ -630,8 +630,8 @@ class TurmasController extends Controller
             // Imprimir uma célula para o nome do aluno
             $pdf->Cell(70, $rowHeight, self::utfConvert($aluno), 1);
             // Para cada disciplina, imprime a nota, ou espaço vazio se o aluno não tiver nota para a disciplina
-            foreach ($disciplinas as $disciplina) {
-                $nota = isset($notas[$disciplina]) ? $notas[$disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio
+            foreach ($disciplinasAta as $disciplina) {
+                $nota = isset($notas[$disciplina->Disciplina]) ? $notas[$disciplina->Disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio
                 $pdf->Cell($colWidth, $rowHeight, $nota, 1);
             }
         

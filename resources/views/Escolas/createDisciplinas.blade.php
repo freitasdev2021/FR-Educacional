@@ -25,9 +25,13 @@
                     <input type="hidden" name="id" value="{{$Registro->id}}">
                     @endif
                     <div class="row">
-                        <div class="col-sm-10">
+                        <div class="col-sm-6">
                             <label>Disciplina</label>
                             <input type="text" name="NMDisciplina" class="form-control" required maxlength="100" required value="{{isset($Registro->NMDisciplina) ? $Registro->NMDisciplina : ''}}">
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Carga horária</label>
+                            <input type="number" name="CargaHoraria" class="form-control" required required value="{{isset($Registro->CargaHoraria) ? $Registro->CargaHoraria : ''}}">
                         </div>
                         <div class="col-sm-2">
                             <label>Obrigatória</label>

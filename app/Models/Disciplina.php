@@ -13,6 +13,7 @@ class Disciplina extends Model
         'IDEscola',
         'NMDisciplina',
         'Obrigatoria',
+        'CargaHoraria'
     ];
 
     public function escola()
