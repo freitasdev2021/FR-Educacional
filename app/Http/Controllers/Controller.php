@@ -122,6 +122,31 @@ abstract class Controller
         return false;
     }
 
+    public static function criarCabecalho($pdf, $nomeEscola, $nomeMunicipio, $caminhoImagem,$Documento){
+        // Adicionar imagem no canto esquerdo
+        $pdf->Image($caminhoImagem, 10, 10, 30); // (x, y, largura)
+
+        // Definir fonte para o cabeçalho
+        $pdf->SetFont('Arial', 'B', 12);
+
+        // Definir a posição inicial do texto (centralizado horizontalmente)
+        $pdf->SetXY(30, 10); // Ajuste o X e Y para posicionar o texto após a imagem
+
+        // Adicionar o nome da escola (centralizado)
+        $pdf->Cell(0, 10, self::utfConvert($nomeEscola), 0, 1, 'C'); // Texto centralizado com quebra de linha
+
+        // Adicionar o nome do município (centralizado)
+        $pdf->SetXY(30, 20); // Ajuste a posição para a próxima linha
+        $pdf->Cell(0, 10, self::utfConvert($nomeMunicipio), 0, 1, 'C');
+
+        $pdf->SetFont('Arial','B',15);
+        $pdf->SetXY(25, 30); // Ajuste a posição para a próxima linha
+        $pdf->Cell(0, 10, self::utfConvert($Documento), 0, 1, 'C'); // Texto centralizado com quebra de linha
+        // Espaçamento após o cabeçalho
+        $pdf->Ln(10);
+    }
+
+
     public function upload(string $file, string $url,bool $edit){
         if(!$file){
             return false;

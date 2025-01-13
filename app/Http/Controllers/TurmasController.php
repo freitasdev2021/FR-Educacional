@@ -5,6 +5,7 @@ use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\SecretariasController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Organizacao;
 use App\Models\Turma;
 use App\Models\Aluno;
 use App\Models\Escola;
@@ -476,6 +477,26 @@ class TurmasController extends Controller
         SQL;
 
         foreach(DB::select($SQL) as $s){
+            array_push($disciplinas,$s->Disciplina);
+        }
+        return $disciplinas;
+    }
+
+    public function getHeaderDisciplinasTurma($IDTurma){
+        $disciplinas = [];
+        $SQL = <<<SQL
+            SELECT
+                d.NMDisciplina as Disciplina,
+                d.CargaHoraria
+            FROM turnos tn
+            INNER JOIN turmas t ON(tn.IDTurma = t.id)
+            INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)
+            INNER JOIN escolas e ON(al.IDEscola = e.id)
+            INNER JOIN disciplinas d ON(d.id = tn.IDDisciplina)
+            WHERE tn.IDTurma = $IDTurma GROUP BY d.id
+        SQL;
+
+        foreach(DB::select($SQL) as $s){
             array_push($disciplinas,$s);
         }
         return $disciplinas;
@@ -487,6 +508,8 @@ class TurmasController extends Controller
         
         $ata = array();
         $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);
         // Obter dados dos alunos e suas notas
         foreach (self::getAlunosByTurma($IDTurma) as $a) {
             $SQL = <<<SQL
@@ -573,8 +596,7 @@ class TurmasController extends Controller
         $pdf->SetMargins(5, 5, 5);
         
         // Definir a fonte para o título
-        $pdf->SetFont('Arial', 'B', 14);
-        $pdf->Cell(0, 10, 'ATA DE RESULTADOS FINAIS', 0, 1, 'C');
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"ATA DE RESULTADOS FINAIS");
         
         // Espaço após o título
         $pdf->Ln(10);
@@ -585,7 +607,9 @@ class TurmasController extends Controller
         // $pdf->Ln(5);
         
         // Definir a fonte para as disciplinas (texto vertical)
-        $disciplinasAta = self::getDisciplinasTurma($IDTurma);
+        $disciplinas = self::getDisciplinasTurma($IDTurma);
+        $headerDisciplinas = self::getHeaderDisciplinasTurma($IDTurma);
+        //dd($headerDisciplinas);
         $colWidth = 10; // Ajuste para a largura das colunas
         $rowHeight = 7; // Altura das linhas
         
@@ -598,8 +622,13 @@ class TurmasController extends Controller
         // $disciplinas[] = "Faltas";
         // $disciplinas[] = "Frequência (%)";
         $disciplinas[] = "Resultado";
+        //dd($disciplinas,$headerDisciplinas);
+        $CHDisciplinas = [];
+        foreach($headerDisciplinas as $hd){
+            array_push($CHDisciplinas,$hd->CargaHoraria);
+        }
         // Imprimir as disciplinas verticalmente com bordas
-        foreach ($disciplinasAta as $disciplina) {
+        foreach ($disciplinas as $key => $disciplina) {
             $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
             $pdf->SetFont('Arial', 'B', 10);
         
@@ -608,19 +637,33 @@ class TurmasController extends Controller
         
             // Rotacionar o texto para ficar vertical
             $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
-        
+            ////////
             // Imprimir o nome da disciplina com borda preta
-            $pdf->Cell(45, $colWidth, self::utfConvert($disciplina->Disciplina), 0, 1, 'L');
+            $pdf->Cell(45, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
         
             // Voltar à rotação normal
             $pdf->Rotate(0);
-        
+            $result = $encontrado = array_filter($headerDisciplinas, function ($item) use ($disciplina) {
+                return $item->Disciplina === $disciplina;
+            });
+            if($result){
+                // Imprimir o campo "CH" abaixo do nome da disciplina
+                $pdf->SetXY($xPosInicial - 5, $yPos + 20); // Ajustar posição
+                $pdf->SetFont('Arial', 'B', 7);
+                $pdf->Cell($colWidth, 10, 'CH: '.$CHDisciplinas[$key], 1, 0, 'C'); // Campo "CH"
+            }else{
+                // Imprimir o campo "CH" abaixo do nome da disciplina
+                $pdf->SetXY($xPosInicial - 5, $yPos + 20); // Ajustar posição
+                $pdf->SetFont('Arial', "B", 6);
+                $pdf->MultiCell($colWidth, 5, 'CH.Total: '.array_sum($CHDisciplinas), 1, 'C'); // Campo "CH"
+            }
+            //////
             // Mover para a próxima coluna
             $xPosInicial += $colWidth;
         }
         
         // Voltar para a rotação normal do texto e definir nova posição Y para a tabela
-        $pdf->SetY($yPos + 20);
+        $pdf->SetY($yPos + 30);
         
         // Criar linhas da tabela (para alunos)
         $pdf->SetFont('Arial', '', 8);
@@ -630,8 +673,8 @@ class TurmasController extends Controller
             // Imprimir uma célula para o nome do aluno
             $pdf->Cell(70, $rowHeight, self::utfConvert($aluno), 1);
             // Para cada disciplina, imprime a nota, ou espaço vazio se o aluno não tiver nota para a disciplina
-            foreach ($disciplinasAta as $disciplina) {
-                $nota = isset($notas[$disciplina->Disciplina]) ? $notas[$disciplina->Disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio
+            foreach ($disciplinas as $disciplina) {
+                $nota = isset($notas[$disciplina]) ? $notas[$disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio
                 $pdf->Cell($colWidth, $rowHeight, $nota, 1);
             }
         
