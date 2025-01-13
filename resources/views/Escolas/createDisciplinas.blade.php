@@ -60,6 +60,33 @@
                         &nbsp;
                         <a class="btn btn-light col-auto" href="{{route('Escolas/Disciplinas')}}">Voltar</a>
                     </div>
+                    @if(isset($Registro->id))
+                    <hr>
+                    <table class="table" border>
+                        <thead>
+                            <tr>
+                                <th>Turma</th>
+                                <th>Professor</th>
+                                <th>Gerar Relatórios</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($Turmas as $t)
+                            <tr>
+                                <td>{{$t->Serie}} - {{$t->Turma}}</td>
+                                <td>{{$t->Professor}}</td>
+                                <td>
+                                    <a href="{{route('Relatorios/Mapas',["Periodo"=>"Ano","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor])}}" class="btn btn-xs btn-success">Mapa Final</a>
+                                    <a href="" class="btn btn-xs btn-primary">Mapa 1 BIM</a>
+                                    <a href="" class="btn btn-xs btn-primary">Mapa 2 BIM</a>
+                                    <a href="" class="btn btn-xs btn-primary">Mapa 3 BIM</a>
+                                    <a href="" class="btn btn-xs btn-primary">Mapa 4 BIM</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @endif
                 </form>    
             </div>
             <!--//-->

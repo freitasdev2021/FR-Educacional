@@ -336,6 +336,7 @@ class EscolasController extends Controller
             $view['submodulos'][0]['rota'] = "Escolas/Edit";
             $view['id'] = $id;
             $view['escolas'] = $Escolas;
+            $view['Turmas']= self::getTurmasDisciplinas($id,"ARRAY");
             $view['Registro'] = Disciplina::find($id);
         }
 
@@ -505,13 +506,16 @@ class EscolasController extends Controller
         $TurmasP = implode(',',$arrTurmasT);
         $SQL = "SELECT 
             t.id as IDTurma,
+            prof.id as IDProfessor,
             t.Nome as Turma,
             t.Serie,
-            e.Nome as Escola, 
+            e.Nome as Escola,
+            prof.Nome as Professor, 
             CASE WHEN pa.id = t.IDPlanejamento THEN 1 ELSE 0 END as Alocada 
         FROM turmas t 
         INNER JOIN escolas e ON(t.IDEscola = e.id) 
-        LEFT JOIN turnos tur ON(t.id = tur.IDTurma) 
+        LEFT JOIN turnos tur ON(t.id = tur.IDTurma)
+        LEFT JOIN professores prof ON(prof.id = tur.IDProfessor)
         LEFT JOIN planejamentoanual pa ON(pa.id = t.IDPlanejamento) 
         WHERE tur.IDDisciplina = $IDDisciplina and t.id IN($TurmasP) GROUP BY t.Nome,t.Serie";
         if($TPRetorno == "ARRAY"){

@@ -447,7 +447,7 @@
         </div>
     </div>
     <script>
-        @if($Registro->IDRota > 0)
+        @if(isset($Registro) && $Registro->IDRota > 0)
             $(".rowRota").show()
         @else
             $(".rowRota").hide()

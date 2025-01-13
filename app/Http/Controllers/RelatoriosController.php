@@ -2568,6 +2568,10 @@ class RelatoriosController extends Controller
         exit;
     }
 
+    public function mapas($Periodo,$IDTurma,$IDProfessor){
+        dd("Teste");
+    }
+
     public function getTransporte(){
         $idorg = Auth::user()->id_org;
         $WHERE = "WHERE ";

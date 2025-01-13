@@ -521,95 +521,59 @@ class AlunosController extends Controller
         $Aluno = self::getAluno($IDAluno); 
         $Escola = Escola::find($Aluno->IDEscola);
         // Definir margens
-        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
-
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
 
         // Posição do nome da escola após a logo
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Escola), 0, 1, 'C'); // Nome da escola centralizado
-        // Espaço após a logo
-        $pdf->Ln(40);
 
         // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("FICHA DE PRÉ MATRÍCULA"), 0, 1, 'C'); // Título centralizado
-        $pdf->Ln(10); // Espaço após o título
-
-        // Definir fonte para o corpo da declaração
-        $pdf->SetFont('Arial', '', 12);
+        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"MAPA FINAL DE NOTAS POR DISCIPLINA");
 
         //AQUI VAI O CONTEUDO
-        // Dados da Escola e Diretor(a)
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell(40, 10, 'Diretor(a):', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert("Diretor Teste"), 0, 1);
-        $pdf->Ln(5);
-
-        // Dados do Responsável e do Aluno
-        $pdf->Cell(40, 10, self::utfConvert('Responsável: '), 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->NMResponsavel), 0, 1);
-
-        $pdf->Cell(40, 10, 'Nome do Aluno:', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Nome), 0, 1);
-
-        $pdf->Cell(40, 10, 'Nascimento: ', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert(date('d/m/Y', strtotime($Aluno->Nascimento))), 0, 1);
-
-        $pdf->Cell(40, 10, 'Naturalidade:', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Naturalidade), 0, 1);
-
-        $pdf->Cell(40, 10, 'Nacionalidade: ', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert("Brasileiro"), 0, 1);
-
-        $pdf->Cell(40, 10, 'Sexo:', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Sexo), 0, 1);
-
-        $pdf->Cell(40, 10, self::utfConvert('Cor/Raça:'), 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Sexo), 0, 1);
-
-        $pdf->Cell(40, 10, 'CPF:', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->CPF), 0, 1);
-
-        $pdf->Cell(40, 10, self::utfConvert('Endereço:'), 0, 0);
-        $pdf->MultiCell(0, 10, self::utfConvert($Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade." - ".$Aluno->UF));
-
-        $pdf->Cell(40, 10, 'INEP:', 0, 0);
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->INEP), 0, 1);
-        $pdf->Ln(10);
-
-        // Campos para Alteração de Endereço e Observações
+        // DADOS DA ESCOLA
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(0, 10, self::utfConvert('Alteração de Endereço:'), 0, 1);
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell(0, 10, '_____________________________', 0, 1);
-
+        $pdf->Cell(40, 10, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 0);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, 'Unidade de Ensino: '.$Aluno->Escola, 0, 0);
+        $pdf->Cell(0, 10, "ID INEP/CENSO: 2424", 0, 1);
+        $pdf->Cell(100, 10, self::utfConvert('Endereço: '.self::utfConvert($Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade." - ".$Aluno->UF)), 0, 0);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, 'Telefone: '.$Aluno->TelefoneEscola, 0, 0);
+        $pdf->Cell(50, 10, 'E-Mail: '.$Aluno->EmailEscola, 0, 0);
+        $pdf->Ln();
+        //DADOS DO ALUNO
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(0, 10, self::utfConvert('Observações:'), 0, 1);
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->MultiCell(0, 10, '________________________________________________________________________________');
-        $pdf->Ln(10);
-
-        // Informações Legais
-        $pdf->SetFont('Arial', 'I', 10);
-        $pdf->MultiCell(0, 10, self::utfConvert('Lei de criação e autorização de funcionamento da escola: ') . self::utfConvert("LEI Nº 9.394"));
-        $pdf->Ln(10);
-
-        // Assinaturas
-        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'L');
-        $pdf->Cell(0, 10, self::utfConvert('Assinatura do Responsável'), 0, 1, 'L');
-        $pdf->Ln(10);
-
-        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'L');
-        $pdf->Cell(0, 10, 'Assinatura do Diretor(a)', 0, 1, 'L');
-        $pdf->Ln(10);
-
-        $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'L');
-        $pdf->Cell(0, 10, self::utfConvert('Assinatura do Funcionário Responsável'), 0, 1, 'L');
+        $pdf->Cell(40, 10, self::utfConvert('IDENTIFICAÇÃO DO ALUNO'), 0, 0);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, 'Nome completo: '.$Aluno->Nome, 0, 0);
+        $pdf->Cell(0, 10, "ID CENSO: ",$Aluno->INEP, 0, 1);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, 'Data de nascimento: '.date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 0);
+        $pdf->Cell(30, 10, "Sexo: ",$Aluno->Sexo, 0, 1);
+        $pdf->Cell(30, 10, "Naturalidade: ",$Aluno->Naturalidade, 0, 1);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, self::utfConvert('Certidão de nascimento: 34234234'), 0, 0);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, self::utfConvert('Cor/Raça'), 0, 0);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, 'CPF: '.$Aluno->CPF, 0, 0);
+        $pdf->Cell(30, 10, "RG: ",$Aluno->RG, 0, 1);
+        $pdf->Cell(30, 10, self::utfConvert("Orgão Exp: ",$Aluno->Naturalidade), 0, 1);
+        //
+        $pdf->Cell(100, 10, 'Nacionalidade: Brasileiro', 0, 0);
+        $pdf->Cell(30, 10, "NIS: ",$Aluno->RG, 0, 1);
+        $pdf->Cell(30, 10, self::utfConvert("N SUS: ",$Aluno->SUS), 0, 1);
+        //
+        $pdf->Cell(100, 10, self::utfConvert('Tipo Sanguineo: aaa'), 0, 0);
+        $pdf->Ln();
+        $pdf->Cell(100, 10, self::utfConvert('Endereço: '.self::utfConvert($Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade." - ".$Aluno->UF)), 0, 0);
+        //FILIAÇÃO
+        //CONTATOS
+        //INFORMAÇÕES ACADEMICAS
+        //NECESSIDADES ESPECIAIS
+        //SAÚDE
         $pdf->Ln(10);
 
         //AQUI TERMINA O CONTEÚDO
@@ -1142,8 +1106,11 @@ class AlunosController extends Controller
                 m.Nome as Nome,
                 t.Nome as Turma,
                 e.Nome as Escola,
+                o.Organizacao,
                 e.id as IDEscola,
                 e.Foto as FotoEscola,
+                e.Telefone as TelefoneEscola,
+                e.Email as EmailEscola,
                 t.Serie as Serie,
                 m.Nascimento as Nascimento,
                 a.STAluno,

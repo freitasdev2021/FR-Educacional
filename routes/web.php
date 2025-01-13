@@ -328,6 +328,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post("Professores/Apoio/NovaEvolucao",[ApoioController::class,'saveEvolucao'])->name("Professores/Apoio/NovaEvolucao");
         //
         //RELATORIOS
+        Route::get('Relatorios/Mapas/{Periodo}/{IDTurma}/{IDProfessor}',[RelatoriosController::class,'mapas'])->name('Relatorios/Mapas');
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
         Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');
         Route::get('Escolas/Relatorios/ImprimirDireto/{Tipo}',[RelatoriosController::class,'imprimirDireto'])->name('Escolas/Relatorios/ImprimirDireto');
