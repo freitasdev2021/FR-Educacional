@@ -84,6 +84,14 @@
                             <label>INEP</label>
                             <input type="number" class="form-control" value="{{isset($Registro->INEP) ? $Registro->INEP : ''}}" name="INEP"> 
                         </div>
+                        <div class="col-sm-2">
+                            <label>Orgão Exp</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->Expedidor) ? $Registro->Expedidor : ''}}" name="Expedidor"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>C.Nascimento</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->CNascimento) ? $Registro->CNascimento : ''}}" name="CNascimento"> 
+                        </div>
                     </div>
                     <hr>
                     <h5>Dados do Responsável</h5>
@@ -136,6 +144,18 @@
                             <label>Escolaridade</label>
                             <input type="text" class="form-control" value="{{isset($Pais->EscolaridadePai) ? $Pais->EscolaridadePai : ''}}" name="EscolaridadePai"> 
                         </div>
+                        <div class="col-sm-2">
+                            <label>Data de Nascimento</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->NascimentoPai) ? $Pais->NascimentoPai : ''}}" name="NascimentoPai"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Email</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->EmailPai) ? $Pais->EmailPai : ''}}" name="EmailPai"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Telefone</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->TelefonePai) ? $Pais->TelefonePai : ''}}" name="TelefonePai"> 
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-3">
@@ -157,6 +177,18 @@
                         <div class="col-sm-2">
                             <label>Escolaridade<strong class="text-danger">*</strong></label>
                             <input type="text" class="form-control" value="{{isset($Pais->EscolaridadeMae) ? $Pais->EscolaridadeMae : ''}}" name="EscolaridadeMae" required> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Data de Nascimento</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->NascimentoMae) ? $Pais->NascimentoMae : ''}}" name="NascimentoMae"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Email</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->EmailMae) ? $Pais->EmailMae : ''}}" name="EmailMae"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Telefone</label>
+                            <input type="text" class="form-control" value="{{isset($Pais->TelefoneMae) ? $Pais->TelefoneMae : ''}}" name="TelefoneMae"> 
                         </div>
                     </div>
                     <hr>
@@ -321,6 +353,10 @@
                         <div class="col-sm-3">
                             <label>Data de Entrada</label>
                             <input type="date" name="DTEntrada" class="form-control" value="{{isset($Registro) ? $Registro->DTEntrada : ''}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Tipo Sanguíneo</label>
+                            <input type="text" name="TPSangue" class="form-control" value="{{isset($Registro) ? $Registro->TPSangue : ''}}">
                         </div>
                         <div class="checkboxEscolas">
                             <div class="form-check escola">

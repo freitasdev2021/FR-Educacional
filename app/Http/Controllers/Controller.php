@@ -143,7 +143,7 @@ abstract class Controller
         $pdf->SetXY(25, 30); // Ajuste a posição para a próxima linha
         $pdf->Cell(0, 10, self::utfConvert($Documento), 0, 1, 'C'); // Texto centralizado com quebra de linha
         // Espaçamento após o cabeçalho
-        $pdf->Ln(10);
+        $pdf->Ln();
     }
 
 

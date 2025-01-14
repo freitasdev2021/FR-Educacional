@@ -520,6 +520,24 @@ class AlunosController extends Controller
         $pdf->AddPage(); // Adiciona uma página
         $Aluno = self::getAluno($IDAluno); 
         $Escola = Escola::find($Aluno->IDEscola);
+        $Pais = json_decode($Aluno->PaisJSON);
+        $lineHeight = 6;
+        $ne = "Não";
+        $uTransporte = "Não";
+        $aImagem = "Não";
+        if($Aluno->NEE == 1){
+            $ne = "Sim";
+        }
+
+        if($Aluno->Transporte == 1){
+            $uTransporte = "Sim";
+        }
+
+        if($Aluno->DireitoImagem == 1){
+            $aImagem = "Sim";
+        }
+
+        $NEEs = implode(" ,",NEE::pluck('DSNecessidade')->where('IDAluno',$IDAluno)->toArray());
         // Definir margens
         $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
 
@@ -527,58 +545,110 @@ class AlunosController extends Controller
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
 
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"MAPA FINAL DE NOTAS POR DISCIPLINA");
-
+        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"FICHA DE MATRÍCULA");
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(40, 10, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, 'Unidade de Ensino: '.$Aluno->Escola, 0, 0);
-        $pdf->Cell(0, 10, "ID INEP/CENSO: 2424", 0, 1);
-        $pdf->Cell(100, 10, self::utfConvert('Endereço: '.self::utfConvert($Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade." - ".$Aluno->UF)), 0, 0);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, 'Telefone: '.$Aluno->TelefoneEscola, 0, 0);
-        $pdf->Cell(50, 10, 'E-Mail: '.$Aluno->EmailEscola, 0, 0);
-        $pdf->Ln();
-        //DADOS DO ALUNO
+
+        $pdf->Cell(100, $lineHeight, 'Unidade de Ensino: ' . $Aluno->Escola, 0, 0);
+        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: 2424", 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Endereço: ' . $Escola->Rua . ', ' . $Escola->Numero . ' ' . $Escola->Bairro . ' ' . $Escola->Cidade . ' - ' . $Escola->UF), 0, 1);
+        $pdf->Cell(100, $lineHeight, 'Telefone: ' . $Aluno->TelefoneEscola, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'E-Mail: ' . $Aluno->EmailEscola, 0, 1);
+        $pdf->Ln(5);
+
+        // DADOS DO ALUNO
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(40, 10, self::utfConvert('IDENTIFICAÇÃO DO ALUNO'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DO ALUNO'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, 'Nome completo: '.$Aluno->Nome, 0, 0);
-        $pdf->Cell(0, 10, "ID CENSO: ",$Aluno->INEP, 0, 1);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, 'Data de nascimento: '.date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 0);
-        $pdf->Cell(30, 10, "Sexo: ",$Aluno->Sexo, 0, 1);
-        $pdf->Cell(30, 10, "Naturalidade: ",$Aluno->Naturalidade, 0, 1);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, self::utfConvert('Certidão de nascimento: 34234234'), 0, 0);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, self::utfConvert('Cor/Raça'), 0, 0);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, 'CPF: '.$Aluno->CPF, 0, 0);
-        $pdf->Cell(30, 10, "RG: ",$Aluno->RG, 0, 1);
-        $pdf->Cell(30, 10, self::utfConvert("Orgão Exp: ",$Aluno->Naturalidade), 0, 1);
-        //
-        $pdf->Cell(100, 10, 'Nacionalidade: Brasileiro', 0, 0);
-        $pdf->Cell(30, 10, "NIS: ",$Aluno->RG, 0, 1);
-        $pdf->Cell(30, 10, self::utfConvert("N SUS: ",$Aluno->SUS), 0, 1);
-        //
-        $pdf->Cell(100, 10, self::utfConvert('Tipo Sanguineo: aaa'), 0, 0);
-        $pdf->Ln();
-        $pdf->Cell(100, 10, self::utfConvert('Endereço: '.self::utfConvert($Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade." - ".$Aluno->UF)), 0, 0);
-        //FILIAÇÃO
-        //CONTATOS
-        //INFORMAÇÕES ACADEMICAS
-        //NECESSIDADES ESPECIAIS
-        //SAÚDE
+
+        $pdf->Cell(100, $lineHeight, 'Nome completo: ' . $Aluno->Nome, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'ID CENSO: ' . $Aluno->INEP, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Data de nascimento: ' . date('d/m/Y', strtotime($Aluno->Nascimento)), 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Sexo: ' . $Aluno->Sexo, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Certidão de nascimento: '.$Aluno->CNascimento), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Cor/Raça: '.$Aluno->Cor), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'CPF: ' . $Aluno->CPF, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'RG: ' . $Aluno->RG, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Nacionalidade: Brasileiro', 0, 0);
+        $pdf->Cell(0, $lineHeight, 'NIS: ' . $Aluno->NIS, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Endereço: ' . $Aluno->Rua . ', ' . $Aluno->Numero . ' ' . $Aluno->Bairro . ' ' . $Aluno->Cidade . ' - ' . $Aluno->UF), 0, 1);
+        $pdf->Ln(5);
+
+        // FILIAÇÃO
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('FILIAÇÃO'), 0, 1);
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(100, $lineHeight, 'Pai: ' . $Pais->Pai, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Telefone: ' . $Pais->TelefonePai, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFPai, 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoPai), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Mãe: ' . $Pais->Mae, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Telefone: ' . $Pais->TelefoneMae, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFMae, 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoMae), 0, 1);
+        $pdf->Ln(5);
+
+        // INFORMAÇÕES ACADÊMICAS
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('INFORMAÇÕES ACADÊMICAS'), 0, 1);
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(100, $lineHeight, 'Turma: ' . $Aluno->Turma, 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Série: ' . $Aluno->Serie), 0, 1);
+        $pdf->Ln(5);
+
+        // NECESSIDADES ESPECIAIS
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('NECESSIDADES ESPECIAIS'), 0, 1);
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Possui Necessidades Especiais: ' . $ne), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Deficiência: ' . $NEEs), 0, 1);
+        //$pdf->Ln(5);
+        //AUTORIZAÇÕES
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Autorizo uso da imagem de meu (minha) filho(a) para fins de propaganda e / ou divulgação da entidade na qual ele(a) está matriculado(a): ' . $aImagem), 0, 0);
+        $pdf->Ln(5);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Utiliza transporte escolar: ' . $uTransporte), 0, 0);
         $pdf->Ln(10);
-
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('SAÚDE/OBSERVAÇÕES/DETALHES'), 0, 1);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(100, $lineHeight, $Aluno->Observacoes, 0, 0);
+        $pdf->Ln(25);
         //AQUI TERMINA O CONTEÚDO
-        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        //$pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        // Primeira linha de assinaturas
+        $pdf->Cell(90, 10, '__________________________________', 0, 0, 'C'); // Assinatura 1
+        $pdf->Cell(90, 10, '__________________________________', 0, 1, 'C'); // Assinatura 2
 
+        // Texto explicativo da primeira linha
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(90, 5, self::utfConvert('Responsavel Legal'), 0, 0, 'C'); // Texto 1
+        $pdf->Cell(90, 5, self::utfConvert('Diretor(a)'), 0, 1, 'C'); // Texto 2
+
+        $pdf->Ln(); // Espaço entre a primeira e a segunda linha
+
+        // Segunda linha de assinaturas
+        $pdf->Cell(90, 10, '__________________________________', 0, 0, 'C'); // Assinatura 3
+        $pdf->Cell(90, 10, '__________________________________', 0, 1, 'C'); // Assinatura 4
+
+        // Texto explicativo da segunda linha
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(90, 5, self::utfConvert('Servidor(a)'), 0, 0, 'C'); // Texto 3
+        $pdf->Cell(90, 5, self::utfConvert('Secretário(a)'), 0, 1, 'C'); // Texto 4
         // Saída do PDF
         $pdf->Output('I', 'Declaracao_Frequencia.pdf');
         exit;
@@ -1106,6 +1176,9 @@ class AlunosController extends Controller
                 m.Nome as Nome,
                 t.Nome as Turma,
                 e.Nome as Escola,
+                m.TPSangue,
+                m.DireitoImagem,
+                m.CNascimento,
                 o.Organizacao,
                 e.id as IDEscola,
                 e.Foto as FotoEscola,
@@ -1163,7 +1236,8 @@ class AlunosController extends Controller
                 t.MINFrequencia,
                 t.MediaPeriodo,
                 t.TPAvaliacao,
-                a.DTEntrada
+                a.DTEntrada,
+                m.Expedidor
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -2552,7 +2626,13 @@ class AlunosController extends Controller
                     "CPFMae" => $request->CPFMae,
                     "CPFPai" => $request->CPFPai,
                     "EscolaridadeMae" => $request->EscolaridadeMae,
-                    "EscolaridadePai" => $request->EscolaridadePai
+                    "EscolaridadePai" => $request->EscolaridadePai,
+                    "EmailMae" => $request->EmailMae,
+                    "EmailPai" => $request->EmailPai,
+                    "NascimentoMae" => $request->NascimentoMae,
+                    "NascimentoPai" => $request->NascimentoPai,
+                    "TelefonePai" => $request->TelefonePai,
+                    "TelefoneMae" => $request->TelefoneMae
                 );
     
                 $matricula = array(
@@ -2589,7 +2669,10 @@ class AlunosController extends Controller
                     "INEP" => $request->INEP,
                     "NIS" => $request->NIS,
                     "Naturalidade" => $request->Naturalidade,
-                    "IDRota" => $request->IDRota
+                    "IDRota" => $request->IDRota,
+                    "TPSangue" => $request->TPSangue,
+                    "Expedidor" => $request->Expedidor,
+                    "CNascimento"=>$request->CNascimento
                 );
 
                 $matricula['PaisJSON'] = json_encode($Pais);
@@ -2686,7 +2769,14 @@ class AlunosController extends Controller
                     "CPFMae" => $request->CPFMae,
                     "CPFPai" => $request->CPFPai,
                     "EscolaridadeMae" => $request->EscolaridadeMae,
-                    "EscolaridadePai" => $request->EscolaridadePai
+                    "EscolaridadePai" => $request->EscolaridadePai,
+                    "EscolaridadePai" => $request->EscolaridadePai,
+                    "EmailMae" => $request->EmailMae,
+                    "EmailPai" => $request->EmailPai,
+                    "NascimentoMae" => $request->NascimentoMae,
+                    "NascimentoPai" => $request->NascimentoPai,
+                    "TelefonePai" => $request->TelefonePai,
+                    "TelefoneMae" => $request->TelefoneMae
                 );
     
                 $matricula = array(
@@ -2723,7 +2813,10 @@ class AlunosController extends Controller
                     "INEP" => $request->INEP,
                     "NIS" => $request->NIS,
                     "Naturalidade" => $request->Naturalidade,
-                    "IDRota" => $request->IDRota
+                    "IDRota" => $request->IDRota,
+                    "TPSangue" => $request->TPSangue,
+                    "Expedidor" => $request->Expedidor,
+                    "CNascimento"=>$request->CNascimento
                 );
 
                 //dd($matricula);
