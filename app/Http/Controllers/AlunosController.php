@@ -552,8 +552,8 @@ class AlunosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
 
-        $pdf->Cell(100, $lineHeight, 'Unidade de Ensino: ' . $Aluno->Escola, 0, 0);
-        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: 2424", 0, 1);
+        $pdf->MultiCell(100, $lineHeight, self::utfConvert('Unidade de Ensino: ' . $Aluno->Escola), 0, 0);
+        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: ".$Escola->IDCenso, 0, 1);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('Endereço: ' . $Escola->Rua . ', ' . $Escola->Numero . ' ' . $Escola->Bairro . ' ' . $Escola->Cidade . ' - ' . $Escola->UF), 0, 1);
         $pdf->Cell(100, $lineHeight, 'Telefone: ' . $Aluno->TelefoneEscola, 0, 0);
@@ -565,7 +565,7 @@ class AlunosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DO ALUNO'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
 
-        $pdf->Cell(100, $lineHeight, 'Nome completo: ' . $Aluno->Nome, 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Nome completo: ' . $Aluno->Nome), 0, 0);
         $pdf->Cell(0, $lineHeight, 'ID CENSO: ' . $Aluno->INEP, 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'Data de nascimento: ' . date('d/m/Y', strtotime($Aluno->Nascimento)), 0, 0);
@@ -588,14 +588,14 @@ class AlunosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('FILIAÇÃO'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
 
-        $pdf->Cell(100, $lineHeight, 'Pai: ' . $Pais->Pai, 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Pai: ' . $Pais->Pai), 0, 0);
         $pdf->Cell(0, $lineHeight, 'Telefone: ' . $Pais->TelefonePai, 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFPai, 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoPai), 0, 1);
 
-        $pdf->Cell(100, $lineHeight, 'Mãe: ' . $Pais->Mae, 0, 0);
-        $pdf->Cell(0, $lineHeight, 'Telefone: ' . $Pais->TelefoneMae, 0, 1);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Mãe: ' . $Pais->Mae), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Telefone: ' . $Pais->TelefoneMae), 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFMae, 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoMae), 0, 1);
@@ -606,7 +606,7 @@ class AlunosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('INFORMAÇÕES ACADÊMICAS'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
 
-        $pdf->Cell(100, $lineHeight, 'Turma: ' . $Aluno->Turma, 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Turma: ' . $Aluno->Turma), 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Série: ' . $Aluno->Serie), 0, 1);
         $pdf->Ln(5);
 
@@ -626,8 +626,8 @@ class AlunosController extends Controller
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(0, $lineHeight, self::utfConvert('SAÚDE/OBSERVAÇÕES/DETALHES'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(100, $lineHeight, $Aluno->Observacoes, 0, 0);
-        $pdf->Ln(25);
+        $pdf->Cell(100, $lineHeight, self::utfConvert($Aluno->Observacoes), 0, 0);
+        $pdf->Ln(15);
         //AQUI TERMINA O CONTEÚDO
         //$pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
         // Primeira linha de assinaturas

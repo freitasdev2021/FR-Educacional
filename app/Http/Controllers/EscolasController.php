@@ -141,14 +141,16 @@ class EscolasController extends Controller
             $esc['Telefone'] = preg_replace('/\D/', '', $request->Telefone);
             if($request->id){
                 $Escola = Escola::find($request->id);
+                //dd($request->file('Foto'));
                 if($request->file('Foto')){
                     Storage::disk('public')->delete('organizacao_'.Auth::user()->id_org.'_escolas/escola_'. $request->id . '/' . $request->oldFoto);
                     $Foto = $request->file('Foto')->getClientOriginalName();
                     $request->file('Foto')->storeAs('organizacao_'.Auth::user()->id_org.'_escolas/escola_'.$request->id,$Foto,'public');
+                    $esc['Foto'] = $Foto;
                 }else{
                     $Foto = '';
                 }
-                $esc['Foto'] = $Foto;
+                
                 $Escola->update($esc);
                 $rout = 'Escolas/Edit';
                 $aid = $request->id;

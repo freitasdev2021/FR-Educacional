@@ -24,7 +24,9 @@ class Escola extends Model
         'QTVagas',
         'INIFuncionamento',
         'TERFuncionamento',
-        'OBSGeralHistorico'
+        'OBSGeralHistorico',
+        'OBSAta',
+        'IDCenso'
     ];
 
     public function organizacao()

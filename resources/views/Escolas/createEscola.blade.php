@@ -57,11 +57,15 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label>E-mail</label>
                             <input type="email" name="Email" class="form-control" maxlength="50" required value="{{isset($Registro->Email) ? $Registro->Email : ''}}">
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
+                            <label>ID Censo</label>
+                            <input type="number" name="IDCenso" class="form-control" maxlength="50" required value="{{isset($Registro->IDCenso) ? $Registro->IDCenso : ''}}">
+                        </div>
+                        <div class="col-sm-2">
                             <label>CEP</label>
                             <input type="text" name="CEP" class="form-control" maxlength="9" minlength="9" required value="{{isset($Registro->CEP) ? $Registro->CEP : ''}}">
                         </div>
@@ -92,6 +96,12 @@
                         <div class="col-sm-12">
                             <label>Observação Geral nos Históricos</label>
                             <textarea name="OBSGeralHistorico" class="form-control">{{isset($Registro->OBSGeralHistorico) ? $Registro->OBSGeralHistorico : ''}}</textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label>Observação  na Ata de resultados finais</label>
+                            <textarea name="OBSAta" class="form-control">{{isset($Registro->OBSAta) ? $Registro->OBSAta : ''}}</textarea>
                         </div>
                     </div>
                     <br>
