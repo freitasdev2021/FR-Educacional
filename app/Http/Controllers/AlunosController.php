@@ -3275,7 +3275,7 @@ class AlunosController extends Controller
                 $item[] = $r->Turma;
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $r->Escola : '';
                 $item[] = $r->Serie;
-                $item[] = Controller::data($r->Nascimento,'d/m/Y');
+                $item[] = ($r->Nascimento) ? Controller::data($r->Nascimento,'d/m/Y') : 'Não Informado';
                 $item[] = $Vencimento->lt($Hoje) && $r->ANO <= date('Y') ? "<strong class='text-danger'>PENDENTE RENOVAÇÃO</strong>" : "<strong class='text-success'>RENOVADA</strong>";
                 $item[] = "<strong>".$Situacao."</strong>";
                 $item[] = " <a href='".route('Alunos/Edit',$r->IDAluno)."' class='btn btn-primary btn-xs'>Visualizar</a>";
