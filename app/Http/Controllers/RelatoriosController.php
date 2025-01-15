@@ -2680,6 +2680,109 @@ class RelatoriosController extends Controller
         exit;
     }
 
+    public function pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage('L'); // Adiciona uma página
+        $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);
+        $Disciplina = Disciplina::find($IDDisciplina); 
+        $Professor = Professor::find($IDProfessor);
+        $SQLAulas = DB::select("SELECT au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0");
+        $Aulas = array_map(function($v){
+            return date('d',strtotime($v->DTAula));
+        },$SQLAulas);
+        
+        
+        $lineHeight = 6;
+        // Definir margens
+        $pdf->SetMargins(1, 1, 1); // Margem de 20 em todos os lados
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"FREQUÊNCIA");
+        //AQUI VAI O CONTEUDO
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Turma: '.$Turma->Serie." - ".$Turma->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, "Disciplina: ".$Disciplina->NMDisciplina, 0, 1);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Professor: ' . $Professor->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Data de Impressão: ' . date('d/m/Y')), 0, 1);
+
+        $pdf->Cell(240, $lineHeight, 'Ano Letivo: ' . date('Y'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Período: ' . $Periodo), 0, 1);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('*:Presença, F:Falta, FJ:Falta Justificada, FB:Faltas do bimestre, FA:Faltas acumuladas'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Aulas dadas: ' . count($Aulas)), 0, 1);
+        $pdf->Ln(3);
+        $FLarg = 2.8;
+        //DADOS
+        //CABECALHO
+        $pdf->SetFont('Arial', '', 5);
+        $pdf->Cell(10, 4, 'Ord', 1, 0, 'C');
+        $pdf->Cell(10, 4, 'ID', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'DT.Matr', 1, 0, 'C');
+        $pdf->Cell(60, 4, 'Nome', 1, 0, '');
+        foreach($Aulas as $au){
+            $pdf->Cell($FLarg, 4, $au, 1, 0, 'C');
+        }
+        $pdf->Cell($FLarg, 4, 'FB', 1, 0, 'C');
+        $pdf->Cell($FLarg, 4, 'FJ', 1, 0, 'C');
+        //CORPO
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 5);
+        foreach($query as $key => $row){
+            $pdf->Cell(10, 4, $key+1, 1, 0, 'C');
+            $pdf->Cell(10, 4, $row->IDAluno, 1, 0, 'C');
+            $pdf->Cell(15, 4, date('d/m/Y',strtotime($row->DTEntrada)) , 1, 0, 'C');
+            $pdf->Cell(60, 4, self::utfConvert($row->Aluno), 1, 0, '');
+            foreach(json_decode($row->IDAulas) as $hA){
+                $pdf->Cell($FLarg, 4,(!AlunosController::alunoVeio($row->IDAluno,$hA)) ? 'FB' : '*', 1, 0, 'C');
+            }
+            $pdf->Cell($FLarg, 4,$row->Faltas, 1, 0, 'C');
+            $pdf->Cell($FLarg, 4,0, 1, 0, 'C');
+            $pdf->Ln();
+        }
+        //$pdf->Ln();
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        $pdf->Ln(8);
+        //CAMPOS DE ASSINATURA
+        $pdf->SetFont('Arial', '', 10);
+        $larguraTotal = 200; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 20; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Coordenador(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Professor(a)'), 0, 1, 'C');
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
+        exit;
+    }
+
     public function pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
@@ -2815,7 +2918,6 @@ class RelatoriosController extends Controller
     }
 
     public function mapas($Tipo,$Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
-
         $SQL = <<<SQL
             SELECT 
                 m.Nome as Aluno,
@@ -2867,7 +2969,8 @@ class RelatoriosController extends Controller
                 (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '3º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao3B,
                 (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '4º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao4B,
                 (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = 'Anual' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as RecuperacaoAnual,
-                (SELECT CONCAT('[', GROUP_CONCAT('"', ntAv.Nota, '"' SEPARATOR ','), ']') FROM aulas as av INNER JOIN atividades atv4 ON(atv4.IDAula = av.id) INNER JOIN notas ntAv ON(ntAv.IDAtividade = atv4.id) WHERE av.TPConteudo = 1 AND ntAv.IDAluno = a.id) as Avaliacoes
+                (SELECT CONCAT('[', GROUP_CONCAT('"', ntAv.Nota, '"' SEPARATOR ','), ']') FROM aulas as av INNER JOIN atividades atv4 ON(atv4.IDAula = av.id) INNER JOIN notas ntAv ON(ntAv.IDAtividade = atv4.id) WHERE av.TPConteudo = 1 AND ntAv.IDAluno = a.id) as Avaliacoes,
+                (SELECT CONCAT('[', GROUP_CONCAT('"', au.Hash, '"' SEPARATOR ','), ']') FROM aulas as au WHERE au.TPConteudo = 0 AND au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma) as IDAulas
             FROM disciplinas d
             LEFT JOIN aulas au ON(d.id = au.IDDisciplina)
             LEFT JOIN frequencia f ON(au.id = f.IDAula)
@@ -2880,7 +2983,7 @@ class RelatoriosController extends Controller
             GROUP BY a.id
         SQL;
         $query = DB::select($SQL);
-        
+        //dd($query);
         if($Tipo == "Nota"){
             if($Periodo != "Ano"){
                 self::pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo);
@@ -2889,7 +2992,7 @@ class RelatoriosController extends Controller
             }
         }else{
             if($Periodo != "Ano"){
-
+                self::pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo);
             }else{
 
             }

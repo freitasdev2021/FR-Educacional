@@ -875,6 +875,12 @@ class AlunosController extends Controller
         
     }
 
+    public static function alunoVeio($IDAluno,$Hash){
+        $SQL = "SELECT au.id FROM aulas au LEFT JOIN frequencia fr ON(fr.HashAula = au.Hash) WHERE au.Hash = '$Hash' AND fr.IDAluno = $IDAluno";
+
+        return count(DB::select($SQL));
+    }
+
     public function getRelatorioMatricula($IDAluno){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
