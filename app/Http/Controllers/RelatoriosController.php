@@ -2784,6 +2784,101 @@ class RelatoriosController extends Controller
         exit;
     }
 
+    public function quadroTurmas($IDEscola){
+        $SQL = "SELECT 
+                t.id as IDTurma,
+                t.Nome as Turma,
+                t.Serie,
+                CASE WHEN (SELECT COUNT(al.id) FROM alunos al INNER JOIN matriculas m ON(m.id = al.IDMatricula) WHERE al.IDTurma = t.id AND al.STAluno = 0) = 0 THEN 'Fechada' ELSE 'Aberta' END as Situacao,
+                t.Turno,
+                t.Capacidade,
+                (SELECT COUNT(al.id) FROM alunos al INNER JOIN matriculas m ON(m.id = al.IDMatricula) WHERE al.IDTurma = t.id AND al.STAluno = 0) as Matriculados,
+                (t.Capacidade - (SELECT COUNT(al.id) FROM alunos al INNER JOIN matriculas m ON(m.id = al.IDMatricula) WHERE al.IDTurma = t.id AND al.STAluno = 0)) as Vagas,
+                (SELECT COUNT(al.id) FROM alunos al INNER JOIN matriculas m ON(m.id = al.IDMatricula) WHERE m.Sexo = 'F' AND al.IDTurma = t.id AND al.STAluno = 0) as Feminino,
+                (SELECT COUNT(al.id) FROM alunos al INNER JOIN matriculas m ON(m.id = al.IDMatricula) WHERE m.Sexo = 'M' AND al.IDTurma = t.id AND al.STAluno = 0) as Masculino
+            FROM turmas t
+            WHERE t.IDEscola = $IDEscola
+        ";
+        $query = DB::select($SQL);
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage('L'); // Adiciona uma página
+        $Escola = Escola::find($IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);     
+        
+        $lineHeight = 6;
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+        $totalCapacidade = [];
+        $totalMatriculados = [];
+        $totalVagas = [];
+        $totalMasculino = [];
+        $totalFeminino = [];
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $IDEscola . '/' . $Escola->Foto,"QUADRO DE TURMAS");
+        $pdf->SetFont('Arial', '', 7);
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Periodo Letivo: '.date('Y')), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert("Impressão: ".date('d/m/Y')), 0, 1);
+        //AQUI VAI O CONTEUDO
+        $FLarg = 2.8;
+        //DADOS
+        $pdf->Ln();
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(15, 6, 'Cod.', 1, 0, 'C');
+        $pdf->Cell(40, 6, 'Turma', 1, 0, 'C');
+        $pdf->Cell(60, 6, 'Ano /Serie', 1, 0, 'C');
+        $pdf->Cell(25, 6, self::utfConvert('Situação'), 1, 0, 'C');
+        $pdf->Cell(15, 6, 'Capacidade', 1, 0, 'C');
+        $pdf->Cell(20, 6, 'Matriculados', 1, 0, 'C');
+        $pdf->Cell(15, 6, 'Vagas', 1, 0, 'C');
+        $pdf->Cell(10, 6, 'M', 1, 0, 'C');
+        $pdf->Cell(10, 6, 'F', 1, 0, 'C');
+        $pdf->Cell(20, 6, 'Multisseriada', 1, 0, 'C');
+        $pdf->Cell(20, 6, 'Turno', 1, 0, 'C');
+        $pdf->Ln();
+        //LOOP
+        $pdf->SetFont('Arial', 'B', 7);
+        foreach($query as $row){
+            array_push($totalCapacidade,$row->Capacidade);
+            array_push($totalMatriculados,$row->Matriculados);
+            array_push($totalVagas,$row->Vagas);
+            array_push($totalMasculino,$row->Masculino);
+            array_push($totalFeminino,$row->Feminino);
+            $pdf->Cell(15, 6, $row->IDTurma, 1, 0, 'C');
+            $pdf->Cell(40, 6, $row->Turma, 1, 0, 'C');
+            $pdf->Cell(60, 6, self::utfConvert($row->Serie), 1, 0, 'C');
+            $pdf->Cell(25, 6, 'Ativa', 1, 0, 'C');
+            $pdf->Cell(15, 6, $row->Capacidade, 1, 0, 'C');
+            $pdf->Cell(20, 6, $row->Matriculados, 1, 0, 'C');
+            $pdf->Cell(15, 6, $row->Vagas, 1, 0, 'C');
+            $pdf->Cell(10, 6, $row->Masculino, 1, 0, 'C');
+            $pdf->Cell(10, 6, $row->Feminino, 1, 0, 'C');
+            $pdf->Cell(20, 6, ($row->Turma == "Multiserie") ? 'Sim' : self::utfConvert('Não'), 1, 0, 'C');
+            $pdf->Cell(20, 6, $row->Turno, 1, 0, 'C');
+            $pdf->Ln();
+        }
+        $pdf->Cell(140, 6, 'Total: ', 1, 0, 'R');
+        $pdf->Cell(15, 6, array_sum($totalCapacidade), 1, 0, 'C');
+        $pdf->Cell(20, 6, array_sum($totalMatriculados), 1, 0, 'C');
+        $pdf->Cell(15, 6, array_sum($totalVagas), 1, 0, 'C');
+        $pdf->Cell(10, 6, array_sum($totalMasculino), 1, 0, 'C');
+        $pdf->Cell(10, 6, array_sum($totalFeminino), 1, 0, 'C');
+        //FIM DO LOOP
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 6);
+        //AQUI VAI O LOOP
+        $pdf->Ln();
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
+        exit;;
+    }
+
     public function getAulasDisciplina($Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
         $SQL = "SELECT au.DSConteudo,au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0";
         $query = DB::select($SQL);

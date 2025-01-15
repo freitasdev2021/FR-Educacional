@@ -22,7 +22,9 @@ class Turma extends Model
         'QTRepetencia',
         'IDSala',
         'TPAvaliacao',
-        'MINFrequencia'
+        'MINFrequencia',
+        'Turno',
+        'Capacidade'
     ];
 
     public function escola()

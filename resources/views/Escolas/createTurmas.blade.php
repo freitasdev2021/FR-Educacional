@@ -130,6 +130,18 @@
                             <label>Total Ano</label>
                             <input type="number" name="TotalAno" class="form-control" value="{{isset($Registro->TotalAno) ? $Registro->TotalAno : ''}}"> 
                         </div>
+                        <div class="col-sm-2">
+                            <label>Capacidade</label>
+                            <input type="number" name="Capacidade" class="form-control" value="{{isset($Registro->Capacidade) ? $Registro->Capacidade : ''}}"> 
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Turno</label>
+                            <select name="Turno" class="form-control">
+                                <option value="Matutino" {{isset($Registro) && $Registro->Turno == "Matutino" ? 'selected' : ''}}>Matutino</option>
+                                <option value="Vespertino" {{isset($Registro) && $Registro->Turno == "Vespertino" ? 'selected' : ''}}>Vespertino</option>
+                                <option value="Noturno" {{isset($Registro) && $Registro->Turno == "Noturno" ? 'selected' : ''}}>Noturno</option>
+                            </select> 
+                        </div>
                     </div>
                     <br>
                     <div class="col-sm-12 text-left row">

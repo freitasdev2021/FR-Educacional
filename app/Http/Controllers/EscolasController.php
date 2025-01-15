@@ -598,7 +598,7 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o on(e.IDOrg = o.id)
         LEFT JOIN alunos a ON(a.IDTurma = t.id)
-        WHERE o.id = $idorg $AND
+        WHERE o.id = $idorg AND a.STAluno = 0 $AND
         GROUP BY 
             t.id, t.Nome, t.INITurma, t.TERTurma, e.Nome, t.Serie
         SQL;
@@ -750,7 +750,7 @@ class EscolasController extends Controller
         //dd($view['Salas']);
         if($id){
             $SQL = <<<SQL
-            SELECT t.id as IDTurma,t.TPAvaliacao,t.MINFrequencia,t.Periodo, t.Nome as Turma,t.INITurma,t.TERTurma,e.id as IDEscola,t.Serie,t.NotaPeriodo,t.MediaPeriodo,t.TotalAno
+            SELECT t.id as IDTurma,t.TPAvaliacao,t.MINFrequencia,t.Periodo, t.Nome as Turma,t.INITurma,t.TERTurma,e.id as IDEscola,t.Serie,t.NotaPeriodo,t.MediaPeriodo,t.TotalAno,t.Capacidade,t.Turno
             FROM turmas t
             INNER JOIN escolas e ON(e.id = t.IDEscola)
             INNER JOIN organizacoes o on(e.IDOrg = o.id)
