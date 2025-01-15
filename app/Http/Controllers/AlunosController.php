@@ -131,7 +131,41 @@ class AlunosController extends Controller
     }
 
     public function mudancas(){
+        if(self::getDados()['tipo'] == 6){
+            $modulos = self::professoresModulos;
+        }else{
+            $modulos = self::submodulos;
+        }
 
+        $query = [];
+
+        if(isset($_GET['IDTurma']) && !empty($_GET['IDTurma'])){
+            $IDTurma = $_GET['IDTurma'];
+            $IDEscola = Turma::find($IDTurma)->IDEscola;
+            $SQL = <<<SQL
+                SELECT 
+                    m.Nome as Aluno,
+                    a.id as IDAluno,
+                    a.IDTurma,
+                    rec.created_at as UReclassificacao
+                FROM alunos a 
+                INNER JOIN matriculas m ON(m.id = a.IDMatricula)
+                LEFT JOIN reclassificacoes rec ON(rec.IDAluno = a.id)
+                WHERE a.IDTurma = $IDTurma
+            SQL;
+
+            $query = DB::select($SQL);
+        }
+        
+
+        return view('Alunos.mudancas',[
+            'submodulos' => $modulos,
+            'IDEscola'=> $IDEscola,
+            'Alunos' => $query,
+            'Turmas' => Turma::join('escolas', 'turmas.IDEscola', '=', 'escolas.id')
+            ->select('turmas.id as IDTurma','turmas.Serie','turmas.Nome as Turma', 'escolas.Nome as Escola')->whereIn('turmas.IDEscola',EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
+            ->get(),
+        ]);
     }
 
     public function anexos($IDAluno){
@@ -275,6 +309,30 @@ class AlunosController extends Controller
         }finally{
             return redirect()->route('Alunos/Edit',$request->IDAluno)->with('Remanejado','Aluno Remanejado');
         }
+    }
+
+    public function remanejarMassa(Request $request,$IDTurmaOrigem,$IDEscola){
+        $Alunos = [];
+        foreach($request->IDAluno as $key => $al){
+            $Alunos[$al] = $request->IDTurmaDestino[$key];
+        }
+        //dd($Alunos);
+        foreach($Alunos as $aluno => $turmaDestino){
+            if($turmaDestino != $IDTurmaOrigem){
+                Aluno::find($aluno)->update([
+                    "IDTurma" => $turmaDestino
+                ]);
+                Reclassificar::create([
+                    "IDTurmaAntiga" => $IDTurmaOrigem,
+                    "IDTurmaNova" => $turmaDestino,
+                    "IDAluno" => $aluno,
+                    "IDEscola" => $IDEscola
+                ]);
+                Remanejo::where('IDAluno',$aluno)->delete();
+            }
+        }
+
+        return redirect()->back()->with('success','Alunos movidos');
     }
 
     public function ficha($id){
