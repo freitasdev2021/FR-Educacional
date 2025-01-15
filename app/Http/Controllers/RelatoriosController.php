@@ -2681,6 +2681,11 @@ class RelatoriosController extends Controller
     }
 
     public function pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo){
+        $SQLAulas = DB::select("SELECT au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0");
+        $Aulas = array_map(function($v){
+            return date('d',strtotime($v->DTAula));
+        },$SQLAulas);
+
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage('L'); // Adiciona uma página
@@ -2689,10 +2694,6 @@ class RelatoriosController extends Controller
         $Organizacao = Organizacao::find($Escola->IDOrg);
         $Disciplina = Disciplina::find($IDDisciplina); 
         $Professor = Professor::find($IDProfessor);
-        $SQLAulas = DB::select("SELECT au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0");
-        $Aulas = array_map(function($v){
-            return date('d',strtotime($v->DTAula));
-        },$SQLAulas);
         
         
         $lineHeight = 6;
@@ -2752,6 +2753,94 @@ class RelatoriosController extends Controller
         $pdf->SetFont('Arial', 'B', 7);
         $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
         $pdf->Ln(8);
+        //CAMPOS DE ASSINATURA
+        $pdf->SetFont('Arial', '', 10);
+        $larguraTotal = 200; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 20; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Coordenador(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Professor(a)'), 0, 1, 'C');
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
+        exit;
+    }
+
+    public function getAulasDisciplina($Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
+        $SQL = "SELECT au.DSConteudo,au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0";
+        $query = DB::select($SQL);
+
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);
+        $Disciplina = Disciplina::find($IDDisciplina); 
+        $Professor = Professor::find($IDProfessor);
+        
+        
+        $lineHeight = 6;
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"RELATÓRIO DE CONTEÚDOS POR DISCIPLINA");
+        //AQUI VAI O CONTEUDO
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Turma: '.$Turma->Serie." - ".$Turma->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, "Disciplina: ".$Disciplina->NMDisciplina, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Professor: ' . $Professor->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Data de Impressão: ' . date('d/m/Y')), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Ano Letivo: ' . date('Y'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Período: ' . $Periodo), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('INEP: ',$Escola->IDCenso), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Aulas dadas: ' . count($query)), 0, 1);
+        $pdf->Ln(3);
+        $FLarg = 2.8;
+        //DADOS
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(20, 8, 'Data', 1, 0, 'C');
+        $pdf->Cell(180, 8, 'Registro de aulas / Objetivos de aprendizagem e desenvolvimento', 1, 0, 'C');
+        //CORPO
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 8);
+        foreach($query as $key => $row){
+            $pdf->Cell(20, 8, date('d/m/Y',strtotime($row->DTAula)),1, 0, 'C');
+            $pdf->Cell(180, 8, $row->DSConteudo, 1, 0, 'C');
+            $pdf->Ln();
+        }
+        $pdf->Ln();
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        $pdf->Ln(10);
         //CAMPOS DE ASSINATURA
         $pdf->SetFont('Arial', '', 10);
         $larguraTotal = 200; // Largura total disponível para os campos de assinatura

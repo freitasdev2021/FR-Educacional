@@ -98,7 +98,7 @@ class EscolasController extends Controller
                 $item[] = $e->Email;
                 $item[] = $e->Telefone;
                 $item[] = $e->QTVagas;
-                $item[] = "<a href='".route('Escolas/Edit',$e->id)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = "<a href='".route('Escolas/Edit',$e->id)."' class='btn btn-primary btn-xs'>Editar</a> <a href='".route('Relatorios/Escolas/Quadro',$e->id)."' class='btn btn-primary btn-xs'>Quadro de Turmas</a>";
                 $itensJSON[] = $item;
             }
         }else{

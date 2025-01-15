@@ -85,10 +85,10 @@
                                     <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 2 BIM</a>
                                     <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 3 BIM</a>
                                     <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 4 BIM</a>
-                                    <a href="" class="btn btn-xs btn-info">Aulas 1º BIM</a>
-                                    <a href="" class="btn btn-xs btn-info">Aulas 2º BIM</a>
-                                    <a href="" class="btn btn-xs btn-info">Aulas 3º BIM</a>
-                                    <a href="" class="btn btn-xs btn-info">Aulas 4º BIM</a>
+                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 1º BIM</a>
+                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 2º BIM</a>
+                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 3º BIM</a>
+                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 4º BIM</a>
                                 </td>
                             </tr>
                             @endforeach
