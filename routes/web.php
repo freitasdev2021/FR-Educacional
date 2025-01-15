@@ -223,6 +223,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/NEE/Cadastro/{IDAluno}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Novo');
         Route::get('Alunos/NEE/Cadastro/{IDAluno}/{id}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Edit');
         Route::post('Alunos/NEE/Save',[AlunosController::class,'saveNecessidade'])->name('Alunos/NEE/Save');
+        //REMANEJAMENTOS MUDANÇAS
+        Route::get('Alunos/Mudancas',[AlunosController::class,'mudancas'])->name('Alunos/Mudancas');
         //
         Route::get("Alunos/Comprovantes/Matricula/{id}",[AlunosController::class,'getComprovanteMatricula'])->name("Alunos/Comprovante/Matricula");
         Route::get("Alunos/Comprovantes/Escolaridade/{id}",[AlunosController::class,'getComprovanteEscolaridade'])->name("Alunos/Comprovante/Escolaridade");
@@ -328,7 +330,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post("Professores/Apoio/NovaEvolucao",[ApoioController::class,'saveEvolucao'])->name("Professores/Apoio/NovaEvolucao");
         //
         //RELATORIOS
-        Route::get('Relatorios/Mapas/{Periodo}/{IDTurma}/{IDProfessor}',[RelatoriosController::class,'mapas'])->name('Relatorios/Mapas');
+        Route::get('Relatorios/Mapas/{Tipo}/{Periodo}/{IDTurma}/{IDProfessor}/{IDDisciplina}',[RelatoriosController::class,'mapas'])->name('Relatorios/Mapas');
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
         Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');
         Route::get('Escolas/Relatorios/ImprimirDireto/{Tipo}',[RelatoriosController::class,'imprimirDireto'])->name('Escolas/Relatorios/ImprimirDireto');

@@ -44,6 +44,10 @@ class AlunosController extends Controller
         "nome" => "Lista de Espera",
         "endereco" => "Espera",
         "rota" => "Alunos/Espera"
+    ],[
+        'nome' => 'Remanejamentos/Reclassificações',
+        'endereco' => 'Mudancas',
+        'rota' => 'Alunos/Mudancas'
     ]);
 
     public const professoresModulos = array([
@@ -124,6 +128,10 @@ class AlunosController extends Controller
             'submodulos' => $modulos,
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
         ]);
+    }
+
+    public function mudancas(){
+
     }
 
     public function anexos($IDAluno){

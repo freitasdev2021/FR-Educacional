@@ -505,7 +505,6 @@ class TurmasController extends Controller
     public function getAta($IDTurma){
         /////////////////////
         // Exemplo de dados da consulta SQL que serão usados para gerar o boletim 
-        
         $ata = array();
         $Turma = Turma::find($IDTurma);
         $Escola = Escola::find($Turma->IDEscola);
@@ -587,105 +586,114 @@ class TurmasController extends Controller
                 }
             }
         }
-        
-        // Criar o PDF com FPDF
-        $pdf = new Fpdf('P', 'mm', 'A4');
-        $pdf->AddPage();
-        
-        // Definir margens
-        $pdf->SetMargins(5, 5, 5);
-        
-        // Definir a fonte para o título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"ATA DE RESULTADOS FINAIS");
-        
-        // Espaço após o título
-        $pdf->Ln(10);
-        
-        // Informações adicionais (número de Ata, data, etc.)
-        // $pdf->SetFont('Arial', '', 10);
-        // $pdf->Cell(0, 10, 'A presenca de distribuicao das notas finais e nota global dos alunos do Curso...', 0, 1, 'C');
-        // $pdf->Ln(5);
-        
+
         // Definir a fonte para as disciplinas (texto vertical)
         $disciplinas = self::getDisciplinasTurma($IDTurma);
         $headerDisciplinas = self::getHeaderDisciplinasTurma($IDTurma);
-        //dd($headerDisciplinas);
-        $colWidth = 10; // Ajuste para a largura das colunas
-        $rowHeight = 7; // Altura das linhas
-        
-        // Definir a altura inicial das colunas
-        $xPosInicial = 80;
-        $yPos = 85; // Posição Y para as disciplinas
-        $pdf->SetY($yPos); // Posição Y inicial
-
-        // $disciplinas[] = "Carga Horária";
-        // $disciplinas[] = "Faltas";
-        // $disciplinas[] = "Frequência (%)";
         $disciplinas[] = "Resultado";
         //dd($disciplinas,$headerDisciplinas);
         $CHDisciplinas = [];
         foreach($headerDisciplinas as $hd){
             array_push($CHDisciplinas,$hd->CargaHoraria);
         }
-        // Imprimir as disciplinas verticalmente com bordas
+        // Configurar PDF
+        $pdf = new Fpdf('P', 'mm', 'A4');
+        $pdf->AddPage();
+        $pdf->SetMargins(5, 5, 5);
+
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"ATA DE RESULTADOS FINAIS");
+
+        // Linha para separar o cabeçalho do restante
+        
+
+        // Mensagem inicial
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY(5, 45); // Ajusta a posição inicial para o texto
+        $pdf->MultiCell(200, 5, self::utfConvert("Dia " . date('d/m/Y') . " terminou-se o processo de apuração das notas dos alunos do(a) $Turma->Serie, da(o) ENSINO FUNDAMENTAL DE 9 ANOS - SERIES INICIAIS, turma: $Turma->Serie - $Turma->NMTurma, turno: MATUTINO deste estabelecimento de ensino, com os seguintes resultados:"), 0, 'L');
+        $pdf->Ln(10);
+        // Disciplinas
+        $colWidth = 12; // Largura ajustada
+        $rowHeight = 4; // Altura das linhas ajustada
+        $xPosInicial = 80;
+        $yPos = 75;
+
         foreach ($disciplinas as $key => $disciplina) {
-            $pdf->SetXY($xPosInicial, $yPos); // Definir a posição X e Y para cada coluna
-            $pdf->SetFont('Arial', 'B', 10);
-        
-            // Desenhar a borda da célula
-            $pdf->Rect($xPosInicial - 5, $yPos - 30, $colWidth, 50); // Tamanho da célula vertical
-        
-            // Rotacionar o texto para ficar vertical
-            $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12); // Girar 90 graus
-            ////////
-            // Imprimir o nome da disciplina com borda preta
-            $pdf->Cell(45, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
-        
-            // Voltar à rotação normal
+            $pdf->SetXY($xPosInicial, $yPos);
+            $pdf->SetFont('Arial', 'B', 9);
+
+            // Bordas e rotação
+            $pdf->Rect($xPosInicial - 5, $yPos - 15, $colWidth, 35);
+            $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12);
+            $pdf->Cell(50, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
             $pdf->Rotate(0);
-            $result = $encontrado = array_filter($headerDisciplinas, function ($item) use ($disciplina) {
+
+            $result = array_filter($headerDisciplinas, function ($item) use ($disciplina) {
                 return $item->Disciplina === $disciplina;
             });
-            if($result){
-                // Imprimir o campo "CH" abaixo do nome da disciplina
-                $pdf->SetXY($xPosInicial - 5, $yPos + 20); // Ajustar posição
-                $pdf->SetFont('Arial', 'B', 7);
-                $pdf->Cell($colWidth, 10, 'CH: '.$CHDisciplinas[$key], 1, 0, 'C'); // Campo "CH"
-            }else{
-                // Imprimir o campo "CH" abaixo do nome da disciplina
-                $pdf->SetXY($xPosInicial - 5, $yPos + 20); // Ajustar posição
-                $pdf->SetFont('Arial', "B", 6);
-                $pdf->MultiCell($colWidth, 5, 'CH.Total: '.array_sum($CHDisciplinas), 1, 'C'); // Campo "CH"
+            $pdf->SetXY($xPosInicial - 5, $yPos + 20);
+            $pdf->SetFont('Arial', 'B', 7);
+            if ($result) {
+                $pdf->Cell($colWidth, 5, 'CH: ' . $CHDisciplinas[$key], 1, 0, 'C');
+            } else {
+                $pdf->Cell($colWidth, 5, 'Tot.: ' . array_sum($CHDisciplinas), 1, 'C');
             }
-            //////
-            // Mover para a próxima coluna
+
             $xPosInicial += $colWidth;
         }
-        
-        // Voltar para a rotação normal do texto e definir nova posição Y para a tabela
-        $pdf->SetY($yPos + 30);
-        
-        // Criar linhas da tabela (para alunos)
+
+        $pdf->SetY($yPos + 25);
         $pdf->SetFont('Arial', '', 8);
-        
-        // Para cada aluno e suas notas
+
         foreach ($ata as $aluno => $notas) {
-            // Imprimir uma célula para o nome do aluno
             $pdf->Cell(70, $rowHeight, self::utfConvert($aluno), 1);
-            // Para cada disciplina, imprime a nota, ou espaço vazio se o aluno não tiver nota para a disciplina
             foreach ($disciplinas as $disciplina) {
-                $nota = isset($notas[$disciplina]) ? $notas[$disciplina] : ''; // Se a nota existir, imprime, senão imprime vazio
-                $pdf->Cell($colWidth, $rowHeight, $nota, 1);
+                $nota = $notas[$disciplina] ?? '';
+                $pdf->Cell($colWidth, $rowHeight, $nota, 1, 0, 'C');
             }
-        
-            // Pular para a próxima linha
             $pdf->Ln();
         }
-        
-        // Saída do PDF
+
+        $pdf->Ln();
+
+        // Observações
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->MultiCell(275, 5, self::utfConvert("Observações: " . $Escola->ObsAta), 0, 'L');
+        // Campos de assinatura no rodapé
+        $pdf->SetY(-35); // Define a posição do rodapé (35 mm acima do fim da página)
+        $pdf->SetFont('Arial', '', 10);
+        $larguraTotal = 200; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 20; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Secretário(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Inspeção Escolar'), 0, 1, 'C');
+
+        // Saída
         $pdf->Output('I', 'Ata_de_Resultados_Finais.pdf');
         exit;
-        
+
+    }
+
+    public function getTurnos($IDTurma){
+
     }
 
     public function gerarBoletins($turmaId)

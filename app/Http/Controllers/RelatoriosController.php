@@ -5,6 +5,9 @@ use App\Http\Controllers\EscolasController;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Models\Escola;
 use App\Models\Sala;
+use App\Models\Organizacao;
+use App\Models\Disciplina;
+use App\Models\Professor;
 use App\Models\Turma;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -2568,8 +2571,330 @@ class RelatoriosController extends Controller
         exit;
     }
 
-    public function mapas($Periodo,$IDTurma,$IDProfessor){
-        dd("Teste");
+    public function pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage('L'); // Adiciona uma página
+        $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);
+        $Disciplina = Disciplina::find($IDDisciplina); 
+        $Professor = Professor::find($IDProfessor);
+
+        $lineHeight = 6;
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"MAPA BIMESTRAL DE AVALIAÇÃO POR DISCIPLINA");
+        //AQUI VAI O CONTEUDO
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Turma: '.$Turma->Serie." - ".$Turma->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, "Disciplina: ".$Disciplina->NMDisciplina, 0, 1);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Professor: ' . $Professor->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Data de Impressão: ' . date('d/m/Y')), 0, 1);
+
+        $pdf->Cell(240, $lineHeight, 'Ano Letivo: ' . date('Y'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Período: ' . $Periodo), 0, 1);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Legenda: AV1: AVALIAÇÃO 1, AV2: AVALIAÇÃO 2, AV3: AVALIAÇÃO 3,MB: MÉDIA DO BIMESTRE, MR: MÉDIA RECUPERADA, FB: FALTAS NO BIMESTRE'), 0, 0);
+        $pdf->Ln(10);
+
+        //DADOS
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(10, 4, 'Ord', 1, 0, 'C');
+        $pdf->Cell(10, 4, 'ID', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'DT.Matr', 1, 0, 'C');
+        $pdf->Cell(60, 4, 'Nome', 1, 0, '');
+        $pdf->Cell(25, 4, self::utfConvert('Situação'), 1, 0, 'C');
+        $pdf->Cell(15, 4, 'AV1', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'AV2', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'AV3', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'MB', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'MR', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'FB', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'Soma', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'Rec.Final', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'C.Classe', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'MD.Anual', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'T.Faltas', 1, 0, 'C');
+        //CORPO
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 7);
+        foreach($query as $key => $row){
+            $Av = json_decode($row->Avaliacoes,true);
+            $pdf->Cell(10, 4, $key+1, 1, 0, 'C');
+            $pdf->Cell(10, 4, $row->IDAluno, 1, 0, 'C');
+            $pdf->Cell(15, 4, date('d/m/Y',strtotime($row->DTEntrada)) , 1, 0, 'C');
+            $pdf->Cell(60, 4, self::utfConvert($row->Aluno), 1, 0, '');
+            $pdf->Cell(25, 4, self::utfConvert('Situação'), 1, 0, 'C');
+            $pdf->Cell(15, 4, isset($Av[0]) ? $Av[0] : '-', 1, 0, 'C');
+            $pdf->Cell(15, 4, isset($Av[1]) ? $Av[1] : '-', 1, 0, 'C');
+            $pdf->Cell(15, 4, isset($Av[2]) ? $Av[2] : '-' , 1, 0, 'C');
+            $pdf->Cell(15, 4, $row->Notas, 1, 0, 'C');
+            $pdf->Cell(15, 4, $row->Recuperacao, 1, 0, 'C');
+            $pdf->Cell(15, 4, $row->Faltas, 1, 0, 'C');
+            $pdf->Cell(15, 4, $row->Notas, 1, 0, 'C');
+            $pdf->Cell(15, 4, $row->Recuperacao, 1, 0, 'C');
+            $pdf->Cell(15, 4, '', 1, 0, 'C');
+            $pdf->Cell(15, 4, '', 1, 0, 'C');
+            $pdf->Cell(15, 4, '', 1, 0, 'C');
+            $pdf->Ln();
+        }
+        $pdf->Ln(10);
+        //CAMPOS DE ASSINATURA
+        $pdf->SetFont('Arial', '', 10);
+        $larguraTotal = 200; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 20; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Coordenador(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Professor(a)'), 0, 1, 'C');
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
+        exit;
+    }
+
+    public function pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage('L'); // Adiciona uma página
+        $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);
+        $Disciplina = Disciplina::find($IDDisciplina); 
+        $Professor = Professor::find($IDProfessor);
+
+        $lineHeight = 6;
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"MAPA FINAL DE NOTAS POR DISCIPLINA");
+        //AQUI VAI O CONTEUDO
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Turma: '.$Turma->Serie." - ".$Turma->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, "Disciplina: ".$Disciplina->NMDisciplina, 0, 1);
+
+        $pdf->Cell(240, $lineHeight, self::utfConvert('Professor: ' . $Professor->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Data de Impressão: ' . date('d/m/Y')), 0, 1);
+
+        $pdf->Cell(240, $lineHeight, 'Ano Letivo: ' . date('Y'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Período: Anual'), 0, 1);
+
+        $pdf->Cell(190, $lineHeight, self::utfConvert('Legenda: CF: Conselho Final; BIM: Bimestre; NR: Nota recuperada'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Observação: Estrutura Curricular Resolução CME/TO nº 04/2023.'), 0, 1);
+        $pdf->Ln(2);
+
+        //DADOS
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 5);
+        $pdf->Cell(10, 8, 'Ord', 1, 0, 'C');
+        $pdf->Cell(10, 8, 'ID', 1, 0, 'C');
+        $pdf->Cell(15, 8, 'DT.Matr', 1, 0, 'C');
+        $pdf->Cell(50, 8, 'Nome', 1, 0, '');
+        $pdf->Cell(50, 4, 'Faltas Bimestrais', 1, 0, 'C');
+        $pdf->Cell(80, 4, 'Notas Bimestrais', 1, 0, 'C');
+        $pdf->Cell(10, 4, 'Med.Parc', 1, 0, '');
+        $pdf->Cell(10, 4, 'Con.Clas', 1, 0, '');
+        $pdf->Cell(10, 4, 'Ex.Espec', 1, 0, '');
+        $pdf->Cell(10, 4, 'Rec.Final', 1, 0, '');
+        $pdf->Cell(10, 4, 'Med.Final', 1, 0, '');
+        $pdf->Cell(10, 4, 'Res.Final', 1, 0, '');
+        $pdf->Ln();
+        $pdf->Cell(85, 4, '', 0, 0);
+        $pdf->Cell(10, 4, '1BIM', 1, 0, '');
+        $pdf->Cell(10, 4, '2BIM', 1, 0, '');
+        $pdf->Cell(10, 4, '3BIM', 1, 0, '');
+        $pdf->Cell(10, 4, '4BIM', 1, 0, '');
+        $pdf->Cell(10, 4, 'Total', 1, 0, '');
+        $pdf->Cell(10, 4, '1BIM', 1, 0, '');
+        $pdf->Cell(10, 4, 'NR', 1, 0, '');
+        $pdf->Cell(10, 4, '2BIM', 1, 0, '');
+        $pdf->Cell(10, 4, 'NR', 1, 0, '');
+        $pdf->Cell(10, 4, '3BIM', 1, 0, '');
+        $pdf->Cell(10, 4, 'NR', 1, 0, '');
+        $pdf->Cell(10, 4, '4BIM', 1, 0, '');
+        $pdf->Cell(10, 4, 'NR', 1, 0, '');
+        $pdf->Cell(10, 4, '', 1, 0);
+        $pdf->Cell(10, 4, '', 1, 0);
+        $pdf->Cell(10, 4, '', 1, 0);
+        $pdf->Cell(10, 4, '', 1, 0);
+        $pdf->Cell(10, 4, '', 1, 0);
+        $pdf->Cell(10, 4, '', 1, 0);
+        //
+        //CORPO
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 7);
+        foreach($query as $key => $row){
+            $pdf->Cell(10, 4, $key+1, 1, 0, 'C');
+            $pdf->Cell(10, 4, $row->IDAluno, 1, 0, 'C');
+            $pdf->Cell(15, 4, date('d/m/Y',strtotime($row->DTEntrada)) , 1, 0, 'C');
+            $pdf->Cell(50, 4, self::utfConvert($row->Aluno), 1, 0, '');
+            $pdf->Cell(10, 4, $row->Faltas1B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Faltas2B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Faltas3B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Faltas4B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Faltas4B + $row->Faltas3B + $row->Faltas2B + $row->Faltas1B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Notas1B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Recuperacao1B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Notas2B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Recuperacao2B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Notas3B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Recuperacao3B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Notas4B, 1, 0, '');
+            $pdf->Cell(10, 4, $row->Recuperacao4B, 1, 0, '');
+            $pdf->Cell(10, 4, ($row->Notas1B+$row->Notas2B+$row->Notas3B+$row->Notas4B)/4, 1, 0, '');
+            $pdf->Cell(10, 4, '-', 1, 0, '');
+            $pdf->Cell(10, 4, $row->RecuperacaoAnual, 1, 0, '');
+            $pdf->Cell(10, 4, $row->RecuperacaoAnual, 1, 0, '');
+            $pdf->Cell(10, 4, ($row->Notas1B+$row->Notas2B+$row->Notas3B+$row->Notas4B)/4, 1, 0, '');
+            $pdf->Cell(10, 4, (AlunosController::getResultadoAno($row->IDAluno,date('Y')) == "Aprovado") ? 'A' : 'R', 1, 0, '');
+            $pdf->Ln();
+        }
+        $pdf->Ln(9.9);
+        //CAMPOS DE ASSINATURA
+        $pdf->SetFont('Arial', '', 10);
+        $larguraTotal = 200; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 20; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Coordenador(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Professor(a)'), 0, 1, 'C');
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
+        exit;
+    }
+
+    public function mapas($Tipo,$Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
+
+        $SQL = <<<SQL
+            SELECT 
+                m.Nome as Aluno,
+                a.id as IDAluno,
+                a.DTEntrada,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="$Periodo" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="$Periodo" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="1º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="2º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas2B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="3º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas3B,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="4º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas4B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '$Periodo' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '$Periodo' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $IDDisciplina AND n2.IDAluno = a.id AND au3.Estagio='$Periodo' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Notas,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '1º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '1º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $IDDisciplina AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Notas1B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '2º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '2º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $IDDisciplina AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Notas2B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '3º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '3º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $IDDisciplina AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Notas3B,
+                CASE WHEN 
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '4º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
+                THEN
+                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '4º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
+                ELSE 
+                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = $IDDisciplina AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
+                END as Notas4B,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '$Periodo' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '1º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao1B,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '2º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao2B,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '3º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao3B,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '4º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao4B,
+                (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = 'Anual' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as RecuperacaoAnual,
+                (SELECT CONCAT('[', GROUP_CONCAT('"', ntAv.Nota, '"' SEPARATOR ','), ']') FROM aulas as av INNER JOIN atividades atv4 ON(atv4.IDAula = av.id) INNER JOIN notas ntAv ON(ntAv.IDAtividade = atv4.id) WHERE av.TPConteudo = 1 AND ntAv.IDAluno = a.id) as Avaliacoes
+            FROM disciplinas d
+            LEFT JOIN aulas au ON(d.id = au.IDDisciplina)
+            LEFT JOIN frequencia f ON(au.id = f.IDAula)
+            LEFT JOIN alunos a ON(a.id = f.IDAluno)
+            LEFT JOIN turmas t ON(a.IDTurma = t.id)
+            LEFT JOIN matriculas m ON(m.id = a.IDMatricula)
+            LEFT JOIN atividades at ON(at.IDAula = au.id)
+            LEFT JOIN notas n ON(at.id = n.IDAtividade)
+            WHERE a.IDTurma = $IDTurma AND DATE_FORMAT(f.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') AND STAluno = 0
+            GROUP BY a.id
+        SQL;
+        $query = DB::select($SQL);
+        
+        if($Tipo == "Nota"){
+            if($Periodo != "Ano"){
+                self::pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo);
+            }else{
+                self::pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina);
+            }
+        }else{
+            if($Periodo != "Ano"){
+
+            }else{
+
+            }
+        }
+        
     }
 
     public function getTransporte(){

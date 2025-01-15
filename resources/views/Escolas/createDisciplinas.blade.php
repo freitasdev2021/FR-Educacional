@@ -76,11 +76,15 @@
                                 <td>{{$t->Serie}} - {{$t->Turma}}</td>
                                 <td>{{$t->Professor}}</td>
                                 <td>
-                                    <a href="{{route('Relatorios/Mapas',["Periodo"=>"Ano","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor])}}" class="btn btn-xs btn-success">Mapa Final</a>
-                                    <a href="" class="btn btn-xs btn-primary">Mapa 1 BIM</a>
-                                    <a href="" class="btn btn-xs btn-primary">Mapa 2 BIM</a>
-                                    <a href="" class="btn btn-xs btn-primary">Mapa 3 BIM</a>
-                                    <a href="" class="btn btn-xs btn-primary">Mapa 4 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"Ano","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-success">Mapa Final</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 1 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 2 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 3 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 4 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 1 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 2 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 3 BIM</a>
+                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 4 BIM</a>
                                 </td>
                             </tr>
                             @endforeach
