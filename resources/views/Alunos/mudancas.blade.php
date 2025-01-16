@@ -42,6 +42,7 @@
                             <th style="text-align:center;" scope="col">Aluno</th>
                             <th style="text-align:center;" scope="col">Turma de Destino</th>
                             <th style="text-align:center;" scope="col">Última Reclassificação</th>
+                            <th style="text-align:center;" scope="col">Matrícula</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -62,6 +63,7 @@
                                 </div>
                             </td>
                             <td>{{($a->UReclassificacao) ? date('Y',strtotime($a->UReclassificacao)) : 'Não Houve'}}</td>
+                            <td>{{date('Y',strtotime($a->DTEntrada))}}</td>
                           </tr>
                           @endforeach
                         </tbody>

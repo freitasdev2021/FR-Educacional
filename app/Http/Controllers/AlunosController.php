@@ -147,6 +147,7 @@ class AlunosController extends Controller
                     m.Nome as Aluno,
                     a.id as IDAluno,
                     a.IDTurma,
+                    a.DTEntrada,
                     rec.created_at as UReclassificacao
                 FROM alunos a 
                 INNER JOIN matriculas m ON(m.id = a.IDMatricula)
