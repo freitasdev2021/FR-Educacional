@@ -610,6 +610,12 @@ class AlunosController extends Controller
             $telefonePai = $Pais->TelefonePai;
         }
 
+        $Nascimento = self::utfConvert("Não Informado.");
+
+        if($Aluno->Nascimento){
+            $Nascimento = date('d/m/Y', strtotime($Aluno->Nascimento));
+        }
+
 
         if(isset($Pais->TelefoneMae)){
             $telefoneMae = $Pais->TelefoneMae;
@@ -646,7 +652,7 @@ class AlunosController extends Controller
         $pdf->Cell(100, $lineHeight, self::utfConvert('Nome completo: ' . $Aluno->Nome), 0, 0);
         $pdf->Cell(0, $lineHeight, 'ID CENSO: ' . $Aluno->INEP, 0, 1);
 
-        $pdf->Cell(100, $lineHeight, 'Data de nascimento: ' . date('d/m/Y', strtotime($Aluno->Nascimento)), 0, 0);
+        $pdf->Cell(100, $lineHeight, 'Data de nascimento: ' . $Nascimento, 0, 0);
         $pdf->Cell(0, $lineHeight, 'Sexo: ' . $Aluno->Sexo, 0, 1);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('Certidão de nascimento: '.$Aluno->CNascimento), 0, 0);
