@@ -138,7 +138,7 @@ class AlunosController extends Controller
         }
 
         $query = [];
-
+        $IDEscola = '';
         if(isset($_GET['IDTurma']) && !empty($_GET['IDTurma'])){
             $IDTurma = $_GET['IDTurma'];
             $IDEscola = Turma::find($IDTurma)->IDEscola;
