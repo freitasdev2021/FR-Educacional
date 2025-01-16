@@ -603,6 +603,18 @@ class AlunosController extends Controller
             $aImagem = "Sim";
         }
 
+        $telefonePai = "";
+        $telefoneMae = "";
+
+        if(isset($Pais->TelefonePai)){
+            $telefonePai = $Pais->TelefonePai;
+        }
+
+
+        if(isset($Pais->TelefoneMae)){
+            $telefoneMae = $Pais->TelefoneMae;
+        }
+
         $NEEs = implode(" ,",NEE::pluck('DSNecessidade')->where('IDAluno',$IDAluno)->toArray());
         // Definir margens
         $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
@@ -655,13 +667,13 @@ class AlunosController extends Controller
         $pdf->SetFont('Arial', '', 9);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('Pai: ' . $Pais->Pai), 0, 0);
-        $pdf->Cell(0, $lineHeight, 'Telefone: ' . $Pais->TelefonePai, 0, 1);
+        $pdf->Cell(0, $lineHeight, 'Telefone: ' . $telefonePai  , 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFPai, 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoPai), 0, 1);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('Mãe: ' . $Pais->Mae), 0, 0);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('Telefone: ' . $Pais->TelefoneMae), 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Telefone: ' . $telefoneMae), 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFMae, 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoMae), 0, 1);
