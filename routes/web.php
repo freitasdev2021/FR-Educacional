@@ -164,6 +164,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/Espera/Designacao/{IDAluno}',[AlunosController::class,'designacaoEspera'])->name('Alunos/Espera/Designacao');
         Route::post('Alunos/Espera/Save',[AlunosController::class,'saveEspera'])->name('Alunos/Espera/Save');
         //MATRICULA
+        Route::get('Alunos/Historico/Abrir/{IDAluno}',[AlunosController::class,'abrirHistoricoEditavel'])->name('Alunos/Historico/Abrir');
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');
         Route::get('/Alunos/Transferidos',[AlunosController::class,'transferidos'])->name('Alunos/Transferidos');

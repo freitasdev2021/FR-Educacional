@@ -1342,6 +1342,284 @@ class AlunosController extends Controller
         return DB::select($SQL)[0];
     }
 
+    public function abrirHistoricoEditavel($IDAluno){
+        $IDOrg = Auth::user()->id_org;
+
+        $Aluno = self::getAluno($IDAluno);
+
+        $Escola = Escola::find($Aluno->IDEscola);
+
+        $Filiacao = json_decode($Aluno->PaisJSON);
+
+        $SQLAnos = <<<SQL
+        SELECT
+            t.Serie,
+            MAX(CASE WHEN al.id = $IDAluno
+            THEN
+            DATE_FORMAT(au.DTAula,'%Y')
+            ELSE
+            '-'
+            END) as Ano,
+            e.Nome as Escola,
+            e.Cidade,
+            e.UF,
+            t.CargaHoraria
+        FROM turmas t 
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        LEFT JOIN aulas au ON(au.IDTurma = t.id)
+        LEFT JOIN frequencia f ON(au.Hash = f.HashAula)
+        LEFT JOIN alunos al ON(al.id = f.IDAluno)
+        WHERE e.IDOrg = $IDOrg AND t.Serie LIKE '%E.FUNDAMENTAL%'
+        GROUP BY t.Serie
+        ORDER BY t.Serie
+        SQL;
+
+        $queryAnos = DB::select($SQLAnos);
+
+        $seriesArr = array_column($queryAnos,'Serie');
+        $series = array_map(function($v){
+            return str_replace(' E.FUNDAMENTAL','',$v);
+        },$seriesArr);
+        
+        $SQLHistorico = <<<SQL
+            SELECT
+                d.NMDisciplina AS Disciplina,
+                (
+                    SELECT 
+                        CONCAT(
+                            '[', 
+                            GROUP_CONCAT(
+                                JSON_OBJECT(
+                                    'Serie', t3.Serie,
+                                    'CHAno', 
+                                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
+                                    FROM frequencia f2 
+                                    INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                                    WHERE au2.TPConteudo = 0
+                                    AND f2.IDAluno = al3.id AND au2.IDTurma = t3.id
+                                    ),
+                                    'PontRec',
+                                    (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 INNER JOIN alunos al2 ON(rec2.IDAluno = al2.id) WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = al3.id AND al2.IDTurma = t3.id),
+                                    'CHDisciplina', 
+                                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
+                                    FROM frequencia f2 
+                                    INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                                    WHERE au2.TPConteudo = 0
+                                    AND f2.IDAluno = al3.id AND au2.IDTurma = t3.id AND au2.IDDisciplina = d3.id
+                                    ),
+                                    'RecBim', 
+                                    (SELECT SUM(rec2.Nota) 
+                                    FROM recuperacao rec2 
+                                    INNER JOIN alunos al2 ON(rec2.IDAluno = al2.id) 
+                                    WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = al3.id AND al2.IDTurma = t3.id
+                                    ),
+                                    'RecAn', 
+                                    (SELECT SUM(rec2.Nota) 
+                                    FROM recuperacao rec2 
+                                    INNER JOIN alunos al2 ON(rec2.IDAluno = al2.id) 
+                                    WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = al3.id AND al2.IDTurma = t3.id
+                                    ),
+                                    'Nota', 
+                                    (SELECT SUM(n2.Nota) 
+                                    FROM notas n2 
+                                    INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) 
+                                    INNER JOIN aulas au2 ON(at2.IDAula = au2.id) 
+                                    WHERE au2.IDDisciplina = d3.id AND n2.IDAluno = al3.id AND au2.IDTurma = t3.id
+                                    )
+                                )
+                            ),
+                            ']'
+                        ) AS JsonResult
+                    FROM turmas t3 
+                    INNER JOIN escolas e3 ON(e3.id = t3.IDEscola)
+                    LEFT JOIN aulas au3 ON(au3.IDTurma = t3.id)
+                    LEFT JOIN disciplinas d3 ON(d3.id = au3.IDDisciplina)
+                    LEFT JOIN frequencia f3 ON(au3.Hash = f3.HashAula)
+                    LEFT JOIN alunos al3 ON(al3.id = f3.IDAluno)
+                    WHERE e.IDOrg = $IDOrg AND al3.id = $IDAluno AND d3.id = d.id  AND t3.Serie LIKE '%E.FUNDAMENTAL%'
+                    GROUP BY e.IDOrg
+                ) AS Serie
+            FROM turnos tn
+            INNER JOIN turmas t ON (tn.IDTurma = t.id)
+            INNER JOIN alocacoes alo ON (t.IDEscola = alo.IDEscola)
+            INNER JOIN escolas e ON (alo.IDEscola = e.id)
+            INNER JOIN disciplinas d ON (d.id = tn.IDDisciplina)
+            WHERE e.IDOrg = $IDOrg
+            AND t.Serie LIKE '%E.FUNDAMENTAL%'
+            GROUP BY d.id;
+        SQL;
+
+        
+        $queryHistorico = DB::select($SQLHistorico);
+        //dd($queryHistorico);
+        // Configura o FPDF
+        $pdf = new Fpdf();
+        $pdf->AddPage();
+        $pdf->SetMargins(5, 5, 5);
+        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"HISTÓRICO ESCOLAR");
+        //AQUI VAI O CONTEUDO
+        $lineHeight = 4; //ALTURA DAS LINHAS
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 1);
+        $pdf->SetFont('Arial', '', 7);
+
+        $pdf->MultiCell(100, $lineHeight, self::utfConvert('Unidade de Ensino: ' . $Aluno->Escola), 0, 0);
+        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: ".$Escola->IDCenso, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Endereço: ' . $Escola->Rua . ', ' . $Escola->Numero . ' ' . $Escola->Bairro . ' ' . $Escola->Cidade . ' - ' . $Escola->UF), 0, 1);
+        $pdf->Cell(100, $lineHeight, 'Telefone: ' . $Aluno->TelefoneEscola, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'E-Mail: ' . $Aluno->EmailEscola, 0, 1);
+        // DADOS DO ALUNO
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DO ALUNO'), 0, 1);
+        $pdf->SetFont('Arial', '', 7);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Nome: ' . $Aluno->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: ".$Aluno->INEP, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Sexo: '.$Aluno->Sexo, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Nascimento: ' . $Aluno->Nascimento, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Naturalidade: ', 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Nacionalidade: ', 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Filiação: '.$Filiacao->Pai.' '.$Filiacao->Mae), 0, 0);
+        //ANOS
+        $pdf->Ln(5);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('ESTUDOS REALIZADOS'), 1, 1,'C');
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->Cell(40, 5, 'Serie', 1, 0, 'C');
+        $pdf->Cell(40, 5, 'Ano', 1, 0, 'C');
+        $pdf->Cell(50, 5, self::utfConvert('Instituição'), 1, 0, 'C');
+        $pdf->Cell(40, 5, self::utfConvert('Município'), 1, 0, '');
+        $pdf->Cell(30, 5, self::utfConvert('Carga horária anual'), 1, 0, 'C');
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 5);
+        $querySeries = [];
+        // $querySeriesAno = [];
+        // foreach($queryHistorico as $qH){
+        //     if(!is_null($qH->Serie)){
+        //         $NotasPeriodos2 = json_decode($qH->Serie,true);
+                
+        //         foreach($NotasPeriodos2 as $np2){
+        //             $serieQh = str_replace(' E.FUNDAMENTAL','',$np2['Serie']);
+        //             $np2['Disciplina'] = $qH->Disciplina;
+        //             array_push($querySeriesAno,$np2);
+        //         }
+        //     }
+        // }
+        foreach($series as $se){
+            array_push($querySeries,[
+                "Serie" => $se,
+                "CHAno" => "",
+                "PontRec" => "",
+                "CHDisciplina" => "",
+                "RecBim" => "",
+                "RecAn" => "",
+                "Nota"=> ""
+            ]);
+        }
+        
+        foreach($queryAnos as $qA){
+            $pdf->Cell(40, 5, self::utfConvert($qA->Serie), 1, 0, 'C');
+            $pdf->Cell(40, 5, $qA->Ano, 1, 0, 'C');
+            if($qA->Ano !="-"){
+                $pdf->Cell(50, 5, self::utfConvert($qA->Escola), 1, 0, 'C');
+                $pdf->Cell(40, 5, self::utfConvert($qA->Cidade), 1, 0, '');
+                $pdf->Cell(30, 5, self::utfConvert($qA->CargaHoraria), 1, 0, 'C');
+            }else{
+                $pdf->Cell(50, 5, '-', 1, 0, 'C');
+                $pdf->Cell(40, 5, '-', 1, 0, '');
+                $pdf->Cell(30, 5, '-', 1, 0, 'C');
+            }
+            $pdf->Ln();
+        }
+        //NOTAS E CARGA HORÁRIA
+        //HEADER
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('NOTAS/CARGA HORÁRIA'), 1, 1,'C');
+        $pdf->Ln();
+        $pdf->SetFont('Arial', 'B', 5);
+        $pdf->Cell(83, 8, 'Áreas de Estudos', 1, 0, 'C');
+        $pdf->Cell(117, 4, self::utfConvert('Série / Ano / Período'), 1, 0, 'C');
+        $pdf->Ln();
+        $pdf->Cell(83, 4, '', 0, 0, 'C');
+        foreach($series as $s){
+            $pdf->Cell(6.5, 4, self::utfConvert($s), 1, 0, 'C');
+            $pdf->Cell(6.5, 4, 'CH', 1, 0, 'C');
+        }
+        //BODY
+        $pdf->Ln();
+        $bodySeries = array();
+        foreach($queryHistorico as $qH){
+            
+            $pdf->Cell(83, 4, self::utfConvert($qH->Disciplina), 1, 0, 'C');
+            if(!is_null($qH->Serie)){
+                $NotasPeriodos = json_decode($qH->Serie,true);
+                
+                foreach($NotasPeriodos as $np){
+                    $pdf->Cell(6.5, 4, $np['Nota'], 1, 0, 'C');
+                    $pdf->Cell(6.5, 4, date('H:i',strtotime($np['CHDisciplina'])), 1, 0, 'C');
+                }
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+            }else{
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+            }
+            $pdf->Ln();
+        }
+        $pdf->Ln(5);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
+        $pdf->Ln(15);
+        $pdf->Cell(100, $lineHeight, self::utfConvert($Escola->Cidade.'/'.$Escola->UF.', '.date('d/m/Y')), 0, 0);
+        $pdf->Ln(13);
+        $pdf->SetFont('Arial', 'B', 6);
+        // Primeira linha de assinaturas
+        $pdf->Cell(100, 10, '_____________________________________________________', 0, 0, 'C'); // Assinatura 1
+        $pdf->Cell(100, 10, '_____________________________________________________', 0, 1, 'C'); // Assinatura 2
+
+        // Texto explicativo da primeira linha
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(100, 0, self::utfConvert('Diretor(a)'), 0, 0, 'C'); // Texto 1
+        $pdf->Cell(100, 0, self::utfConvert('Secretário(a)'), 0, 1, 'C'); 
+        //GERA O PDF
+        $pdf->Output("I",'Historico_'.rand(1,100).".pdf");
+        exit;
+    }
+
     public function gerarHistoricoEscolar($id,Request $request)
     {
         //dd($request->all());

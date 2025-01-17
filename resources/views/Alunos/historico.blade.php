@@ -86,6 +86,7 @@
                         </div>
                     </div>
                 </form>
+                <a href="{{route('Alunos/Historico/Abrir',$id)}}">Gerar</a>
             </div>
             <hr>
             <table>
