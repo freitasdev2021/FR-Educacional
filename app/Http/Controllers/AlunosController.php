@@ -1391,6 +1391,7 @@ class AlunosController extends Controller
                             GROUP_CONCAT(
                                 JSON_OBJECT(
                                     'Serie', t3.Serie,
+                                    'Disciplina', d3.NMDisciplina,
                                     'CHAno', 
                                     (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
                                     FROM frequencia f2 
@@ -1528,21 +1529,102 @@ class AlunosController extends Controller
             $pdf->Cell(6.5, 4, 'CH', 1, 0, 'C');
         }
         //BODY
+        ////////////////
         $pdf->Ln();
         $bodySeries = array();
         foreach($queryHistorico as $qH){
-            
-            $pdf->Cell(83, 4, self::utfConvert($qH->Disciplina), 1, 0, 'C');
             if(!is_null($qH->Serie)){
                 $NotasPeriodos = json_decode($qH->Serie,true);
-                
                 foreach($NotasPeriodos as $np){
-                    $pdf->Cell(6.5, 4, $np['Nota'], 1, 0, 'C');
-                    $pdf->Cell(6.5, 4, date('H:i',strtotime($np['CHDisciplina'])), 1, 0, 'C');
+                    $np['Serie'] = str_replace(' E.FUNDAMENTAL','',$np['Serie']);
+                    array_push($bodySeries,$np);
                 }
             }
-            $pdf->Ln();
         }
+        $newBodySeries = [];
+        foreach($series as $se){
+            array_push($newBodySeries,[
+                "Serie" => $se,
+                "Disciplina" => null,
+                "CHAno" => null,
+                "PontRec" => null,
+                "CHDisciplina" => null,
+                "RecBim" => null,
+                "RecAn" => null,
+                "Nota" => ""
+            ]);
+        }
+
+        // Combinação dos arrays
+        $resultado = [];
+
+        // Adicionar todos os itens de array1 ao resultado inicialmente
+        foreach ($bodySeries as $item1) {
+            $resultado[] = $item1;
+        }
+
+        // Iterar sobre array2 e adicionar ou incrementar ao resultado
+        foreach ($newBodySeries as $item2) {
+            $encontrado = false;
+
+            foreach ($resultado as &$itemFinal) {
+                // Se encontrar a série correspondente, adicionar como novo elemento
+                if ($itemFinal['Serie'] === $item2['Serie']) {
+                    $resultado[] = $item2; // Adiciona a duplicata como um novo elemento
+                    $encontrado = true;
+                    break;
+                }
+            }
+
+            // Se não for encontrada no resultado, adicionar diretamente
+            if (!$encontrado) {
+                $resultado[] = $item2;
+            }
+        }
+
+        // Ordenar por série
+        usort($resultado, function ($a, $b) {
+            return strcmp($a['Serie'], $b['Serie']);
+        });
+
+        $corpoHistorico = $resultado;
+        // dd($Historico);
+        /////
+        foreach ($queryHistorico as $key => $qH) {
+            $pdf->Cell(83, 4, self::utfConvert($qH->Disciplina), 1, 0, 'C'); // Nome da disciplina
+        
+            for ($serie = 1; $serie <= 9; $serie++) { // Loop para cada série
+                $serieMarcada = false; // Marca se a série já foi preenchida
+        
+                foreach ($corpoHistorico as $np) {
+                    if ($np['Disciplina'] == $qH->Disciplina && $np['Serie'] == "{$serie}º Ano") {
+                        // Se a disciplina e a série correspondem, preenche as células
+                        $Nota = 0;
+                        if($np['RecAn'] > 0){
+                            $Nota = $np['RecAn'];
+                        }else{
+                            $Nota = $np['Nota'] - $np['PontRec'] + $np['RecBim'];
+                        }
+                        $pdf->Cell(6.5, 4, $Nota, 1, 0, 'C');
+                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHDisciplina'])), 1, 0, 'C');
+                        $serieMarcada = true;
+                        break; // Parar a busca para esta série
+                    }
+                }
+        
+                if (!$serieMarcada) {
+                    // Preenche com "-" caso não haja correspondência
+                    $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                    $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                }
+            }
+        
+            $pdf->Ln(); // Nova linha após todas as séries serem preenchidas
+        }
+        //CARGA HORÁRIA
+        $pdf->Cell(83, 4, self::utfConvert("CARGA HORÁRIA ANUAL"), 1, 0, 'C');
+        
+        //
         $pdf->Ln(5);
         $pdf->SetFont('Arial', '', 9);
         $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
