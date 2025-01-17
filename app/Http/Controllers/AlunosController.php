@@ -838,7 +838,7 @@ class AlunosController extends Controller
                 INNER JOIN aulas au3 ON at2.IDAula = au3.id 
                 WHERE au3.IDDisciplina = d.id 
                 AND n2.IDAluno = a.id 
-                AND DATE_FORMAT(au3.created_at, '%Y') = $Ano
+                AND DATE_FORMAT(au3.DTAula, '%Y') = $Ano
                 ) as Total,
                 (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = d.id ) as PontBim,
                 (SELECT SUM(rec2.Nota) 
@@ -863,7 +863,7 @@ class AlunosController extends Controller
                     INNER JOIN atividades at2 ON n2.IDAtividade = at2.id 
                     INNER JOIN aulas au3 ON at2.IDAula = au3.id 
                     WHERE n2.IDAluno = a.id 
-                    AND DATE_FORMAT(n2.created_at, '%Y') = $Ano
+                    AND DATE_FORMAT(au3.DTAula, '%Y') = $Ano
                     ) < t.MediaPeriodo THEN 'Reprovado' 
                 ELSE 'Aprovado' END as Resultado,
 
@@ -898,6 +898,7 @@ class AlunosController extends Controller
         $Desempenho = DB::select($SQL);
         $Dependencias = array();
         $QTReprovacoes = array();
+        // dd($Desempenho);
         if($Desempenho){
             foreach($Desempenho as $d){
 
@@ -1480,7 +1481,7 @@ class AlunosController extends Controller
         $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: ".$Aluno->INEP, 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'Sexo: '.$Aluno->Sexo, 0, 0);
-        $pdf->Cell(0, $lineHeight, 'Nascimento: ' . $Aluno->Nascimento, 0, 1);
+        $pdf->Cell(0, $lineHeight, 'Nascimento: ' . date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 1);
 
         $pdf->Cell(100, $lineHeight, 'Naturalidade: ', 0, 0);
         $pdf->Cell(0, $lineHeight, 'Nacionalidade: ', 0, 1);
@@ -1499,10 +1500,11 @@ class AlunosController extends Controller
         $pdf->Cell(30, 5, self::utfConvert('Carga horária anual'), 1, 0, 'C');
         $pdf->Ln();
         $pdf->SetFont('Arial', '', 5);
-        
+        $anosEstudados = [];
         foreach($queryAnos as $qA){
             $pdf->Cell(40, 5, self::utfConvert($qA->Serie), 1, 0, 'C');
             $pdf->Cell(40, 5, $qA->Ano, 1, 0, 'C');
+            array_push($anosEstudados,$qA->Ano);
             if($qA->Ano !="-"){
                 $pdf->Cell(50, 5, self::utfConvert($qA->Escola), 1, 0, 'C');
                 $pdf->Cell(40, 5, self::utfConvert($qA->Cidade), 1, 0, '');
@@ -1588,49 +1590,77 @@ class AlunosController extends Controller
         });
 
         $corpoHistorico = $resultado;
-        // dd($Historico);
         /////
+        // Inicializa um array para acumular a carga horária total por série
+        $cargaHorariaTotal = array_fill(1, 9, 0); // Um índice para cada série (1 a 9)
         foreach ($queryHistorico as $key => $qH) {
             $pdf->Cell(83, 4, self::utfConvert($qH->Disciplina), 1, 0, 'C'); // Nome da disciplina
-        
+
             for ($serie = 1; $serie <= 9; $serie++) { // Loop para cada série
                 $serieMarcada = false; // Marca se a série já foi preenchida
-        
+
                 foreach ($corpoHistorico as $np) {
                     if ($np['Disciplina'] == $qH->Disciplina && $np['Serie'] == "{$serie}º Ano") {
                         // Se a disciplina e a série correspondem, preenche as células
                         $Nota = 0;
-                        if($np['RecAn'] > 0){
+                        if ($np['RecAn'] > 0) {
                             $Nota = $np['RecAn'];
-                        }else{
+                        } else {
                             $Nota = $np['Nota'] - $np['PontRec'] + $np['RecBim'];
                         }
+
                         $pdf->Cell(6.5, 4, $Nota, 1, 0, 'C');
-                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHDisciplina'])), 1, 0, 'C');
+                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHAno'])), 1, 0, 'C');
+
+                        // Soma a carga horária anual no total por série
+                        $cargaHorariaTotal[$serie] += strtotime($np['CHAno']) - strtotime('00:00:00');
+
                         $serieMarcada = true;
                         break; // Parar a busca para esta série
                     }
                 }
-        
+
                 if (!$serieMarcada) {
                     // Preenche com "-" caso não haja correspondência
                     $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
                     $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
                 }
             }
-        
+
             $pdf->Ln(); // Nova linha após todas as séries serem preenchidas
         }
-        //CARGA HORÁRIA
-        $pdf->Cell(83, 4, self::utfConvert("CARGA HORÁRIA ANUAL"), 1, 0, 'C');
-        
+
+        // Exibe a linha de carga horária total
+        $pdf->Cell(83, 4, self::utfConvert("CARGA HORÁRIA TOTAL"), 1, 0, 'C');
+        for ($serie = 1; $serie <= 9; $serie++) {
+            if ($cargaHorariaTotal[$serie] > 0) {
+                // Converte o total em "H:i"
+                $totalHoras = gmdate('H:i', $cargaHorariaTotal[$serie]);
+                $pdf->Cell(13, 4, $totalHoras, 1, 0, 'C');
+            } else {
+                // Preenche com "-" caso não haja carga horária
+                $pdf->Cell(13, 4, '-', 1, 0, 'C');
+            }
+        }
+        $pdf->Ln();
+        //APROVADO OU NÃO
+        $pdf->Cell(83, 4, self::utfConvert("RESULTADO FINAL"), 1, 0, 'C');
+        foreach($anosEstudados as $aE){
+            if (is_numeric($aE)) {
+                // Converte o total em "H:i"
+                $pdf->Cell(13, 4, self::getResultadoAno($IDAluno,intval($aE)), 1, 0, 'C');
+            } else {
+                // Preenche com "-" caso não haja carga horária
+                $pdf->Cell(13, 4, '-', 1, 0, 'C');
+            }
+        }
         //
         $pdf->Ln(5);
         $pdf->SetFont('Arial', '', 9);
         $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
-        $pdf->Ln(15);
+        $pdf->Ln(10);
         $pdf->Cell(100, $lineHeight, self::utfConvert($Escola->Cidade.'/'.$Escola->UF.', '.date('d/m/Y')), 0, 0);
-        $pdf->Ln(13);
+        $pdf->Ln(12);
         $pdf->SetFont('Arial', 'B', 6);
         // Primeira linha de assinaturas
         $pdf->Cell(100, 10, '_____________________________________________________', 0, 0, 'C'); // Assinatura 1
