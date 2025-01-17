@@ -1498,30 +1498,6 @@ class AlunosController extends Controller
         $pdf->Cell(30, 5, self::utfConvert('Carga horária anual'), 1, 0, 'C');
         $pdf->Ln();
         $pdf->SetFont('Arial', '', 5);
-        $querySeries = [];
-        // $querySeriesAno = [];
-        // foreach($queryHistorico as $qH){
-        //     if(!is_null($qH->Serie)){
-        //         $NotasPeriodos2 = json_decode($qH->Serie,true);
-                
-        //         foreach($NotasPeriodos2 as $np2){
-        //             $serieQh = str_replace(' E.FUNDAMENTAL','',$np2['Serie']);
-        //             $np2['Disciplina'] = $qH->Disciplina;
-        //             array_push($querySeriesAno,$np2);
-        //         }
-        //     }
-        // }
-        foreach($series as $se){
-            array_push($querySeries,[
-                "Serie" => $se,
-                "CHAno" => "",
-                "PontRec" => "",
-                "CHDisciplina" => "",
-                "RecBim" => "",
-                "RecAn" => "",
-                "Nota"=> ""
-            ]);
-        }
         
         foreach($queryAnos as $qA){
             $pdf->Cell(40, 5, self::utfConvert($qA->Serie), 1, 0, 'C');
@@ -1564,39 +1540,6 @@ class AlunosController extends Controller
                     $pdf->Cell(6.5, 4, $np['Nota'], 1, 0, 'C');
                     $pdf->Cell(6.5, 4, date('H:i',strtotime($np['CHDisciplina'])), 1, 0, 'C');
                 }
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-            }else{
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
             }
             $pdf->Ln();
         }
