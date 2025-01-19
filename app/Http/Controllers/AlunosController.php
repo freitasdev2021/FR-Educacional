@@ -1343,7 +1343,7 @@ class AlunosController extends Controller
         return DB::select($SQL)[0];
     }
 
-    public function abrirHistoricoEditavel($IDAluno){
+    public function abrirHistoricoEscolar($IDAluno){
         $IDOrg = Auth::user()->id_org;
 
         $Aluno = self::getAluno($IDAluno);
@@ -1610,10 +1610,10 @@ class AlunosController extends Controller
                         }
 
                         $pdf->Cell(6.5, 4, $Nota, 1, 0, 'C');
-                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHAno'])), 1, 0, 'C');
+                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHDisciplina'])), 1, 0, 'C');
 
                         // Soma a carga horária anual no total por série
-                        $cargaHorariaTotal[$serie] += strtotime($np['CHAno']) - strtotime('00:00:00');
+                        $cargaHorariaTotal[$serie] += strtotime($np['CHDisciplina']) - strtotime('00:00:00');
 
                         $serieMarcada = true;
                         break; // Parar a busca para esta série
@@ -1677,329 +1677,197 @@ class AlunosController extends Controller
 
     public function gerarHistoricoEscolar($id,Request $request)
     {
-        //dd($request->all());
-        // Obtém todos os anos em que o aluno tem registros
-        $anos = DB::table('aulas')
-        ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
-        ->join('alunos', 'alunos.id', '=', 'frequencia.IDAluno')
-        ->where('alunos.id', $id)
-        ->select(DB::raw('DISTINCT YEAR(aulas.DTAula) as ano'))
-        ->orderBy('ano')
-        ->pluck('ano')
-        ->toArray();
-
-        $Aluno = self::getAluno($id);
-
-        //dd($Aluno);
-
-        $selectYears = '';
-        $selectCargas = "";
-        foreach ($anos as $ano) {
-            $selectYears .= "
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecBim_{$ano},
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecAn_{$ano},
-            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as PontRec_{$ano},
-            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(au3.DTAula, '%Y') = {$ano} ) END) as Total_{$ano}, 
-            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-                    (SELECT COUNT(f2.id) 
-                     FROM frequencia f2 
-                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-                END) as Frequencia_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
-                     FROM frequencia f2 
-                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-                END) as CargaDisciplina_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
-                     FROM frequencia f2 
-                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-                END) as CargaTotal_{$ano},
-            ";
-
-            $selectCargas .="
-            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-            (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
-                FROM frequencia f2 
-                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-            END) as CargaTotal_{$ano},
-            ";
-        }
-
-        // Executa a consulta
-        $historico = DB::select("
-            SELECT 
-                d.NMDisciplina as Disciplina,
-                {$selectYears}
-                COUNT(d.id)
-            FROM 
-                disciplinas d
-            INNER JOIN 
-                aulas au ON(d.id = au.IDDisciplina)
-            INNER JOIN 
-                frequencia f ON(au.id = f.IDAula)
-            INNER JOIN 
-                alunos a ON(a.id = f.IDAluno)
-            WHERE 
-                a.id = :aluno_id
-            GROUP BY 
-                d.id;
-        ", ['aluno_id' => $id]);
-
-        $cargas = DB::select("
-            SELECT 
-                {$selectCargas}
-                COUNT(au.id)
-            FROM 
-                aulas au
-            INNER JOIN 
-                frequencia f ON(au.id = f.IDAula)
-            INNER JOIN 
-                alunos a ON(a.id = f.IDAluno)
-            INNER JOIN 
-                atividades at ON(at.IDAula = au.id)
-            INNER JOIN 
-                notas n ON(at.id = n.IDAtividade)
-            WHERE 
-                a.id = :aluno_id
-        ", ['aluno_id' => $id]);
-
-        // Configura o FPDF
-        $pdf = new Fpdf();
-        $pdf->AddPage('L');
-        $Escola = Escola::find($Aluno->IDEscola);
-        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
-
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Nome), 0, 1, 'C'); // Nome da escola centralizado
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." - ".$Escola->Cidade."/".$Escola->UF), 0, 1, 'C');
-        // Espaço após a logo
-        $pdf->Ln(5);
-        if($request->CMCertificado){
-            $Titulo = "CERTIFICADO DE CONCLUSÃO";
-        }else{
-            $Titulo = "HISTÓRICO ESCOLAR";
-        }
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert($Titulo), 0, 1, 'C'); // Título centralizado
-        if($request->SGVia){
-            $pdf->SetFont('Arial', 'B', 10);
-            $pdf->Cell(0,10,"Segunda Via",0,1,'C');
-        }
-        $pdf->Ln(10); // Espaço após o título
-        //MENSAGEM
-        if($request->CMCertificado){
-            $pdf->SetFont('Arial', 'B', 14);
-            $mensagemCertificado = "Certificamos que ".self::utfConvert($Aluno->Nome).", portador do CPF ".self::utfConvert($Aluno->CPF).", natural de ".self::utfConvert($Aluno->Naturalidade).", nascido(a) em ".date('d/m/Y',strtotime($Aluno->Nascimento)).", concluiu com êxito mais uma etapa de ensino.";
-            $pdf->MultiCell(0, 4, self::utfConvert($mensagemCertificado), 0, 'C'); // Centralizado e com quebra de linha automática
-            $pdf->Ln(10);
-        }
-        //DADOS DO ALUNO
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(80, 5, "Nome: ".self::utfConvert($Aluno->Nome), 0, 0);
-        $pdf->Cell(50, 5, "INEP: ".self::utfConvert($Aluno->INEP), 0, 0);
-        $pdf->Cell(50, 5, "CPF: ".self::utfConvert($Aluno->CPF), 0, 1); // Quebra de linha para o próximo conjunto
-
-        // Naturalidade e Nascimento
-        $pdf->Cell(80, 5, "Naturalidade: ".self::utfConvert($Aluno->Naturalidade), 0, 0);
-        $pdf->Cell(50, 5, "Nascimento: ".date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 0);
-        $pdf->Cell(50, 5, self::utfConvert("Observação: ".$request->OBSIndividual), 0, 0);
-        $pdf->Ln();
-        $pdf->Cell(50, 5, self::utfConvert("Observação Geral: ".$Escola->OBSGeralHistorico), 0, 0);
-        $Filiacao = json_decode($Aluno->PaisJSON);
-        $pdf->Ln();
-        $pdf->Cell(50, 5, "Pai: ".self::utfConvert($Filiacao->Pai), 0, 1);
-        $pdf->Cell(50, 5,self::utfConvert("Mãe: ".$Filiacao->Mae), 0, 1);
-               
-        //
-        $pdf->Ln();
-        $pdf->SetFont('Arial', 'B', 8);
-        // Cabeçalho da tabela
-        $pdf->Cell(40, 5, 'Disciplinas', 1, 0, 'C');
-        foreach ($anos as $ano) {
-            $pdf->Cell(40, 5, "{$ano}", 1, 0, 'C');
-        }
-        $pdf->Ln();
-
-        // Dados das disciplinas e notas por ano
-        foreach ($historico as $disciplina) {
-            $pdf->Cell(40, 5, self::utfConvert($disciplina->Disciplina), 1);
-            foreach ($anos as $ano) {
-                $notaKey = "Total_{$ano}";
-                $carga = "CargaDisciplina_{$ano}";
-                $nota = isset($disciplina->$notaKey) ? $disciplina->$notaKey : '-';
-                $pdf->Cell(20, 5, $nota, 1, 0, 'C');
-                $pdf->Cell(20, 5, $disciplina->$carga, 1, 0, 'C');
-            }
-            $pdf->Ln();
-        }
-
-        $pdf->Ln();
-        foreach($cargas as $c){
-            foreach($anos as $ano){
-                $carga = "CargaTotal_{$ano}";
-                $pdf->Cell(20, 5, "{$ano}", 1, 0, 'C');
-                $pdf->Cell(20, 5, $c->$carga, 1, 0, 'C');
-            }
-        }
-
-        $pdf->Ln(30);
-        // Assinaturas
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(90, 10, "Assinatura do Diretor:", 0, 0, 'C');
-        $pdf->Cell(90, 10, self::utfConvert("Assinatura do Secretário Escolar:"), 0, 1, 'C');
-
-        // Desenha linhas para as assinaturas
-        $pdf->Cell(90, 10, "_________________________", 0, 0, 'C');
-        $pdf->Cell(90, 10, "_________________________", 0, 1, 'C');
-
-        // Saída do PDF
-        $pdf->Output("I",'Historico_'.rand(1,100).".pdf");
-        exit;
+        dd($request->all(),$id);
+        
     }
 
     public function historico($id){
-        // Primeiro, obtenha todos os anos em que o aluno tem registros
-        $anos = DB::table('aulas')
-            ->join('frequencia', 'aulas.id', '=', 'frequencia.IDAula')
-            ->join('alunos', 'alunos.id', '=', 'frequencia.IDAluno')
-            ->where('alunos.id', $id)
-            ->select(DB::raw('DISTINCT YEAR(aulas.DTAula) as ano'))
-            ->orderBy('ano')
-            ->pluck('ano')
-            ->toArray();
+        $IDOrg = Auth::user()->id_org;
 
-            //dd($anos);
+        $Aluno = self::getAluno($id);
 
-        // Crie a parte dinâmica da consulta para as colunas de anos
-        $selectCargas = "";
-        $selectYears = '';
-        foreach ($anos as $ano) {
-            $selectYears .= "
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecBim_{$ano},
-            (SELECT SUM(rec2.Nota) FROM recuperacao rec2 WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as RecAn_{$ano},
-            (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND DATE_FORMAT(rec2.created_at, '%Y') = {$ano} ) as PontRec_{$ano},
-            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND DATE_FORMAT(au3.DTAula, '%Y') = {$ano} ) END) as Total_{$ano}, 
-            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-                    (SELECT COUNT(f2.id) 
-                     FROM frequencia f2 
-                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-                END) as Frequencia_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
-                     FROM frequencia f2 
-                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND au2.IDDisciplina = d.id
-                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-                END) as CargaDisciplina_{$ano},
-                MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
-                     FROM frequencia f2 
-                     INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                     WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                     AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-                END) as CargaTotal_{$ano},
-            ";
+        $Escola = Escola::find($Aluno->IDEscola);
 
-            $selectCargas .="
-            MAX(CASE WHEN DATE_FORMAT(au.DTAula, '%Y') = {$ano} THEN 
-            (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria))
-                FROM frequencia f2 
-                INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
-                WHERE au2.TPConteudo = 0 AND f2.IDAluno = a.id 
-                AND DATE_FORMAT(au2.DTAula, '%Y') = {$ano}) 
-            END) as CargaTotal_{$ano},
-            ";
-        }
+        $Filiacao = json_decode($Aluno->PaisJSON);
+
+        $SQLAnos = <<<SQL
+        SELECT
+            t.Serie,
+            MAX(CASE WHEN al.id = $id
+            THEN
+            DATE_FORMAT(au.DTAula,'%Y')
+            ELSE
+            '-'
+            END) as Ano,
+            e.Nome as Escola,
+            e.Cidade,
+            e.UF,
+            t.CargaHoraria
+        FROM turmas t 
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        LEFT JOIN aulas au ON(au.IDTurma = t.id)
+        LEFT JOIN frequencia f ON(au.Hash = f.HashAula)
+        LEFT JOIN alunos al ON(al.id = f.IDAluno)
+        WHERE e.IDOrg = $IDOrg AND t.Serie LIKE '%E.FUNDAMENTAL%'
+        GROUP BY t.Serie
+        ORDER BY t.Serie
+        SQL;
+
+        $queryAnos = DB::select($SQLAnos);
         
-
-        if(!empty($selectYears)){
-            $historico = DB::select("
-                SELECT 
-                    d.NMDisciplina as Disciplina,
-                    {$selectYears}
-                    COUNT(d.id)
-                FROM 
-                    disciplinas d
-                INNER JOIN 
-                    aulas au ON(d.id = au.IDDisciplina)
-                INNER JOIN 
-                    frequencia f ON(au.id = f.IDAula)
-                INNER JOIN 
-                    alunos a ON(a.id = f.IDAluno)
-                INNER JOIN 
-                    turmas t ON(a.IDTurma = t.id)
-                INNER JOIN 
-                    atividades at ON(at.IDAula = au.id)
-                INNER JOIN 
-                    notas n ON(at.id = n.IDAtividade)
-                WHERE 
-                    a.id = :aluno_id
-                GROUP BY 
-                    d.id;
-            ", ['aluno_id' => $id]);
-        }else{
-            $historico = [];
+        $SQLHistorico = <<<SQL
+            SELECT
+                d.NMDisciplina AS Disciplina,
+                (
+                    SELECT 
+                        CONCAT(
+                            '[', 
+                            GROUP_CONCAT(
+                                JSON_OBJECT(
+                                    'Serie', t3.Serie,
+                                    'Disciplina', d3.NMDisciplina,
+                                    'CHAno', 
+                                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
+                                    FROM frequencia f2 
+                                    INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                                    WHERE au2.TPConteudo = 0
+                                    AND f2.IDAluno = al3.id AND au2.IDTurma = t3.id
+                                    ),
+                                    'PontRec',
+                                    (SELECT SUM(rec2.PontuacaoPeriodo) FROM recuperacao rec2 INNER JOIN alunos al2 ON(rec2.IDAluno = al2.id) WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = al3.id AND al2.IDTurma = t3.id),
+                                    'CHDisciplina', 
+                                    (SELECT SEC_TO_TIME(SUM(f2.CargaHoraria)) 
+                                    FROM frequencia f2 
+                                    INNER JOIN aulas au2 ON(au2.id = f2.IDAula) 
+                                    WHERE au2.TPConteudo = 0
+                                    AND f2.IDAluno = al3.id AND au2.IDTurma = t3.id AND au2.IDDisciplina = d3.id
+                                    ),
+                                    'RecBim', 
+                                    (SELECT SUM(rec2.Nota) 
+                                    FROM recuperacao rec2 
+                                    INNER JOIN alunos al2 ON(rec2.IDAluno = al2.id) 
+                                    WHERE rec2.Estagio != 'ANUAL' AND rec2.IDAluno = al3.id AND al2.IDTurma = t3.id
+                                    ),
+                                    'RecAn', 
+                                    (SELECT SUM(rec2.Nota) 
+                                    FROM recuperacao rec2 
+                                    INNER JOIN alunos al2 ON(rec2.IDAluno = al2.id) 
+                                    WHERE rec2.Estagio = 'ANUAL' AND rec2.IDAluno = al3.id AND al2.IDTurma = t3.id
+                                    ),
+                                    'Nota', 
+                                    (SELECT SUM(n2.Nota) 
+                                    FROM notas n2 
+                                    INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) 
+                                    INNER JOIN aulas au2 ON(at2.IDAula = au2.id) 
+                                    WHERE au2.IDDisciplina = d3.id AND n2.IDAluno = al3.id AND au2.IDTurma = t3.id
+                                    )
+                                )
+                            ),
+                            ']'
+                        ) AS JsonResult
+                    FROM turmas t3 
+                    INNER JOIN escolas e3 ON(e3.id = t3.IDEscola)
+                    LEFT JOIN aulas au3 ON(au3.IDTurma = t3.id)
+                    LEFT JOIN disciplinas d3 ON(d3.id = au3.IDDisciplina)
+                    LEFT JOIN frequencia f3 ON(au3.Hash = f3.HashAula)
+                    LEFT JOIN alunos al3 ON(al3.id = f3.IDAluno)
+                    WHERE e.IDOrg = $IDOrg AND al3.id = $id AND d3.id = d.id  AND t3.Serie LIKE '%E.FUNDAMENTAL%'
+                    GROUP BY e.IDOrg
+                ) AS Serie
+            FROM turnos tn
+            INNER JOIN turmas t ON (tn.IDTurma = t.id)
+            INNER JOIN alocacoes alo ON (t.IDEscola = alo.IDEscola)
+            INNER JOIN escolas e ON (alo.IDEscola = e.id)
+            INNER JOIN disciplinas d ON (d.id = tn.IDDisciplina)
+            WHERE e.IDOrg = $IDOrg
+            AND t.Serie LIKE '%E.FUNDAMENTAL%'
+            GROUP BY d.id;
+        SQL;  
+        $queryHistorico = DB::select($SQLHistorico);
+        //INICIO DAS INSTRUÇÕES
+        //SEPARA AS SERIES PARA O CABECALHO
+        $seriesArr = array_column($queryAnos,'Serie');
+        $series = array_map(function($v){
+            return str_replace(' E.FUNDAMENTAL','',$v);
+        },$seriesArr);
+        //MONTA O HISTRÓRICO
+        $bodySeries = array();
+        foreach($queryHistorico as $qH){
+            if(!is_null($qH->Serie)){
+                $NotasPeriodos = json_decode($qH->Serie,true);
+                foreach($NotasPeriodos as $np){
+                    $np['Serie'] = str_replace(' E.FUNDAMENTAL','',$np['Serie']);
+                    array_push($bodySeries,$np);
+                }
+            }
+        }
+        $newBodySeries = [];
+        foreach($series as $se){
+            array_push($newBodySeries,[
+                "Serie" => $se,
+                "Disciplina" => null,
+                "CHAno" => null,
+                "PontRec" => null,
+                "CHDisciplina" => null,
+                "RecBim" => null,
+                "RecAn" => null,
+                "Nota" => ""
+            ]);
         }
 
-        if(!empty($selectCargas)){
-            $cargas = DB::select("
-                SELECT 
-                    {$selectCargas}
-                    COUNT(au.id)
-                FROM 
-                    aulas au
-                INNER JOIN 
-                    frequencia f ON(au.id = f.IDAula)
-                INNER JOIN 
-                    alunos a ON(a.id = f.IDAluno)
-                INNER JOIN 
-                    atividades at ON(at.IDAula = au.id)
-                INNER JOIN 
-                    notas n ON(at.id = n.IDAtividade)
-                WHERE 
-                    a.id = :aluno_id
-            ", ['aluno_id' => $id]);
-        }else{
-            $cargas = [];
-        }
-        // Consulta SQL dinâmica
+        // Combinação dos arrays
+        $resultado = [];
 
+        // Adicionar todos os itens de array1 ao resultado inicialmente
+        foreach ($bodySeries as $item1) {
+            $resultado[] = $item1;
+        }
+
+        // Iterar sobre array2 e adicionar ou incrementar ao resultado
+        foreach ($newBodySeries as $item2) {
+            $encontrado = false;
+
+            foreach ($resultado as &$itemFinal) {
+                // Se encontrar a série correspondente, adicionar como novo elemento
+                if ($itemFinal['Serie'] === $item2['Serie']) {
+                    $resultado[] = $item2; // Adiciona a duplicata como um novo elemento
+                    $encontrado = true;
+                    break;
+                }
+            }
+
+            // Se não for encontrada no resultado, adicionar diretamente
+            if (!$encontrado) {
+                $resultado[] = $item2;
+            }
+        }
+
+        // Ordenar por série
+        usort($resultado, function ($a, $b) {
+            return strcmp($a['Serie'], $b['Serie']);
+        });
+
+        $corpoHistorico = $resultado;
         
+        //SAIDA DA INSTRUÇÃO
         if(self::getDados()['tipo'] == 6){
             $submodulos = self::professoresSubmodulos;
         }else{
             $submodulos = self::cadastroSubmodulos;
         }
 
+        // dd(['AnosEstudados' => $queryAnos,
+        //     'series' => $series,
+        //     'corpoHistorico' => $corpoHistorico,
+        //     'queryHistorico' => $queryHistorico]);
+
         return view('Alunos.historico',[
             'submodulos' => $submodulos,
             'id' => $id,
-            'historico' => $historico,
-            'cargas' => $cargas,
-            'anos' => $anos
+            'AnosEstudados' => $queryAnos,
+            'series' => $series,
+            'corpoHistorico' => $corpoHistorico,
+            'queryHistorico' => $queryHistorico
         ]);
     }
 
