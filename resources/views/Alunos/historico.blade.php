@@ -116,10 +116,10 @@
                                                 @else
                                                     <td><input type='text' data-ntdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="Nota[]" value="{{$np['Nota'] - $np['PontRec'] + $np['RecBim']}}" class="inputNota"></td>
                                                 @endif
-                                                <td><input type="text" data-chdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="CHDisciplina[]" class="inputTime" value="{{$np['CHDisciplina']}}"></td>
+                                                <td><input type="text" data-chdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="CHDisciplina[]" class="inputTime" value="{{\App\Http\Controllers\Controller::timeToNumber($np['CHDisciplina'])}}"></td>
                                                 @php
                                                     $serieMarcada = true;
-                                                    $cargaHorariaTotal[$serie] += strtotime($np['CHDisciplina']) - strtotime('00:00:00');
+                                                    $cargaHorariaTotal[$serie] += \App\Http\Controllers\Controller::timeToNumber($np['CHDisciplina']);
                                                 @endphp
                                                 @break;
                                             @endif
@@ -204,7 +204,7 @@
                             if (!serieExistente) {
                                 // Pega os valores de nota e carga horária preenchidos (se houver)
                                 let notaPreenchida = $(`input[data-ntdisciplina="${disciplina}"][data-serie="${serie}º Ano"]`).val() || '-';
-                                let cargaHorariaPreenchida = $(`input[data-chdisciplina="${disciplina}"][data-serie="${serie}º Ano"]`).val() || '-';
+                                let cargaHorariaPreenchida = $(`input[data-chdisciplina="${disciplina}"][data-serie="${serie}º Ano"]`).val() || '0';
 
                                 series.push({
                                     Serie: `${serie}º Ano`,

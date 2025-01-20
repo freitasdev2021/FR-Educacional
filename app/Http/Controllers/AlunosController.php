@@ -1628,10 +1628,10 @@ class AlunosController extends Controller
                         }
 
                         $pdf->Cell(6.5, 4, $Nota, 1, 0, 'C');
-                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHDisciplina'])), 1, 0, 'C');
+                        $pdf->Cell(6.5, 4, number_format(self::timeToNumber($np['CHDisciplina']), 2, '.', ''), 1, 0, 'C');
 
                         // Soma a carga horária anual no total por série
-                        $cargaHorariaTotal[$serie] += strtotime($np['CHDisciplina']) - strtotime('00:00:00');
+                        $cargaHorariaTotal[$serie] += number_format(self::timeToNumber($np['CHDisciplina']), 2, '.', '');
 
                         $serieMarcada = true;
                         break; // Parar a busca para esta série
@@ -1653,7 +1653,7 @@ class AlunosController extends Controller
         for ($serie = 1; $serie <= 9; $serie++) {
             if ($cargaHorariaTotal[$serie] > 0) {
                 // Converte o total em "H:i"
-                $totalHoras = gmdate('H:i', $cargaHorariaTotal[$serie]);
+                $totalHoras = $cargaHorariaTotal[$serie];
                 $pdf->Cell(13, 4, $totalHoras, 1, 0, 'C');
             } else {
                 // Preenche com "-" caso não haja carga horária
@@ -1796,10 +1796,10 @@ class AlunosController extends Controller
                         // Se a disciplina e a série correspondem, preenche as células
 
                         $pdf->Cell(6.5, 4, $np['Nota'], 1, 0, 'C');
-                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHDisciplina'])), 1, 0, 'C');
+                        $pdf->Cell(6.5, 4, number_format($np['CHDisciplina'], 2, '.', ''), 1, 0, 'C');
 
                         // Soma a carga horária anual no total por série
-                        $cargaHorariaTotal[$serie] += strtotime($np['CHDisciplina']) - strtotime('00:00:00');
+                        $cargaHorariaTotal[$serie] += number_format($np['CHDisciplina'], 2, '.', '');
                         $serieMarcada = true;
                         break; // Parar a busca para esta série
                     }
@@ -1819,8 +1819,7 @@ class AlunosController extends Controller
         for ($serie = 1; $serie <= 9; $serie++) {
             if ($cargaHorariaTotal[$serie] > 0) {
                 // Converte o total em "H:i"
-                $totalHoras = gmdate('H:i', $cargaHorariaTotal[$serie]);
-                $pdf->Cell(13, 4, $totalHoras, 1, 0, 'C');
+                $pdf->Cell(13, 4, $cargaHorariaTotal[$serie], 1, 0, 'C');
             } else {
                 // Preenche com "-" caso não haja carga horária
                 $pdf->Cell(13, 4, '-', 1, 0, 'C');

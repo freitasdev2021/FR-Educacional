@@ -102,6 +102,12 @@ abstract class Controller
         return $return;
     }
 
+    public static function timeToNumber($time) {
+        list($hours, $minutes) = explode(':', $time);
+        return $hours + ($minutes / 60);
+    }
+    
+    
     public static function utfConvert($String){
         return mb_convert_encoding($String,'ISO-8859-1', 'UTF-8');
     }
