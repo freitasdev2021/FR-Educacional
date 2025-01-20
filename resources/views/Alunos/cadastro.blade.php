@@ -92,6 +92,10 @@
                             <label>C.Nascimento</label>
                             <input type="text" class="form-control" value="{{isset($Registro->CNascimento) ? $Registro->CNascimento : ''}}" name="CNascimento"> 
                         </div>
+                        <div class="col-sm-2">
+                            <label>Nacionalidade</label>
+                            <input type="text" class="form-control" value="{{isset($Registro->Nacionalidade) ? $Registro->Nacionalidade : ''}}" name="Nacionalidade"> 
+                        </div>
                     </div>
                     <hr>
                     <h5>Dados do Responsável</h5>

@@ -48,6 +48,10 @@ class AlunosController extends Controller
         'nome' => 'Remanejamentos/Reclassificações',
         'endereco' => 'Mudancas',
         'rota' => 'Alunos/Mudancas'
+    ],[
+        'nome' => 'Faltas Justificadas',
+        'endereco' => 'Faltas',
+        'rota' => 'Alunos/Faltas'
     ]);
 
     public const professoresModulos = array([
@@ -127,6 +131,19 @@ class AlunosController extends Controller
         return view('Alunos.index',[
             'submodulos' => $modulos,
             'Escolas' => Escola::where('IDOrg',Auth::user()->id_org)->get()
+        ]);
+    }
+
+    public function faltas(){
+        if(self::getDados()['tipo'] == 6){
+            $modulos = self::professoresModulos;
+        }else{
+            $modulos = self::submodulos;
+        }
+        
+
+        return view('Alunos.Faltas.index',[
+            'submodulos' => $modulos
         ]);
     }
 
@@ -1329,7 +1346,8 @@ class AlunosController extends Controller
                 t.MediaPeriodo,
                 t.TPAvaliacao,
                 a.DTEntrada,
-                m.Expedidor
+                m.Expedidor,
+                m.Nacionalidade
             FROM matriculas m
             INNER JOIN alunos a ON(a.IDMatricula = m.id)
             INNER JOIN turmas t ON(a.IDTurma = t.id)
@@ -1483,8 +1501,8 @@ class AlunosController extends Controller
         $pdf->Cell(100, $lineHeight, 'Sexo: '.$Aluno->Sexo, 0, 0);
         $pdf->Cell(0, $lineHeight, 'Nascimento: ' . date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 1);
 
-        $pdf->Cell(100, $lineHeight, 'Naturalidade: ', 0, 0);
-        $pdf->Cell(0, $lineHeight, 'Nacionalidade: ', 0, 1);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Naturalidade: '.$Aluno->Naturalidade), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Nacionalidade: '.$Aluno->Nacionalidade), 0, 1);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('Filiação: '.$Filiacao->Pai.' '.$Filiacao->Mae), 0, 0);
         //ANOS
@@ -1716,8 +1734,8 @@ class AlunosController extends Controller
         $pdf->Cell(100, $lineHeight, 'Sexo: '.$Aluno->Sexo, 0, 0);
         $pdf->Cell(0, $lineHeight, 'Nascimento: ' . date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 1);
 
-        $pdf->Cell(100, $lineHeight, 'Naturalidade: ', 0, 0);
-        $pdf->Cell(0, $lineHeight, 'Nacionalidade: ', 0, 1);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Naturalidade: '.$Aluno->Naturalidade), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Nacionalidade: '.$Aluno->Nacionalidade), 0, 1);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('Filiação: '.$Filiacao->Pai.' '.$Filiacao->Mae), 0, 0);
         //ANOS
@@ -3124,7 +3142,8 @@ class AlunosController extends Controller
                     "IDRota" => $request->IDRota,
                     "TPSangue" => $request->TPSangue,
                     "Expedidor" => $request->Expedidor,
-                    "CNascimento"=>$request->CNascimento
+                    "CNascimento"=>$request->CNascimento,
+                    "Nacionalidade" => $request->Nacionalidade
                 );
 
                 $matricula['PaisJSON'] = json_encode($Pais);
@@ -3268,7 +3287,8 @@ class AlunosController extends Controller
                     "IDRota" => $request->IDRota,
                     "TPSangue" => $request->TPSangue,
                     "Expedidor" => $request->Expedidor,
-                    "CNascimento"=>$request->CNascimento
+                    "CNascimento"=>$request->CNascimento,
+                    "Nacionalidade" => $request->Nacionalidade
                 );
 
                 //dd($matricula);

@@ -61,7 +61,7 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '2' : '3'}}">
+                        <div class="col-sm-{{(Auth::user()->tipo == 6) ? '3' : '3'}}">
                             <label>Turma</label>
                             <select class="form-control" name="IDTurma">
                                 <option value="">Selecione</option>
@@ -78,23 +78,21 @@
                             </select>
                         </div>
                         @endif
-                        <div class="col-sm-1">
-                            <label>Pontuacao</label>
+                        <div class="col-sm-3">
+                            <label>Pontuacao/Conceito</label>
                             <input type="number" name="Pontuacao" class="form-control">
                         </div>
                         <div class="col-sm-3">
-                            <label>Disciplina</label>
+                            <label>Disciplina/Síntese de Aprendizagem</label>
                             <select class="form-control" name="IDDisciplina">
 
                             </select>
                         </div>
-                        <input type="hidden" name="TPConteudo" value="1">
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-9">
                             <label>Descrição</label>
-                            <textarea name="DSConteudo" class="form-control">{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}</textarea>
+                            <input type="text" name="DSConteudo" class="form-control" value="{{(isset($Registro->DSConteudo)) ? $Registro->DSConteudo : ''}}">
                         </div>
+                        <input type="hidden" name="TPConteudo" value="1">
                     </div>
                     <br>
                     <div class="col-sm-12 row disciplinas">

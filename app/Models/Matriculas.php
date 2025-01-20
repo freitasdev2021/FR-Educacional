@@ -51,7 +51,8 @@ class Matriculas extends Model
         'IDRota',
         'TPSangue',
         'Expedidor',
-        'CNascimento'
+        'CNascimento',
+        'Nacionalidade'
     ];
 
     public function escola()

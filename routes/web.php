@@ -163,6 +163,13 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/Espera/Delete/{id}',[AlunosController::class,'deleteEspera'])->name('Alunos/Espera/Delete');
         Route::get('Alunos/Espera/Designacao/{IDAluno}',[AlunosController::class,'designacaoEspera'])->name('Alunos/Espera/Designacao');
         Route::post('Alunos/Espera/Save',[AlunosController::class,'saveEspera'])->name('Alunos/Espera/Save');
+        //FALTAS JUSTIFICADAS
+        Route::get('Alunos/Faltas',[AlunosController::class,'faltas'])->name('Alunos/Faltas');
+        Route::get('Alunos/Faltas/list',[AlunosController::class,'getFaltas'])->name('Alunos/Faltas/list');
+        Route::get('Alunos/Faltas/Cadastro',[AlunosController::class,'cadastroFaltas'])->name('Alunos/Faltas/Novo');
+        Route::get('Alunos/Faltas/Cadastro/{id}',[AlunosController::class,'cadastroFaltas'])->name('Alunos/Faltas/Edit');
+        Route::get('Alunos/Faltas/Delete/{id}',[AlunosController::class,'deleteFaltas'])->name('Alunos/Faltas/Delete');
+        Route::post('Alunos/Faltas/Save',[AlunosController::class,'saveFaltas'])->name('Alunos/Faltas/Save');
         //MATRICULA
         Route::get('Alunos/Historico/Abrir/{IDAluno}',[AlunosController::class,'abrirHistoricoEscolar'])->name('Alunos/Historico/Abrir');
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');

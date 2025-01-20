@@ -2635,9 +2635,23 @@ class RelatoriosController extends Controller
             $pdf->Cell(15, 4, date('d/m/Y',strtotime($row->DTEntrada)) , 1, 0, 'C');
             $pdf->Cell(60, 4, self::utfConvert($row->Aluno), 1, 0, '');
             $pdf->Cell(25, 4, self::utfConvert('Situação'), 1, 0, 'C');
-            $pdf->Cell(15, 4, isset($Av[0]) ? $Av[0] : '-', 1, 0, 'C');
-            $pdf->Cell(15, 4, isset($Av[1]) ? $Av[1] : '-', 1, 0, 'C');
-            $pdf->Cell(15, 4, isset($Av[2]) ? $Av[2] : '-' , 1, 0, 'C');
+            if($Periodo == "1º BIM"){
+                $pdf->Cell(15, 4, isset($Av[0]) ? $Av[0] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[1]) ? $Av[1] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[2]) ? $Av[2] : '-' , 1, 0, 'C');
+            }elseif($Periodo == "2º BIM"){
+                $pdf->Cell(15, 4, isset($Av[3]) ? $Av[3] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[4]) ? $Av[4] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[5]) ? $Av[5] : '-' , 1, 0, 'C');
+            }elseif($Periodo == "3º BIM"){
+                $pdf->Cell(15, 4, isset($Av[6]) ? $Av[6] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[7]) ? $Av[7] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[8]) ? $Av[8] : '-' , 1, 0, 'C');
+            }elseif($Periodo == "4º BIM"){
+                $pdf->Cell(15, 4, isset($Av[9]) ? $Av[9] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[10]) ? $Av[10] : '-', 1, 0, 'C');
+                $pdf->Cell(15, 4, isset($Av[11]) ? $Av[11] : '-' , 1, 0, 'C');
+            }
             $pdf->Cell(15, 4, $row->Notas, 1, 0, 'C');
             $pdf->Cell(15, 4, $row->Recuperacao, 1, 0, 'C');
             $pdf->Cell(15, 4, $row->Faltas, 1, 0, 'C');
@@ -2681,7 +2695,7 @@ class RelatoriosController extends Controller
     }
 
     public function pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo){
-        $SQLAulas = DB::select("SELECT au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0");
+        $SQLAulas = DB::select("SELECT au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo'");
         $Aulas = array_map(function($v){
             return date('d',strtotime($v->DTAula));
         },$SQLAulas);
@@ -2737,16 +2751,28 @@ class RelatoriosController extends Controller
         //CORPO
         $pdf->Ln();
         $pdf->SetFont('Arial', '', 5);
-        foreach($query as $key => $row){
-            $pdf->Cell(10, 4, $key+1, 1, 0, 'C');
+        foreach ($query as $key => $row) {
+            $pdf->Cell(10, 4, $key + 1, 1, 0, 'C');
             $pdf->Cell(10, 4, $row->IDAluno, 1, 0, 'C');
-            $pdf->Cell(15, 4, date('d/m/Y',strtotime($row->DTEntrada)) , 1, 0, 'C');
+            $pdf->Cell(15, 4, date('d/m/Y', strtotime($row->DTEntrada)), 1, 0, 'C');
             $pdf->Cell(60, 4, self::utfConvert($row->Aluno), 1, 0, '');
-            foreach(json_decode($row->IDAulas) as $hA){
-                $pdf->Cell($FLarg, 4,(!AlunosController::alunoVeio($row->IDAluno,$hA)) ? 'FB' : '*', 1, 0, 'C');
+        
+            // Decodifica IDAulas e ajusta à contagem de Aulas
+            $IDAulas = json_decode($row->IDAulas, true); // Transforma em array
+            $aulasPreenchidas = count($IDAulas);
+        
+            foreach ($Aulas as $index => $au) {
+                if ($index < $aulasPreenchidas) {
+                    $pdf->Cell($FLarg, 4, (!AlunosController::alunoVeio($row->IDAluno, $IDAulas[$index])) ? 'FB' : '*', 1, 0, 'C');
+                } else {
+                    // Adiciona células vazias ou padrão quando faltar valores em IDAulas
+                    $pdf->Cell($FLarg, 4, '-', 1, 0, 'C');
+                }
             }
-            $pdf->Cell($FLarg, 4,$row->Faltas, 1, 0, 'C');
-            $pdf->Cell($FLarg, 4,0, 1, 0, 'C');
+        
+            // Adiciona os campos FB e FJ
+            $pdf->Cell($FLarg, 4, $row->Faltas, 1, 0, 'C');
+            $pdf->Cell($FLarg, 4, 0, 1, 0, 'C');
             $pdf->Ln();
         }
         //$pdf->Ln();
@@ -2880,7 +2906,7 @@ class RelatoriosController extends Controller
     }
 
     public function getAulasDisciplina($Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
-        $SQL = "SELECT au.DSConteudo,au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0";
+        $SQL = "SELECT au.DSConteudo,au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo'";
         $query = DB::select($SQL);
 
         // Criar o PDF com FPDF
