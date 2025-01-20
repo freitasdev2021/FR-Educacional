@@ -7,12 +7,6 @@
         </div>
         <div class="fr-card-body">
             <!--LISTAS-->
-            <div class="col-sm-12 p-2 row">
-                <div class="col-auto">
-                    <a href="{{route('Aulas/Presenca/Todos',$id)}}" class="btn btn-fr">Marcar Todos</a>
-                </div>
-            </div>
-            <hr>
             <div class="col-sm-12 p-2">
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Aulas/Presenca/list',$id)}}">
                     <thead>
