@@ -69,11 +69,11 @@
                             @if($es->Ano != "-")
                             <td><input type="text" name="Escola[]" value="{{$es->Escola}}" style="width:350px;"></td>
                             <td><input type="text" name="Cidade[]" value="{{$es->Cidade}}/{{$es->UF}}"></td>
-                            <td><input type="time" name="CargaHoraria[]" value="{{$es->CargaHoraria}}"></td>
+                            <td><input type="text" name="CargaHoraria[]" value="{{$es->CargaHoraria}}"></td>
                             @else
-                            <td><input type="text" name="Escola[]" value="-"></td>
-                            <td><input type="text" name="Cidade[]" value="-"></td>
-                            <td><input type="time" name="CargaHoraria[]" value="-"></td>
+                            <td><input type="text" name="Escola[]" value=""></td>
+                            <td><input type="text" name="Cidade[]" value=""></td>
+                            <td><input type="text" name="CargaHoraria[]" value=""></td>
                             @endif
                         </tr>
                         @endforeach
@@ -105,17 +105,18 @@
                                 <tr class="trDisciplina">
                                     <td><input type="text" name="Disciplina[]" value="{{$qh->Disciplina}}"></td>
                                     @for($serie = 1; $serie <= 9; $serie++)
+                                        <input type="hidden" name="Serie[]" value="{{$serie}}º Ano">
                                         @php
                                             $serieMarcada = false;
                                         @endphp
                                         @foreach($corpoHistorico as $np)
                                             @if($np['Disciplina'] == $qh->Disciplina && $np['Serie'] == "{$serie}º Ano")
                                                 @if($np['RecAn'] > 0)
-                                                    <td><input type='number' name="Nota[]" value="{{$np['RecAn']}}" class="inputNota"></td>
+                                                    <td><input type='text' data-ntdisciplina="{{$qh->Disciplina}}" data-serie='{{$serie}}º Ano' name="Nota[]" value="{{$np['RecAn']}}" class="inputNota"></td>
                                                 @else
-                                                    <td><input type='number' name="Nota[]" value="{{$np['Nota'] - $np['PontRec'] + $np['RecBim']}}" class="inputNota"></td>
+                                                    <td><input type='text' data-ntdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="Nota[]" value="{{$np['Nota'] - $np['PontRec'] + $np['RecBim']}}" class="inputNota"></td>
                                                 @endif
-                                                <td><input type="time" name="CHDisciplina[]" class="inputTime" value="{{$np['CHDisciplina']}}"></td>
+                                                <td><input type="text" data-chdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="CHDisciplina[]" class="inputTime" value="{{$np['CHDisciplina']}}"></td>
                                                 @php
                                                     $serieMarcada = true;
                                                     $cargaHorariaTotal[$serie] += strtotime($np['CHDisciplina']) - strtotime('00:00:00');
@@ -124,8 +125,8 @@
                                             @endif
                                         @endforeach
                                         @if(!$serieMarcada)
-                                            <td><input type="number" name="Nota[]" class="inputNota"></td>
-                                            <td><input type="time" name="CHDisciplina[]" class="inputTime"></td>
+                                            <td><input type="text" data-ntdisciplina="{{$qh->Disciplina}}" value="-" data-serie='{{$serie}}º Ano' name="Nota[]" class="inputNota"></td>
+                                            <td><input type="text" data-chdisciplina="{{$qh->Disciplina}}" value="-" data-serie='{{$serie}}º Ano' name="CHDisciplina[]" class="inputTime"></td>
                                         @endif
                                     @endfor
                                 </tr>
@@ -134,9 +135,9 @@
                                 <td>Carga Horária Total</td>
                                 @for($serie = 1; $serie <= 9; $serie++)
                                     @if($cargaHorariaTotal[$serie] > 0)
-                                    <td colspan="2"><input type="time" name="CHTotal[]" value="{{gmdate('H:i', $cargaHorariaTotal[$serie])}}" class="inputTimeFinal"></td>
+                                    <td colspan="2"><input type="text" name="CHTotal[]" value="{{gmdate('H:i', $cargaHorariaTotal[$serie])}}" class="inputTimeFinal"></td>
                                     @else
-                                    <td colspan="2"><input type="time" name="CHTotal[]" value="" class="inputTimeFinal"></td>
+                                    <td colspan="2"><input type="text" name="CHTotal[]" value="-" class="inputTimeFinal"></td>
                                     @endif
                                 @endfor
                             </tr>
@@ -144,7 +145,7 @@
                                 <td>Resultado Final</td>
                                 @foreach($AnosEstudados as $qa)
                                     @if(is_numeric($qa->Ano))
-                                    <td colspan="2"><input type="text" name="ResultadoFinal[]" value="{{\App\Http\Controllers\AlunosController::getResultadoAno($id,$qa->Ano)}}"></td>
+                                    <td colspan="2"><input type="text" data-resdisciplina="" name="ResultadoFinal[]" value="{{\App\Http\Controllers\AlunosController::getResultadoAno($id,$qa->Ano)}}"></td>
                                     @else
                                     <td colspan="2"><input type="text" name="ResultadoFinal[]" value="" class="inputTimeFinal"></td>
                                     @endif
@@ -155,10 +156,96 @@
                 </div>
                 <!--FIM HISTÓRICO-->
                 <br>
+                <input type="hidden" value="" name="Historico">
                 <button class="col-auto btn btn-danger" type="submit">Gerar</button>
             </form>
             <script>
-                
+                $("form").on("submit",function(){
+                    let AnosEstudados = []
+                    
+                    $("#anosEstudados tr").each(function(){
+                        AnosEstudados.push({
+                            Serie : $("input[name='Serie[]']",this).val(),
+                            Ano : $("input[name='Ano[]']",this).val(),
+                            Escola : $("input[name='Escola[]']",this).val(),
+                            Cidade : $("input[name='Cidade[]']",this).val(),
+                            CargaHoraria : $("input[name='CargaHoraria[]']",this).val()
+                        })
+                    })
+                    
+                    let QueryHistorico = [];
+
+                    $("#queryHistorico .trDisciplina").each(function () {
+                        // Pega a disciplina
+                        let disciplina = $("input[name='Disciplina[]']", this).val();
+
+                        // Cria um array para as séries relacionadas à disciplina
+                        let series = [];
+
+                        // Itera sobre as séries existentes para preencher as notas e a carga horária
+                        $("input[data-ntdisciplina]", this).each(function () {
+                            let serie = $(this).data("serie");
+                            let nota = $(this).val();
+                            let cargaHoraria = $(`input[data-chdisciplina="${$(this).data("ntdisciplina")}"][data-serie="${serie}"]`).val();
+
+                            series.push({
+                                Serie: serie,
+                                Nota: nota,
+                                CHDisciplina: cargaHoraria,
+                                Disciplina : disciplina
+                            });
+                        });
+
+                        // Verifica se todas as séries estão representadas, e se não, adiciona com valores vazios ou os preenchidos
+                        for (let serie = 1; serie <= 9; serie++) {
+                            let serieExistente = series.find(s => s.Serie === `${serie}º Ano`);
+
+                            // Se a série não existir, cria uma nova entrada com os valores preenchidos ou com o valor padrão
+                            if (!serieExistente) {
+                                // Pega os valores de nota e carga horária preenchidos (se houver)
+                                let notaPreenchida = $(`input[data-ntdisciplina="${disciplina}"][data-serie="${serie}º Ano"]`).val() || '-';
+                                let cargaHorariaPreenchida = $(`input[data-chdisciplina="${disciplina}"][data-serie="${serie}º Ano"]`).val() || '-';
+
+                                series.push({
+                                    Serie: `${serie}º Ano`,
+                                    Nota: notaPreenchida,
+                                    CHDisciplina: cargaHorariaPreenchida,
+                                    Disciplina: disciplina
+                                });
+                            }
+                            //
+
+                            //
+                        }
+
+                        // Adiciona a disciplina e suas séries no array principal
+                        QueryHistorico.push({
+                            Disciplina: disciplina,
+                            Serie: series
+                        });
+                    });
+
+                    // Captura o ResultadoFinal[] e associa com as séries correspondentes
+                    let ResultadoFinal = [];
+                    $("input[name='ResultadoFinal[]']").each(function (index) {
+                        let resultado = $(this).val();
+                        ResultadoFinal.push({
+                            Serie: `${index + 1}º Ano`,
+                            Resultado: resultado
+                        });
+                    });
+
+                    // Exibe o resultado no console
+                    var enviarHistorico = {
+                        AnosEstudados : AnosEstudados,
+                        QueryHistorico : QueryHistorico,
+                        ResultadoFinal : ResultadoFinal
+                    }
+                    
+                    console.log(enviarHistorico);
+
+                    $("input[name=Historico]").val(JSON.stringify(enviarHistorico))
+                })
             </script>
         </div>
     </div>

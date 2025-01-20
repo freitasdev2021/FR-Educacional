@@ -1677,8 +1677,168 @@ class AlunosController extends Controller
 
     public function gerarHistoricoEscolar($id,Request $request)
     {
-        dd($request->all(),$id);
-        
+        $Historico = json_decode($request->Historico,true);
+        //dd($Historico['AnosEstudados'],$Historico['QueryHistorico'],$Historico['ResultadoFinal']);
+        $IDOrg = Auth::user()->id_org;
+
+        $Aluno = self::getAluno($id);
+
+        $Escola = Escola::find($Aluno->IDEscola);
+
+        $Filiacao = json_decode($Aluno->PaisJSON);
+
+        // Configura o FPDF
+        $pdf = new Fpdf();
+        $pdf->AddPage();
+        $pdf->SetMargins(5, 5, 5);
+        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"HISTÓRICO ESCOLAR");
+        //AQUI VAI O CONTEUDO
+        $lineHeight = 4; //ALTURA DAS LINHAS
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 1);
+        $pdf->SetFont('Arial', '', 7);
+
+        $pdf->MultiCell(100, $lineHeight, self::utfConvert('Unidade de Ensino: ' . $Aluno->Escola), 0, 0);
+        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: ".$Escola->IDCenso, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Endereço: ' . $Escola->Rua . ', ' . $Escola->Numero . ' ' . $Escola->Bairro . ' ' . $Escola->Cidade . ' - ' . $Escola->UF), 0, 1);
+        $pdf->Cell(100, $lineHeight, 'Telefone: ' . $Aluno->TelefoneEscola, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'E-Mail: ' . $Aluno->EmailEscola, 0, 1);
+        // DADOS DO ALUNO
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DO ALUNO'), 0, 1);
+        $pdf->SetFont('Arial', '', 7);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Nome: ' . $Aluno->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: ".$Aluno->INEP, 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Sexo: '.$Aluno->Sexo, 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Nascimento: ' . date('d/m/Y',strtotime($Aluno->Nascimento)), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Naturalidade: ', 0, 0);
+        $pdf->Cell(0, $lineHeight, 'Nacionalidade: ', 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Filiação: '.$Filiacao->Pai.' '.$Filiacao->Mae), 0, 0);
+        //ANOS
+        $pdf->Ln(5);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('ESTUDOS REALIZADOS'), 1, 1,'C');
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->Cell(40, 5, 'Serie', 1, 0, 'C');
+        $pdf->Cell(40, 5, 'Ano', 1, 0, 'C');
+        $pdf->Cell(50, 5, self::utfConvert('Instituição'), 1, 0, 'C');
+        $pdf->Cell(40, 5, self::utfConvert('Município'), 1, 0, '');
+        $pdf->Cell(30, 5, self::utfConvert('Carga horária anual'), 1, 0, 'C');
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 5);
+        $anosEstudados = [];
+        foreach($Historico['AnosEstudados'] as $qA){
+            $pdf->Cell(40, 5, self::utfConvert($qA['Serie']), 1, 0, 'C');
+            $pdf->Cell(40, 5, $qA['Ano'], 1, 0, 'C');
+            array_push($anosEstudados,$qA['Ano']);
+            if($qA['Ano'] !="-"){
+                $pdf->Cell(50, 5, self::utfConvert($qA['Escola']), 1, 0, 'C');
+                $pdf->Cell(40, 5, self::utfConvert($qA['Cidade']), 1, 0, '');
+                $pdf->Cell(30, 5, self::utfConvert($qA['CargaHoraria']), 1, 0, 'C');
+            }else{
+                $pdf->Cell(50, 5, '-', 1, 0, 'C');
+                $pdf->Cell(40, 5, '-', 1, 0, '');
+                $pdf->Cell(30, 5, '-', 1, 0, 'C');
+            }
+            $pdf->Ln();
+        }
+        //NOTAS E CARGA HORÁRIA
+        //HEADER
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('NOTAS/CARGA HORÁRIA'), 1, 1,'C');
+        $pdf->Ln();
+        $pdf->SetFont('Arial', 'B', 5);
+        $pdf->Cell(83, 8, 'Áreas de Estudos', 1, 0, 'C');
+        $pdf->Cell(117, 4, self::utfConvert('Série / Ano / Período'), 1, 0, 'C');
+        $pdf->Ln();
+        $pdf->Cell(83, 4, '', 0, 0, 'C');
+        foreach($Historico['AnosEstudados'] as $s){
+            $pdf->Cell(6.5, 4, self::utfConvert(str_replace(' E.FUNDAMENTAL','',$s['Serie'])), 1, 0, 'C');
+            $pdf->Cell(6.5, 4, 'CH', 1, 0, 'C');
+        }
+        $pdf->Ln();
+        // dd($Historico['QueryHistorico']);
+        $cargaHorariaTotal = array_fill(1, 9, 0); // Um índice para cada série (1 a 9)
+        foreach ($Historico['QueryHistorico'] as $key => $qH) {
+            $pdf->Cell(83, 4, self::utfConvert($qH['Disciplina']), 1, 0, 'C'); // Nome da disciplina
+            $corpoHistorico = $qH['Serie'];
+            // dd($corpoHistorico);
+            for ($serie = 1; $serie <= 9; $serie++) { // Loop para cada série
+                $serieMarcada = false; // Marca se a série já foi preenchida
+
+                foreach ($corpoHistorico as $np) {
+                    if ($np['Disciplina'] == $qH['Disciplina']  && $np['Serie'] == "{$serie}º Ano" && $np['CHDisciplina'] !="-") {
+                        // Se a disciplina e a série correspondem, preenche as células
+
+                        $pdf->Cell(6.5, 4, $np['Nota'], 1, 0, 'C');
+                        $pdf->Cell(6.5, 4, date('H:i', strtotime($np['CHDisciplina'])), 1, 0, 'C');
+
+                        // Soma a carga horária anual no total por série
+                        $cargaHorariaTotal[$serie] += strtotime($np['CHDisciplina']) - strtotime('00:00:00');
+                        $serieMarcada = true;
+                        break; // Parar a busca para esta série
+                    }
+                }
+
+                if (!$serieMarcada) {
+                    // Preenche com "-" caso não haja correspondência
+                    $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                    $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                }
+            }
+
+            $pdf->Ln(); // Nova linha após todas as séries serem preenchidas
+        }
+        // Exibe a linha de carga horária total
+        $pdf->Cell(83, 4, self::utfConvert("CARGA HORÁRIA TOTAL"), 1, 0, 'C');
+        for ($serie = 1; $serie <= 9; $serie++) {
+            if ($cargaHorariaTotal[$serie] > 0) {
+                // Converte o total em "H:i"
+                $totalHoras = gmdate('H:i', $cargaHorariaTotal[$serie]);
+                $pdf->Cell(13, 4, $totalHoras, 1, 0, 'C');
+            } else {
+                // Preenche com "-" caso não haja carga horária
+                $pdf->Cell(13, 4, '-', 1, 0, 'C');
+            }
+        }
+        $pdf->Ln();
+        //APROVADO OU NÃO
+        $pdf->Cell(83, 4, self::utfConvert("RESULTADO FINAL"), 1, 0, 'C');
+        foreach($Historico['ResultadoFinal'] as $aE){
+            if (!empty($aE['Resultado'])) {
+                // Converte o total em "H:i"
+                $pdf->Cell(13, 4,$aE['Resultado'], 1, 0, 'C');
+            } else {
+                // Preenche com "-" caso não haja carga horária
+                $pdf->Cell(13, 4, '-', 1, 0, 'C');
+            }
+        }
+        //
+        $pdf->Ln(5);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
+        $pdf->Ln(10);
+        $pdf->Cell(100, $lineHeight, self::utfConvert($Escola->Cidade.'/'.$Escola->UF.', '.date('d/m/Y')), 0, 0);
+        $pdf->Ln(12);
+        $pdf->SetFont('Arial', 'B', 6);
+        // Primeira linha de assinaturas
+        $pdf->Cell(100, 10, '_____________________________________________________', 0, 0, 'C'); // Assinatura 1
+        $pdf->Cell(100, 10, '_____________________________________________________', 0, 1, 'C'); // Assinatura 2
+
+        // Texto explicativo da primeira linha
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(100, 0, self::utfConvert('Diretor(a)'), 0, 0, 'C'); // Texto 1
+        $pdf->Cell(100, 0, self::utfConvert('Secretário(a)'), 0, 1, 'C');
+        //GERA O PDF
+        $pdf->Output("I",'Historico_'.rand(1,100).".pdf");
+        exit;
     }
 
     public function historico($id){
