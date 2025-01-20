@@ -168,6 +168,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/Faltas/list',[AlunosController::class,'getFaltas'])->name('Alunos/Faltas/list');
         Route::get('Alunos/Faltas/Cadastro',[AlunosController::class,'cadastroFaltas'])->name('Alunos/Faltas/Novo');
         Route::get('Alunos/Faltas/Cadastro/{id}',[AlunosController::class,'cadastroFaltas'])->name('Alunos/Faltas/Edit');
+        Route::get('Alunos/Faltas/Faltou/{IDAluno}/{IDTurma}',[AlunosController::class,'getAulasFaltou'])->name('Alunos/Faltas/Faltou');
         Route::get('Alunos/Faltas/Delete/{id}',[AlunosController::class,'deleteFaltas'])->name('Alunos/Faltas/Delete');
         Route::post('Alunos/Faltas/Save',[AlunosController::class,'saveFaltas'])->name('Alunos/Faltas/Save');
         //MATRICULA

@@ -2763,7 +2763,7 @@ class RelatoriosController extends Controller
         
             foreach ($Aulas as $index => $au) {
                 if ($index < $aulasPreenchidas) {
-                    $pdf->Cell($FLarg, 4, (!AlunosController::alunoVeio($row->IDAluno, $IDAulas[$index])) ? 'FB' : '*', 1, 0, 'C');
+                    $pdf->Cell($FLarg, 4,AlunosController::alunoVeio($row->IDAluno, $IDAulas[$index]), 1, 0, 'C');
                 } else {
                     // Adiciona células vazias ou padrão quando faltar valores em IDAulas
                     $pdf->Cell($FLarg, 4, '-', 1, 0, 'C');
@@ -2772,7 +2772,7 @@ class RelatoriosController extends Controller
         
             // Adiciona os campos FB e FJ
             $pdf->Cell($FLarg, 4, $row->Faltas, 1, 0, 'C');
-            $pdf->Cell($FLarg, 4, 0, 1, 0, 'C');
+            $pdf->Cell($FLarg, 4, $row->FaltasJustificadas, 1, 0, 'C');
             $pdf->Ln();
         }
         //$pdf->Ln();
@@ -3134,6 +3134,7 @@ class RelatoriosController extends Controller
                 a.id as IDAluno,
                 a.DTEntrada,
                 (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="$Periodo" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="$Periodo" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas,
+                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="$Periodo" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="$Periodo" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(fj2.id) FROM faltas_justificadas fj2 INNER JOIN aulas au2 ON(au2.Hash = fj2.HashAula) WHERE TPConteudo = 0 AND fj2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="$Periodo" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as FaltasJustificadas,
                 (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="1º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
                 (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="2º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas2B,
                 (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = $IDTurma AND auFreq.IDDisciplina = $IDDisciplina AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = a.id AND au.id AND au2.IDDisciplina = $IDDisciplina AND au2.Estagio="3º BIM" AND DATE_FORMAT(au2.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas3B,

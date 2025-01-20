@@ -9,9 +9,11 @@ class FaltaJustificada extends Model
 {
     use HasFactory;
 
+    protected $table = "faltas_justificadas";
+
     protected $fillable = [
-        'IDPessoa',
+        'IDAluno',
         'Justificativa',
-        'DTFalta',
+        'HashAula',
     ];
 }

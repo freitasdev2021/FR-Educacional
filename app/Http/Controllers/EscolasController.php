@@ -696,7 +696,10 @@ class EscolasController extends Controller
         $SQL = "SELECT
             a.id,
             m.Nome as Aluno,
-            t.Nome as Turma
+            t.Nome as Turma,
+            t.Serie,
+            e.Nome as Escola,
+            t.id as IDTurma
         FROM matriculas m
         INNER JOIN alunos a ON(a.IDMatricula = m.id)
         LEFT JOIN transferencias tr ON(tr.IDAluno = a.id)
@@ -705,7 +708,7 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(t.IDEscola = e.id)
         INNER JOIN organizacoes o ON(e.IDOrg = o.id)
         INNER JOIN calendario cal ON(cal.IDOrg = e.IDOrg)
-        WHERE e.id IN($EscolasImploded) AND STAluno = 0 GROUP BY a.id";
+        WHERE e.id IN($EscolasImploded) AND STAluno = 0 GROUP BY a.id ORDER BY m.Nome";
 
         return DB::select($SQL);
     }

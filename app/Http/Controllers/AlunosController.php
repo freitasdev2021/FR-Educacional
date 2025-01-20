@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\FeedbackTransferencia;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Renovacoes;
+use App\Models\FaltaJustificada;
 use App\Models\Remanejo;
 use App\Models\Responsavel;
 use App\Models\Anexo;
@@ -145,6 +146,121 @@ class AlunosController extends Controller
         return view('Alunos.Faltas.index',[
             'submodulos' => $modulos
         ]);
+    }
+
+    public function cadastroFaltas($id=null){
+        $view = [
+            "submodulos" => self::submodulos,
+            "id" => "",
+            "Alunos" => EscolasController::getNomeAlunosEscola(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional))
+        ];
+
+        if($id){
+            $view['id'] = $id;
+            $view['Registro'] = FaltaJustificada::find($id);
+        }
+
+        return view('Alunos.Faltas.cadastro',$view);
+    }
+
+    public function getAulasFaltou($IDAluno,$IDTurma){
+        $SQL = <<<SQL
+            SELECT 
+                au.Hash, 
+                au.DSConteudo,
+                au.DTAula,
+                IFNULL((SELECT f.id FROM frequencia f2 WHERE f2.HashAula = f.HashAula AND f2.IDAluno = $IDAluno),"Sim") as Faltou
+            FROM aulas au 
+            LEFT JOIN frequencia f ON(au.Hash = f.HashAula) 
+            LEFT JOIN alunos al ON(f.IDAluno = al.id)
+            WHERE al.IDTurma = $IDTurma
+            GROUP BY au.Hash
+        SQL;
+
+        $select = "";
+
+        $Aulas = DB::select($SQL);
+
+        foreach($Aulas as $au){
+            if($au->Faltou == "Sim"){
+                $select .= "<option value='$au->Hash'>".$au->DSConteudo." ".date('d/m/Y', strtotime($au->DTAula))."</option>";
+            }
+        }
+
+        return $select;
+    }
+
+    public function saveFaltas(request $request){
+        try{
+            $data = $request->all();
+
+            if($request->id){
+                FaltaJustificada::find($request->id)->update($data);
+                $rota = 'Alunos/Faltas/Edit';
+                $aid = $request->id;
+            }else{
+                FaltaJustificada::create($data);
+                $aid = '';
+                $rota = 'Alunos/Faltas/Novo';
+            }
+            $mensagem = "Salvamento Realizado com Sucesso!";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $rota = 'Alunos/Faltas/Novo';
+            $mensagem = 'Erro '.$th;
+            $aid = '';
+            $status = 'error';
+        }finally{
+            return redirect()->route($rota,$aid)->with($status,$mensagem);
+        }
+    }
+
+    public function getFaltas(){
+        $idorg = Auth::user()->id_org;
+        $AND = " WHERE e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
+
+        $SQL = <<<SQL
+            SELECT
+                f.id,
+                au.DSConteudo as Aula,
+                e.Nome as Escola,
+                t.Nome as Turma,
+                au.DTAula,
+                m.Nome as Aluno,
+                f.Justificativa
+            FROM faltas_justificadas f
+            INNER JOIN aulas au ON(au.Hash = f.HashAula)
+            INNER JOIN alunos a ON(a.id = f.IDAluno)
+            INNER JOIN matriculas m ON(m.id = a.IDMatricula)
+            INNER JOIN turmas t ON(t.id = a.IDTurma)
+            INNER JOIN escolas e ON(e.id = t.IDEscola)
+            $AND
+        SQL;
+
+        $registros = DB::select($SQL);
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->Aluno;
+                $item[] = $r->Escola;
+                $item[] = $r->Turma;
+                $item[] = $r->Aula;
+                $item[] = date('d/m/Y',strtotime($r->DTAula));
+                $item[] = $r->Justificativa;
+                $item[] = "<a href=".route('Alunos/Faltas/Delete',$r->id)." class='btn btn-danger btn-xs'>Excluir</a>";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
     }
 
     public function mudancas(){
@@ -970,10 +1086,29 @@ class AlunosController extends Controller
         
     }
 
+    public static function alunoJustificouFalta($IDAluno,$Hash){
+        $SQL = "SELECT 
+            f.id 
+        FROM faltas_justificadas f 
+        INNER JOIN aulas au ON(f.HashAula = au.Hash) 
+        LEFT JOIN frequencia fr ON(fr.HashAula = au.Hash) 
+        WHERE f.HashAula = '$Hash' AND f.IDAluno = $IDAluno";
+
+        return DB::select($SQL);
+    }
+
     public static function alunoVeio($IDAluno,$Hash){
         $SQL = "SELECT au.id FROM aulas au LEFT JOIN frequencia fr ON(fr.HashAula = au.Hash) WHERE au.Hash = '$Hash' AND fr.IDAluno = $IDAluno";
 
-        return count(DB::select($SQL));
+        if(!DB::select($SQL)){
+            if(self::alunoJustificouFalta($IDAluno,$Hash)){
+                return "FJ";
+            }else{
+                return "FB";
+            }
+        }else{
+            return "*";
+        }
     }
 
     public function getRelatorioMatricula($IDAluno){
