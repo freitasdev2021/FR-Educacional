@@ -83,7 +83,7 @@
                             <input type="number" name="Pontuacao" class="form-control">
                         </div>
                         <div class="col-sm-3">
-                            <label>Disciplina/Síntese de Aprendizagem</label>
+                            <label>Disciplina/Campo de Experiência</label>
                             <select class="form-control" name="IDDisciplina">
 
                             </select>

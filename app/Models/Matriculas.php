@@ -52,7 +52,9 @@ class Matriculas extends Model
         'TPSangue',
         'Expedidor',
         'CNascimento',
-        'Nacionalidade'
+        'Nacionalidade',
+        'Integral',
+        'Medicacao'
     ];
 
     public function escola()

@@ -32,7 +32,7 @@ class ProfessoresController extends Controller
         "endereco" => "Edit",
         "rota" => "Professores/Edit"
     ],[
-        "nome" => "Turnos",
+        "nome" => "Horários",
         "endereco" => "Turnos",
         "rota" => "Professores/Turnos"
     ],[
@@ -414,7 +414,7 @@ class ProfessoresController extends Controller
                 "endereco" => "Edit",
                 "rota" => "Professores/Edit"
             ],[
-                "nome" => "Turnos",
+                "nome" => "Horários",
                 "endereco" => "Turnos",
                 "rota" => "Professores/Turnos"
             ],[
@@ -519,7 +519,7 @@ class ProfessoresController extends Controller
             $view['submodulos'][0]['rota'] = "Professores/Edit";
             //
             array_push($view['submodulos'],[
-                "nome" => "Turnos",
+                "nome" => "Horários",
                 "endereco" => "Turnos",
                 "rota" => "Professores/Turnos"
             ]);

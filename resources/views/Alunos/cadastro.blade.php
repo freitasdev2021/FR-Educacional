@@ -362,6 +362,22 @@
                             <label>Tipo Sanguíneo</label>
                             <input type="text" name="TPSangue" class="form-control" value="{{isset($Registro) ? $Registro->TPSangue : ''}}">
                         </div>
+                        <div class="col-sm-6">
+                            <label>Em caso de febre a escola está autorizada a tomar medicação antitérmica?</label>
+                            <select class="form-control" name="Medicacao">
+                                <option value="0" {{isset($Registro->Medicacao) && $Registro->Medicacao == '0' ? 'selected' : ''}}>Não Informado</option>
+                                <option value="1" {{isset($Registro->Medicacao) && $Registro->Medicacao == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->Medicacao) && $Registro->Medicacao == '0' ? 'selected' : ''}}>Não</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label>Autorização para tempo integral</label>
+                            <select class="form-control" name="Integral">
+                                <option value="0" {{isset($Registro->Integral) && $Registro->Integral == '0' ? 'selected' : ''}}>Não Informado</option>
+                                <option value="1" {{isset($Registro->Integral) && $Registro->Integral == '1' ? 'selected' : ''}}>Sim</option>
+                                <option value="0" {{isset($Registro->Integral) && $Registro->Integral == '0' ? 'selected' : ''}}>Não</option>
+                            </select>
+                        </div>
                         <div class="checkboxEscolas">
                             <div class="form-check escola">
                                 <br>
