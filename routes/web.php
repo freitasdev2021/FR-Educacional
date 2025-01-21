@@ -186,17 +186,21 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::patch('Alunos/RemanejarMassa/{IDTurmaOrigem}/{IDEscola}',[AlunosController::class,'remanejarMassa'])->name('Alunos/RemanejarMassa');
         Route::post('/Alunos/Renovar',[AlunosController::class,'renovar'])->name('Alunos/Renovar');
         Route::post('/Alunos/Transferidos/Matricular',[AlunosController::class,'matricularTransferido'])->name('Alunos/Transferidos/Matricular');
-        //FICHA AVALIATIVA
+        //FICHA EVOLUTIVA
         Route::post('Fichas/Save',[FichaController::class,'save'])->name('Fichas/Save');
         Route::get('Fichas',[FichaController::class,'index'])->name('Fichas/index');
         Route::get('Fichas/list/{AND}',[FichaController::class,'getFichas'])->name('Fichas/list');
         Route::get('Fichas/Cadastro',[FichaController::class,'cadastro'])->name('Fichas/Novo');
         Route::get('Fichas/Cadastro/{id}',[FichaController::class,'cadastro'])->name('Fichas/Edit');
-        Route::get('Fichas/Respostas/{id}',[FichaController::class,'respostas'])->name('Fichas/Respostas');
-        Route::get('Fichas/Respostas/Export/{id}', [FichaController::class, 'exportRespostas'])->name('Fichas/Respostas/Export');
         Route::get('Fichas/Imprimir/{IDTurma}/{Etapa}', [FichaController::class, 'exportarRespostasPDF'])->name('Fichas/Imprimir');
         Route::get('Fichas/Visualizar/{id}',[FichaController::class,'visualizar'])->name('Fichas/Visualizar');
         Route::post('Fichas/Responder',[FichaController::class,'responder'])->name('Fichas/Responder');
+        //SINTESE DAS APRENDIZAGENS
+        Route::get('Fichas/Sinteses/list/{AND}',[FichaController::class,'getSinteses'])->name('Fichas/Sinteses/list');
+        Route::get('Fichas/Sinteses',[FichaController::class,'sinteses'])->name('Fichas/Sinteses');
+        Route::get('Fichas/Sinteses/Cadastro',[FichaController::class,'cadastroSinteses'])->name('Fichas/Sinteses/Novo');
+        Route::get('Fichas/Sinteses/Cadastro/{id}',[FichaController::class,'cadastroSinteses'])->name('Fichas/Sinteses/Edit');
+        Route::post('Fichas/Sinteses/Save',[FichaController::class,'saveSinteses'])->name('Fichas/Sinteses/Save');
         ////EAD
         //view
         Route::get('EAD',[EADController::class,'index'])->name('EAD/index');

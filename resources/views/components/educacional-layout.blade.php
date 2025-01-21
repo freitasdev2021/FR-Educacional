@@ -18,8 +18,7 @@
                   <x-modulo nome="Lançamentos" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>
                   <x-modulo nome="Planejamentos" icon="bx bx-list-ol" rota="Planejamentos/index" endereco="Planejamentos"/>
                   <x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>
-                  <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
-                  <x-modulo nome="Responsáveis" icon="bx bx-body" rota="Responsaveis/index" endereco="Responsaveis"/>
+                  <x-modulo nome="Fichas" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
                   <x-modulo nome="EAD" icon="bx bx-desktop" rota="EAD/index" endereco="EAD"/>
                   @if(Auth::user()->tipo == 6)
                   <x-modulo nome="Apoio" icon="bx bxs-universal-access" rota="Apoio/index" endereco="Apoio"/>
@@ -39,7 +38,7 @@
                   @if(in_array(Auth::user()->tipo,[2,4]))<x-modulo nome="Lançamentos" icon="bx bxs-book" rota="Aulas/index" endereco="Aulas"/>@endif
                   <x-modulo nome="Pedagogos" icon="bx bx-library" rota="Pedagogos/index" endereco="Pedagogos"/>
                   @if(in_array(Auth::user()->tipo,[4,4.5]))<x-modulo nome="Ocorrências" icon="bx bx-highlight" rota="Ocorrencias/index" endereco="Ocorrencias"/>@endif
-                  <x-modulo nome="Ficha Avaliativa" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
+                  <x-modulo nome="Fichas" icon="bx bx-spreadsheet" rota="Fichas/index" endereco="Fichas"/>
                   <x-modulo nome="Alunos" icon="bx bxs-group" rota="Alunos/index" endereco="Alunos"/>
                   <x-modulo nome="Biblioteca" icon="bx bx-book" rota="Biblioteca/index" endereco="Biblioteca"/>
                   <x-modulo nome="Funcionários" icon="bx bxs-user-detail" rota="Auxiliares/index" endereco="Auxiliares"/>

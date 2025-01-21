@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Ficha;
 use App\Models\Resposta;
 use App\Models\Aluno;
+use App\Models\Sintese;
 use App\Models\Matricula;
 use App\Models\Turma;
 use App\Models\Conceito;
@@ -20,20 +21,21 @@ use App\Models\Escola;
 class FichaController extends Controller
 {
     public const submodulos = array([
-        'nome' => 'Fichas',
+        'nome' => 'Ficha Evolutiva',
         'rota' => 'Fichas/index',
         'endereco' => 'index'
+    ],[
+        'nome' => 'Sínteses de Aprendizagem',
+        'rota' => 'Fichas/Sinteses',
+        'endereco' => 'Sinteses'
     ]);
 
     public const cadastroSubmodulos = array([
         'nome' => 'Fichas',
         'rota' => 'Fichas/index',
         'endereco' => 'index'
-    ],[
-        'nome' => 'Respostas',
-        'rota' => 'Fichas/Respostas',
-        'endereco' => 'Respostas'
     ]);
+
     public function index(){
         $AND = " ";
 
@@ -60,6 +62,28 @@ class FichaController extends Controller
         }
 
         return view('Fichas.index',$view);
+    }
+
+    public function sinteses(){
+        $AND = " ";
+
+        if(isset($_GET['IDDisciplina']) && !empty($_GET['IDDisciplina'])){
+            $AND .=" AND d.id='".$_GET['IDDisciplina']."'";
+        }
+
+        $view = [
+            'submodulos' => self::submodulos,
+            'id' => '',
+            "AND"=> $AND
+        ];
+
+        if(Auth::user()->tipo == 6){
+            $view['Disciplinas'] = EscolasController::getDisciplinasProfessor(Auth::user()->id);
+        }else{
+            $view['Disciplinas'] = EscolasController::getDisciplinasEscola();
+        }
+
+        return view('Fichas.Sinteses.index',$view);
     }
 
     public function getSelectAlunosFicha(Request $request){
@@ -119,29 +143,26 @@ class FichaController extends Controller
         return view('Fichas.cadastro', $view);
     }
 
-    public function respostas($id){
-        $AND = "";
-        if (request()->has('IDTurma') && !empty(request('IDTurma'))) {
-            $AND .= " AND a.IDTurma = " . request('IDTurma');
+    public function cadastroSinteses($id = null){
+        $view = array(
+            'id' => '',
+            'submodulos' => self::submodulos
+        );
+
+        if(Auth::user()->tipo == 6){
+            $view['Disciplinas'] = EscolasController::getDisciplinasProfessor(Auth::user()->id);
+        }else{
+            $view['Disciplinas'] = EscolasController::getDisciplinasEscola();
+        }
+        
+
+        if($id){
+            $Conceito = Conceito::find($id);
+            $view['id'] = $id;
+            $view['Registro'] = Sintese::find($id);
         }
 
-        $SQL = "SELECT r.Respostas as respostas, m.Nome as nome 
-        FROM respostas_ficha r 
-        INNER JOIN ficha_avaliativa f ON f.id = r.IDFicha 
-        INNER JOIN alunos a ON r.IDAluno = a.id 
-        INNER JOIN matriculas m ON m.id = a.IDMatricula 
-        WHERE f.id = $id $AND";
-
-        //dd($SQL);
-
-        $registros = DB::select($SQL);
-
-        return view('Fichas.respostas',array(
-            "submodulos" => self::cadastroSubmodulos,
-            "registros" => $registros,
-            "Turmas" => EscolasController::getTurmasSelect(),
-            "id" => $id
-        ));
+        return view('Fichas.Sinteses.cadastro', $view);
     }
 
     public static function getFichaAluno($IDAluno){
@@ -453,6 +474,31 @@ class FichaController extends Controller
         }
     }
 
+    public function saveSinteses(Request $request){
+        try{
+            $data = $request->all();
+
+            if($request->id){
+                Sintese::find($request->id)->update($data);
+                $rota = 'Fichas/Sinteses/Edit';
+                $aid = $request->id;
+            }else{
+                Sintese::create($data);
+                $aid = '';
+                $rota = 'Fichas/Sinteses/Novo';
+            }
+            $mensagem = "Salvamento Realizado com Sucesso!";
+            $status = 'success';
+        }catch(\Throwable $th){
+            $rota = 'Fichas/Sinteses/Novo';
+            $mensagem = 'Erro '.$th;
+            $aid = '';
+            $status = 'error';
+        }finally{
+            return redirect()->route($rota,$aid)->with($status,$mensagem);
+        }
+    }
+
     public function save(Request $request){
         try{
             $Conceitos = [];
@@ -530,6 +576,53 @@ class FichaController extends Controller
                 $item[] = $r->Etapa;
                 $item[] = "
                 <a class='btn btn-success btn-xs' href=".route('Fichas/Edit',$r->IDFicha).">Abrir</a>&nbsp
+                ";
+                $itensJSON[] = $item;
+            }
+        }else{
+            $itensJSON = [];
+        }
+        
+        $resultados = [
+            "recordsTotal" => intval(count($registros)),
+            "recordsFiltered" => intval(count($registros)),
+            "data" => $itensJSON 
+        ];
+        
+        echo json_encode($resultados);
+    }
+
+    public function getSinteses($AND){
+        $IDOrg = Auth::user()->id_org;
+        if(Auth::user()->tipo == 6){
+            $ID = implode(",",ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'sds'));
+        }else{
+            $ID = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+        }
+
+        $SQL = <<<SQL
+            SELECT 
+                sa.Referencia,
+                d.NMDisciplina as Disciplina,
+                sa.id,
+                sa.Sintese 
+            FROM sintese_aprendizagem as sa 
+            INNER JOIN disciplinas d ON(d.id = sa.IDDisciplina)
+            INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
+            INNER JOIN escolas es ON(es.id = ad.IDEscola)
+            WHERE es.IDOrg = $IDOrg $AND GROUP BY sa.id
+        SQL;
+
+        $registros = DB::select($SQL);
+        
+        if(count($registros) > 0){
+            foreach($registros as $r){
+                $item = [];
+                $item[] = $r->Referencia;
+                $item[] = $r->Sintese;
+                $item[] = $r->Disciplina;
+                $item[] = "
+                <a class='btn btn-success btn-xs' href=".route('Fichas/Sinteses/Edit',$r->id).">Editar</a>&nbsp
                 ";
                 $itensJSON[] = $item;
             }
