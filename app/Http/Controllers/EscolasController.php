@@ -451,14 +451,15 @@ class EscolasController extends Controller
 
         $SQL = <<<SQL
         SELECT 
-            d.id as IDDisciplina
+            d.id as IDDisciplina,
+            d.NMDisciplina as Disciplina
         FROM disciplinas d
         INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
         WHERE ad.IDEscola IN($IDEscolas)
         SQL;
 
         foreach(DB::select($SQL) as $d){
-            array_push($IDDisciplinas,$d->IDDisciplina);
+            array_push($IDDisciplinas,$d);
         }
 
         return $IDDisciplinas;
