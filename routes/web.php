@@ -201,6 +201,9 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Fichas/Sinteses/Cadastro',[FichaController::class,'cadastroSinteses'])->name('Fichas/Sinteses/Novo');
         Route::get('Fichas/Sinteses/Cadastro/{id}',[FichaController::class,'cadastroSinteses'])->name('Fichas/Sinteses/Edit');
         Route::post('Fichas/Sinteses/Save',[FichaController::class,'saveSinteses'])->name('Fichas/Sinteses/Save');
+        //FICHA AVALIATIVA
+        Route::get('Fichas/Avaliativa',[FichaController::class,'avaliativa'])->name('Fichas/Avaliativa');
+        Route::post('Fichas/Avaliativa/Save',[FichaController::class,'saveAvaliativa'])->name('Fichas/Avaliativa/Save');
         ////EAD
         //view
         Route::get('EAD',[EADController::class,'index'])->name('EAD/index');

@@ -28,6 +28,10 @@ class FichaController extends Controller
         'nome' => 'Sínteses de Aprendizagem',
         'rota' => 'Fichas/Sinteses',
         'endereco' => 'Sinteses'
+    ],[
+        'nome' => 'Ficha Avaliativa',
+        'rota' => 'Fichas/Avaliativa',
+        'endereco' => 'Avaliativa'
     ]);
 
     public const cadastroSubmodulos = array([
@@ -62,6 +66,150 @@ class FichaController extends Controller
         }
 
         return view('Fichas.index',$view);
+    }
+
+    public function avaliativa(){
+        $AND = " ";
+        $IDOrg = Auth::user()->id_org;
+        if(isset($_GET['IDTurma']) && !empty($_GET['IDTurma'])){
+            $AND .=" AND al.IDTurma='".$_GET['IDTurma']."'";
+        }
+
+        $SQLFichas = <<<SQL
+            SELECT 
+                d.NMDisciplina as Disciplina,
+                CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    DISTINCT
+                    '{'
+                    ,'"Referencia":"', sa.Referencia, '"'
+                    ,',"Sintese":"', sa.Sintese, '"'
+                    ,'}'
+                    SEPARATOR ','
+                    ),
+                ']'
+                    ) AS Sinteses
+            FROM sintese_aprendizagem as sa 
+            INNER JOIN disciplinas d ON(d.id = sa.IDDisciplina)
+            INNER JOIN alocacoes_disciplinas ad ON(ad.IDDisciplina = d.id)
+            INNER JOIN escolas es ON(es.id = ad.IDEscola)
+            WHERE es.IDOrg = $IDOrg GROUP BY d.id
+        SQL;
+
+        $SQLAlunos = <<<SQL
+            SELECT 
+                m.Nome as Aluno
+            FROM matriculas m
+            INNER JOIN alunos al ON(al.IDMatricula = m.id)
+            WHERE STAluno = 0 $AND ORDER BY m.Nome
+        SQL;
+
+        if((isset($_GET['IDTurma']) && !empty($_GET['IDTurma']))){
+            $Alunos = DB::select($SQLAlunos);
+        }else{
+            $Alunos = [];
+        }
+
+        
+
+        $view = [
+            'submodulos' => self::submodulos,
+            'id' => '',
+            'Fichas' => DB::select($SQLFichas),
+            'Alunos' => $Alunos
+        ];
+
+        if(Auth::user()->tipo == 6){
+            $IDTurmas = ProfessoresController::getIdTurmasProfessor(Auth::user()->id,'sds');
+            $view['Turmas'] = Turma::findMany($IDTurmas);
+        }else{
+            $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
+            $view['Turmas'] = Turma::where('IDEscola',$IDEscolas)->get();
+        }
+
+        return view('Fichas.Avaliar.index',$view);
+    }
+
+    public function saveAvaliativa(Request $request){
+        $Sintese = json_decode($request->EnviarSintese,true);
+        //dd($Sintese);
+        $Fichas = json_decode($request->Fichas,true);
+        //dd($Fichas);
+        $IDTurma = $request->IDTurma;
+        $Escola = EscolasController::getEscolaTurma($IDTurma);
+        $lineHeight = 6;
+        $fontHeader = 10;
+        $fontBody = 7;
+        //PDF
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetMargins(3, 3, 3); 
+        self::criarCabecalho($pdf,$Escola->Nome,$Escola->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto,"FICHA AVALIATIVA INFANTIL");
+        //CORPO DO DOCUMENTO
+        $pdf->SetFont('Arial', 'B', $fontHeader);
+        //LEGENDA DAS FICHAS
+
+        $xInicial = 10; // Posição inicial no eixo X
+        $yInicial = $pdf->GetY(); // Posição inicial no eixo Y
+        $containerLargura = 50; // Largura de cada container
+        $espacamento = 10; // Espaço entre os containers
+        $alturaMaximaContainer = 35; // Altura máxima antes de quebrar para a próxima linha
+
+        foreach ($Fichas as $keyfic => $fic) {
+            // Verifica se o próximo container ultrapassa a largura da página
+            if ($xInicial + $containerLargura > $pdf->GetPageWidth() - 10) {
+                $xInicial = 10; // Volta para o início
+                $yInicial += $alturaMaximaContainer; // Avança para a próxima linha
+            }
+
+            // Define a posição inicial do container
+            $pdf->SetXY($xInicial, $yInicial);
+
+            // Título do container (Disciplina)
+            $pdf->SetFont('Arial', 'B', $fontBody);
+            $pdf->MultiCell($containerLargura, $lineHeight, self::utfConvert(1+$keyfic.". ".$fic['Disciplina']), 0, '');
+
+            // Listinha de texto com as sínteses
+            $pdf->SetFont('Arial', '', $fontBody);
+            foreach (json_decode($fic['Sinteses']) as $si) {
+                $pdf->SetX($xInicial); // Mantém o alinhamento no container
+                $texto = "- " . self::utfConvert($si->Referencia) . ": " . self::utfConvert($si->Sintese);
+                $pdf->MultiCell($containerLargura, $lineHeight, $texto, 0, 'L');
+            }
+
+            // Ajusta a posição para o próximo container
+            $xInicial += $containerLargura + $espacamento;
+        }
+
+        $pdf->Ln();        
+        //FIM DA LEGENDA DAS FICHAS
+        $pdf->Cell(50, $lineHeight, self::utfConvert('Aluno'), 1);
+        foreach($Fichas as $keyF => $f){
+            $countSinteses = count(json_decode($f['Sinteses'],true));
+            $pdf->Cell(9*$countSinteses, $lineHeight, $keyF+1, 1);
+        }
+        $pdf->Ln();
+        //CORPO DA TABELA
+        $pdf->SetFont('Arial', '', $fontBody);
+        foreach($Sintese as $s){
+            $pdf->Cell(50, $lineHeight, self::utfConvert($s['Aluno']), 1);
+            //dd($s['Disciplinas']);
+            foreach($s['Disciplinas'] as $disc){
+                foreach($disc as $dis){
+                    foreach($dis as $keyD => $d){
+                        $pdf->Cell(9, $lineHeight, $keyD." - ".$d, 1);
+                    }
+                }
+            }
+            $pdf->Ln();
+        }
+        //FIM DO CORPO DA TABELA
+        $pdf->Ln();
+        $pdf->Cell(0, $lineHeight, self::utfConvert('LEGENDA: S - SIM, N - NÃO, AV - AS VEZES'), 0, 1);
+        //FIM DO CORPO DO DOCUMENTO
+        $pdf->Output('I',"Ficha Infantil FR Educacional".'.pdf');
+        exit;
     }
 
     public function sinteses(){

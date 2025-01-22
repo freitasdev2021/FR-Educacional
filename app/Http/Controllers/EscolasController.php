@@ -432,6 +432,19 @@ class EscolasController extends Controller
         return DB::select($SQL);
     }
 
+    public static function getEscolaTurma($IDTurma){
+        $SQL = "SELECT 
+            e.*,
+            o.Organizacao
+        FROM turmas t 
+        INNER JOIN escolas e ON(e.id = t.IDEscola)
+        INNER JOIN organizacoes o ON(o.id = e.IDOrg)
+        WHERE t.id = $IDTurma
+        ";
+
+        return DB::select($SQL)[0];
+    }
+
     public static function getDisciplinasEscola(){
         $IDDisciplinas = array();
         $IDEscolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
