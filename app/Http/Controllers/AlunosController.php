@@ -285,7 +285,7 @@ class AlunosController extends Controller
                 FROM alunos a 
                 INNER JOIN matriculas m ON(m.id = a.IDMatricula)
                 LEFT JOIN reclassificacoes rec ON(rec.IDAluno = a.id)
-                WHERE a.IDTurma = $IDTurma
+                WHERE a.IDTurma = $IDTurma AND a.STAluno = 0
             SQL;
 
             $query = DB::select($SQL);

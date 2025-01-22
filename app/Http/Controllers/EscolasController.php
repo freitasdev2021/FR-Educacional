@@ -825,6 +825,8 @@ class EscolasController extends Controller
             }else{
                 $turma['IDEscola'] = self::getEscolaDiretor(Auth::user()->id);
             }
+
+            //dd($turma);
             
             if($request->id){
                 $Turma = Turma::find($request->id);
