@@ -611,7 +611,7 @@ class EscolasController extends Controller
         INNER JOIN escolas e ON(e.id = t.IDEscola)
         INNER JOIN organizacoes o on(e.IDOrg = o.id)
         LEFT JOIN alunos a ON(a.IDTurma = t.id)
-        WHERE o.id = $idorg AND a.STAluno = 0 $AND
+        WHERE o.id = $idorg $AND
         GROUP BY 
             t.id, t.Nome, t.INITurma, t.TERTurma, e.Nome, t.Serie
         SQL;
