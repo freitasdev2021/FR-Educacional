@@ -15,17 +15,7 @@ class Diretor extends Model
         'id',
         'IDEscola',
         'Nome',
-        'Nascimento',
-        'Admissao',
         'Email',
-        'Celular',
-        'TerminoContrato',
-        'CPF',
-        'CEP',
-        'Rua',
-        'UF',
-        'Cidade',
-        'Bairro',
-        'Numero',
+        'TPContrato'
     ];
 }

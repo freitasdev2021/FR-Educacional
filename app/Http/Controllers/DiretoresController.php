@@ -25,15 +25,13 @@ class DiretoresController extends Controller
 
 
     public function getDiretores(){
-        $diretores = DB::select("SELECT d.id as IDDiretor,e.Nome as Escola,d.Nome as Diretor,d.Admissao,d.TerminoContrato,d.CEP,d.Rua,d.UF,d.Cidade,d.Bairro,d.Numero FROM diretores d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' ");
+        $diretores = DB::select("SELECT d.id as IDDiretor,e.Nome as Escola,d.Nome as Diretor,CASE WHEN(d.TPContrato = 0) THEN 'Contratado' ELSE 'Efetivo/Temporário' END as TPContrato FROM diretores d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' ");
         if(count($diretores) > 0){
             foreach($diretores as $d){
                 $item = [];
                 $item[] = $d->Diretor;
-                $item[] = Controller::data($d->Admissao,'d/m/Y');
-                $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
                 $item[] = $d->Escola;
-                $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
+                $item[] = $d->TPContrato;
                 $item[] = "<a href='".route('Diretores/Edit',$d->IDDiretor)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
@@ -75,9 +73,6 @@ class DiretoresController extends Controller
         try{
             $aid = '';
             $dir = $request->all();
-            $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
-            $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
-            $dir['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 $Diretor = Diretor::find($request->id);
                 $Diretor->update($dir);

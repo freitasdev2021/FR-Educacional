@@ -19,10 +19,8 @@
                     <thead>
                       <tr>
                         <th style="text-align:center;" scope="col">Nome</th>
-                        <th style="text-align:center;" scope="col">Admissão</th>
-                        <th style="text-align:center;" scope="col">Contrato</th>
                         <th style="text-align:center;" scope="col">Escola</th>
-                        <th style="text-align:center;" scope="col">Endereço</th>
+                        <th style="text-align:center;" scope="col">Tipo do Contrato</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

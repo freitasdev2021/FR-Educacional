@@ -50,17 +50,10 @@ class AuxiliaresController extends Controller
             break;
         }
         $Auxiliares = DB::select("SELECT 
-                a.id as IDDiretor,
-                a.Nome as Escola,
+                a.id as IDAuxiliar,
+                e.Nome as Escola,
                 a.Nome as Auxiliar,
-                a.Admissao,
-                a.TerminoContrato,
-                a.CEP,
-                a.Rua,
-                a.UF,
-                a.Cidade,
-                a.Bairro,
-                a.Numero 
+                CASE WHEN(a.TPContrato = 0) THEN 'Contratado' ELSE 'Efetivo/Temporário' END as TPContrato
             FROM auxiliares a
             LEFT JOIN users u ON(u.IDProfissional = a.id) 
             LEFT JOIN escolas e ON(a.IDEscola = e.id) 
@@ -72,11 +65,9 @@ class AuxiliaresController extends Controller
             foreach($Auxiliares as $d){
                 $item = [];
                 $item[] = $d->Auxiliar;
-                $item[] = Controller::data($d->Admissao,'d/m/Y');
-                $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
                 $item[] = $d->Escola;
-                $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
-                $item[] = "<a href='".route('Auxiliares/Edit',$d->IDDiretor)."' class='btn btn-primary btn-xs'>Editar</a>";
+                $item[] = $d->TPContrato;
+                $item[] = "<a href='".route('Auxiliares/Edit',$d->IDAuxiliar)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
         }else{
@@ -112,9 +103,6 @@ class AuxiliaresController extends Controller
         try{
             $aid = '';
             $dir = $request->all();
-            $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
-            $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
-            $dir['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 $Auxiliar = Auxiliar::find($request->id);
                 $Auxiliar->update($dir);

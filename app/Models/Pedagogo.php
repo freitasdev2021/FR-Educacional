@@ -10,21 +10,10 @@ class Pedagogo extends Model
     use HasFactory;
 
     protected $fillable = [
-        'IDEscola',
         'Nome',
-        'Nascimento',
-        'Admissao',
         'Email',
-        'Celular',
         'IDUser',
-        'TerminoContrato',
-        'CEP',
-        'Rua',
-        'CPF',
-        'UF',
-        'Cidade',
-        'Bairro',
-        'Numero',
         'Ativo',
+        'TPContrato'
     ];
 }

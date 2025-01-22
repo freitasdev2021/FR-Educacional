@@ -13,9 +13,9 @@
                     <a href="{{route('Professores/Novo')}}" class="btn btn-fr">Adicionar</a>
                 </div>
             @endif
-                <div class="col-auto">
+                {{-- <div class="col-auto">
                     <a href="{{route('Professores/Imprimir')}}" class="btn btn-fr">Imprimir</a>
-                </div>
+                </div> --}}
             </div>
             <hr>
             <!--LISTAS-->
@@ -24,10 +24,9 @@
                     <thead>
                       <tr>
                         <th style="text-align:center;" scope="col">Nome</th>
-                        <th style="text-align:center;" scope="col">Admissão</th>
-                        <th style="text-align:center;" scope="col">Contrato</th>
                         @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th>@endif
-                        <th style="text-align:center;" scope="col">Endereço</th>
+                        <th style="text-align:center;" scope="col">Email</th>
+                        <th style="text-align:center;" scope="col">Tipo de Contrato</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>
                     </thead>

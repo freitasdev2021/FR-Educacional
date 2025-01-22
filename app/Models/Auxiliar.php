@@ -12,21 +12,11 @@ class Auxiliar extends Model
     protected $fillable = [
         'IDEscola',
         'Nome',
-        'Nascimento',
-        'Admissao',
         'Tipo',
         'IDUser',
         'Email',
-        'CPF',
-        'Celular',
-        'TerminoContrato',
-        'CEP',
-        'Rua',
-        'UF',
-        'Cidade',
-        'Bairro',
-        'Numero',
         'Ativo',
+        'TPContrato'
     ];
 
     public function escola()

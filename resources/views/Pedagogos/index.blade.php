@@ -19,14 +19,13 @@
             <div class="col-sm-12 p-2">
                 <table class="table table-sm tabela" id="escolas" data-rota="{{route('Pedagogos/list')}}">
                     <thead>
-                      <tr>
-                        <th style="text-align:center;" scope="col">Nome</th>
-                        <th style="text-align:center;" scope="col">Admissão</th>
-                        <th style="text-align:center;" scope="col">Contrato</th>
-                        @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th> @endif
-                        <th style="text-align:center;" scope="col">Endereço</th>
-                        <th style="text-align:center;" scope="col">Opções</th>
-                      </tr>
+                        <tr>
+                            <th style="text-align:center;" scope="col">Nome</th>
+                            @if(in_array(Auth::user()->tipo,[2,2.5]))<th style="text-align:center;" scope="col">Escola</th>@endif
+                            <th style="text-align:center;" scope="col">Email</th>
+                            <th style="text-align:center;" scope="col">Tipo de Contrato</th>
+                            <th style="text-align:center;" scope="col">Opções</th>
+                        </tr>
                     </thead>
                     <tbody>
                       

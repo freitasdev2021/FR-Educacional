@@ -27,7 +27,7 @@
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     @if(in_array(Auth::user()->tipo,[2,2.5]))
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-6">
                             <label>Escola</label>
                             <select name="IDEscola" class="form-control" required>
                                 <option value="">Selecione</option>
@@ -36,10 +36,7 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    @endif
-                    <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-6">
                             <label>Série</label>
                             <select name="Serie" class="form-control">
                                 <option value="">Selecione</option>
@@ -70,6 +67,9 @@
                                 </optgroup>
                             </select>
                         </div>
+                    </div>
+                    @endif
+                    <div class="row">
                         <div class="col-sm-2">
                             <label>Salas</label>
                             <select name="IDSala" class="form-control">
@@ -87,11 +87,11 @@
                             <label>Matérias p/Repetência</label>
                             <input type="number" name="QTRepetencia" class="form-control" value="{{isset($Registro->QTRepetencia) ? $Registro->QTRepetencia : ''}}">
                         </div>
-                        <div class="col-sm-1">
+                        <div class="col-sm-3">
                             <label>Frequência MIN (%)</label>
                             <input type="number" name="MINFrequencia" class="form-control" value="{{isset($Registro->MINFrequencia) ? $Registro->MINFrequencia : ''}}">
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                             <label>Tipo de Avaliação</label>
                             <select name="TPAvaliacao" class="form-control">
                                 <option value="Nota" {{(isset($Registro->TPAvaliacao) && $Registro->TPAvaliacao == "Nota" ) ? 'selected' : ''}}>Nota</option>
@@ -119,19 +119,19 @@
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <label>Total</label>
-                            <input type="number" name="NotaPeriodo" class="form-control" value="{{isset($Registro->NotaPeriodo) ? $Registro->NotaPeriodo : ''}}"> 
+                            <label>Total Etapa</label>
+                            <input type="number" placeholder="Ex: 25" name="NotaPeriodo" class="form-control" value="{{isset($Registro->NotaPeriodo) ? $Registro->NotaPeriodo : ''}}"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>Média CD.Etapa</label>
-                            <input type="number" name="MediaPeriodo" class="form-control" value="{{isset($Registro->MediaPeriodo) ? $Registro->MediaPeriodo : ''}}"> 
+                            <label>Média Etapa</label>
+                            <input type="number" placeholder="Ex: 15" name="MediaPeriodo" class="form-control" value="{{isset($Registro->MediaPeriodo) ? $Registro->MediaPeriodo : ''}}"> 
                         </div>
                         <div class="col-sm-2">
                             <label>Total Ano</label>
-                            <input type="number" name="TotalAno" class="form-control" value="{{isset($Registro->TotalAno) ? $Registro->TotalAno : ''}}"> 
+                            <input type="number" placeholder="Ex: 100" name="TotalAno" class="form-control" value="{{isset($Registro->TotalAno) ? $Registro->TotalAno : ''}}"> 
                         </div>
                         <div class="col-sm-2">
-                            <label>Capacidade</label>
+                            <label>Capacidade da turma</label>
                             <input type="number" name="Capacidade" class="form-control" value="{{isset($Registro->Capacidade) ? $Registro->Capacidade : ''}}"> 
                         </div>
                         <div class="col-sm-2">
@@ -205,5 +205,5 @@
             </div>
             <!--//-->
         </div>
-    </div>>
+    </div>
 </x-educacional-layout>

@@ -305,20 +305,14 @@ class ProfessoresController extends Controller
             p.id AS IDProfessor,
             CONCAT('[', GROUP_CONCAT('"', e.Nome, '"' SEPARATOR ','), ']') AS Escolas,
             p.Nome AS Professor,
-            p.Admissao,
-            p.TerminoContrato,
-            p.CEP,
-            p.Rua,
-            p.UF,
-            p.Cidade,
-            p.Bairro,
-            p.Numero
+            p.Email,
+            CASE WHEN(p.TPContrato = 0) THEN 'Contratado' ELSE 'Efetivo/Temporário' END as TPContrato
         FROM professores p
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
         WHERE o.id = $orgId $AND AND a.TPProfissional = "PROF"
-        GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
+        GROUP BY p.id, p.Nome;
         SQL;
 
         $Professores = DB::select($SQL);
@@ -327,10 +321,9 @@ class ProfessoresController extends Controller
             foreach($Professores as $d){
                 $item = [];
                 $item[] = $d->Professor;
-                $item[] = Controller::data($d->Admissao,'d/m/Y');
-                $item[] = Controller::data($d->TerminoContrato,'d/m/Y');
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
-                $item[] = $d->Rua.", ".$d->Numero." ".$d->Bairro." ".$d->Cidade."/".$d->UF;
+                $item[] = $d->Email;
+                $item[] = $d->TPContrato;
                 $item[] = "<a href='".route('Professores/Edit',$d->IDProfessor)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
@@ -783,9 +776,6 @@ class ProfessoresController extends Controller
         try{
             $aid = '';
             $dir = $request->all();
-            $dir['CEP'] = preg_replace('/\D/', '', $request->CEP);
-            $dir['Celular'] = preg_replace('/\D/', '', $request->Celular);
-            $dir['CPF'] = preg_replace('/\D/', '', $request->CPF);
             if($request->id){
                 $Professor = Professor::find($request->id);
                 $Professor->update($dir);
