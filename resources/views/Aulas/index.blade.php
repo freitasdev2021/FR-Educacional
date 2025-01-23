@@ -174,8 +174,10 @@
                                             @endif
                                             <br>
                                             <div class="col-auto">
+                                                @if(in_array(Auth::user()->tipo,[4,5,4.5,5.5]))
                                                 <button type="submit" class="btn btn-primary">Alterar</button>
                                                 &nbsp;
+                                                @endif
                                                 <a href="{{route('Aulas/Presenca',$a->Hash)}}" class="btn btn-warning">Lista de Chamada</a>
                                                 &nbsp;
                                                 <a href="{{route('Aulas/Delete',$a->Hash)}}" class="btn btn-danger">Excluir</a>

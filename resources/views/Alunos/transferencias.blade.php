@@ -9,9 +9,11 @@
             <!--CABECALHO-->
             @if(in_array(Auth::user()->tipo,[4,4.5,2,2.5]))
             <div class="col-sm-12 p-2 row">
+                @if(in_array(Auth::user()->tipo,[4,4.5]))
                 <div class="col-auto">
                     <a href="{{route('Alunos/Transferencias/Novo',$id)}}" class="btn btn-fr">Adicionar</a>
                 </div>
+                @endif
                 <div class="col-auto">
                     <a href="{{route('Alunos/Comprovante/Transferencia',$id)}}" class="btn btn-fr">Declaração de Transferência</a>
                 </div>

@@ -1180,22 +1180,27 @@ class AlunosController extends Controller
         
     }
 
-    public static function alunoJustificouFalta($IDAluno,$Hash){
+    public static function alunoJustificouFalta($IDAluno,$Hash,$Periodo){
         $SQL = "SELECT 
             f.id 
         FROM faltas_justificadas f 
         INNER JOIN aulas au ON(f.HashAula = au.Hash) 
         LEFT JOIN frequencia fr ON(fr.HashAula = au.Hash) 
-        WHERE f.HashAula = '$Hash' AND f.IDAluno = $IDAluno";
+        WHERE f.HashAula = '$Hash' AND f.IDAluno = $IDAluno AND au.Estagio = '$Periodo'";
 
         return DB::select($SQL);
     }
 
-    public static function alunoVeio($IDAluno,$Hash){
+    public function deleteFaltas($IDFalta){
+        FaltaJustificada::find($IDFalta)->delete();
+        return redirect()->back();
+    }
+
+    public static function alunoVeio($IDAluno,$Hash,$Periodo){
         $SQL = "SELECT au.id FROM aulas au LEFT JOIN frequencia fr ON(fr.HashAula = au.Hash) WHERE au.Hash = '$Hash' AND fr.IDAluno = $IDAluno";
 
         if(!DB::select($SQL)){
-            if(self::alunoJustificouFalta($IDAluno,$Hash)){
+            if(self::alunoJustificouFalta($IDAluno,$Hash,$Periodo)){
                 return "FJ";
             }else{
                 return "FB";
