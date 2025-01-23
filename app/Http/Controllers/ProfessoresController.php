@@ -312,7 +312,7 @@ class ProfessoresController extends Controller
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
         WHERE o.id = $orgId $AND AND a.TPProfissional = "PROF"
-       GROUP BY p.id, p.Nome;
+        GROUP BY p.id, p.Nome;
         SQL;
 
         $Professores = DB::select($SQL);
