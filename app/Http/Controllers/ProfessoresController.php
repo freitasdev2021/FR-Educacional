@@ -72,7 +72,7 @@ class ProfessoresController extends Controller
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
         WHERE o.id = $IDRede AND a.TPProfissional = "PROF"
-        GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
+        GROUP BY p.id, p.Nome;
         SQL;
 
         return DB::select($SQL);
@@ -312,7 +312,7 @@ class ProfessoresController extends Controller
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
         WHERE o.id = $orgId $AND AND a.TPProfissional = "PROF"
-        GROUP BY p.id, p.Nome;
+       GROUP BY p.id, p.Nome;
         SQL;
 
         $Professores = DB::select($SQL);
@@ -732,7 +732,7 @@ class ProfessoresController extends Controller
         INNER JOIN escolas e ON e.id = a.IDEscola
         INNER JOIN organizacoes o ON e.IDOrg = o.id
         WHERE o.id = $orgId $AND AND a.TPProfissional = "PROF"
-        GROUP BY p.id, p.Nome, p.Admissao, p.TerminoContrato, p.CEP, p.Rua, p.UF, p.Cidade, p.Bairro, p.Numero;
+        GROUP BY p.id, p.Nome;
         SQL;
 
         $Professores = DB::select($SQL);
