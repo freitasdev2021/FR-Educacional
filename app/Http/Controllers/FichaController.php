@@ -138,9 +138,10 @@ class FichaController extends Controller
         //dd($Fichas);
         $IDTurma = $request->IDTurma;
         $Escola = EscolasController::getEscolaTurma($IDTurma);
-        $lineHeight = 6;
+        $lineHeight = 4;
+        $lineHeightH = 4;
         $fontHeader = 10;
-        $fontBody = 7;
+        $fontBody = 5;
         //PDF
         $pdf = new FPDF();
         $pdf->AddPage();
@@ -154,7 +155,7 @@ class FichaController extends Controller
         $yInicial = $pdf->GetY(); // Posição inicial no eixo Y
         $containerLargura = 50; // Largura de cada container
         $espacamento = 10; // Espaço entre os containers
-        $alturaMaximaContainer = 35; // Altura máxima antes de quebrar para a próxima linha
+        $alturaMaximaContainer = 45; // Altura máxima antes de quebrar para a próxima linha
 
         foreach ($Fichas as $keyfic => $fic) {
             // Verifica se o próximo container ultrapassa a largura da página
@@ -168,14 +169,14 @@ class FichaController extends Controller
 
             // Título do container (Disciplina)
             $pdf->SetFont('Arial', 'B', $fontBody);
-            $pdf->MultiCell($containerLargura, $lineHeight, self::utfConvert(1+$keyfic.". ".$fic['Disciplina']), 0, '');
+            $pdf->MultiCell($containerLargura, $lineHeightH, self::utfConvert(1+$keyfic.". ".$fic['Disciplina']), 0, '');
 
             // Listinha de texto com as sínteses
             $pdf->SetFont('Arial', '', $fontBody);
             foreach (json_decode($fic['Sinteses']) as $si) {
                 $pdf->SetX($xInicial); // Mantém o alinhamento no container
                 $texto = "- " . self::utfConvert($si->Referencia) . ": " . self::utfConvert($si->Sintese);
-                $pdf->MultiCell($containerLargura, $lineHeight, $texto, 0, 'L');
+                $pdf->MultiCell($containerLargura, $lineHeightH, $texto, 0, 'L');
             }
 
             // Ajusta a posição para o próximo container
@@ -187,7 +188,7 @@ class FichaController extends Controller
         $pdf->Cell(50, $lineHeight, self::utfConvert('Aluno'), 1);
         foreach($Fichas as $keyF => $f){
             $countSinteses = count(json_decode($f['Sinteses'],true));
-            $pdf->Cell(9*$countSinteses, $lineHeight, $keyF+1, 1);
+            $pdf->Cell(7*$countSinteses, $lineHeight, $keyF+1, 1);
         }
         $pdf->Ln();
         //CORPO DA TABELA
@@ -198,7 +199,7 @@ class FichaController extends Controller
             foreach($s['Disciplinas'] as $disc){
                 foreach($disc as $dis){
                     foreach($dis as $keyD => $d){
-                        $pdf->Cell(9, $lineHeight, $keyD." - ".$d, 1);
+                        $pdf->Cell(7, $lineHeight, $keyD." - ".$d, 1);
                     }
                 }
             }
