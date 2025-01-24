@@ -570,8 +570,9 @@ class TurmasController extends Controller
                             $ata[$boletim->Nome][$boletim->Disciplina] = $Nota;
                         }
 
-                        $frequenciaAno = $boletim->FrequenciaAno;
-                        $porcFreq = ($frequenciaAno/$boletim->FreqDisc) * 100;
+                        $frequenciaAno = ($boletim->FrequenciaAno <=0) ? 0 : $boletim->FrequenciaAno;
+                        
+                        $porcFreq = 60;
                         // $ata[$boletim->Nome]["Frequência (%)"] = 100 - $porcFreq ;
                         // $ata[$boletim->Nome]["Faltas"] = $frequenciaAno;
                         // $ata[$boletim->Nome]['Carga Horária'] = date('H:i', strtotime($boletim->CargaHoraria));
