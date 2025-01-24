@@ -33,6 +33,7 @@
                                 <option value="B" {{isset($Registro) && $Registro->Referencia == "B" ? 'selected' : ''}}>B</option>
                                 <option value="C" {{isset($Registro) && $Registro->Referencia == "C" ? 'selected' : ''}}>C</option>
                                 <option value="D" {{isset($Registro) && $Registro->Referencia == "D" ? 'selected' : ''}}>D</option>
+                                <option value="E" {{isset($Registro) && $Registro->Referencia == "E" ? 'selected' : ''}}>D</option>
                             </select>
                         </div>
                         <div class="col-sm-4">
