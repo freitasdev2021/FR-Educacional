@@ -2589,7 +2589,13 @@ class RelatoriosController extends Controller
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
 
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"MAPA BIMESTRAL DE AVALIAÇÃO POR DISCIPLINA");
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"MAPA BIMESTRAL DE AVALIAÇÃO POR DISCIPLINA",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -2718,7 +2724,13 @@ class RelatoriosController extends Controller
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
 
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"FREQUÊNCIA");
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"FREQUÊNCIA",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -2844,7 +2856,13 @@ class RelatoriosController extends Controller
         $totalMasculino = [];
         $totalFeminino = [];
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $IDEscola . '/' . $Escola->Foto,"QUADRO DE TURMAS");
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $IDEscola . '/' . $Escola->Foto,"QUADRO DE TURMAS",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         $pdf->SetFont('Arial', '', 7);
         $pdf->Cell(240, $lineHeight, self::utfConvert('Periodo Letivo: '.date('Y')), 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert("Impressão: ".date('d/m/Y')), 0, 1);
@@ -2927,7 +2945,13 @@ class RelatoriosController extends Controller
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
 
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"RELATÓRIO DE CONTEÚDOS POR DISCIPLINA");
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"RELATÓRIO DE CONTEÚDOS POR DISCIPLINA",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -3011,7 +3035,13 @@ class RelatoriosController extends Controller
         $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
 
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"MAPA FINAL DE NOTAS POR DISCIPLINA");
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"MAPA FINAL DE NOTAS POR DISCIPLINA",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);

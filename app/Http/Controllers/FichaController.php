@@ -146,7 +146,13 @@ class FichaController extends Controller
         $pdf = new FPDF();
         $pdf->AddPage();
         $pdf->SetMargins(3, 3, 3); 
-        self::criarCabecalho($pdf,$Escola->Nome,$Escola->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto,"FICHA AVALIATIVA INFANTIL");
+        self::criarCabecalho($pdf,$Escola->Nome,$Escola->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto,"FICHA AVALIATIVA INFANTIL",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //CORPO DO DOCUMENTO
         $pdf->SetFont('Arial', 'B', $fontHeader);
         //LEGENDA DAS FICHAS

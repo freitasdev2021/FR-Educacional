@@ -128,7 +128,7 @@ abstract class Controller
         return false;
     }
 
-    public static function criarCabecalho($pdf, $nomeEscola, $nomeMunicipio, $caminhoImagem,$Documento){
+    public static function criarCabecalho($pdf, $nomeEscola, $nomeMunicipio, $caminhoImagem,$Documento,$Endereco){
         // Adicionar imagem no canto esquerdo
         $pdf->Image($caminhoImagem, 10, 10, 30); // (x, y, largura)
 
@@ -144,9 +144,13 @@ abstract class Controller
         // Adicionar o nome do município (centralizado)
         $pdf->SetXY(30, 20); // Ajuste a posição para a próxima linha
         $pdf->Cell(0, 10, self::utfConvert($nomeMunicipio), 0, 1, 'C');
+        
+        // Adicionar o nome do município (centralizado)
+        $pdf->SetXY(30, 30); // Ajuste a posição para a próxima linha
+        $pdf->Cell(0, 10, self::utfConvert($Endereco['Rua'].", ".$Endereco['Numero']." ".$Endereco['Bairro']." - ".$Endereco['Cidade']."/".$Endereco['UF']), 0, 1, 'C');
 
         $pdf->SetFont('Arial','B',15);
-        $pdf->SetXY(25, 30); // Ajuste a posição para a próxima linha
+        $pdf->SetXY(25, 40); // Ajuste a posição para a próxima linha
         $pdf->Cell(0, 10, self::utfConvert($Documento), 0, 1, 'C'); // Texto centralizado com quebra de linha
         // Espaçamento após o cabeçalho
         $pdf->Ln();

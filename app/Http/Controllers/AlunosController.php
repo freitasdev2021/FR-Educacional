@@ -803,6 +803,10 @@ class AlunosController extends Controller
 
         $telefonePai = "";
         $telefoneMae = "";
+        $emailPai ="";
+        $emailMae = "";
+        $nascimentoMae = "";
+        $nascimentoPai = "";
 
         if(isset($Pais->TelefonePai)){
             $telefonePai = $Pais->TelefonePai;
@@ -819,6 +823,22 @@ class AlunosController extends Controller
             $telefoneMae = $Pais->TelefoneMae;
         }
 
+        if(isset($Pais->emailPai)){
+            $emailPai = $Pais->EmailPai;
+        }
+
+        if(isset($Pais->emailMae)){
+            $emailMae = $Pais->EmailMae;
+        }
+
+        if(isset($Pais->NascimentoPai)){
+            $nascimentoPai = $Pais->NascimentoPai;
+        }
+
+        if(isset($Pais->nascimentoMae)){
+            $nascimentoMae = $Pais->NascimentoMae;
+        }
+
         $NEEs = implode(" ,",NEE::pluck('DSNecessidade')->where('IDAluno',$IDAluno)->toArray());
 
         $pdf = new FPDF();
@@ -832,7 +852,14 @@ class AlunosController extends Controller
             $Aluno->Escola,
             $Aluno->Organizacao,
             'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
-            "FICHA DE MATRÍCULA"
+            "FICHA DE MATRÍCULA",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
         );
 
         // Identificação da Escola
@@ -895,16 +922,16 @@ class AlunosController extends Controller
         $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFPai, 0, 0);
         $pdf->Cell(100, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoPai), 0, 1);
         $pdf->Cell(100, $lineHeight, 'RG: ' . $Pais->RGPai, 0, 0);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('Email: ' . $Pais->EmailPai), 0, 1);
-        $pdf->Cell(100, $lineHeight, 'Data de Nascimento: ' . $Pais->NascimentoPai, 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Email: ' . $emailPai), 0, 1);
+        $pdf->Cell(100, $lineHeight, 'Data de Nascimento: ' . $nascimentoPai, 0, 1);
         $pdf->Ln();
         $pdf->Cell(100, $lineHeight, self::utfConvert('Mãe: ' . $Pais->Mae), 0, 0);
         $pdf->Cell(0, $lineHeight, 'Telefone: ' . $telefoneMae, 0, 1);
         $pdf->Cell(100, $lineHeight, 'CPF: ' . $Pais->CPFMae, 0, 0);
         $pdf->Cell(100, $lineHeight, self::utfConvert('Profissão: ' . $Pais->ProfissaoMae), 0, 1);
         $pdf->Cell(100, $lineHeight, 'RG: ' . $Pais->RGMae, 0, 0);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('Email: ' . $Pais->EmailMae), 0, 1);
-        $pdf->Cell(100, $lineHeight, 'Data de Nascimento: ' . $Pais->NascimentoMae, 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Email: ' . $emailMae), 0, 1);
+        $pdf->Cell(100, $lineHeight, 'Data de Nascimento: ' . $nascimentoMae, 0, 1);
         $pdf->Ln(5);
         if (strpos($Aluno->Serie, 'E.INFANTIL')) {
             $novaSerie = "E.INFANTIL";
@@ -951,12 +978,12 @@ class AlunosController extends Controller
         $pdf->Ln(5);
 
         // Assinaturas
-        $pdf->Cell(90, 10, '__________________________________', 0, 0, 'C');
-        $pdf->Cell(90, 10, '__________________________________', 0, 1, 'C');
+        $pdf->Cell(90, 5, '__________________________________', 0, 0, 'C');
+        $pdf->Cell(90, 5, '__________________________________', 0, 1, 'C');
         $pdf->SetFont('Arial', '', 7);
         $pdf->Cell(90, 1, self::utfConvert('Responsável Legal'), 0, 0, 'C');
         $pdf->Cell(90, 1, self::utfConvert('Diretor(a)'), 0, 1, 'C');
-        $pdf->Ln(5);
+        
         $pdf->Cell(90, 10, '__________________________________', 0, 0, 'C');
         $pdf->Cell(90, 10, '__________________________________', 0, 1, 'C');
         $pdf->Cell(90, 0, self::utfConvert('Servidor(a)'), 0, 0, 'C');
@@ -1712,7 +1739,13 @@ class AlunosController extends Controller
         $pdf = new Fpdf();
         $pdf->AddPage();
         $pdf->SetMargins(5, 5, 5);
-        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"HISTÓRICO ESCOLAR");
+        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"HISTÓRICO ESCOLAR",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //AQUI VAI O CONTEUDO
         $lineHeight = 4; //ALTURA DAS LINHAS
         // DADOS DA ESCOLA
@@ -1914,7 +1947,7 @@ class AlunosController extends Controller
         $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
         $pdf->Ln(10);
         $pdf->Cell(100, $lineHeight, self::utfConvert($Escola->Cidade.'/'.$Escola->UF.', '.date('d/m/Y')), 0, 0);
-        $pdf->Ln(12);
+        $pdf->Ln(4);
         $pdf->SetFont('Arial', 'B', 6);
         // Primeira linha de assinaturas
         $pdf->Cell(100, 10, '_____________________________________________________', 0, 0, 'C'); // Assinatura 1
@@ -1945,7 +1978,13 @@ class AlunosController extends Controller
         $pdf = new Fpdf();
         $pdf->AddPage();
         $pdf->SetMargins(5, 5, 5);
-        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"HISTÓRICO ESCOLAR");
+        self::criarCabecalho($pdf,$Aluno->Escola,$Aluno->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,"HISTÓRICO ESCOLAR",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
         //AQUI VAI O CONTEUDO
         $lineHeight = 4; //ALTURA DAS LINHAS
         // DADOS DA ESCOLA
@@ -2079,7 +2118,7 @@ class AlunosController extends Controller
         $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
         $pdf->Ln(10);
         $pdf->Cell(100, $lineHeight, self::utfConvert($Escola->Cidade.'/'.$Escola->UF.', '.date('d/m/Y')), 0, 0);
-        $pdf->Ln(12);
+        $pdf->Ln(4);
         $pdf->SetFont('Arial', 'B', 6);
         // Primeira linha de assinaturas
         $pdf->Cell(100, 10, '_____________________________________________________', 0, 0, 'C'); // Assinatura 1

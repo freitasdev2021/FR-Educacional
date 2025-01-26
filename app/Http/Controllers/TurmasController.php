@@ -602,16 +602,21 @@ class TurmasController extends Controller
         $pdf->AddPage();
         $pdf->SetMargins(5, 5, 5);
 
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"ATA DE RESULTADOS FINAIS");
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"ATA DE RESULTADOS FINAIS",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
 
         // Linha para separar o cabeçalho do restante
         
-
         // Mensagem inicial
         $pdf->SetFont('Arial', '', 8);
-        $pdf->SetXY(5, 45); // Ajusta a posição inicial para o texto
+        $pdf->SetXY(5, 50); // Ajusta a posição inicial para o texto
         $pdf->MultiCell(200, 5, self::utfConvert("Dia " . date('d/m/Y') . " terminou-se o processo de apuração das notas dos alunos do(a) $Turma->Serie, da(o) ENSINO FUNDAMENTAL DE 9 ANOS - SERIES INICIAIS, turma: $Turma->Serie - $Turma->NMTurma, turno: MATUTINO deste estabelecimento de ensino, com os seguintes resultados:"), 0, 'L');
-        $pdf->Ln(10);
+        $pdf->Ln(12);
         // Disciplinas
         $colWidth = 12; // Largura ajustada
         $rowHeight = 4; // Altura das linhas ajustada
