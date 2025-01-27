@@ -866,7 +866,8 @@ class AlunosController extends Controller
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(0, $lineHeight, self::utfConvert('IDENTIFICAÇÃO DA ESCOLA'), 0, 1);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->MultiCell(100, $lineHeight, self::utfConvert('Unidade de Ensino: ' . $Aluno->Escola), 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Unidade de Ensino: ' . $Aluno->Escola), 0, 0);
+        $pdf->Ln();
         $pdf->Cell(0, $lineHeight, "ID INEP/CENSO: " . $Escola->IDCenso, 0, 1);
         $pdf->Cell(100, $lineHeight, self::utfConvert('Endereço: ' . $Escola->Rua . ', ' . $Escola->Numero . ' ' . $Escola->Bairro . ' ' . $Escola->Cidade . ' - ' . $Escola->UF), 0, 1);
         $pdf->Cell(100, $lineHeight, 'Telefone: ' . $Aluno->TelefoneEscola, 0, 0);
