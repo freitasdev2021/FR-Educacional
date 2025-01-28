@@ -68,6 +68,11 @@ class FichaController extends Controller
         return view('Fichas.index',$view);
     }
 
+    public function deleteSintese($id){
+        Sintese::find($id)->delete();
+        return redirect()->back();
+    }
+
     public function avaliativa(){
         $AND = " ";
         $IDOrg = Auth::user()->id_org;
@@ -776,8 +781,10 @@ class FichaController extends Controller
                 $item[] = $r->Referencia;
                 $item[] = $r->Sintese;
                 $item[] = $r->Disciplina;
-                $item[] = "
+                $item[] = "<div class='row'>
                 <a class='btn btn-success btn-xs' href=".route('Fichas/Sinteses/Edit',$r->id).">Editar</a>&nbsp
+                <a class='btn btn-danger btn-xs' href=".route('Fichas/Sinteses/Delete',$r->id).">Excluir</a>
+                </div>
                 ";
                 $itensJSON[] = $item;
             }

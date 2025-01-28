@@ -24,17 +24,9 @@
                     @if(isset($id))
                     <input type="hidden" name="id" value="{{$id}}">
                     @endif
+                    <input name="PontuacaoPeriodo" type="hidden" value="{{(isset($Registros->PontuacaoPeriodo)) ? $Registros->PontuacaoPeriodo : ''}}">
                     <div class="row">
-                        <div class="col-sm-4">
-                            <label>Aluno</label>
-                            <select name="IDAluno" class="form-control" required>
-                                <option value="">Selecione</option>
-                                @foreach($alunos as $a)
-                                <option value="{{$a->id}}" {{(isset($Registros->IDAluno) && $Registros->IDAluno == $a->id) ? 'selected' : ''}}>{{$a->Aluno}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label>Disciplina</label>
                             <select name="IDDisciplina" class="form-control" required>
                                 <option value="">Selecione</option>
@@ -43,9 +35,10 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-sm-4">
-                            <label>Estágio</label>
+                        <div class="col-sm-3">
+                            <label>Período</label>
                             <select name="Estagio" class="form-control" required>
+                                <option value="">Selecione</option>
                                 <option value="ANUAL" {{isset($Registro) && $Registro->Estagio == "ANUAL" ? 'selected' : ''}}>Anual</option>
                                 
                                 <optgroup label="Bimestre">
@@ -71,19 +64,23 @@
                                 </optgroup>
                             </select>                            
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label>Pontuação do aluno no Estágio</label>
-                            <input type="number" name="PontuacaoPeriodo" class="form-control" value="{{(isset($Registros->PontuacaoPeriodo)) ? $Registros->PontuacaoPeriodo : ''}}" required>
+                        @if(empty($id))
+                        <div class="col-sm-3">
+                            <label>Aluno</label>
+                            <select name="IDAluno" class="form-control" required>
+                                
+                            </select>
                         </div>
-                        <div class="col-sm-4">
-                            <label>Pontuação do Trabalho</label>
-                            <input type="number" name="Pontuacao" class="form-control" value="{{(isset($Registros->Pontuacao)) ? $Registros->Pontuacao : ''}}" required>
+                        @else
+                        <div class="col-sm-3">
+                            <label>Aluno</label>
+                            <input type="text" class="form-control" value="{{$Aluno->Nome}}" disabled>
+                            <input type="hidden" name="IDAluno" value="{{$Aluno->IDAluno}}">
                         </div>
-                        <div class="col-sm-4">
+                        @endif
+                        <div class="col-sm-3">
                             <label>Nota do Aluno</label>
-                            <input type="number" name="Nota" class="form-control" value="{{(isset($Registros->Nota)) ? $Registros->Nota : ''}}">
+                            <input type="text" name="Nota" class="form-control" value="{{(isset($Registros->Nota)) ? $Registros->Nota : ''}}">
                         </div>
                     </div>
                     <br>
@@ -96,7 +93,46 @@
                     </div>
                 </form>    
             </div>
-            <!--//-->
+            <script>
+                $("select[name=Estagio]").on("change",function(){
+                    //console.log("/Alunos/Recuperacao/Lista/'"+$(this).val()+"'/"+$("select[name=IDDisciplina]").val())
+                    $.ajax({
+                        method : 'GET',
+                        url : "/Alunos/Recuperacao/Lista/"+$(this).val()+"/"+$("select[name=IDDisciplina]").val(),
+                    }).done(function(response){
+                        // console.log(response)
+                        // return false
+                        dadosRec = jQuery.parseJSON(response);
+                        //ALIMENTAR O ARRAY
+                        var select = $("select[name=IDAluno]");
+                        
+                        select.empty();
+
+                        var option = $("<option>", {
+                            value: "",    
+                            text: "Selecione"    
+                        });
+                        select.append(option);
+                        $.each(dadosRec, function(index, item) {
+                            
+                            var option = $("<option>", {
+                                value: item.IDAluno,    
+                                text: item.Aluno,
+                                "data-nota": item.Nota    
+                            });
+
+                            
+                            select.append(option);
+                        });
+                        //ALIMENTAÇÃO DOS DEMAIS CAMPOS
+                        $("select[name=IDAluno]").on("change",function(){
+                            $("input[name=PontuacaoPeriodo]").val($("option:selected",this).attr("data-nota"))
+                        })
+                        //
+                    })
+                })
+            </script>
+            <!---//-->
         </div>
-    </div>>
+    </div>
 </x-educacional-layout>

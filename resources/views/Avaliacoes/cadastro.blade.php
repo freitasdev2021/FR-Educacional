@@ -80,7 +80,7 @@
                         @endif
                         <div class="col-sm-3">
                             <label>Pontuacao/Conceito</label>
-                            <input type="number" name="Pontuacao" class="form-control">
+                            <input type="text" name="Pontuacao" class="form-control">
                         </div>
                         <div class="col-sm-3">
                             <label>Disciplina/Campo de Experiência</label>

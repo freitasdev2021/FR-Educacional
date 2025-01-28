@@ -80,7 +80,12 @@
                                 @foreach($Fichas as $keyF => $f)
                                     @foreach(json_decode($f->Sinteses) as $fs)
                                         <td>{{$fs->Referencia}} - 
-                                            <input name="Avaliacao[]" data-aluno="{{$al->Aluno}}" data-disciplina="{{$f->Disciplina}}" data-referencia="{{$fs->Referencia}}" data-sintese="{{$fs->Sintese}}" type="text" maxlength="2" style="width:30px;">
+                                            <select name="Avaliacao[]" data-aluno="{{$al->Aluno}}" data-disciplina="{{$f->Disciplina}}" data-referencia="{{$fs->Referencia}}" data-sintese="{{$fs->Sintese}}" type="text" maxlength="2" style="width:50px;">
+                                                <option value=""></option>
+                                                <option value="S">S - SIM</option>
+                                                <option value="N">N - NÃO</option>
+                                                <option value="AV">AV - AS VEZES</option>
+                                            </select>
                                         </td>
                                     @endforeach
                                 @endforeach
@@ -115,7 +120,7 @@
                     var disciplinas = {};
         
                     // Iterar por cada input na linha do aluno
-                    $("input", this).each(function () {
+                    $("select", this).each(function () {
                         var disciplina = $(this).data("disciplina"); // Nome da disciplina
                         var referencia = $(this).data("referencia"); // Chave como "A", "B", "C", etc.
                         var valor = $(this).val(); // Valor da avaliação (Av, S, N, etc.)

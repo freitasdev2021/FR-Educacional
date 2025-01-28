@@ -200,6 +200,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Fichas/Sinteses',[FichaController::class,'sinteses'])->name('Fichas/Sinteses');
         Route::get('Fichas/Sinteses/Cadastro',[FichaController::class,'cadastroSinteses'])->name('Fichas/Sinteses/Novo');
         Route::get('Fichas/Sinteses/Cadastro/{id}',[FichaController::class,'cadastroSinteses'])->name('Fichas/Sinteses/Edit');
+        Route::get('Fichas/Sinteses/Delete/{id}',[FichaController::class,'deleteSintese'])->name('Fichas/Sinteses/Delete');
         Route::post('Fichas/Sinteses/Save',[FichaController::class,'saveSinteses'])->name('Fichas/Sinteses/Save');
         //FICHA AVALIATIVA
         Route::get('Fichas/Avaliativa',[FichaController::class,'avaliativa'])->name('Fichas/Avaliativa');
@@ -243,6 +244,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //REMANEJAMENTOS MUDANÇAS
         Route::get('Alunos/Mudancas',[AlunosController::class,'mudancas'])->name('Alunos/Mudancas');
         //
+        Route::get('Alunos/Recuperacao/Lista/{Periodo}/{IDDisciplina}',[RecuperacaoController::class,'getAlunosRecuperacao'])->name('Alunos/Recuperacao/Lista');
         Route::get("Alunos/Comprovantes/Matricula/{id}",[AlunosController::class,'getComprovanteMatricula'])->name("Alunos/Comprovante/Matricula");
         Route::get("Alunos/Comprovantes/Escolaridade/{id}",[AlunosController::class,'getComprovanteEscolaridade'])->name("Alunos/Comprovante/Escolaridade");
         Route::get("Alunos/Comprovantes/Vaga/{id}",[AlunosController::class,'getComprovanteVaga'])->name("Alunos/Comprovante/Vaga");

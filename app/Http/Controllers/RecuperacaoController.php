@@ -27,6 +27,52 @@ class RecuperacaoController extends Controller
         ]);
     }
 
+    public function getAlunosRecuperacao($Periodo,$IDDisciplina){
+        
+        $ano = date('Y');
+        if($Periodo == "ANUAL"){
+            $AND = " AND DATE_FORMAT(au.created_at,'%Y') = $ano ";
+        }else{
+            $AND = " AND au.Estagio = '$Periodo'";
+        }
+
+        $SQL = <<<SQL
+            SELECT
+                al.id as IDAluno,
+                m.Nome as Aluno, 
+                SUM(n.Nota) as Nota,
+                t.MediaPeriodo,
+                t.MediaPeriodo*4 as MediaAno
+            FROM notas n 
+            LEFT JOIN atividades atv ON(atv.id = n.IDAtividade) 
+            LEFT JOIN aulas au ON(au.id = atv.IDAula) 
+            LEFT JOIN alunos al ON(al.id = n.IDAluno) 
+            LEFT JOIN matriculas m ON(m.id = al.IDMatricula)
+            LEFT JOIN turmas t ON(t.id = au.IDTurma)
+            WHERE au.IDDisciplina = $IDDisciplina $AND
+            GROUP BY m.Nome
+        SQL;
+
+        $query = DB::select($SQL);
+
+        $Alunos = [];
+
+        foreach($query as $q){
+            if($Periodo !="ANUAL"){
+                if($q->Nota < $q->MediaPeriodo){
+                    array_push($Alunos,$q);
+                }
+            }else{
+                if($q->Nota < $q->MediaAno){
+                    array_push($Alunos,$q);
+                }
+            }
+        }
+
+        
+        return json_encode($Alunos);
+    }
+
     public function cadastro($id = null){
         if(in_array(Auth::user()->tipo,[6,6.5])){
             $submodulos = self::submodulosProfessor;
@@ -42,7 +88,12 @@ class RecuperacaoController extends Controller
         ];
 
         if($id){
-            $view['Registros'] = Recuperacao::find($id);
+            $Registro = Recuperacao::find($id);
+
+            $Aluno = AlunosController::getAluno($Registro->IDAluno);
+            
+            $view['Registros'] = $Registro;
+            $view['Aluno'] = $Aluno;
             $view['id'] = $id;
         }
 
@@ -57,13 +108,15 @@ class RecuperacaoController extends Controller
                 Recuperacao::find($request->id)->update($data);
                 $mensagem = "Recuperação Editada com Sucesso!";
                 $aid = $request->id;
+                $rota = 'Aulas/Recuperacao/Edit';
             }else{
                 Recuperacao::create($data);
                 $mensagem = "Recuperação cadastrada com Sucesso!";
                 $aid = '';
+                $rota = 'Aulas/Recuperacao/Novo';
             }
             $status = 'success';
-            $rota = 'Aulas/Recuperacao/Novo';
+            
         }catch(\Throwable $th){
             $rota = 'Aulas/Recuperacao/Novo';
             $mensagem = 'Erro '.$th;
@@ -102,7 +155,6 @@ class RecuperacaoController extends Controller
                 $item[] = $r->Aluno;
                 $item[] = $r->NMDisciplina;
                 $item[] = $r->Estagio;
-                $item[] = $r->Pontuacao;
                 $item[] = $r->Nota;
                 $item[] = "<a href='".route('Aulas/Recuperacao/Edit',$r->id)."' class='btn btn-primary btn-xs'>Abrir</a>";
                 $itensJSON[] = $item;

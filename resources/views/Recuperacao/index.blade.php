@@ -23,7 +23,6 @@
                         <th style="text-align:center;" scope="col">Aluno</th>
                         <th style="text-align:center;" scope="col">Disciplina</th>
                         <th style="text-align:center;" scope="col">Estágio</th>
-                        <th style="text-align:center;" scope="col">Total</th>
                         <th style="text-align:center;" scope="col">Pontuação</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>

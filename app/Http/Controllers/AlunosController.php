@@ -500,21 +500,22 @@ class AlunosController extends Controller
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
         // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, $Aluno->Escola, 0, 1, 'C'); // Nome da escola centralizado
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "DECLARAÇÃO DE ESCOLARIDADE",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
         // Espaço após a logo
         $pdf->Ln(40);
-
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE ESCOLARIDADE"), 0, 1, 'C'); // Título centralizado
-        $pdf->Ln(10); // Espaço após o título
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
@@ -543,7 +544,7 @@ class AlunosController extends Controller
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
         $pdf->Output('I', 'Declaracao_Matricula.pdf');
@@ -559,18 +560,21 @@ class AlunosController extends Controller
         $pdf->AddPage('P'); // Documento em modo retrato
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        $pdf->SetFont('Arial', 'B', 16);
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, $Aluno->Escola, 0, 1, 'C'); // Nome da escola centralizado
-        // Espaço após a logo
-        $pdf->Ln(25);
-        // Cabeçalho do Relatório
-        $pdf->SetFont('Arial', 'B', 14);
-        $pdf->Cell(0, 10, 'Atestado de Vaga', 0, 1, 'C');
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "FICHA DE MATRÍCULA",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
+
         $pdf->Ln(10);
     
         // Informações do Aluno e Turma
@@ -606,12 +610,7 @@ class AlunosController extends Controller
     
         // Assinatura e Data
         $pdf->Cell(0, 10, '__________________________________________', 0, 1, 'C');
-        $pdf->Cell(0, 10, 'Assinatura do Emissor', 0, 1, 'C');
-        $pdf->Ln(5);
-    
-        // Data e Hora de Emissão
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(0, 10, 'Emitido por ' . Auth::user()->name . ' em ' . date('d/m/Y H:i'), 0, 1, 'C');
+        $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C');
     
         // Exibir o PDF
         $pdf->Output('I', 'Atestado_de_Vaga.pdf');
@@ -628,22 +627,20 @@ class AlunosController extends Controller
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, $Aluno->Escola, 0, 1, 'C'); // Nome da escola centralizado
-        // Espaço após a logo
-        $pdf->Ln(40);
-
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE MATRÍCULA"), 0, 1, 'C'); // Título centralizado
-        $pdf->Ln(10); // Espaço após o título
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "COMPROVANTE DE MATRÍCULA",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
@@ -672,7 +669,7 @@ class AlunosController extends Controller
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
         $pdf->Output('I', 'Declaracao_Matricula.pdf');
@@ -1006,22 +1003,22 @@ class AlunosController extends Controller
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Escola), 0, 1, 'C'); // Nome da escola centralizado
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "DECLARAÇÃO DE FREQUÊNCIA",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
         // Espaço após a logo
-        $pdf->Ln(40);
-
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE FREQUÊNCIA"), 0, 1, 'C'); // Título centralizado
-        $pdf->Ln(10); // Espaço após o título
+        $pdf->Ln(5);
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
@@ -1253,32 +1250,33 @@ class AlunosController extends Controller
             m.Numero as Numero,
             m.Bairro ,
             r.NMResponsavel as Responsavel,
-            m.Rua
+            m.Rua,
+            o.Organizacao
         FROM escolas e 
         INNER JOIN turmas t ON(t.IDEscola = e.id) 
         INNER JOIN alunos a ON(t.id = a.IDTurma ) 
         INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
         INNER JOIN responsavel r ON(r.IDAluno = a.id)
+        INNER JOIN organizacoes o ON(o.id = e.IDOrg)
         WHERE a.id = $IDAluno")[0];
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(50, 15); // Ajuste conforme necessário para centralizar
-        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
-
-        // Espaço após o título
+        self::criarCabecalho(
+            $pdf,
+            $Escola->Escola,
+            $Escola->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto,
+            "RELATÓRIO DE MATRÍCULA",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
         $pdf->Ln(20);
-
-        // Título do relatório
-        $pdf->Cell(0, 10, self::utfConvert('Relatório de Matrícula'), 0, 1, 'C');
-        $pdf->Ln(10); // Espaço após o título
 
         // Definir fonte para o corpo do relatório
         $pdf->SetFont('Arial', '', 12);
@@ -1297,10 +1295,10 @@ class AlunosController extends Controller
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        //$pdf->Cell(0, 10, self::utfConvert("Assinatura do Responsável"), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('D', 'Relatorio_Matricula.pdf');
+        $pdf->Output('I', 'Relatorio_Matricula.pdf');
         exit;
     }
 
@@ -1308,31 +1306,32 @@ class AlunosController extends Controller
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
-        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola,t.Serie 
+        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola,t.Serie,e.Rua,e.Numero,e.Bairro
         FROM escolas e 
         INNER JOIN turmas t ON(t.IDEscola = e.id) 
         INNER JOIN alunos a ON(t.id = a.IDTurma ) 
         INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
         WHERE a.id = $IDAluno")[0];
+        $Aluno = self::getAluno($IDAluno);
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
         // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $nomeEscola = "Nome da Escola"; // Defina o nome da escola
-        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
-        // Espaço após a logo
-        $pdf->Ln(40);
-
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("DECLARAÇÃO DE CONCLUSÃO"), 0, 1, 'C'); // Título centralizado
-        $pdf->Ln(10); // Espaço após o título
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "DECLARAÇÃO DE CONCLUSÃO",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
+        $pdf->Ln(5); // Espaço após o título
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
@@ -1351,10 +1350,10 @@ class AlunosController extends Controller
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('D', 'Declaracao_Conclusao.pdf');
+        $pdf->Output('I', 'Declaracao_Conclusao.pdf');
         exit;
     }
 
@@ -1367,21 +1366,20 @@ class AlunosController extends Controller
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
 
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $pdf->Cell(0, 10, $Escola->Nome, 0, 1, 'C'); // Nome da escola centralizado
-
-        // Espaço após o título
-        $pdf->Ln(20);
-
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("Atestado de Comparecimento"), 0, 1, 'C'); // Título centralizado
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "COMPROVANTE DE COMPARECIMENTO",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
         $pdf->Ln(10); // Espaço após o título
 
         // Definir fonte para o corpo da declaração
@@ -1409,10 +1407,10 @@ class AlunosController extends Controller
 
         // Assinatura (ajuste o tamanho conforme necessário)
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('D', 'Atestado_Comparecimento.pdf');
+        $pdf->Output('I', 'Atestado_Comparecimento.pdf');
         exit;
     }
 
@@ -1429,19 +1427,20 @@ class AlunosController extends Controller
         $pdf->SetMargins(20, 20, 20);
 
         // Inserir a logo da escola
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30);
-
-        // Nome da escola
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->SetXY(20, 15);
-        $pdf->Cell(0, 10, $Escola->Nome, 0, 1, 'C');
-
-        // Espaço após o título
-        $pdf->Ln(20);
-
-        // Título do termo
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, self::utfConvert("Termo de Ciência e Responsabilidade Escolar"), 0, 1, 'C');
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "FICHA DE MATRÍCULA",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
         $pdf->Ln(10);
 
         // Corpo do termo
@@ -1467,15 +1466,10 @@ class AlunosController extends Controller
 
         // Linha de assinatura
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C');
-        $pdf->Cell(0, 10, "Assinatura do Responsável", 0, 1, 'C');
-
-        // Nome e data do emissor
-        $pdf->Ln(10);
-        $pdf->Cell(0, 10, "Emitido por: " . Auth::user()->name, 0, 1, 'L');
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade . ", " . $Escola->UF . " - " . date('d/m/Y H:i:s')), 0, 1, 'L');
+        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C');
 
         // Saída do PDF
-        $pdf->Output('D', 'Termo_Ciencia_Responsabilidade.pdf');
+        $pdf->Output('I', 'Termo_Ciencia_Responsabilidade.pdf');
         exit;
 
     }
