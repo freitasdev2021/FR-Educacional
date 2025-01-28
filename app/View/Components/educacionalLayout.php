@@ -567,8 +567,8 @@ class educacionalLayout extends Component
     public function render(): View|Closure|string
     {
         $Tipo = Auth::user()->tipo;
-        return view('components.educacional-Layout',[
-            "Modulos" => self::modulos[$Tipo]
+        return view('components.educacional-layout',[
+            "modulos" => self::modulos[$Tipo]
         ]);
     }
 }

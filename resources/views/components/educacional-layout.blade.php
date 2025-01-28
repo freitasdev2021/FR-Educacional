@@ -11,7 +11,7 @@
              <div>
                 <a href="{{route('dashboard')}}" class="nav_logo"><i class='bx bx-book-reader text-white'></i><span class="nav_logo-name">FR Educacional</span> </a>
                 <div class="nav_list"> 
-                  @foreach($Modulos as $m)
+                  @foreach($modulos as $m)
                   <x-modulo nome="{{$m['nome']}}" icon="{{$m['icon']}}" rota="{{$m['rota']}}" endereco="{{$m['endereco']}}"/>
                   @endforeach
                 </div>
