@@ -92,9 +92,14 @@ class AuxiliaresController extends Controller
             "Escolas" => Escola::where('IDOrg',Auth::user()->id_org)->get()
         ];
 
+        
+
         if($id){
+            $Registro = Auxiliar::find($id);
+            $STAcesso = User::select('STAcesso')->where('IDProfissional',$id)->where('tipo',4.5)->first();
             $view['id'] = $id;
-            $view['Registro'] = Auxiliar::find($id);
+            $view['STAcesso'] = $STAcesso->STAcesso;
+            $view['Registro'] = $Registro;
         }
 
         return view('Auxiliares.cadastro',$view);

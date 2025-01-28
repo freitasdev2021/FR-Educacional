@@ -116,7 +116,7 @@
                                                 @else
                                                     <td><input type='text' data-ntdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="Nota[]" value="{{$np['Nota'] - $np['PontRec'] + $np['RecBim']}}" class="inputNota"></td>
                                                 @endif
-                                                <td><input type="text" data-chdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="CHDisciplina[]" class="inputTime" value="{{\App\Http\Controllers\Controller::timeToNumber($np['CHDisciplina'])}}"></td>
+                                                <td><input type="text" data-chdisciplina="{{$qh->Disciplina}}"  data-serie='{{$serie}}º Ano' name="CHDisciplina[]" class="inputTime" value="{{number_format(\App\Http\Controllers\Controller::timeToNumber($np['CHDisciplina']),2,'.','')}}"></td>
                                                 @php
                                                     $serieMarcada = true;
                                                     $cargaHorariaTotal[$serie] += \App\Http\Controllers\Controller::timeToNumber($np['CHDisciplina']);
@@ -135,9 +135,9 @@
                                 <td>Carga Horária Total</td>
                                 @for($serie = 1; $serie <= 9; $serie++)
                                     @if($cargaHorariaTotal[$serie] > 0)
-                                    <td colspan="2"><input type="text" name="CHTotal[]" value="{{gmdate('H:i', $cargaHorariaTotal[$serie])}}" class="inputTimeFinal"></td>
+                                    <td colspan="2"><strong>{{number_format($cargaHorariaTotal[$serie], 2, '.', '')}}</strong></td>
                                     @else
-                                    <td colspan="2"><input type="text" name="CHTotal[]" value="-" class="inputTimeFinal"></td>
+                                    <td colspan="2"><strong>-</strong></td>
                                     @endif
                                 @endfor
                             </tr>
@@ -158,6 +158,7 @@
                 <br>
                 <input type="hidden" value="" name="Historico">
                 <button class="col-auto btn btn-danger" type="submit">Gerar</button>
+                <button class="col-auto btn btn-success" type="button" id="adicionarDisciplina">Adicionar Campo Disciplinar</button>
             </form>
             <script>
                 $("form").on("submit",function(){
@@ -246,6 +247,48 @@
 
                     $("input[name=Historico]").val(JSON.stringify(enviarHistorico))
                 })
+
+                //ADICIONAR DISCIPLINA
+                $("#adicionarDisciplina").on("click",function(){
+                    //
+                    $(".trDisciplina:last").after('<tr class="trDisciplina">\
+                        <td><input type="text" name="Disciplina[]" value=""></td>\
+                        <input type="hidden" name="Serie[]" value="1º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="1º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="1º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="2º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="2º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="2º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="3º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="3º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="3º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="4º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="4º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="4º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="5º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="5º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="5º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="6º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="6º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="6º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="7º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="7º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="7º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="8º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="8º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="8º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                        <input type="hidden" name="Serie[]" value="9º Ano">\
+                        <td><input type="text" data-ntdisciplina="" value="-" data-serie="9º Ano" name="Nota[]" class="inputNota"></td>\
+                        <td><input type="text" data-chdisciplina="" value="-" data-serie="9º Ano" name="CHDisciplina[]" class="inputTime"></td>\
+                    </tr>');
+                    //
+                    $("input[name='Disciplina[]'").last().on("keyup",function(){
+                        $(this).parents(".trDisciplina").find("input[name='Nota[]']").attr("data-ntdisciplina",$(this).val())
+                        $(this).parents(".trDisciplina").find("input[name='CHDisciplina[]']").attr("data-chdisciplina",$(this).val())
+                    })
+                    //
+                    })
+                //
             </script>
         </div>
     </div>

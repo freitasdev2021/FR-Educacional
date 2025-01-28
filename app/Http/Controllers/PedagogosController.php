@@ -105,23 +105,15 @@ class PedagogosController extends Controller
 
            
             $escolasUm = Controller::array_associative_unique(DB::select($sqlScola));
-            $SQL = <<<SQL
-            SELECT 
-                p.*
-            FROM pedagogos p
-            LEFT JOIN alocacoes a ON(a.IDProfissional = p.id)
-            LEFT JOIN escolas e ON(e.id = a.IDEscola)
-            INNER JOIN organizacoes o ON(e.IDOrg = o.id)
-            WHERE o.id = $orgId AND p.id = $id
-            SQL;
 
-            $Pedagogo = DB::select($SQL);
-
+            $Pedagogo = Pedagogo::find($id);
+            $STAcesso = User::select('STAcesso')->where('IDProfissional',$id)->where('tipo',5)->first();
 
             $view['submodulos'][0]['endereco'] = "Edit";
             $view['submodulos'][0]['rota'] = "Pedagogos/Edit";
             $view['id'] = $id;
-            $view['Registro'] = $Pedagogo[0];
+            $view['Registro'] = $Pedagogo;
+            $view['STAcesso'] = $STAcesso->STAcesso;
             $view['EscolasRegistradas'] = $escolasUm;
         }
 

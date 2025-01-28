@@ -50,8 +50,8 @@ class DiretoresController extends Controller
 
     public function cadastro($id=null){
 
-        $diretor = DB::select("SELECT e.Nome as Escola,d.*,e.id as IDEscola FROM diretores d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' AND d.id = '$id' ");
-
+        $diretor = DB::select("SELECT e.Nome as Escola,u.STAcesso,d.*,e.id as IDEscola,u.id as IDUser FROM diretores d INNER JOIN users u ON(d.id = u.IDProfissional) INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' AND d.id = '$id' AND u.tipo = 4 ");
+        
         $view = [
             "submodulos" => self::submodulos,
             'id' => '',
