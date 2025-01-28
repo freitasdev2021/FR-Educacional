@@ -17,7 +17,7 @@ class educacionalLayout extends Component
         //
     }
 
-    public $modulos = array(
+    public const modulos = array(
         0 => [ // Fornecedor
             [
                 'nome' => 'Secretarías',
@@ -50,12 +50,6 @@ class educacionalLayout extends Component
                 'icon' => 'bx bxs-briefcase-alt',
                 'rota' => 'Diretores/index',
                 'endereco' => 'Diretores'
-            ],
-            [
-                'nome' => 'Comunicação Interna',
-                'icon' => 'bx bx-envelope',
-                'rota' => 'CI/index',
-                'endereco' => 'CI'
             ],
             [
                 'nome' => 'Escolas',
@@ -126,12 +120,6 @@ class educacionalLayout extends Component
                 'endereco' => 'Diretores'
             ],
             [
-                'nome' => 'Comunicação Interna',
-                'icon' => 'bx bx-envelope',
-                'rota' => 'CI/index',
-                'endereco' => 'CI'
-            ],
-            [
                 'nome' => 'Escolas',
                 'icon' => 'bx bxs-school',
                 'rota' => 'Escolas/index',
@@ -185,10 +173,10 @@ class educacionalLayout extends Component
         ],
         4 => [ // Diretor
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/index',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ],
             [
                 'nome' => 'Pedagogos',
@@ -203,7 +191,7 @@ class educacionalLayout extends Component
                 'endereco' => 'Ocorrencias'
             ],
             [
-                'nome' => 'Ficha Avaliativa',
+                'nome' => 'Fichas',
                 'icon' => 'bx bx-spreadsheet',
                 'rota' => 'Fichas/index',
                 'endereco' => 'Fichas'
@@ -253,10 +241,10 @@ class educacionalLayout extends Component
         ],
         4.5 => [ // Diretor (Permissão 4.5)
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/index',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ],
             [
                 'nome' => 'Pedagogos',
@@ -271,7 +259,7 @@ class educacionalLayout extends Component
                 'endereco' => 'Ocorrencias'
             ],
             [
-                'nome' => 'Ficha Avaliativa',
+                'nome' => 'Fichas',
                 'icon' => 'bx bx-spreadsheet',
                 'rota' => 'Fichas/index',
                 'endereco' => 'Fichas'
@@ -333,10 +321,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Turmas'
             ],
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/index',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ],
             [
                 'nome' => 'Planejamentos',
@@ -351,16 +339,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Ocorrencias'
             ],
             [
-                'nome' => 'Ficha Avaliativa',
+                'nome' => 'Fichas',
                 'icon' => 'bx bx-spreadsheet',
                 'rota' => 'Fichas/index',
                 'endereco' => 'Fichas'
-            ],
-            [
-                'nome' => 'Responsáveis',
-                'icon' => 'bx bx-body',
-                'rota' => 'Responsaveis/index',
-                'endereco' => 'Responsaveis'
             ],
             [
                 'nome' => 'EAD',
@@ -395,10 +377,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Turmas'
             ],
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/index',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ],
             [
                 'nome' => 'Planejamentos',
@@ -413,16 +395,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Ocorrencias'
             ],
             [
-                'nome' => 'Ficha Avaliativa',
+                'nome' => 'Fichas',
                 'icon' => 'bx bx-spreadsheet',
                 'rota' => 'Fichas/index',
                 'endereco' => 'Fichas'
-            ],
-            [
-                'nome' => 'Responsáveis',
-                'icon' => 'bx bx-body',
-                'rota' => 'Responsaveis/index',
-                'endereco' => 'Responsaveis'
             ],
             [
                 'nome' => 'EAD',
@@ -445,6 +421,12 @@ class educacionalLayout extends Component
                 'endereco' => 'Alunos'
             ],
             [
+                'nome' => 'Apoio',
+                'icon' => 'bx bxs-universal-accessp',
+                'rota' => 'Apoio/index',
+                'endereco' => 'Apoio'
+            ],
+            [
                 'nome' => 'Calendário',
                 'icon' => 'bx bx-calendar',
                 'rota' => 'Calendario/index',
@@ -457,10 +439,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Turmas'
             ],
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/index',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ],
             [
                 'nome' => 'Planejamentos',
@@ -475,16 +457,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Ocorrencias'
             ],
             [
-                'nome' => 'Ficha Avaliativa',
+                'nome' => 'Fichas',
                 'icon' => 'bx bx-spreadsheet',
                 'rota' => 'Fichas/index',
                 'endereco' => 'Fichas'
-            ],
-            [
-                'nome' => 'Responsáveis',
-                'icon' => 'bx bx-body',
-                'rota' => 'Responsaveis/index',
-                'endereco' => 'Responsaveis'
             ],
             [
                 'nome' => 'EAD',
@@ -513,10 +489,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Turmas'
             ],
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/index',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ],
             [
                 'nome' => 'Planejamentos',
@@ -531,16 +507,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Ocorrencias'
             ],
             [
-                'nome' => 'Ficha Avaliativa',
+                'nome' => 'Fichas',
                 'icon' => 'bx bx-spreadsheet',
                 'rota' => 'Fichas/index',
                 'endereco' => 'Fichas'
-            ],
-            [
-                'nome' => 'Responsáveis',
-                'icon' => 'bx bx-body',
-                'rota' => 'Responsaveis/index',
-                'endereco' => 'Responsaveis'
             ],
             [
                 'nome' => 'EAD',
@@ -569,10 +539,10 @@ class educacionalLayout extends Component
                 'endereco' => 'Calendario'
             ],
             [
-                'nome' => 'Aulas',
+                'nome' => 'Lançamentos',
                 'icon' => 'bx bxs-book',
                 'rota' => 'Aulas/indexAluno',
-                'endereco' => 'Aulas'
+                'endereco' => 'Lançamentos'
             ]
         ],
         8 => [ // Candidato
@@ -597,6 +567,8 @@ class educacionalLayout extends Component
     public function render(): View|Closure|string
     {
         $Tipo = Auth::user()->tipo;
-        return view('components.Educacional-Layout');
+        return view('components.educacional-Layout',[
+            "Modulos" => self::modulos[$Tipo]
+        ]);
     }
 }
