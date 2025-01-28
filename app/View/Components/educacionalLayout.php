@@ -569,7 +569,6 @@ class educacionalLayout extends Component
         $Tipo = Auth::user()->tipo;
         return view('components.Educacional-layout',[
             "modulos" => self::modulos[$Tipo]
-            
         ]);
     }
 }
