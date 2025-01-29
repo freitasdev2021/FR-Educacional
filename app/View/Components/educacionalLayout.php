@@ -536,7 +536,7 @@ class educacionalLayout extends Component
         if ($Tipo == 4.0) {
             $view = self::diretores;
         } elseif ($Tipo == 4.5) {
-            $return = self::auxiliarEscola;
+            $view = self::auxiliarEscola;
         } elseif ($Tipo == 2.0) {
             $view = self::secretario;
         } elseif ($Tipo == 5.0) {
@@ -550,6 +550,8 @@ class educacionalLayout extends Component
         }else {
             $view = "Permissão Indefinida"; // Caso o valor de $Tipo não se encaixe em nenhuma condição
         }
+
+        //dd(Auth::user()->tipo);
         return view('components.Educacional-layout',[
             "modulos" => $view
         ]);
