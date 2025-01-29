@@ -591,7 +591,8 @@ class ProfessoresController extends Controller
             t.id,
             t.Nome,
             t.Serie,
-            e.Nome as Escola
+            e.Nome as Escola,
+            t.Nome as Turma
         FROM turnos tn
         INNER JOIN turmas t ON(tn.IDTurma = t.id)
         INNER JOIN alocacoes al ON(t.IDEscola = al.IDEscola)

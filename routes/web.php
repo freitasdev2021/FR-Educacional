@@ -67,7 +67,6 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get("Acessos/Bloquear/{IDUser}/{STAcesso}",[ProfessoresController::class,'bloquearAcesso'])->name("Acessos/Bloquear");  
         //ESCOLAS
         Route::get('/Escolas/list',[EscolasController::class,'getEscolas'])->name('Escolas/list');
-        Route::get('/Escolas',[EscolasController::class,'index'])->name('Escolas/index');
         Route::get('/Escolas/Novo',[EscolasController::class,'cadastro'])->name('Escolas/Novo')->middleware('secretario');
         Route::get('/Escolas/Cadastro/{id}',[EscolasController::class,'cadastro'])->name('Escolas/Edit')->middleware('secretario');
         Route::post('/Escolas/Save',[EscolasController::class,'save'])->name('Escolas/Save')->middleware('secretario');
@@ -102,6 +101,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
     });
     //CAMADA DE SEGURANÇA, TIME EDUCACIONAL COMPLETO
     Route::middleware('time')->group(function(){
+        //ESCOLAS
+        Route::get('/Escolas',[EscolasController::class,'index'])->name('Escolas/index');
         //AULAS
         Route::get('Professores/Turmas/{IDTurma}',[EscolasController::class,'getProfessoresTurmaHTML'])->name('Professores/Turmas');
         Route::get('/Professores/DisciplinasProfessor/{IDTurma}/{IDProfessor?}',[ProfessoresController::class,'getDisciplinasTurmaProfessor'])->name('Professores/DisciplinasProfessor');
@@ -309,7 +310,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Ocorrencias/Cadastro/{id}',[OcorrenciasController::class,'cadastro'])->name('Ocorrencias/Edit');
         Route::post('Ocorrencias/Save',[OcorrenciasController::class,'save'])->name('Ocorrencias/Save');
         //DISCIPLINAS
-        Route::get('/Escolas/Disciplinas/list',[EscolasController::class,'getDisciplinas'])->name('Escolas/Disciplinas/list');
+        Route::get('/Escolas/Disciplinas/list/{IDTurma?}',[EscolasController::class,'getDisciplinas'])->name('Escolas/Disciplinas/list');
         Route::get('/Escolas/Disciplinas',[EscolasController::class,'Disciplinas'])->name('Escolas/Disciplinas');
         Route::get('/Escolas/Disciplinas/Novo',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Novo');
         Route::get('/Escolas/Disciplinas/Edit/{id}',[EscolasController::class,'cadastroDisciplinas'])->name('Escolas/Disciplinas/Cadastro');
