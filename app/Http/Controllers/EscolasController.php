@@ -566,7 +566,7 @@ class EscolasController extends Controller
         $arrTurmasT = [];
         if(Auth::user()->tipo == 6){
             foreach(ProfessoresController::getTurmasProfessor(Auth::user()->id) as $art){
-                array_push($arrTurmasT,$art->IDTurma);
+                array_push($arrTurmasT,$art->id);
             }
         }else{
             $arrTurmasT = self::getCurrentTurmasEscola();

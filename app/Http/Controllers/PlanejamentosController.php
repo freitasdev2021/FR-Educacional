@@ -552,7 +552,9 @@ class PlanejamentosController extends Controller
             	CONCAT('[', GROUP_CONCAT('"', t.Nome, '"' SEPARATOR ','), ']')
             END AS Turmas,
             pa.id as IDPlanejamento,
-            pa.NMPlanejamento
+            pa.NMPlanejamento,
+            t.Nome as Turma,
+            t.Serie as Serie
         FROM planejamentoanual pa
         INNER JOIN turmas t ON(t.id = pa.IDTurma)
         INNER JOIN disciplinas d ON(d.id = pa.IDDisciplina)
@@ -567,7 +569,7 @@ class PlanejamentosController extends Controller
         if(count($Planejamentos) > 0){
             foreach($Planejamentos as $p){
                 $item = [];
-                $item[] = $p->NMPlanejamento;
+                $item[] = $p->NMPlanejamento." - ".$p->Serie." ".$p->Turma;
                 // $item[] = json_decode($p->Turmas);
                 $item[] = "<a href='".route('Planejamentos/Cadastro',$p->IDPlanejamento)."' class='btn btn-primary btn-xs'>Abrir</a>";
                 $itensJSON[] = $item;
