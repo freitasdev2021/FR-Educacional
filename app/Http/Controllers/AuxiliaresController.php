@@ -32,6 +32,7 @@ class AuxiliaresController extends Controller
 
     public function getAuxiliares(){
         $IDOrg = Auth::user()->id_org;
+        $ID = Auth::user()->IDProfissional;
         switch(Auth::user()->tipo){
             case 2:
                 $IDEscolas = implode(',',SecretariasController::getEscolasRede(Auth::user()->id_org));
@@ -59,7 +60,7 @@ class AuxiliaresController extends Controller
             LEFT JOIN users u ON(u.IDProfissional = a.id) 
             LEFT JOIN escolas e ON(a.IDEscola = e.id) 
             LEFT JOIN organizacoes o ON(e.IDOrg = o.id) 
-            WHERE e.IDOrg = $IDOrg GROUP BY a.id
+            WHERE e.IDOrg = $IDOrg AND a.id != $ID GROUP BY a.id
             ");
 
         if(count($Auxiliares) > 0){

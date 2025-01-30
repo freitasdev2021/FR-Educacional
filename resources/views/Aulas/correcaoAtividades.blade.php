@@ -42,6 +42,7 @@
                       </table>
                       <div class="col-sm-12">
                         <button class="col-auto btn bg-fr text-white">Salvar</button>
+                        <a href="{{route('Aulas/Atividades/index')}}" class="col-auto btn btn-default text-black">Voltar</a>
                       </div>
                 </form>
             </div>

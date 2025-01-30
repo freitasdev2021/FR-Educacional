@@ -46,9 +46,12 @@ class DashboardController extends Controller
 
     public static function alunos($WHERE){
         $IDOrg = Auth::user()->id_org;
-        if(Auth::user()->tipo == 4){
+        if(in_array(Auth::user()->tipo,[4,4.5])){
             $WHERE .= ' AND e.id='.self::getEscolaDiretor(Auth::user()->id);
         }
+
+        $WHERE .=" AND a.STAluno=0";
+
         return DB::select("SELECT COUNT(m.id) as Quantidade FROM matriculas m INNER JOIN alunos a ON(m.id = a.IDMatricula) INNER JOIN turmas t ON(t.id = a.IDTurma) INNER JOIN escolas e ON(e.id = t.IDEscola) WHERE e.IDOrg = $IDOrg $WHERE ")[0];
     }
 
