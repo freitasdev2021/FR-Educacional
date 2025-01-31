@@ -17,6 +17,7 @@ use App\Models\Turma;
 use App\Models\Conceito;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Models\Escola;
+use App\Models\FIndividual;
 
 class FichaController extends Controller
 {
@@ -29,9 +30,13 @@ class FichaController extends Controller
         'rota' => 'Fichas/Sinteses',
         'endereco' => 'Sinteses'
     ],[
-        'nome' => 'Ficha Avaliativa',
+        'nome' => 'Ficha Coletiva',
         'rota' => 'Fichas/Avaliativa',
         'endereco' => 'Avaliativa'
+    ],[
+        'nome' => 'Ficha Individual',
+        'rota' => 'Fichas/Individual',
+        'endereco' => 'Individual'
     ]);
 
     public const cadastroSubmodulos = array([
@@ -472,6 +477,29 @@ class FichaController extends Controller
         $pdf->Output('I', 'boletim.pdf');
         exit;
         //
+    }
+
+    public function individual(){
+        if(isset($_GET['IDAluno']) && isset($_GET['IDDisciplina']) && isset($_GET['Etapa'])){
+            $Ficha = json_decode(FIndividual::select('Avaliacao')->where('IDAluno',$_GET['IDAluno'])->where('IDDisciplina',$_GET['IDDisciplina'])->where('Etapa',$_GET['Etapa'])->first(),true);
+        }else{
+            $Ficha = [];
+        }
+        
+        $view = [
+            "Alunos" => EscolasController::getNomeAlunosEscola(EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)),
+            "submodulos" => self::submodulos,
+            'id' => '',
+            'Ficha' => $Ficha
+        ];
+
+        if(Auth::user()->tipo == 6){
+            $view['Disciplinas'] = EscolasController::getDisciplinasProfessor(Auth::user()->id);
+        }else{
+            $view['Disciplinas'] = EscolasController::getDisciplinasEscola();
+        }
+
+        return view('Fichas.Individual.index',$view);
     }
 
     public function exportRespostas($id)

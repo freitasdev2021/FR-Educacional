@@ -306,7 +306,7 @@ class ProfessoresController extends Controller
             CONCAT('[', GROUP_CONCAT('"', e.Nome, '"' SEPARATOR ','), ']') AS Escolas,
             p.Nome AS Professor,
             p.Email,
-            CASE WHEN(p.TPContrato = 0) THEN 'Contratado' ELSE 'Efetivo/Temporário' END as TPContrato
+            TPContrato
         FROM professores p
         INNER JOIN alocacoes a ON a.IDProfissional = p.id
         INNER JOIN escolas e ON e.id = a.IDEscola

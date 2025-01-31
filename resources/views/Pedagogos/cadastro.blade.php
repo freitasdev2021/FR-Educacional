@@ -38,8 +38,9 @@
                         <div class="col-sm-4">
                             <label>Tipo de Contrato</label>
                             <select  name="TPContrato" class="form-control">
-                                <option value="0" {{isset($Registro) && $Registro->TPContrato == 0 ? 'selected' : '' }}>Efetivo</option>
-                                <option value="1" {{isset($Registro) && $Registro->TPContrato == 1 ? 'selected' : '' }}>Nomeado/Temporário</option>
+                                <option value="Efetivo" {{isset($Registro) && $Registro->TPContrato == 'Efetivo' ? 'selected' : '' }}>Efetivo</option>
+                                <option value="Nomeado/Temporário" {{isset($Registro) && $Registro->TPContrato == 'Nomeado/Temporário' ? 'selected' : '' }}>Nomeado/Temporário</option>
+                                <option value="Contratado" {{isset($Registro) && $Registro->TPContrato == 'Contratado' ? 'selected' : '' }}>Contratado</option>
                             </select>
                         </div>
                     </div>

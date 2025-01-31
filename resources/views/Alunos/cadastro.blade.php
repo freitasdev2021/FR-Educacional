@@ -245,12 +245,12 @@
                         <div class="col-sm-1">
                             <label>Cor</label>
                             <select name="Cor" class="form-control">
-                                <option value="branco" {{isset($Registro->Cor) && $Registro->Cor == "Não Informado" ? 'selected' : ''}}>Não Informado</option>
-                                <option value="branco" {{isset($Registro->Cor) && $Registro->Cor == "branco" ? 'selected' : ''}}>Branco</option>
-                                <option value="preto" {{isset($Registro->Cor) && $Registro->Cor == "preto" ? 'selected' : ''}}>Preto</option>
-                                <option value="pardo" {{isset($Registro->Cor) && $Registro->Cor == "pardo" ? 'selected' : ''}}>Pardo</option>
-                                <option value="amarelo" {{isset($Registro->Cor) && $Registro->Cor == "amarelo" ? 'selected' : ''}}>Amarelo</option>
-                                <option value="indigena" {{isset($Registro->Cor) && $Registro->Cor == "indigena" ? 'selected' : ''}}>Indígena</option>
+                                <option value="Não Informado" {{isset($Registro->Cor) && $Registro->Cor == "Não Informado" ? 'selected' : ''}}>Não Informado</option>
+                                <option value="Branca" {{isset($Registro->Cor) && $Registro->Cor == "Branca" ? 'selected' : ''}}>Branca</option>
+                                <option value="Preta" {{isset($Registro->Cor) && $Registro->Cor == "Preta" ? 'selected' : ''}}>Preta</option>
+                                <option value="Parda" {{isset($Registro->Cor) && $Registro->Cor == "Parda" ? 'selected' : ''}}>Parda</option>
+                                <option value="Amarela" {{isset($Registro->Cor) && $Registro->Cor == "Amarela" ? 'selected' : ''}}>Amarela</option>
+                                <option value="Indigena" {{isset($Registro->Cor) && $Registro->Cor == "Indigena" ? 'selected' : ''}}>Indígena</option>
                             </select>
                         </div>
                         <div class="col-sm-1">
@@ -405,14 +405,14 @@
                         @endif
                         @if(isset($Registro) && in_array(Auth::user()->tipo,[4,2,4.5,2.5])) 
                         <div class="col-auto">
-                            <a href="{{route('Alunos/Comprovante/Matricula',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Matricula',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Matrícula e Frequência</a>
                             <a href="{{route('Alunos/Comprovante/Frequencia',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Frequência</a>
-                            <a href="{{route('Alunos/Comprovante/Filiacao',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Relatório de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Concluinte',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Provavel Concluinte</a>
                             <a href="{{route('Alunos/Comprovante/Conclusao',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Conclusão</a>
                             <a href="{{route('Alunos/Comprovante/Escolaridade',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Declaração de Escolaridade</a>
                             <a href="{{route('Alunos/Comprovante/Vaga',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Atestado de Vaga</a>
-                            <a href="{{route('Alunos/Comprovante/Prematricula',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Ficha de Pré Matrícula</a>
-                            <a href="{{route('Alunos/Comprovante/Comparecimento',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Atestado de Comparecimento do Responsável</a>
+                            <a href="{{route('Alunos/Comprovante/Prematricula',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Ficha de Matrícula</a>
+                            <a href="{{route('Alunos/Comprovante/Etnico',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Autodeclaração Étnico-Racial</a>
                             <a href="{{route('Alunos/Comprovante/Responsabilidade',$Registro->IDAluno)}}" class="btn btn-fr btn-xs">Termo de Ciência e Responsabilidade</a>
                         </div>
                         @endif

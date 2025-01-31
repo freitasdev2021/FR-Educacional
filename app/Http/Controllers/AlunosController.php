@@ -515,18 +515,18 @@ class AlunosController extends Controller
             ]
         );
         // Espaço após a logo
-        $pdf->Ln(40);
+        $pdf->Ln(5);
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
 
         // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
         if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
-            $Turno = "Turno Integral";
+            $Turno = "Integral";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
-            $Turno = "no Turno Manhã";
+            $Turno = "Matutino";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
-            $Turno = "no Turno Tarde";
+            $Turno = "Vespertino";
         }else{
             $Turno = "";
         }
@@ -535,8 +535,10 @@ class AlunosController extends Controller
         // Inserir o texto da declaração
         $Nascimento = date('d/m/Y',strtotime($Aluno->Nascimento));
         $Pais = json_decode($Aluno->PaisJSON);
-        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome Nascido no dia $Nascimento cuja filiação é $Pais->Pai e $Pais->Mae está regularmente matriculado(a) no $Aluno->Serie - $Aluno->Turma da escola $Aluno->Escola, " .
-                    "no ano letivo de $Ano $Turno, conforme os registros escolares.";
+        $pdf->Cell(0, 7, self::utfConvert("Código Censo da Escola: ") . $Escola->IDCenso, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("Codigo INEP Aluno: ") . $Aluno->INEP, 0, 1);
+        $pdf->Ln(5);
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome nascido(a) em ".date('d/m/Y',strtotime($Aluno->Nascimento)).", natural de $Aluno->Naturalidade, filho(a) de $Aluno->NMResponsavel, está regularmente matriculado(a) e frequentando o(a) $Aluno->Serie, no turno Matutino, neste Estabelecimento de Ensino, no ano de $Ano .";
         $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
 
         // Espaço antes da assinatura
@@ -632,7 +634,7 @@ class AlunosController extends Controller
             $Aluno->Escola,
             $Aluno->Organizacao,
             'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
-            "COMPROVANTE DE MATRÍCULA",
+            "DECLARAÇÃO DE MATRÍCULA E FREQUÊNCIA",
             [
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
@@ -647,11 +649,11 @@ class AlunosController extends Controller
 
         // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
         if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
-            $Turno = "Turno Integral";
+            $Turno = "Integral";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
-            $Turno = "no Turno Manhã";
+            $Turno = "Matutino";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
-            $Turno = "no Turno Tarde";
+            $Turno = "Vespertino";
         }else{
             $Turno = "";
         }
@@ -660,14 +662,19 @@ class AlunosController extends Controller
         // Inserir o texto da declaração
         $Nascimento = date('d/m/Y',strtotime($Aluno->Nascimento));
         $Pais = json_decode($Aluno->PaisJSON);
-        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome Nascido no dia $Nascimento cuja filiação é $Pais->Pai e $Pais->Mae está regularmente matriculado(a) no $Aluno->Serie - $Aluno->Turma da escola $Aluno->Escola, " .
-                    "no ano letivo de $Ano $Turno, conforme os registros escolares.";
+        $declaracao = "Declaramos para os devidos fins de comprovação que o(a) aluno(o) ".$Aluno->Nome." nascido(a) aos ".date('d/m/Y',strtotime($Aluno->Nascimento))." na cidade de ".$Aluno->Naturalidade.", está matriculado(a) no(a) ".$Aluno->Serie." no período ".$Turno." referente ao ano letivo de ".date('Y')." e frequentou as aulas normalmente até a presente data.
+        Por ser verdade, firmo o presente.
+        ";
+
+        $pdf->Cell(0, 10, self::utfConvert("Código Censo da Escola: ".$Escola->INEP), 0, 1, 'C');
+        $pdf->Ln();
         $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
 
         // Espaço antes da assinatura
         $pdf->Ln(20);
 
         // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF), 0, 1, 'C');
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
         $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C'); // Texto de assinatura
 
@@ -1235,94 +1242,32 @@ class AlunosController extends Controller
         }
     }
 
-    public function getRelatorioMatricula($IDAluno){
+    public function getProvavelConcluinte($IDAluno){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
-        $Escola = DB::select("SELECT 
-            e.id,
-            e.Cidade,
-            e.UF, 
-            e.Foto,
-            m.Nome as Aluno,
-            e.Foto,
-            e.Nome as Escola,
-            m.Numero as Numero,
-            m.Bairro ,
-            r.NMResponsavel as Responsavel,
-            m.Rua,
-            o.Organizacao
-        FROM escolas e 
-        INNER JOIN turmas t ON(t.IDEscola = e.id) 
-        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
-        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-        INNER JOIN responsavel r ON(r.IDAluno = a.id)
-        INNER JOIN organizacoes o ON(o.id = e.IDOrg)
-        WHERE a.id = $IDAluno")[0];
-        // Definir margens
-        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
-
-        self::criarCabecalho(
-            $pdf,
-            $Escola->Escola,
-            $Escola->Organizacao,
-            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto,
-            "RELATÓRIO DE MATRÍCULA",
-            [
-                "Rua" => $Escola->Rua,
-                "Numero" => $Escola->Numero,
-                "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
-                "UF" => $Escola->UF
-            ]
-        );
-        $pdf->Ln(20);
-
-        // Definir fonte para o corpo do relatório
-        $pdf->SetFont('Arial', '', 12);
-
-        // Inserir as informações do relatório
-        $pdf->Cell(0, 10, self::utfConvert("Nome Completo: $Escola->Aluno"), 0, 1);
-        $pdf->Ln(5); // Espaço entre linhas
-
-        $pdf->MultiCell(0, 10, mb_convert_encoding("Filiação:\n$Escola->Responsavel", 'ISO-8859-1', 'UTF-8'));
-        $pdf->Ln(5); // Espaço entre linhas
-        $endereco = $Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." ".$Escola->Cidade.", ".$Escola->UF;
-        $pdf->MultiCell(0, 10, mb_convert_encoding("Endereço:\n$endereco", 'ISO-8859-1', 'UTF-8'));
-
-        // Espaço antes da assinatura
-        $pdf->Ln(20);
-
-        // Assinatura (ajuste o tamanho conforme necessário)
-        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C'); // Texto de assinatura
-
-        // Saída do PDF
-        $pdf->Output('I', 'Relatorio_Matricula.pdf');
-        exit;
-    }
-
-    public function getComprovanteConclusao($IDAluno){
-        // Criar o PDF com FPDF
-        $pdf = new FPDF();
-        $pdf->AddPage(); // Adiciona uma página
-        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola,t.Serie,e.Rua,e.Numero,e.Bairro
-        FROM escolas e 
-        INNER JOIN turmas t ON(t.IDEscola = e.id) 
-        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
-        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-        WHERE a.id = $IDAluno")[0];
         $Aluno = self::getAluno($IDAluno);
+        $Escola = Escola::find($Aluno->IDEscola);
+        $Pais = json_decode($Aluno->PaisJSON);
+        $endereco = $Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade.", ".$Aluno->UF;
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
-
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Turno Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "no Turno Manhã";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "no Turno Tarde";
+        }else{
+            $Turno = "";
+        }
         // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
         self::criarCabecalho(
             $pdf,
             $Aluno->Escola,
             $Aluno->Organizacao,
             'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
-            "DECLARAÇÃO DE CONCLUSÃO",
+            "DECLARAÇÃO DE PROVÁVEL CONCLUINTE",
             [
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
@@ -1335,60 +1280,36 @@ class AlunosController extends Controller
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
-
-        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
-        $nomeEscola = "Nome da Escola";
-        $nomeAluno = "Nome do Aluno";
+        
         $Ano = date('Y');
+        $pdf->Cell(0, 7, self::utfConvert("Código Censo da Escola: ") . $Escola->IDCenso, 0, 1);
+        $pdf->Ln(5);
         // Inserir o texto da declaração
-        $declaracao = "Certificamos que o(a) aluno(a) $Escola->Aluno êxito o $Escola->Serie pela $Escola->Escola, " .
-              "no ano letivo de $Ano, estando apto(a) a seguir com seus estudos ou carreira conforme desejado.";
-        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+        $declaracao = "Declaramos para os fins que se fizerem necessários, que o(a) $Aluno->Nome, é estudante regularmente matriculado no $Escola->Nome, tendo cumprido com as obrigações previstas quanto a frequência e rendimento nas avaliações até o presente momento, sendo considerado provável concluinte do $Aluno->Serie. E o prazo para emissão da documentação de conclusão é de 60 dias, logo após a verificação dos diários de classe e atas de resultados finais, por parte da Inspeção Escolar da Superientendência Regional de Ensino."; 
+        $pdf->MultiCell(0, 10, self::utfConvert($declaracao)); // Quebra de linha automática
 
         // Espaço antes da assinatura
         $pdf->Ln(20);
-
         // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF), 0, 1, 'C');
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
         $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('I', 'Declaracao_Conclusao.pdf');
+        $pdf->Output('I', 'Provavel_Concluinte.pdf');
         exit;
     }
 
-    public function getAtestadoComparecimento($IDAluno){
+    public function getComprovanteConclusao($IDAluno){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
         $Aluno = self::getAluno($IDAluno);
         $Escola = Escola::find($Aluno->IDEscola);
+        $Pais = json_decode($Aluno->PaisJSON);
+        $endereco = $Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade.", ".$Aluno->UF;
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
-
-        self::criarCabecalho(
-            $pdf,
-            $Aluno->Escola,
-            $Aluno->Organizacao,
-            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
-            "COMPROVANTE DE COMPARECIMENTO",
-            [
-                "Rua" => $Escola->Rua,
-                "Numero" => $Escola->Numero,
-                "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
-                "UF" => $Escola->UF
-            ]
-        );
-        $pdf->Ln(10); // Espaço após o título
-
-        // Definir fonte para o corpo da declaração
-        $pdf->SetFont('Arial', '', 12);
-
-        // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
-        $nomeEscola = "Nome da Escola";
-        $nomeAluno = "Nome do Aluno";
-        $Ano = date('Y');
         if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
             $Turno = "Turno Integral";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
@@ -1398,19 +1319,108 @@ class AlunosController extends Controller
         }else{
             $Turno = "";
         }
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "CERTIFICADO DE CONCLUSÃO",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
+        $pdf->Ln(5); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+        
+        $Ano = date('Y');
+        $pdf->Cell(0, 7, self::utfConvert("Código Censo da Escola: ") . $Escola->IDCenso, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("Código Censo do Aluno: ") . $Aluno->INEP, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("NIS do Aluno: ") . $Aluno->NIS, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("ID da Matrícula: ") . $Aluno->IDAluno, 0, 1);
+        $pdf->Ln(5);
         // Inserir o texto da declaração
-        $declaracao = "Atestamos que $Aluno->NMResponsavel Responsavel pelo(a) Aluno(a) $Aluno->Nome, matriculado(a) na turma $Aluno->Turma $Aluno->Serie do turno $Turno, esteve presente na escola na data e horário especificados.";
-        $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
+        $declaracao = "Declaramos para os devidos fins, que o(a) aluno(a) ".$Aluno->Nome." nascido(a) em ".date('d/m/Y',strtotime($Aluno->Nascimento)).", natural de ".$Aluno->Naturalidade." filho(a) de ".$Pais->Pai." e de ".$Pais->Mae.", residente no endereço: $endereco , CONCLUIU nesta Unidade de Ensino o(a) $Aluno->Serie, no turno $Turno , no período letivo de $Ano, com resultado final: APROVADO(A). Por ser verdade, firmamos a presente declaração.";
+        $pdf->MultiCell(0, 10, self::utfConvert($declaracao)); // Quebra de linha automática
 
         // Espaço antes da assinatura
         $pdf->Ln(20);
-
         // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF), 0, 1, 'C');
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('I', 'Atestado_Comparecimento.pdf');
+        $pdf->Output('I', 'Declaracao_Conclusao.pdf');
+        exit;
+    }
+
+    public function getEtnicoRacial($IDAluno){
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Aluno = self::getAluno($IDAluno);
+        $Escola = Escola::find($Aluno->IDEscola);
+        $Pais = json_decode($Aluno->PaisJSON);
+        $endereco = $Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." ".$Aluno->Cidade.", ".$Aluno->UF;
+        // Definir margens
+        $pdf->SetMargins(20, 20, 20); // Margem de 20 em todos os lados
+        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
+            $Turno = "Integral";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
+            $Turno = "Matutino";
+        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
+            $Turno = "Vespertino";
+        }else{
+            $Turno = "";
+        }
+        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "AUTODECLARAÇÃO ÉTNICO-RACIAL",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
+        $pdf->Ln(5); // Espaço após o título
+
+        // Definir fonte para o corpo da declaração
+        $pdf->SetFont('Arial', '', 12);
+    
+        // Inserir o texto da declaração
+        $declaracao = "Eu $Aluno->Nome, portador(a) do CPF n° $Aluno->CPF e do Documento de Identificação n° $Aluno->RG, aluno(a) regularmente matriculado(a) nesta escola, no(a) $Aluno->Nome, no turno $Turno, na turma $Aluno->Serie, no período letivo de ".date('Y').", declaro. para os devidos fins que sou:
+        ( ) Branco(a)
+        ( ) Preto(a)
+        ( ) Pardo(a)
+        ( ) Amarelo(a)
+        ( ) Indígena - especificar etnia/nação indígena:   
+            
+        Certifico ainda que as informações contidas neste documento são verdadeiras e estou ciente de que qualquer declaração falsa implica penalidades previstas em lei, conforme previsto pelo art. 299 do Código Penal Brasileiro (Decreto-Lei 2.848/1940). Por ser verdade, firmamos a presente declaração.
+        ";
+        $pdf->MultiCell(0, 10, self::utfConvert($declaracao)); // Quebra de linha automática
+
+        // Espaço antes da assinatura
+        $pdf->Ln(20);
+        // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF), 0, 1, 'C');
+        $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
+        $pdf->Cell(0, 10, 'Assinatura', 0, 1, 'C'); // Texto de assinatura
+
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Etnico_Racial.pdf');
         exit;
     }
 
@@ -1481,55 +1491,56 @@ class AlunosController extends Controller
 
         // Definir margens
         $pdf->SetMargins(20, 20, 20);
-        $Escola = DB::select("SELECT e.id,e.Cidade,e.UF, e.Foto,m.Nome as Aluno,e.Foto,e.Nome as Escola,t.Serie 
-        FROM escolas e 
-        INNER JOIN turmas t ON(t.IDEscola = e.id) 
-        INNER JOIN alunos a ON(t.id = a.IDTurma ) 
-        INNER JOIN matriculas m ON(m.id = a.IDMatricula) 
-        WHERE a.id = $IDAluno")[0];
+        $Aluno = self::getAluno($IDAluno);
+        $Escola = Escola::find($Aluno->IDEscola);
+        $Pais = json_decode($Aluno->PaisJSON);
         // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
-        $pdf->Cell(0, 10, $Escola->Escola, 0, 1, 'C'); // Nome da escola centralizado
-
-        // Espaço após o título
-        $pdf->Ln(20);
-
-        // Título da declaração
-        $pdf->Cell(0, 10, self::utfConvert('Declaração de Transferência Escolar'), 0, 1, 'C');
-        $pdf->Ln(10); // Espaço após o título
+        self::criarCabecalho(
+            $pdf,
+            $Aluno->Escola,
+            $Aluno->Organizacao,
+            'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola,
+            "DECLARAÇÃO DE TRANSFERÊNCIA ESCOLAR",
+            [
+                "Rua" => $Escola->Rua,
+                "Numero" => $Escola->Numero,
+                "Bairro" => $Escola->Bairro,
+                "Cidade" => $Escola->Bairro,
+                "UF" => $Escola->UF
+            ]
+        );
+        $pdf->Ln(5); // Espaço após o título
 
         // Definir fonte para o corpo da declaração
         $pdf->SetFont('Arial', '', 12);
 
         // Informações do aluno (exemplo de variáveis)
         $dataTransferencia = date('d/m/Y'); // Data atual
-
+        $pdf->Cell(0, 7, self::utfConvert("Código Censo da Escola: ") . $Escola->IDCenso, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("Codigo INEP Aluno: ") . $Aluno->INEP, 0, 1);
+        $pdf->Ln();
         // Texto da declaração de transferência
-        $declaracao = "Declaramos para os devidos fins que o(a) aluno(a) $Escola->Aluno está sendo transferido(a) " .
-                      "para outra instituição de ensino a partir da data de $dataTransferencia.";
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome nascido(a) em ".date('d/m/Y',strtotime($Aluno->Nascimento))." , natural de $Aluno->Naturalidade , filho(a) de $Pais->Pai e de $Pais->Mae , requereu sua transferência, na pessoa de seus pais/responsáveis, tendo o(a) mesmo(a) direito de cursar o(a) $Aluno->Serie .";
         $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
 
         // Espaço antes das observações
         $pdf->Ln(10);
 
         // Observações
-        $observacoes = "Informamos que o histórico escolar do aluno será emitido dentro de 30 dias a partir da data desta declaração.";
+        $observacoes = "Este documento é válido por 30 (trinta) dias, contados a partir da data de sua emissão.
+        Por ser verdade, firmamos a presente declaração.";
         $pdf->MultiCell(0, 10, mb_convert_encoding($observacoes, 'ISO-8859-1', 'UTF-8'));
 
         // Espaço antes da assinatura
         $pdf->Ln(20);
 
         // Assinatura (ajuste o tamanho conforme necessário)
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF), 0, 1, 'C');
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
         $pdf->Cell(0, 10, self::utfConvert("Assinatura do Responsável"), 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
-        $pdf->Output('D', 'Declaracao_Transferencia.pdf');
+        $pdf->Output('I', 'Declaracao_Transferencia.pdf');
         exit;
     }
 

@@ -206,6 +206,9 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //FICHA AVALIATIVA
         Route::get('Fichas/Avaliativa',[FichaController::class,'avaliativa'])->name('Fichas/Avaliativa');
         Route::post('Fichas/Avaliativa/Save',[FichaController::class,'saveAvaliativa'])->name('Fichas/Avaliativa/Save');
+        //FICHA INDIVIDUAL
+        Route::get('Fichas/Individual',[FichaController::class,'individual'])->name('Fichas/Individual');
+        Route::post('Fichas/Individual/Save',[FichaController::class,'saveIndividual'])->name('Fichas/Individual/Save');
         ////EAD
         //view
         Route::get('EAD',[EADController::class,'index'])->name('EAD/index');
@@ -251,10 +254,10 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get("Alunos/Comprovantes/Vaga/{id}",[AlunosController::class,'getComprovanteVaga'])->name("Alunos/Comprovante/Vaga");
         Route::get("Alunos/Comprovantes/Prematricula/{id}",[AlunosController::class,'getPreMatricula'])->name("Alunos/Comprovante/Prematricula");
         Route::get("Alunos/Comprovantes/Frequencia/{id}",[AlunosController::class,'getComprovanteFrequencia'])->name("Alunos/Comprovante/Frequencia");
-        Route::get("Alunos/Comprovantes/Filiacao/{id}",[AlunosController::class,'getRelatorioMatricula'])->name("Alunos/Comprovante/Filiacao");
+        Route::get("Alunos/Comprovantes/Concluinte/{id}",[AlunosController::class,'getProvavelConcluinte'])->name("Alunos/Comprovante/Concluinte");
         Route::get("Alunos/Comprovantes/Conclusao/{id}",[AlunosController::class,'getComprovanteConclusao'])->name("Alunos/Comprovante/Conclusao");
         Route::get("Alunos/Comprovantes/Transferencia/{id}",[AlunosController::class,'getDeclaracaoTransferencia'])->name("Alunos/Comprovante/Transferencia");
-        Route::get("Alunos/Comprovantes/Comparecimento/{id}",[AlunosController::class,'getAtestadoComparecimento'])->name("Alunos/Comprovante/Comparecimento");
+        Route::get("Alunos/Comprovantes/Etnico/{id}",[AlunosController::class,'getEtnicoRacial'])->name("Alunos/Comprovante/Etnico");
         Route::get("Alunos/Comprovantes/Responsabilidade/{id}",[AlunosController::class,'termoResponsabilidade'])->name("Alunos/Comprovante/Responsabilidade");
         Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico');
         Route::get('/Alunos/Boletim/{id}',[AlunosController::class,'boletim'])->name('Alunos/Boletim');

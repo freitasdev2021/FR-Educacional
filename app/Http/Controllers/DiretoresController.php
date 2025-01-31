@@ -25,7 +25,7 @@ class DiretoresController extends Controller
 
 
     public function getDiretores(){
-        $diretores = DB::select("SELECT d.id as IDDiretor,e.Nome as Escola,d.Nome as Diretor,CASE WHEN(d.TPContrato = 0) THEN 'Contratado' ELSE 'Efetivo/Temporário' END as TPContrato FROM diretores d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' ");
+        $diretores = DB::select("SELECT d.id as IDDiretor,e.Nome as Escola,d.Nome as Diretor,TPContrato FROM diretores d INNER JOIN escolas e ON(d.IDEscola = e.id) INNER JOIN organizacoes o ON(e.IDOrg = o.id) WHERE o.id = '".Auth::user()->id_org."' ");
         if(count($diretores) > 0){
             foreach($diretores as $d){
                 $item = [];

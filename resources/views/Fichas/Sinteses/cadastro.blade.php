@@ -29,6 +29,7 @@
                             <label>Referência</label>
                             <select name="Referencia" class="form-control">
                                 <option value="">Selecione</option>
+                                <option value="A" {{isset($Registro) && $Registro->Referencia == "Individual" ? 'selected' : ''}}>Individual</option>
                                 <option value="A" {{isset($Registro) && $Registro->Referencia == "A" ? 'selected' : ''}}>A</option>
                                 <option value="B" {{isset($Registro) && $Registro->Referencia == "B" ? 'selected' : ''}}>B</option>
                                 <option value="C" {{isset($Registro) && $Registro->Referencia == "C" ? 'selected' : ''}}>C</option>

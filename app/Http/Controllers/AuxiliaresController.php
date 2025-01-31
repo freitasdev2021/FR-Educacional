@@ -55,7 +55,7 @@ class AuxiliaresController extends Controller
                 a.id as IDAuxiliar,
                 e.Nome as Escola,
                 a.Nome as Auxiliar,
-                CASE WHEN(a.TPContrato = 0) THEN 'Contratado' ELSE 'Efetivo/Temporário' END as TPContrato
+                TPContrato
             FROM auxiliares a
             LEFT JOIN users u ON(u.IDProfissional = a.id) 
             LEFT JOIN escolas e ON(a.IDEscola = e.id) 
