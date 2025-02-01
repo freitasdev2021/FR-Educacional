@@ -118,6 +118,30 @@ class CalendarioController extends Controller
         return $dates;
     }
 
+    public static function mesesLetivos(){
+       
+        // Data inicial - hoje
+        $startDate = Carbon::parse(Calendario::whereYear('INIAno',date('Y'))->where('IDOrg', Auth::user()->id_org)->first()->INIAno);
+
+        // Data final - daqui a um ano
+        $endDate = Carbon::parse(Calendario::whereYear('TERAno',date('Y'))->where('IDOrg', Auth::user()->id_org)->first()->TERAno)->addDay();
+
+        // Intervalo de 1 dia
+        $interval = new DateInterval('P1M');
+
+        // Cria o período de datas
+        $period = new DatePeriod($startDate, $interval, $endDate);
+
+        // Armazena as datas em um array
+        $dates = [];
+        foreach ($period as $date) {
+            $dates[] = $date->format('Y-m');
+        }
+
+        // Exibe as datas (ou retorna como resposta JSON, ou qualquer outro uso que você desejar)
+        return $dates;
+    }
+
     public static function ferias(){
         $dates = [];
         $Ferias = FeriasAlunos::select('DTInicio','DTTermino')->whereIn('IDEscola',SecretariasController::getEscolasRede(Auth::user()->id_org))->whereYear('DTInicio',date('Y'))->get();

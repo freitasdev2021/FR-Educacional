@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Aluno;
 use App\Models\Matriculas;
 use App\Http\Controllers\TransporteController;
+use App\Http\Controllers\CalendarioController;
 use App\Models\Escola;
 use App\Models\NEE;
 use App\Models\Turma;
@@ -684,6 +685,62 @@ class AlunosController extends Controller
 
     }
 
+    public static function getFrequenciaMes($MesAno,$IDAluno){
+        $Ano = date('Y',strtotime($MesAno));
+        $SQL = <<<SQL
+            SELECT 
+                a.id AS IDAluno,
+                (SELECT COUNT(auFreq.id) 
+                FROM aulas auFreq 
+                WHERE auFreq.TPConteudo = 0 
+                AND auFreq.IDTurma = a.IDTurma 
+                AND DATE_FORMAT(auFreq.DTAula, '%Y-%m') = '$MesAno'  -- Mês estático (fevereiro)
+                ) 
+                - 
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE au2.TPConteudo = 0 
+                AND f2.IDAluno = a.id 
+                AND DATE_FORMAT(au2.DTAula, '%Y-%m') = '$MesAno'  -- Mês estático (fevereiro)
+                ) AS Faltas,
+                (SELECT COUNT(auFreq.id) 
+                FROM aulas auFreq 
+                WHERE auFreq.TPConteudo = 0 
+                AND auFreq.IDTurma = a.IDTurma 
+                AND DATE_FORMAT(auFreq.DTAula, '%Y-%m') = '$MesAno'  -- Mês estático (fevereiro)
+                ) as Aulas,
+                a.id AS IDAluno,
+                (SELECT COUNT(auFreq.id) 
+                FROM aulas auFreq 
+                WHERE auFreq.TPConteudo = 0 
+                AND auFreq.IDTurma = a.IDTurma 
+                AND DATE_FORMAT(auFreq.DTAula, '%Y') = '$Ano'  -- Mês estático (fevereiro)
+                ) 
+                - 
+                (SELECT COUNT(f2.id) 
+                FROM frequencia f2 
+                INNER JOIN aulas au2 ON au2.id = f2.IDAula 
+                WHERE au2.TPConteudo = 0 
+                AND f2.IDAluno = a.id 
+                AND DATE_FORMAT(au2.DTAula, '%Y') = '$Ano'  -- Mês estático (fevereiro)
+                ) AS FaltasAno,
+                (SELECT COUNT(auFreq.id) 
+                FROM aulas auFreq 
+                WHERE auFreq.TPConteudo = 0 
+                AND auFreq.IDTurma = a.IDTurma 
+                AND DATE_FORMAT(auFreq.DTAula, '%Y') = '$Ano'  -- Mês estático (fevereiro)
+                ) as AulasAno
+            FROM 
+                alunos a
+            WHERE 
+                a.id = $IDAluno;
+        SQL;
+
+        return DB::select($SQL)[0];
+
+    }
+
     public static function getFrequenciaEscolarAluno($IDAluno){
         $Ano = date('Y');
         $SQL = <<<SQL
@@ -1001,6 +1058,9 @@ class AlunosController extends Controller
 
     public static function getComprovanteFrequencia($IDAluno){
         // Criar o PDF com FPDF
+        setlocale(LC_TIME, 'portuguese');
+        date_default_timezone_set('America/Sao_Paulo');
+        $Meses = CalendarioController::mesesLetivos();
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
         $Aluno = self::getAluno($IDAluno); 
@@ -1032,40 +1092,72 @@ class AlunosController extends Controller
 
         // Nome da escola e do aluno (exemplo de variáveis $nomeEscola e $nomeAluno)
         if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
-            $Turno = "Turno Integral";
+            $Turno = "Integral";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
-            $Turno = "no Turno Manhã";
+            $Turno = "Matutino";
         }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
-            $Turno = "no Turno Tarde";
+            $Turno = "Vespertino";
         }else{
             $Turno = "";
         }
+        
         $Ano = date('Y');
-        // Inserir o texto da declaração
-        if (Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->gte(Carbon::createFromTimeString('17:00:00'))) {
-            $Turno = "Turno Integral";
-        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('07:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('14:00:00'))){
-            $Turno = "no Turno Manhã";
-        }elseif(Carbon::parse($Aluno->INITurma)->gt(Carbon::createFromTimeString('13:00:00')) && Carbon::parse($Aluno->INITurma)->lt(Carbon::createFromTimeString('17:00:00'))){
-            $Turno = "no Turno Tarde";
-        }else{
-            $Turno = "";
-        }
 
         $Nascimento = date('d/m/Y',strtotime($Aluno->Nascimento));
         $Pais = json_decode($Aluno->PaisJSON);
-        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome Nascido no dia $Nascimento em $Aluno->Naturalidade cuja filiação é $Pais->Pai e $Pais->Mae está frequente no $Aluno->Serie - $Aluno->Turma da escola $Aluno->Escola, " .
-                    "no ano letivo de $Ano $Turno, conforme os registros escolares.";
+        $declaracao = "Declaramos, para os devidos fins, que o(a) aluno(a) $Aluno->Nome nascido(a) em ".date('d/m/Y',strtotime($Aluno->Nascimento)).", natural de $Aluno->Naturalidade, filho(a) de $Pais->Pai e $Pais->Mae, está regularmente matriculado(a) e frequentou o(a) $Aluno->Serie, no turno $Turno, neste Estabelecimento de Ensino, no ano de $Ano.";
+        $pdf->Cell(0, 7, self::utfConvert("Código Censo da Escola: ") . $Escola->IDCenso, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("Codigo INEP Aluno: ") . $Aluno->INEP, 0, 1);
+        $pdf->Cell(0, 7, self::utfConvert("NIS Aluno: ") . $Aluno->NIS, 0, 1);
+        $pdf->Ln(5);
         $pdf->MultiCell(0, 10, mb_convert_encoding($declaracao, 'ISO-8859-1', 'UTF-8')); // Quebra de linha automática
-        $pdf->Ln();
-        $pdf->Cell(0,10,self::utfConvert("Frequência Anual Atual: ".$PorcentagemFrequencia." (".date('d/m/Y').")"),0,1);
-        $pdf->Cell(0,10,self::utfConvert("Frequência Mínima Anual: ".$Aluno->MINFrequencia."%"),0,1);
         // Espaço antes da assinatura
         $pdf->Ln(20);
+        //CORPO DO DOCUMENTO
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(156, 6, self::utfConvert('Frequência'), 1, 0, 'C');
+        $pdf->Ln();
+        $pdf->Cell(13, 6, self::utfConvert('Mês'), 1, 0, 'C');
+        foreach($Meses as $m){
+            $pdf->Cell(13, 6, strftime("%B",strtotime($m)), 1, 0, 'C');
+        }
+        $pdf->Ln();
+        $pdf->Cell(13, 4, "Aulas", 1, 0, 'C');
+        foreach($Meses as $m){
+            $pdf->Cell(13, 4, self::getFrequenciaMes($m,$IDAluno)->Aulas, 1, 0, 'C');
+        }
+        $pdf->Ln();
+        $pdf->Cell(13, 4, "Faltas", 1, 0, 'C');
+        foreach($Meses as $m){
+            $pdf->Cell(13, 4, self::getFrequenciaMes($m,$IDAluno)->Faltas, 1, 0, 'C');
+        }
+        $pdf->Ln();
+        $pdf->Cell(13, 4, self::utfConvert("Horas/Mês"), 1, 0, 'C');
+        foreach($Meses as $m){
+            $Frequencia = self::getFrequenciaMes($m,$IDAluno)->Aulas - self::getFrequenciaMes($m,$IDAluno)->Faltas;
 
-        // Assinatura (ajuste o tamanho conforme necessário)
+            $pdf->Cell(13, 4, number_format(self::decimalToMin($Frequencia),2,'.',''), 1, 0, 'C');
+        }
+        $pdf->Ln();
+        $pdf->Cell(13, 4, self::utfConvert("Freq(%)"), 1, 0, 'C');
+        foreach($Meses as $m){
+            $Frequencia = self::getFrequenciaMes($m,$IDAluno)->Aulas - self::getFrequenciaMes($m,$IDAluno)->Faltas;
+            if($Frequencia == 0){
+                $Porc = 0;
+            }else{
+                $Porc = ($Frequencia/self::getFrequenciaMes($m,$IDAluno)->Aulas)*100;
+            }
+            
+            $pdf->Cell(13, 4, $Porc."%", 1, 0, 'C');
+        }
+        $FrequenciaAno = self::getFrequenciaMes(date('Y-m'),$IDAluno)->AulasAno - self::getFrequenciaMes(date('Y-m'),$IDAluno)->FaltasAno;
+        $pdf->Ln(5);
+        $pdf->Cell(0, 6, "Total de Horas Anual: " .number_format(self::decimalToMin($FrequenciaAno), 2, '.', ''), 0, 1);
+        //FIM DO CORPO DO DOCUMENTO
+        $pdf->Ln(6);
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF), 0, 1, 'C');
         $pdf->Cell(0, 10, "________________________________", 0, 1, 'C'); // Linha de assinatura
-        $pdf->Cell(0, 10, self::utfConvert("Emitidor por: ".Auth::user()->name.$Escola->Cidade.", ".$Escola->UF." - ".date('d/m/Y H:i:s')), 0, 1, 'C'); // Texto de assinatura
+        $pdf->Cell(0, 10, "Assinatura", 0, 1, 'C'); // Texto de assinatura
 
         // Saída do PDF
         $pdf->Output('I', 'Declaracao_Frequencia.pdf');

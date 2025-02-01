@@ -106,6 +106,12 @@ abstract class Controller
         list($hours, $minutes) = explode(':', $time);
         return $hours + ($minutes / 60);
     }
+
+    public static function decimalToMin($dec){
+        $cargaHoraria = $dec * (50 / 60);
+
+        return $cargaHoraria;
+    }
     
     
     public static function utfConvert($String){
