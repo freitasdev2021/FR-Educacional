@@ -60,53 +60,101 @@
                         &nbsp;
                         <a class="btn btn-light col-auto" href="{{route('Escolas/Disciplinas')}}">Voltar</a>
                     </div>
-                    @if(isset($Registro->id))
+                </form>  
+                <!--------------RELATORIOS DE MAPAS---------------------->
+                @if(isset($Registro->id))
                     <hr>
-                    <table class="table" border>
-                        <thead>
-                            <tr>
-                                <th>Turma</th>
-                                <th>Professor</th>
-                                <th>Gerar Relatórios</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($Turmas as $t)
-                            <tr>
-                                <td>{{$t->Serie}} - {{$t->Turma}}</td>
-                                <td>{{$t->Professor}}</td>
-                                <td>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"Ano","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-success">Mapa Final</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 1 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 2 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 3 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Nota","Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-primary">Mapa 4 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 1 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 2 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 3 BIM</a>
-                                    <a href="{{route('Relatorios/Mapas',["Tipo" => "Frequencia","Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-warning">Frequência 4 BIM</a>
-                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 1º BIM</a>
-                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 2º BIM</a>
-                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 3º BIM</a>
-                                    <a href="{{route('Relatorios/Disciplinas/Aulas',["Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma,"IDProfessor"=>$t->IDProfessor,"IDDisciplina"=>$Registro->id])}}" class="btn btn-xs btn-info">Aulas 4º BIM</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <form action="{{route('Relatorios/Mapas')}}" method="POST">
+                        <label>Relatórios de Mapeamento</label>
+                        <hr>
+                        @csrf
+                        <input name="IDDisciplina" value="{{$Registro->id}}" type="hidden">
+                        <input name="IDProfessor" value="" type="hidden">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label>Turma</label>
+                                <select name="IDTurma" class="form-control">
+                                    <option value="">Selecione</option>
+                                    @foreach($Turmas as $t)
+                                    <option value="{{$t->IDTurma}}" data-professor="{{$t->IDProfessor}}">{{$t->Serie}} - {{$t->Turma}} - {{$t->Professor}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Relatório</label>
+                                <select name="Tipo" class="form-control">
+                                    <option value="Nota">Mapa</option>
+                                    <option value="Frequencia">Frequência Bimestral</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Etapa</label>
+                                <select name="Periodo" class="form-control">
+                                    <option value="Ano">Ano</option>
+                                    <option value="1º BIM">1º BIM</option>
+                                    <option value="2º BIM">2º BIM</option>
+                                    <option value="3º BIM">3º BIM</option>
+                                    <option value="4º BIM">4º BIM</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-12">
+                                <label>Observações</label>
+                                <textarea name="Observacoes" class="form-control"></textarea>
+                            </div>
+                            <div class="col-auto">
+                                <br>
+                                <button class="btn btn-default">Gerar</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <!-------------RELATORIOS DE AULAS----------------------->
+                    <form action="{{route('Relatorios/Disciplinas/Aulas')}}" method="POST">
+                        <label>Relatórios de Aulas</label>
+                        <hr>
+                        @csrf
+                        <input name="IDDisciplina" value="{{$Registro->id}}" type="hidden">
+                        <input name="IDProfessor" value="" type="hidden">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Turma</label>
+                                <select name="IDTurma" class="form-control">
+                                    <option value="">Selecione</option>
+                                    @foreach($Turmas as $t)
+                                    <option value="{{$t->IDTurma}}" data-professor="{{$t->IDProfessor}}">{{$t->Serie}} - {{$t->Turma}} - {{$t->Professor}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Etapa</label>
+                                <select name="Periodo" class="form-control">
+                                    <option value="Ano">Ano</option>
+                                    <option value="1º BIM">1º BIM</option>
+                                    <option value="2º BIM">2º BIM</option>
+                                    <option value="3º BIM">3º BIM</option>
+                                    <option value="4º BIM">4º BIM</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-12">
+                                <label>Observações</label>
+                                <textarea name="Observacoes" class="form-control"></textarea>
+                            </div>
+                            <div class="col-auto">
+                                <br>
+                                <button class="btn btn-default">Gerar</button>
+                            </div>
+                        </div>
+                    </form>
                     @endif
-                </form>    
+                <!------------------------------------>  
             </div>
             <!--//-->
         </div>
     </div>
     <script>
-        // $(".escola").find("input[type=checkbox]").on("click",function(){
-        //     if($(this).is(":checked")){
-        //         $(this).parent().find("input[type=hidden]").val($(this).val())
-        //     }else{
-        //         $(this).parent().find("input[type=hidden]").val(0)
-        //     }
-        // })
+        $("select[name=IDTurma]").on("change",function(){
+            var IDProfessor = $("option:selected",this).attr('data-professor')
+            $("input[name=IDProfessor]").val(IDProfessor)
+        })
     </script>
 </x-educacional-layout>

@@ -2571,7 +2571,7 @@ class RelatoriosController extends Controller
         exit;
     }
 
-    public function pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo){
+    public function pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo,$Observacoes){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage('L'); // Adiciona uma página
@@ -2612,6 +2612,7 @@ class RelatoriosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('Período: ' . $Periodo), 0, 1);
 
         $pdf->Cell(240, $lineHeight, self::utfConvert('Legenda: AV1: AVALIAÇÃO 1, AV2: AVALIAÇÃO 2, AV3: AVALIAÇÃO 3,MB: MÉDIA DO BIMESTRE, MR: MÉDIA RECUPERADA, FB: FALTAS NO BIMESTRE'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Observações: ' . $Observacoes), 0, 1);
         $pdf->Ln(10);
 
         //DADOS
@@ -2702,7 +2703,7 @@ class RelatoriosController extends Controller
         exit;
     }
 
-    public function pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo){
+    public function pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo,$Observacoes){
         $SQLAulas = DB::select("SELECT au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo'");
         $Aulas = array_map(function($v){
             return date('d',strtotime($v->DTAula));
@@ -2793,7 +2794,7 @@ class RelatoriosController extends Controller
         }
         //$pdf->Ln();
         $pdf->SetFont('Arial', 'B', 7);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '.$Observacoes), 0, 1);
         $pdf->Ln(8);
         //CAMPOS DE ASSINATURA
         $pdf->SetFont('Arial', '', 10);
@@ -2929,7 +2930,12 @@ class RelatoriosController extends Controller
         exit;;
     }
 
-    public function getAulasDisciplina($Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
+    public function getAulasDisciplina(Request $request){
+        $Periodo = $request->Periodo;
+        $IDTurma = $request->IDTurma;
+        $IDProfessor = $request->IDProfessor;
+        $IDDisciplina = $request->IDDisciplina;
+        $Observacoes = $request->Observacoes;
         $SQL = "SELECT au.DSConteudo,au.DTAula FROM aulas au WHERE au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo'";
         $query = DB::select($SQL);
 
@@ -2992,7 +2998,7 @@ class RelatoriosController extends Controller
         }
         $pdf->Ln();
         $pdf->SetFont('Arial', 'B', 7);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '.$Observacoes), 0, 1);
         $pdf->Ln(10);
         //CAMPOS DE ASSINATURA
         $pdf->SetFont('Arial', '', 10);
@@ -3164,7 +3170,7 @@ class RelatoriosController extends Controller
         exit;
     }
 
-    public function pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina){
+    public function pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina,$Observacoes){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage('L'); // Adiciona uma página
@@ -3205,7 +3211,7 @@ class RelatoriosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('Período: Anual'), 0, 1);
 
         $pdf->Cell(190, $lineHeight, self::utfConvert('Legenda: CF: Conselho Final; BIM: Bimestre; NR: Nota recuperada'), 0, 0);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('Observação: Estrutura Curricular Resolução CME/TO nº 04/2023.'), 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Observação: '.$Observacoes), 0, 1);
         $pdf->Ln(2);
 
         //DADOS
@@ -3306,7 +3312,13 @@ class RelatoriosController extends Controller
         exit;
     }
 
-    public function mapas($Tipo,$Periodo,$IDTurma,$IDProfessor,$IDDisciplina){
+    public function mapas(Request $request){
+        $Tipo = $request->Tipo;
+        $Periodo = $request->Periodo;
+        $IDTurma = $request->IDTurma;
+        $IDProfessor = $request->IDProfessor;
+        $IDDisciplina = $request->IDDisciplina;
+        $Observacoes = $request->Observacoes;
         $SQL = <<<SQL
             SELECT 
                 m.Nome as Aluno,
@@ -3376,13 +3388,13 @@ class RelatoriosController extends Controller
         //dd($query);
         if($Tipo == "Nota"){
             if($Periodo != "Ano"){
-                self::pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo);
+                self::pdfMapaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo,$Observacoes);
             }else{
-                self::pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina);
+                self::pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina,$Observacoes);
             }
         }else{
             if($Periodo != "Ano"){
-                self::pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo);
+                self::pdfFrequenciaBimestral($query,$IDTurma,$IDProfessor,$IDDisciplina,$Periodo,$Observacoes);
             }else{
 
             }

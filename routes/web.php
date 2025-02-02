@@ -353,8 +353,8 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::post("Professores/Apoio/NovaEvolucao",[ApoioController::class,'saveEvolucao'])->name("Professores/Apoio/NovaEvolucao");
         //
         //RELATORIOS
-        Route::get('Relatorios/Mapas/{Tipo}/{Periodo}/{IDTurma}/{IDProfessor}/{IDDisciplina}',[RelatoriosController::class,'mapas'])->name('Relatorios/Mapas');
-        Route::get('Relatorios/Disciplinas/Aulas/{Periodo}/{IDTurma}/{IDProfessor}/{IDDisciplina}',[RelatoriosController::class,'getAulasDisciplina'])->name('Relatorios/Disciplinas/Aulas');
+        Route::post('Relatorios/Mapas',[RelatoriosController::class,'mapas'])->name('Relatorios/Mapas');
+        Route::post('Relatorios/Disciplinas/Aulas',[RelatoriosController::class,'getAulasDisciplina'])->name('Relatorios/Disciplinas/Aulas');
         Route::get('Relatorios/Disciplinas/Aulas/{Periodo}/{IDTurma}',[RelatoriosController::class,'getAulasDatas'])->name('Relatorios/Disciplinas/AulasData');
         Route::get('Relatorios/Escolas/Quadro/{IDEscola}',[RelatoriosController::class,'quadroTurmas'])->name('Relatorios/Escolas/Quadro');
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
