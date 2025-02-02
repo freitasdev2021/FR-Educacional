@@ -163,7 +163,9 @@ class FichaController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //CORPO DO DOCUMENTO
         $pdf->SetFont('Arial', 'B', $fontHeader);
         //LEGENDA DAS FICHAS
@@ -372,7 +374,9 @@ class FichaController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         $pdf->SetFont('Arial', '', 8);
         //
         $pdf->Cell(65, $lineHeight, self::utfConvert('Nome: ' . $Aluno->Nome), 0, 0);
@@ -389,58 +393,39 @@ class FichaController extends Controller
         //dd($FIndividual);
         foreach ($FIndividual as $key => $fi) {
             // Título da seção
-            $pdf->SetFont('Arial', 'B', 10);
-            $pdf->Cell(100, $lineHeight, self::utfConvert($key), 0, 0);
-            $pdf->Ln();
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(0, $lineHeight, self::utfConvert($key), 0, 1);
+            $pdf->Ln(2); // Pequeno espaçamento
         
-            // Cabeçalho da tabela
-            $pdf->SetFont('Arial', 'B', 7);
-            $pdf->Cell(120, 12, 'Indicadores', 1, 0, 'C'); // Cabeçalho "Indicadores"
-            $pdf->Cell(40, 12, 'Bimestres/Conceitos', 1, 0, 'C'); // Cabeçalho "Bimestres/Conceitos"
-            $pdf->Ln(12);
-        
-            // Subcabeçalho dos bimestres
-            $pdf->Cell(120, $lineHeight, '', 1); // Célula vazia para alinhar com "Indicadores"
-            $pdf->Cell(10, $lineHeight, '1BIM', 1, 0, 'C'); // 1º Bimestre
-            $pdf->Cell(10, $lineHeight, '2BIM', 1, 0, 'C'); // 2º Bimestre
-            $pdf->Cell(10, $lineHeight, '3BIM', 1, 0, 'C'); // 3º Bimestre
-            $pdf->Cell(10, $lineHeight, '4BIM', 1, 0, 'C'); // 4º Bimestre
-            $pdf->Ln();
-        
-            // Dados dos indicadores e bimestres
-            $pdf->SetFont('Arial', '', 7);
+            // Indicadores e Bimestres
+            $pdf->SetFont('Arial', '', 9);
             foreach ($fi as $keyFi => $f) {
-                // Armazena a posição Y inicial
-                $yStart = $pdf->GetY();
-                $xStart = $pdf->GetX();
+                // Exibe o texto do indicador
+                $pdf->SetFont('Arial', 'B', 8);
+                $pdf->MultiCell(0, $lineHeight, self::utfConvert($keyFi)); // Ocupa toda a linha
+                $pdf->Ln(1); // Pequeno espaçamento entre o texto e os bimestres
         
-                // Define a largura da célula do indicador
-                $indicatorWidth = 120;
+                // Exibe os bimestres lado a lado
+                $pdf->SetFont('Arial', '', 8);
+                $pdf->Cell(15, $lineHeight, '1BIM:', 0, 0);
+                $pdf->Cell(20, $lineHeight, self::utfConvert($f['1 BIM']), 0, 0);
+                $pdf->Cell(15, $lineHeight, '2BIM:', 0, 0);
+                $pdf->Cell(20, $lineHeight, self::utfConvert($f['2 BIM']), 0, 0);
+                $pdf->Cell(15, $lineHeight, '3BIM:', 0, 0);
+                $pdf->Cell(20, $lineHeight, self::utfConvert($f['3 BIM']), 0, 0);
+                $pdf->Cell(15, $lineHeight, '4BIM:', 0, 0);
+                $pdf->Cell(20, $lineHeight, self::utfConvert($f['4 BIM']), 0, 1); // Nova linha após os bimestres
         
-                // Escreve o nome do indicador e mede a altura
-                $pdf->MultiCell($indicatorWidth, $lineHeight, self::utfConvert($keyFi), 1);
-                
-                // Calcula a altura que foi gerada
-                $height = $pdf->GetY() - $yStart;
-        
-                // Retorna para a posição inicial para escrever os bimestres
-                $pdf->SetXY($xStart + $indicatorWidth, $yStart);
-        
-                // Escreve os valores dos bimestres na mesma altura
-                foreach ($f as $bim) {
-                    $pdf->Cell(10, $height, self::utfConvert($bim), 1, 0, 'C');
-                }
-        
-                $pdf->Ln(); // Nova linha para o próximo indicador
+                $pdf->Ln(3); // Espaçamento entre os indicadores
             }
         
-            $pdf->Ln(); // Espaço entre as seções
-        }        
+            $pdf->Ln(4); // Espaço entre seções
+        }            
         ////////
         //CAMPOS DE ASSINATURA
         $pdf->Ln();
         $pdf->MultiCell(160, $lineHeight, self::utfConvert('Parecer Descritivo: '.$request->Parecer), 0, 0);
-        $pdf->Cell(100, $lineHeight, self::utfConvert('Observaçoes: '.$request->Observacao), 0, 1);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Observaçoes: '.$request->Observacoes), 0, 1);
         $pdf->Ln();
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF.", ".date('d/m/Y')), 0, 1, 'C');

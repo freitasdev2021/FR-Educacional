@@ -2595,7 +2595,9 @@ class RelatoriosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -2730,7 +2732,9 @@ class RelatoriosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -2862,7 +2866,9 @@ class RelatoriosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         $pdf->SetFont('Arial', '', 7);
         $pdf->Cell(240, $lineHeight, self::utfConvert('Periodo Letivo: '.date('Y')), 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert("Impressão: ".date('d/m/Y')), 0, 1);
@@ -2951,7 +2957,9 @@ class RelatoriosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -3037,7 +3045,7 @@ class RelatoriosController extends Controller
             WHERE au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo' GROUP BY au.DTAula;
         SQL;
         $query = DB::select($SQL);
-
+        $qtAulas = count(DB::select("SELECT au.DSConteudo,au.DTAula FROM aulas au WHERE au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo'"));
         // Criar o PDF com FPDF
         $pdf = new FPDF();
         $pdf->AddPage(); // Adiciona uma página
@@ -3060,7 +3068,9 @@ class RelatoriosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);
@@ -3072,7 +3082,7 @@ class RelatoriosController extends Controller
         $pdf->Cell(0, $lineHeight, self::utfConvert('Data de Impressão: ' . date('d/m/Y')), 0, 1);
 
         $pdf->Cell(100, $lineHeight, self::utfConvert('INEP: ',$Escola->IDCenso), 0, 0);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('Aulas dadas: ' . count($query)), 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Aulas dadas: ' . $qtAulas), 0, 1);
         $pdf->Ln(3);
         $FLarg = 2.8;
         //DADOS
@@ -3178,7 +3188,9 @@ class RelatoriosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         // DADOS DA ESCOLA
         $pdf->SetFont('Arial', '', 9);

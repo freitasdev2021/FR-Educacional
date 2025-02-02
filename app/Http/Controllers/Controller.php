@@ -134,8 +134,9 @@ abstract class Controller
         return false;
     }
 
-    public static function criarCabecalho($pdf, $nomeEscola, $nomeMunicipio, $caminhoImagem,$Documento,$Endereco){
+    public static function criarCabecalho($pdf, $nomeEscola, $nomeMunicipio, $caminhoImagem,$Documento,$Endereco,$Email,$Telefone){
         // Adicionar imagem no canto esquerdo
+        $height = 7;
         $pdf->Image($caminhoImagem, 10, 10, 30); // (x, y, largura)
 
         // Definir fonte para o cabeçalho
@@ -154,6 +155,10 @@ abstract class Controller
         // Adicionar o nome do município (centralizado)
         $pdf->SetXY(30, 30); // Ajuste a posição para a próxima linha
         $pdf->Cell(0, 10, self::utfConvert($Endereco['Rua'].", ".$Endereco['Numero']." ".$Endereco['Bairro']." - ".$Endereco['Cidade']."/".$Endereco['UF']), 0, 1, 'C');
+
+        $pdf->SetXY(50, 50); // Ajuste a posição para a próxima linha
+        $pdf->Cell(80, 7, self::utfConvert("Email: ".$Email), 0, 0);
+        $pdf->Cell(0, 7, self::utfConvert("Telefone: ".$Telefone), 0, 1);
 
         $pdf->SetFont('Arial','B',15);
         $pdf->SetXY(25, 40); // Ajuste a posição para a próxima linha

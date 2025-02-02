@@ -654,7 +654,7 @@ class EscolasController extends Controller
         $SQL = <<<SQL
         SELECT 
             t.id as IDTurma, 
-            COUNT(a.id) as QTAlunos, 
+            (SELECT COUNT(a2.id) FROM alunos a2 WHERE a2.IDTurma = t.id AND a2.STAluno = 0) as QTAlunos, 
             t.Nome as Turma,t.INITurma,
             t.TERTurma,
             e.Nome as Escola,

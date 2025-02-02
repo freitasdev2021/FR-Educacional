@@ -40,6 +40,7 @@ class TurmasController extends Controller
 
     public function exportaAlunosTurma($id){
         $idorg = Auth::user()->id_org;
+        $Organizacao = Organizacao::find($idorg);
         $Alunos = "SELECT
             a.id as IDAluno, 
             m.Nome as Nome,
@@ -77,16 +78,6 @@ class TurmasController extends Controller
         
         // Definir margens
         $pdf->SetMargins(20, 20, 20); // Margens esquerda, superior e direita
-        $pdf->SetAutoPageBreak(true, 25); // Margem inferior
-
-        // Inserir a logo da escola (ajuste o caminho e dimensões da imagem conforme necessário)
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Escola->id . '/' . $Escola->Foto), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
-
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(30, 15); // Ajuste o valor X conforme necessário para centralizar
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Nome), 0, 1, 'C'); // Nome da escola centralizado
         
         // Definir cabeçalho do relatório
         $pdf->SetFont('Arial', 'B', 16);
@@ -94,10 +85,16 @@ class TurmasController extends Controller
         // Largura total da tabela (soma das larguras das colunas)
         $larguraTotalTabela = 161; 
         
-        // Centralizar o cabeçalho com base na largura da tabela
-        $pdf->SetX((220 - $larguraTotalTabela) / 2); // 210 é a largura da página A4 em mm
-        $pdf->Cell($larguraTotalTabela, 10, self::utfConvert("Turma ".$Turma->Serie)." ".$Turma->Nome, 0, 1, 'C');
-        $pdf->Ln(10); // Espaço após o título
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,$Turma->Serie." - ".$Turma->Nome,[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         
         // Definir cabeçalhos da tabela
         $pdf->SetFont('Arial', 'B', 12);
@@ -608,7 +605,9 @@ class TurmasController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
 
         // Linha para separar o cabeçalho do restante
         

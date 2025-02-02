@@ -508,7 +508,7 @@ class AlunosController extends Controller
         $view = [
             'submodulos' => (Auth::user()->tipo == 6) ? self::professoresSubmodulos : self::cadastroSubmodulos,
             'id' => $id,
-            'Ficha' => json_decode($Ficha['Avaliacao'],true),
+            'Ficha' => isset($Ficha['Avaliacao']) ? json_decode($Ficha['Avaliacao'],true) : [],
             'Disciplinas' => $Disciplinas
         ];
 
@@ -546,7 +546,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         // Espaço após a logo
         $pdf->Ln(5);
@@ -608,7 +610,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
 
         $pdf->Ln(10);
@@ -675,7 +679,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
 
         // Definir fonte para o corpo da declaração
@@ -953,7 +959,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
 
         // Identificação da Escola
@@ -1115,7 +1123,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         // Espaço após a logo
         $pdf->Ln(5);
@@ -1399,7 +1409,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         $pdf->Ln(5); // Espaço após o título
 
@@ -1457,7 +1469,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         $pdf->Ln(5); // Espaço após o título
 
@@ -1518,7 +1532,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         $pdf->Ln(5); // Espaço após o título
 
@@ -1574,7 +1590,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         $pdf->Ln(10);
 
@@ -1632,7 +1650,9 @@ class AlunosController extends Controller
                 "Bairro" => $Escola->Bairro,
                 "Cidade" => $Escola->Bairro,
                 "UF" => $Escola->UF
-            ]
+            ],
+            $Escola->Email,
+            $Escola->Telefone
         );
         $pdf->Ln(5); // Espaço após o título
 
@@ -1877,7 +1897,9 @@ class AlunosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         $lineHeight = 4; //ALTURA DAS LINHAS
         // DADOS DA ESCOLA
@@ -2116,7 +2138,9 @@ class AlunosController extends Controller
             "Bairro" => $Escola->Bairro,
             "Cidade" => $Escola->Bairro,
             "UF" => $Escola->UF
-        ]);
+        ],
+        $Escola->Email,
+        $Escola->Telefone);
         //AQUI VAI O CONTEUDO
         $lineHeight = 4; //ALTURA DAS LINHAS
         // DADOS DA ESCOLA
