@@ -689,13 +689,21 @@ class EscolasController extends Controller
                     break;
                 }
 
+                $opcoes = "
+                <a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a> <a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>
+                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 1º BIM</a>
+                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 2º BIM</a>
+                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 3º BIM</a>
+                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 4º BIM</a>
+                ";
+
                 $item = [];
                 $item[] = $t->Turma;
                 $item[] = $t->Serie;
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = $t->Escola : '';
                 (in_array(Auth::user()->tipo,[2,4])) ? $item[] = $t->INITurma." - ".$t->TERTurma : '';
                 $item[] = $t->QTAlunos;
-                $item[] = "<a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a> <a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>";
+                $item[] = $opcoes;
                
                 $itensJSON[] = $item;
             }

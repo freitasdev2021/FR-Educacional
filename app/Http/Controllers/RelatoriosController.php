@@ -3017,6 +3017,143 @@ class RelatoriosController extends Controller
         exit;
     }
 
+    public function getAulasDatas($Periodo,$IDTurma){
+        $SQL = <<<SQL
+            SELECT 
+                au.DTAula,
+                CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    '{',
+                    '"Aula":"', IFNULL(au.DSConteudo, ''), '"',
+                    ',"Disciplina":"', IFNULL(d.NMDisciplina, ''), '"',
+                    '}'
+                    SEPARATOR ','
+                    ),
+                    ']'
+                ) AS Aulas
+            FROM aulas au 
+            INNER JOIN disciplinas d ON(d.id = au.IDDisciplina)
+            WHERE au.IDTurma = $IDTurma AND au.TPConteudo = 0 AND au.Estagio = '$Periodo' GROUP BY au.DTAula;
+        SQL;
+        $query = DB::select($SQL);
+
+        // Criar o PDF com FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage(); // Adiciona uma página
+        $Turma = Turma::find($IDTurma);
+        $Escola = Escola::find($Turma->IDEscola);
+        $Organizacao = Organizacao::find($Escola->IDOrg);
+        
+        
+        $lineHeight = 6;
+        // Definir margens
+        $pdf->SetMargins(5, 5, 5); // Margem de 20 em todos os lados
+
+        // Posição do nome da escola após a logo
+        $pdf->SetXY(20, 15); // Ajuste o valor X conforme necessário para centralizar
+
+        // Definir fonte e título
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,"RELATÓRIO DE REGISTRO DE CONTEÚDOS",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
+        //AQUI VAI O CONTEUDO
+        // DADOS DA ESCOLA
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Turma: '.$Turma->Serie." - ".$Turma->Nome), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Período: ' . $Periodo), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, 'Ano Letivo: ' . date('Y'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Data de Impressão: ' . date('d/m/Y')), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('INEP: ',$Escola->IDCenso), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Aulas dadas: ' . count($query)), 0, 1);
+        $pdf->Ln(3);
+        $FLarg = 2.8;
+        //DADOS
+        //CABECALHO
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(20, 8, 'Data', 1, 0, 'C');
+        $pdf->Cell(180, 8, 'Registro de aulas / Objetivos de aprendizagem e desenvolvimento', 1, 0, 'C');
+        //CORPO
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 8);
+        //dd($query);
+        foreach ($query as $key => $row) {
+            // Formata a data
+            $data = date('d/m/Y', strtotime($row->DTAula));
+        
+            // Processa as aulas
+            $aulas = "";
+            foreach (json_decode($row->Aulas) as $r) {
+                $aulas .= $r->Disciplina . ": " . $r->Aula . "\n"; // Adiciona quebra de linha para exibição correta
+            }
+        
+            // Salva a posição inicial
+            $yStart = $pdf->GetY();
+            $xStart = $pdf->GetX();
+        
+            // Define a largura das colunas
+            $dataWidth = 20;
+            $aulasWidth = 180; // Ajuste para caber melhor o conteúdo
+        
+            // Escreve a célula da data
+            $pdf->Cell($dataWidth, 8, $data, 1, 0, 'C');
+        
+            // Escreve a célula de aulas e mede a altura
+            $pdf->MultiCell($aulasWidth, 8, self::utfConvert($aulas), 1);
+        
+            // Calcula a altura usada pela MultiCell
+            $height = $pdf->GetY() - $yStart;
+        
+            // Retorna para a posição da data e ajusta a altura para alinhar
+            $pdf->SetXY($xStart, $yStart);
+            $pdf->Cell($dataWidth, $height, '', 1, 0, 'C'); // Célula da data com altura ajustada
+        
+            // Move para a próxima linha
+            $pdf->Ln($height);
+        }
+        
+        $pdf->Ln();
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        $pdf->Ln(10);
+        //CAMPOS DE ASSINATURA
+        $pdf->SetFont('Arial', '', 10);
+        $larguraTotal = 200; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 20; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Coordenador(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Professor(a)'), 0, 1, 'C');
+        // Saída do PDF
+        $pdf->Output('I', 'Declaracao_Frequencia.pdf');
+        exit;
+    }
+
     public function pdfMapaAnual($query,$IDTurma,$IDProfessor,$IDDisciplina){
         // Criar o PDF com FPDF
         $pdf = new FPDF();
