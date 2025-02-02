@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Ficha;
 use App\Models\Resposta;
+use App\Models\Organizacao;
 use App\Models\Aluno;
 use App\Models\Sintese;
 use App\Models\Matricula;
@@ -343,140 +344,134 @@ class FichaController extends Controller
         return $registros;
     }
 
-    public function gerarFichaIndividual($id){
-        $Aluno = AlunosController::getAluno($id);
-        $SQL = <<<SQL
-            SELECT 
-                d.NMDisciplina as Disciplina,
-                (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = t.id AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="1º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="1º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')) as Faltas1B,
-                    (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = t.id AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="2º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="2º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas2B,
-                    (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = t.id AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="3º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="3º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas3B,
-                    (SELECT COUNT(auFreq.id) FROM aulas auFreq WHERE TPConteudo = 0 AND auFreq.DTAula > a.DTEntrada AND auFreq.IDTurma = t.id AND auFreq.IDDisciplina = d.id AND auFreq.Estagio="4º BIM" AND DATE_FORMAT(auFreq.DTAula, '%Y') = DATE_FORMAT(NOW(),'%Y')) - (SELECT COUNT(f2.id) FROM frequencia f2 INNER JOIN aulas au2 ON(au2.id = f2.IDAula) WHERE TPConteudo = 0 AND f2.IDAluno = $id AND au.id AND au2.IDDisciplina = d.id AND au2.Estagio="4º BIM" AND DATE_FORMAT(f2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as Faltas4B,
-                CASE WHEN 
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
-                THEN
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "1º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
-                ELSE 
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='1º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
-                END as Nota1B,
-                CASE WHEN 
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
-                THEN
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "2º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
-                ELSE 
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='2º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
-                END as Nota2B,
-                CASE WHEN 
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
-                THEN
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "3º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
-                ELSE 
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='3º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
-                END as Nota3B,
-                CASE WHEN 
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) > 0
-                THEN
-                    (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = "4º BIM" AND rec2.IDAluno = $id AND rec2.IDDisciplina = d.id AND rec2.created_at = DATE_FORMAT(NOW(),'%Y'))
-                ELSE 
-                    (SELECT SUM(n2.Nota) FROM notas n2 INNER JOIN atividades at2 ON(n2.IDAtividade = at2.id) INNER JOIN aulas au3 ON(at2.IDAula = au3.id) WHERE au3.IDDisciplina = d.id AND n2.IDAluno = a.id AND au3.Estagio='4º BIM' AND DATE_FORMAT(n2.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') )
-                END as Nota4B
-            FROM disciplinas d
-            INNER JOIN aulas au ON(d.id = au.IDDisciplina)
-            INNER JOIN frequencia f ON(au.id = f.IDAula)
-            INNER JOIN alunos a ON(a.id = f.IDAluno)
-            INNER JOIN turmas t ON(a.IDTurma = t.id)
-            INNER JOIN atividades at ON(at.IDAula = au.id)
-            INNER JOIN notas n ON(at.id = n.IDAtividade)
-            WHERE a.id = $id
-            GROUP BY d.id 
-        SQL;
-        $queryBoletim = DB::select($SQL);
-        $Filiacao = json_decode($Aluno->PaisJSON);
-        //
-        $pdf = new FPDF(); //Cria o PDF
-        $pdf->AddPage(); // Adiciona a página
-
-        // Definir margens
-        $pdf->SetMargins(5, 5, 5);
-        //CABECALHO DO BOLETIM
-        $pdf->Image(public_path('storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Aluno->FotoEscola), 10, 10, 30); // Caminho da logo, posição X, Y e tamanho
-        // Definir fonte e título
-        $pdf->SetFont('Arial', 'B', 16);
+    public function gerarFichaIndividual(Request $request,$IDAluno){
+        $FIndividual = json_decode($request->Ficha,true);
+        //dd($FIndividual);
+        $Aluno = AlunosController::getAluno($IDAluno);
         $Escola = Escola::find($Aluno->IDEscola);
-        // Posição do nome da escola após a logo
-        $pdf->SetXY(30, 15); // Ajuste o valor X conforme necessário para centralizar
-        $pdf->Cell(0, 10, self::utfConvert($Aluno->Escola), 0, 1, 'C'); // Nome da escola centralizado
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 10, self::utfConvert($Escola->Rua.", ".$Escola->Numero." ".$Escola->Bairro." - ".$Escola->Cidade."/".$Escola->UF), 0, 1, 'C');
-        $pdf->Ln(20);
-        //CABECALHO DO BOLETIM
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell(0, 10, "Ficha Individual", 0, 1, 'C'); // Nome da escola centralizado
-        $pdf->SetFont('Arial', 'B', 6);
-        $pdf->Ln(3);
-        $pdf->Cell(66, 7, mb_convert_encoding("Escola: " . $Aluno->Escola, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(66, 7, mb_convert_encoding("Turma: " . $Aluno->Turma, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(66, 7, mb_convert_encoding("Ano Letivo: ". date('Y'), 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        //
-        $pdf->Cell(66, 7, mb_convert_encoding("INEP: " . $Aluno->INEP, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(66, 7, mb_convert_encoding("Data de Nascimento: " . $Aluno->Nascimento, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(66, 7, mb_convert_encoding("Cor/Raça: ". $Aluno->Cor, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        $pdf->Cell(66, 7, mb_convert_encoding("NIS: " . $Aluno->NIS, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(66, 7, mb_convert_encoding("Sexo: " . $Aluno->Sexo, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(66, 7, mb_convert_encoding("Estado Civil: Solteiro", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        $pdf->Cell(198, 7, mb_convert_encoding("Aluno: " . $Aluno->Nome , 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        $pdf->Cell(198, 7, mb_convert_encoding("Celular: " . $Aluno->Celular , 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        $pdf->Cell(198, 7, mb_convert_encoding("Endereço: " . $Aluno->Rua.", ".$Aluno->Numero." ".$Aluno->Bairro." - ".$Aluno->Cidade." ".$Aluno->UF , 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        $pdf->Cell(198, 7, mb_convert_encoding("Filiação: " . $Filiacao->Pai." e ".$Filiacao->Mae , 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        //ETAPAS
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(30, 7, 'Etapas', 1, 0, 'C');
-        $pdf->Cell(42, 7, mb_convert_encoding("1º BIM", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(42, 7, mb_convert_encoding("2º BIM", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(42, 7, mb_convert_encoding("3º BIM", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Cell(42, 7, mb_convert_encoding("4º BIM", 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-        $pdf->Ln();
-        //NOTAS E FALTAS
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(30, 7, 'DISCIPLINAS', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Nota', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Falta', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Nota', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Falta', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Nota', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Falta', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Nota', 1, 0, 'C');
-        $pdf->Cell(21, 7, 'Falta', 1, 1, 'C');
-        //CORPO DO BOLETIM
-        foreach($queryBoletim as $d){
-            $pdf->SetFont('Arial', '', 10);
-            $pdf->Cell(30, 7, mb_convert_encoding($d->Disciplina,'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Nota1B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Faltas1B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Nota2B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Faltas2B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Nota3B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Faltas3B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Nota4B, 1, 0, 'C');
-            $pdf->Cell(21, 7, $d->Faltas4B, 1, 1, 'C');
+        $Organizacao = Organizacao::find($Escola->IDOrg);
+        if(FIndividual::where('IDAluno',$IDAluno)->exists()){
+            FIndividual::where(["IDAluno"=> $IDAluno])->update([
+                "Avaliacao" => $request->Ficha
+            ]);
+        }else{
+            FIndividual::create([
+                "Avaliacao"=> $request->Ficha,
+                "IDAluno"=>$IDAluno
+            ]);
         }
-        //RODAPÉ
-        $pdf->Ln(1);
-        $pdf->Cell(0, 10, 'Assinatura do Diretor(a): _______________________', 0, 1, 'L');
-        $pdf->Cell(0, 10, self::utfConvert('Assinatura do Secretário(a): ____________________________'), 0, 1, 'L');
-        $pdf->Cell(0, 10, self::utfConvert('Emissão: '.date('d/m/Y H:i',strtotime(date('Y-m-d H:i')))), 0, 1, 'L');
-        $pdf->Ln(1);
-        //IMPRESSÃO
-        $pdf->Output('I', 'boletim.pdf');
-        exit;
+
+        $lineHeight = 6;
+        $Ano = date('Y');
+        $pdf = new FPDF();
+        $pdf->AddPage(); 
         //
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Aluno->IDEscola . '/' . $Escola->Foto,"FICHA DE ACOMPANHAMENTO E AVALIAÇÃO DA APRENDIZAGEM",[
+            "Rua" => $Escola->Rua,
+            "Numero" => $Escola->Numero,
+            "Bairro" => $Escola->Bairro,
+            "Cidade" => $Escola->Bairro,
+            "UF" => $Escola->UF
+        ]);
+        $pdf->SetFont('Arial', '', 8);
+        //
+        $pdf->Cell(65, $lineHeight, self::utfConvert('Nome: ' . $Aluno->Nome), 0, 0);
+        $pdf->Cell(65, $lineHeight, self::utfConvert('Data de Nascimento: ' . date('d/m/Y',strtotime($Aluno->Nascimento))), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('INEP: ' . $Aluno->INEP), 0, 1);
+
+        $pdf->Cell(65, $lineHeight, self::utfConvert('Turma e Série: '.$Aluno->Serie.' '. $Aluno->Turma), 0, 0);
+        $pdf->Cell(65, $lineHeight, self::utfConvert('Turno: ' . $Aluno->Turno), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Período Letivo: ' . $Ano), 0, 1);
+
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Situação do Aluno: Aprovado'), 0, 0);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('Legenda: S: SIM, N: NÃO, AV: as Vezes'), 0, 1);
+        //
+        //dd($FIndividual);
+        foreach ($FIndividual as $key => $fi) {
+            // Título da seção
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(100, $lineHeight, self::utfConvert($key), 0, 0);
+            $pdf->Ln();
+        
+            // Cabeçalho da tabela
+            $pdf->SetFont('Arial', 'B', 7);
+            $pdf->Cell(120, 12, 'Indicadores', 1, 0, 'C'); // Cabeçalho "Indicadores"
+            $pdf->Cell(40, 12, 'Bimestres/Conceitos', 1, 0, 'C'); // Cabeçalho "Bimestres/Conceitos"
+            $pdf->Ln(12);
+        
+            // Subcabeçalho dos bimestres
+            $pdf->Cell(120, $lineHeight, '', 1); // Célula vazia para alinhar com "Indicadores"
+            $pdf->Cell(10, $lineHeight, '1BIM', 1, 0, 'C'); // 1º Bimestre
+            $pdf->Cell(10, $lineHeight, '2BIM', 1, 0, 'C'); // 2º Bimestre
+            $pdf->Cell(10, $lineHeight, '3BIM', 1, 0, 'C'); // 3º Bimestre
+            $pdf->Cell(10, $lineHeight, '4BIM', 1, 0, 'C'); // 4º Bimestre
+            $pdf->Ln();
+        
+            // Dados dos indicadores e bimestres
+            $pdf->SetFont('Arial', '', 7);
+            foreach ($fi as $keyFi => $f) {
+                // Armazena a posição Y inicial
+                $yStart = $pdf->GetY();
+                $xStart = $pdf->GetX();
+        
+                // Define a largura da célula do indicador
+                $indicatorWidth = 120;
+        
+                // Escreve o nome do indicador e mede a altura
+                $pdf->MultiCell($indicatorWidth, $lineHeight, self::utfConvert($keyFi), 1);
+                
+                // Calcula a altura que foi gerada
+                $height = $pdf->GetY() - $yStart;
+        
+                // Retorna para a posição inicial para escrever os bimestres
+                $pdf->SetXY($xStart + $indicatorWidth, $yStart);
+        
+                // Escreve os valores dos bimestres na mesma altura
+                foreach ($f as $bim) {
+                    $pdf->Cell(10, $height, self::utfConvert($bim), 1, 0, 'C');
+                }
+        
+                $pdf->Ln(); // Nova linha para o próximo indicador
+            }
+        
+            $pdf->Ln(); // Espaço entre as seções
+        }        
+        ////////
+        //CAMPOS DE ASSINATURA
+        $pdf->Ln();
+        $pdf->MultiCell(160, $lineHeight, self::utfConvert('Parecer Descritivo: '.$request->Parecer), 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Observaçoes: '.$request->Observacao), 0, 1);
+        $pdf->Ln();
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 10, self::utfConvert($Escola->Cidade." - ".$Escola->UF.", ".date('d/m/Y')), 0, 1, 'C');
+        $pdf->Ln(10);
+        $larguraTotal = 160; // Largura total disponível para os campos de assinatura
+        $espacoEntreCampos = 30; // Espaço entre os campos
+        $campoLargura = ($larguraTotal - (2 * $espacoEntreCampos)) / 3; // Calcula a largura de cada campo
+
+        // Campo de assinatura 1
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os campos horizontalmente
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 2
+        $pdf->Cell($campoLargura, 10, '', 'T', 0, 'C'); // Linha para assinatura
+        $pdf->Cell($espacoEntreCampos, 10, '', 0, 0); // Espaço entre os campos
+
+        // Campo de assinatura 3
+        $pdf->Cell($campoLargura, 5, '', 'T', 1, 'C'); // Linha para assinatura
+
+        // Nome dos responsáveis abaixo das linhas de assinatura
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetX((210 - $larguraTotal) / 2); // Centraliza os textos horizontalmente
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Diretor(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Coordenador(a)'), 0, 0, 'C');
+        $pdf->Cell($espacoEntreCampos, 5, '', 0, 0); // Espaço
+        $pdf->Cell($campoLargura, 5, self::utfConvert('Professor(a)'), 0, 1, 'C');
+
+        $pdf->Output('I', 'Ficha Individual.pdf');
+        exit;
     }
 
     public function individual(){

@@ -10,6 +10,7 @@ use App\Http\Controllers\CalendarioController;
 use App\Models\Escola;
 use App\Models\NEE;
 use App\Models\Turma;
+use App\Models\FIndividual;
 use App\Models\User;
 use App\Models\Reclassificar;
 use Illuminate\Support\Facades\Hash;
@@ -120,6 +121,10 @@ class AlunosController extends Controller
         'nome' => 'Histórico',
         'endereco' => 'Historico',
         'rota' => 'Alunos/Historico'
+    ],[
+        'nome' =>'Ficha Avaliativa',
+        'endereco' => 'Ficha',
+        'rota' => 'Alunos/Ficha'
     ]);
 
     public function index(){
@@ -473,14 +478,42 @@ class AlunosController extends Controller
     public function ficha($id){
         $idorg = Auth::user()->id_org;
         
-        $Ficha = self::getAluno($id);
-        return view('Alunos.ficha',[
-            'submodulos' => self::cadastroSubmodulos,
+        $Aluno = self::getAluno($id);
+        $Ficha = FIndividual::select('Avaliacao')->where('IDAluno',$id)->first();
+        $Escolas = implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional));
+        $SQL = <<<SQL
+        SELECT 
+           d.id AS IDDisciplina,
+           d.NMDisciplina AS Disciplina,
+           CONCAT(
+              '[',
+              GROUP_CONCAT(
+                 DISTINCT
+                 '{',
+                 '"Sintese":"', IFNULL(sa.Sintese, ''), '"',
+                 '}'
+                 SEPARATOR ','
+              ),
+              ']'
+           ) AS Sinteses
+        FROM disciplinas d
+        INNER JOIN alocacoes_disciplinas ad ON ad.IDDisciplina = d.id
+        LEFT JOIN sintese_aprendizagem sa ON sa.IDDisciplina = d.id
+        WHERE ad.IDEscola IN ($Escolas)
+        GROUP BY d.id, d.NMDisciplina;
+        SQL;
+
+        $Disciplinas = DB::select($SQL);
+
+        $view = [
+            'submodulos' => (Auth::user()->tipo == 6) ? self::professoresSubmodulos : self::cadastroSubmodulos,
             'id' => $id,
-            'Ficha' => $Ficha,
-            'IDOrg' => Auth::user()->id_org,
-            'Turmas' => Turma::where('IDEscola',$Ficha->IDTurma)->get()
-        ]);
+            'Ficha' => json_decode($Ficha['Avaliacao'],true),
+            'Disciplinas' => $Disciplinas
+        ];
+
+
+        return view('Alunos.ficha',$view);
     }
 
     public function renovacoes($id){
@@ -1643,6 +1676,7 @@ class AlunosController extends Controller
                 m.id as IDMatricula,
                 m.Nome as Nome,
                 t.Nome as Turma,
+                t.Turno,
                 e.Nome as Escola,
                 m.TPSangue,
                 m.DireitoImagem,

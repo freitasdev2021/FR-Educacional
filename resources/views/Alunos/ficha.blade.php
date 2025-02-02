@@ -6,144 +6,90 @@
            @endforeach
         </div>
         <div class="fr-card-body">
-            <div class="col-sm-12 p-2">
-                <div>
-                    <div class="d-flex justify-content-center mb-4">
-                        <img id="selectedAvatar" src="{{!isset($Ficha->Foto) ? asset('img/kidAvatar.png') : url("storage/organizacao_".Auth::user()->id_org."alunos/aluno_$Ficha->CDPasta/$Ficha->Foto")}}"
-                        style="width: 200px; height: 200px; object-fit: cover;" alt="example placeholder" />
-                    </div>
+            
+            <form class="p-2" action="{{route('Alunos/FichaIndividual',$id)}}" method="POST">
+                @csrf
+                @method("PATCH")
+                @foreach($Disciplinas as $d)
+                    <h3>{{$d->Disciplina}}</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr align="center">
+                                <th rowspan="2">Ord.</th>
+                                <th rowspan="2">Indicadores</th>
+                                <th colspan="4">Bimestres/Conceitos</th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>1 BIM</th>
+                                <th>2 BIM</th>
+                                <th>3 BIM</th>
+                                <th>4 BIM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(json_decode($d->Sinteses) as $key => $s)
+                                @if(!empty($s->Sintese))
+                                    <tr class="{{$d->Disciplina}}_{{$key+1}}">
+                                        <input type="hidden" value="{{$d->Disciplina}}" name="Disciplina[]">
+                                        <td>{{$key+1}}</td>
+                                        <td>{{$s->Sintese}}</td>
+                                        <input name="Sintese[]" type="hidden" value="{{$s->Sintese}}">
+                                        <td></td>
+                                        <td></td>
+                                        <td><input type="text" name="1BIM[]" data-disciplina="{{$d->Disciplina}}" data-sintese="{{$s->Sintese}}" value="{{isset($Ficha[$d->Disciplina][$s->Sintese]['1 BIM']) ? $Ficha[$d->Disciplina][$s->Sintese]['1 BIM'] : ''}}"></td>
+                                        <td><input type="text" name="2BIM[]" data-disciplina="{{$d->Disciplina}}" data-sintese="{{$s->Sintese}}" value="{{isset($Ficha[$d->Disciplina][$s->Sintese]['2 BIM']) ? $Ficha[$d->Disciplina][$s->Sintese]['2 BIM'] : ''}}"></td>
+                                        <td><input type="text" name="3BIM[]" data-disciplina="{{$d->Disciplina}}" data-sintese="{{$s->Sintese}}" value="{{isset($Ficha[$d->Disciplina][$s->Sintese]['3 BIM']) ? $Ficha[$d->Disciplina][$s->Sintese]['3 BIM'] : ''}}"></td>
+                                        <td><input type="text" name="4BIM[]" data-disciplina="{{$d->Disciplina}}" data-sintese="{{$s->Sintese}}" value="{{isset($Ficha[$d->Disciplina][$s->Sintese]['4 BIM']) ? $Ficha[$d->Disciplina][$s->Sintese]['4 BIM'] : ''}}"></td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endforeach
+                <input type="hidden" name="Ficha">
+                <div class="col-sm-12">
+                    <label>Observações</label>
+                    <textarea name="Observacoes" class="form-control"></textarea>
                 </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label>Nome completo do Aluno</label>
-                        <input type="text" class="form-control" name="Nome" value="{{isset($Ficha->Nome) ? $Ficha->Nome : ''}}" disabled> 
-                    </div>
-                    <div class="col-sm-2">
-                        <label>RG do Aluno</label>
-                        <input type="text" class="form-control" value="{{isset($Ficha->RG) ? $Ficha->RG : ''}}" name="RG" disabled> 
-                    </div>
-                    <div class="col-sm-2">
-                        <label>CPF do Aluno</label>
-                        <input type="text" class="form-control" value="{{isset($Ficha->CPF) ? $Ficha->CPF : ''}}" name="CPF" disabled> 
-                    </div>
-                    <div class="col-sm-2">
-                        <label>Email do Aluno</label>
-                        <input type="text" class="form-control" value="{{isset($Ficha->Email) ? $Ficha->Email : ''}}" name="Email" disabled> 
-                    </div>
-                    <div class="col-sm-2">
-                        <label>Nascimento do Aluno</label>
-                        <input type="date" class="form-control" value="{{isset($Ficha->Nascimento) ? $Ficha->Nascimento : ''}}" name="Nascimento" disabled> 
-                    </div>
+                <div class="col-sm-12">
+                    <label>Parecer Descritivo</label>
+                    <textarea name="Parecer" class="form-control"></textarea>
                 </div>
-                <div class="row">
-                    <div class="col-sm-3">
-                    <label>Nome completo do Responsavel</label>
-                    <input type="text" class="form-control" value="{{isset($Ficha->NMResponsavel) ? $Ficha->NMResponsavel : ''}}" name="NMResponsavel" disabled> 
-                    </div>
-                    <div class="col-sm-3">
-                        <label>RG do Responsavel</label>
-                        <input type="text" class="form-control" value="{{isset($Ficha->RGPais) ? $Ficha->RGPais : ''}}" name="RGPais" disabled> 
-                    </div>
-                    <div class="col-sm-3">
-                        <label>CPF do Responsavel</label>
-                        <input type="text" class="form-control" value="{{isset($Ficha->CPFResponsavel) ? $Ficha->CPFResponsavel : ''}}" name="CPFResponsavel" disabled> 
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Email do Responsavel</label>
-                        <input type="email" class="form-control" value="{{isset($Ficha->EmailResponsavel) ? $Ficha->EmailResponsavel : ''}}" name="EmailResponsavel" disabled> 
-                    </div>
+                <br>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-default">Gerar</button>
                 </div>
-                <div class="row">
-                    <div class="col-sm-2">
-                        <label>CEP</label>
-                        <input type="text" name="CEP" class="form-control" disabled value="{{isset($Ficha->CEP) ? $Ficha->CEP : ''}}">
-                    </div>
-                    <div class="col-sm-5">
-                        <label>Rua</label>
-                        <input type="text" name="Rua" class="form-control" maxlength="50" value="{{isset($Ficha->Rua) ? $Ficha->Rua : ''}}" disabled>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Bairro</label>
-                        <input type="text" name="Bairro" class="form-control" maxlength="50" value="{{isset($Ficha->Bairro) ? $Ficha->Bairro : ''}}" minlength="2" disabled>
-                    </div>
-                    <div class="col-sm-1">
-                        <label>UF</label>
-                        <input type="text" name="UF" class="form-control" maxlength="2" value="{{isset($Ficha->UF) ? $Ficha->UF : ''}}" disabled>
-                    </div>
-                    <div class="col-sm-1">
-                        <label>Numero</label>
-                        <input type="text" name="Numero" class="form-control" maxlength="4" value="{{isset($Ficha->Numero) ? $Ficha->Numero : ''}}" disabled>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <label>Cidade</label>
-                        <input type="text" name="Cidade" class="form-control" maxlength="50" value="{{isset($Ficha->Cidade) ? $Ficha->Cidade : ''}}" minlength="3" disabled>
-                    </div>
-                    <div class="col-sm-4">
-                        <label>Celular Responsavel</label>
-                        <input type="text" name="CLResponsavel" class="form-control" maxlength="50" value="{{isset($Ficha->CLResponsavel) ? $Ficha->CLResponsavel : ''}}" minlength="3" disabled>
-                    </div>
-                    <div class="col-sm-4">
-                        <label>Celular Aluno</label>
-                        <input type="text" name="Celular" class="form-control" maxlength="50" value="{{isset($Ficha->Celular) ? $Ficha->Celular : ''}}" minlength="3" disabled>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <label>Turma</label>
-                        <input type="text" disabled class="form-control" value="">
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Possui NEE</label>
-                        <select class="form-control" name="NEE" disabled>
-                            <option value="1" {{isset($Ficha->NEE) && $Ficha->NEE == '1' ? 'selected' : ''}}>Sim</option>
-                            <option value="0" {{isset($Ficha->NEE) && $Ficha->NEE == '0' ? 'selected' : ''}}>Não</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Acompanhamento Médico</label>
-                        <select class="form-control" name="AMedico" disabled>
-                            <option value="1" {{isset($Ficha->AMedico) && $Ficha->AMedico == '1' ? 'selected' : ''}}>Sim</option>
-                            <option value="0" {{isset($Ficha->AMedico) && $Ficha->AMedico == '0' ? 'selected' : ''}}>Não</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Acompanhamento Psicológico</label>
-                        <select class="form-control" name="APsicologico" disabled>
-                            <option value="1" {{isset($Ficha->APsicologico) && $Ficha->APsicologico == '1' ? 'selected' : ''}}>Sim</option>
-                            <option value="0" {{isset($Ficha->APsicologico) && $Ficha->APsicologico == '0' ? 'selected' : ''}}>Não</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <label>Vencimento da Matrícula</label>
-                        <input type="date" name="Vencimento" class="form-control" value="{{isset($Ficha->Vencimento) ? $Ficha->Vencimento : ''}}" disabled>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Tem Alergia?</label>
-                        <select class="form-control" name="Alergia" disabled>
-                            <option value="1" {{isset($Ficha->Alergia) && $Ficha->Alergia == '1' ? 'selected' : ''}}>Sim</option>
-                            <option value="0" {{isset($Ficha->Alergia) && $Ficha->Alergia == '0' ? 'selected' : ''}}>Não</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Utiliza Transporte Escolar?</label>
-                        <select class="form-control" name="Transporte" disabled>
-                            <option value="1" {{isset($Ficha->Transporte) && $Ficha->Transporte == '1' ? 'selected' : ''}}>Sim</option>
-                            <option value="0" {{isset($Ficha->Transporte) && $Ficha->Transporte == '0' ? 'selected' : ''}}>Não</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Recebe Bolsa Família?</label>
-                        <select class="form-control" name="BolsaFamilia" disabled>
-                            <option value="1" {{isset($Ficha->BolsaFamilia) && $Ficha->BolsaFamilia == '1' ? 'selected' : ''}}>Sim</option>
-                            <option value="0" {{isset($Ficha->BolsaFamilia) && $Ficha->BolsaFamilia == '0' ? 'selected' : ''}}>Não</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
+    <script>
+        $("form").on("submit",function(e){
+
+            var data = {};
+
+            $('tbody tr').each(function() {
+                var disciplina = $(this).find('input[name="Disciplina[]"]').val();
+                var sintese = $(this).find('input[name="Sintese[]"]').val();
+                var bim1 = $(this).find('input[name="1BIM[]"]').val();
+                var bim2 = $(this).find('input[name="2BIM[]"]').val();
+                var bim3 = $(this).find('input[name="3BIM[]"]').val();
+                var bim4 = $(this).find('input[name="4BIM[]"]').val();
+
+                if (!data[disciplina]) {
+                    data[disciplina] = {};
+                }
+
+                data[disciplina][sintese] = {
+                    "1 BIM": bim1,
+                    "2 BIM": bim2,
+                    "3 BIM": bim3,
+                    "4 BIM": bim4
+                };
+            });
+
+            $("input[name=Ficha]").val(JSON.stringify(data));
+        })
+    </script>
 </x-educacional-layout>

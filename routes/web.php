@@ -144,7 +144,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //FICHA INDIVIDUAL
         Route::get('Alunos/Relatorio/Teste',[RelatoriosController::class,'getAlunosTurmasEditavel'])->name('Alunos/Relatorio/Teste');
         Route::get('Turmas/Aprovacao/Teste/{IDTurma}/{Ano}',[TurmasController::class,'getProgredidosTurma'])->name('Turmas/Aprovacao/Teste');
-        Route::get('Alunos/FichaIndividual/{id}',[FichaController::class,'gerarFichaIndividual'])->name('Alunos/FichaIndividual');
+        Route::patch('Alunos/FichaIndividual/{IDAluno}',[FichaController::class,'gerarFichaIndividual'])->name('Alunos/FichaIndividual');
         //ANEXOS
         Route::get('Alunos/Anexos/{IDAluno}',[AlunosController::class,'anexos'])->name("Alunos/Anexos");
         Route::post('Alunos/Anexos/Save',[AlunosController::class,'saveAnexo'])->name("Alunos/Anexos/Save");
