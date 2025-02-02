@@ -25,7 +25,7 @@
                 <div class="col-sm-12 p-2">
                     <input type="hidden" value="{{$id}}" name="IDAluno">
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <input type="hidden" value="{{$IDEscola}}" name="IDEscolaOrigem">
                             <label>Escola de Destino</label>
                             <select name="IDEscolaDestino" class="form-control" required>
@@ -35,9 +35,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <label>Data de Transferência</label>
                             <input type="date" class="form-control" name="DTTransferencia">
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Cidade de Destino</label>
+                            <input type="text" class="form-control" name="CDDestino">
                         </div>
                     </div>
                     <div class="row">

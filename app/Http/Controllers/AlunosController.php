@@ -2829,14 +2829,16 @@ class AlunosController extends Controller
             eDestino.Nome as EscolaDestino,
             eOrigem.Nome as EscolaOrigem,
             tr.Justificativa,
-            tr.DTTransferencia
+            tr.DTTransferencia,
+            tr.CDDestino,
+            tr.Aprovado
         FROM transferencias tr
         INNER JOIN alunos a ON(a.id = tr.IDAluno)
         INNER JOIN turmas t ON(a.IDTurma = t.id)
         INNER JOIN escolas eDestino ON(tr.IDEscolaDestino = eDestino.id)
         INNER JOIN escolas eOrigem ON(tr.IDEscolaOrigem = eOrigem.id)
         INNER JOIN organizacoes o ON(eOrigem.IDOrg = o.id)
-        WHERE o.id = $idorg $AND AND tr.Aprovado = 0   
+        WHERE o.id = $idorg $AND  
         ";
 
         $registros = DB::select($SQL);
@@ -2846,7 +2848,8 @@ class AlunosController extends Controller
                 $item[] = $r->EscolaOrigem;
                 $item[] = Controller::data($r->DTTransferencia,'d/m/Y');
                 $item[] = $r->Justificativa;
-                $item[] = "<a href=".route('Alunos/Transferidos/Transferido',$r->IDTransferencia)." class='btn btn-fr btn-xs'>Aprovar/Reprovar</a>";
+                $item[] = $r->CDDestino;
+                $item[] = ($r->trAprovado == 0) ? "<a href=".route('Alunos/Transferidos/Transferido',$r->IDTransferencia)." class='btn btn-fr btn-xs'>Aprovar/Reprovar</a>" : '';
                 $itensJSON[] = $item;
             }
         }else{
@@ -3991,7 +3994,7 @@ class AlunosController extends Controller
                 ]);
             }
             
-            if($request->IDEscolaOrigem !=0){
+            if($request->IDEscolaDestino !=0){
                 Transferencia::create($request->all());
                 Escola::find($request->IDEscolaOrigem)->update([
                     "QTVagas" => Escola::find($request->IDEscolaOrigem)->QTVagas - 1
@@ -4029,6 +4032,7 @@ class AlunosController extends Controller
             CASE WHEN tr.IDEscolaDestino = 0 THEN 'Escola Fora da Rede' ELSE eDestino.Nome END as Destino,
             t.Nome as Turma,
             tr.DTTransferencia,
+            tr.CDDestino,
             CASE WHEN ft.Feedback IS NOT NULL THEN ft.Feedback ELSE '' END as Feedback
         FROM transferencias tr
         INNER JOIN alunos a ON(a.id = tr.IDAluno)
@@ -4073,6 +4077,7 @@ class AlunosController extends Controller
                 $item[] = $r->Destino;
                 $item[] = Controller::data($r->DTTransferencia,'d/m/Y');
                 $item[] = $r->Justificativa;
+                $item[] = $r->CDDestino;
                 $item[] = $st;
                 $item[] = $opcoes;
                 $itensJSON[] = $item;

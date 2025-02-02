@@ -499,7 +499,7 @@ class TurmasController extends Controller
         return $disciplinas;
     }
 
-    public function getAta($IDTurma){
+    public function getAta(Request $request,$IDTurma){
         /////////////////////
         // Exemplo de dados da consulta SQL que serão usados para gerar o boletim 
         $ata = array();
@@ -613,23 +613,23 @@ class TurmasController extends Controller
         
         // Mensagem inicial
         $pdf->SetFont('Arial', '', 8);
-        $pdf->SetXY(5, 50); // Ajusta a posição inicial para o texto
+        $pdf->SetXY(5, 60); // Ajusta a posição inicial para o texto
         $pdf->MultiCell(200, 5, self::utfConvert("Dia " . date('d/m/Y') . " terminou-se o processo de apuração das notas dos alunos do(a) $Turma->Serie, da(o) ENSINO FUNDAMENTAL DE 9 ANOS - SERIES INICIAIS, turma: $Turma->Serie - $Turma->NMTurma, turno: MATUTINO deste estabelecimento de ensino, com os seguintes resultados:"), 0, 'L');
         $pdf->Ln(12);
         // Disciplinas
         $colWidth = 12; // Largura ajustada
         $rowHeight = 4; // Altura das linhas ajustada
         $xPosInicial = 80;
-        $yPos = 75;
+        $yPos = 130;
 
         foreach ($disciplinas as $key => $disciplina) {
             $pdf->SetXY($xPosInicial, $yPos);
             $pdf->SetFont('Arial', 'B', 9);
 
             // Bordas e rotação
-            $pdf->Rect($xPosInicial - 5, $yPos - 15, $colWidth, 35);
+            $pdf->Rect($xPosInicial - 5, $yPos - 50, $colWidth, 70);
             $pdf->Rotate(90, $xPosInicial + 7, $yPos + 12);
-            $pdf->Cell(50, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
+            $pdf->Cell(150, $colWidth, self::utfConvert($disciplina), 0, 1, 'L');
             $pdf->Rotate(0);
 
             $result = array_filter($headerDisciplinas, function ($item) use ($disciplina) {
@@ -662,7 +662,7 @@ class TurmasController extends Controller
 
         // Observações
         $pdf->SetFont('Arial', '', 8);
-        $pdf->MultiCell(275, 5, self::utfConvert("Observações: " . $Escola->ObsAta), 0, 'L');
+        $pdf->MultiCell(275, 5, self::utfConvert("Observações: " . $request->Observacoes), 0, 'L');
         // Campos de assinatura no rodapé
         $pdf->SetY(-35); // Define a posição do rodapé (35 mm acima do fim da página)
         $pdf->SetFont('Arial', '', 10);

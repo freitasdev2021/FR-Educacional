@@ -39,6 +39,7 @@
                         <th style="text-align:center;" scope="col">Escola de Destino</th>
                         <th style="text-align:center;" scope="col">Data de Transferência</th>
                         <th style="text-align:center;" scope="col">Justificativa</th>
+                        <th style="text-align:center;" scope="col">Destino</th>
                         <th style="text-align:center;" scope="col">Status</th>
                         <th style="text-align:center;" scope="col">Opções</th>
                       </tr>

@@ -36,9 +36,6 @@
                 <div class="col-auto">
                     <a href="{{route('Turmas/Boletins',$id)}}" target="_blank" class="btn btn-default">Gerar Boletins</a>
                 </div>
-                <div class="col-auto">
-                    <a href="{{route('Turmas/Ata',$id)}}" target="_blank" class="btn btn-default">Gerar Ata</a>
-                </div>
                 @endif
             </form>
             <!--LISTAS-->
@@ -59,6 +56,20 @@
                         
                     </tbody>
                 </table>
+                <hr>
+                <label>Ata de Resultados Finais</label>
+                <form action="{{route('Turmas/Ata',$id)}}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="col-sm-12">
+                        <label>Observações</label>
+                        <textarea name="Observacoes" class="form-control"></textarea>
+                    </div>
+                    <br>
+                    <div class="col-auto">
+                        <button class="btn btn-default" type="submit">Gerar Ata</button>
+                    </div>
+                </form>
             </div>
             <!--//-->
         </div>
