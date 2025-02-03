@@ -9,6 +9,7 @@ use App\Http\Controllers\TransporteController;
 use App\Http\Controllers\CalendarioController;
 use App\Models\Escola;
 use App\Models\NEE;
+use App\Models\CClasse;
 use App\Models\Turma;
 use App\Models\FIndividual;
 use App\Models\User;
@@ -103,6 +104,10 @@ class AlunosController extends Controller
         'nome' => 'NEE',
         'endereco' => 'NEE',
         'rota' => 'Alunos/NEE'
+    ],[
+        'nome' => 'Cons. Classe',
+        'endereco' => 'CClasse',
+        'rota' => 'Alunos/CClasse'
     ]);
 
     public const professoresSubmodulos = array([
@@ -315,6 +320,71 @@ class AlunosController extends Controller
             "CDPasta" => DB::select("SELECT CDPasta FROM matriculas m INNER JOIN alunos a ON(m.id = a.IDMatricula) WHERE a.id = $IDAluno")[0]->CDPasta,
             "Anexos" => DB::select("SELECT Anexo,DSAnexo,CDPasta FROM anexos_aluno aa INNER JOIN alunos a ON(aa.IDAluno = a.id) INNER JOIN matriculas m ON(a.IDMatricula = m.id) WHERE a.id =$IDAluno")
         ]);
+    }
+
+    public function cclasse($IDAluno){
+        $SQL = <<<SQL
+            SELECT
+                d.NMDisciplina,
+                d.id as IDDisciplina,
+                cs.Situacao,
+                cs.Nota
+            FROM disciplinas d
+            INNER JOIN turnos tn ON(tn.IDDisciplina = d.id)
+            INNER JOIN alunos a ON(a.IDTurma = tn.IDTurma)
+            LEFT JOIN conselho_classe cs ON(cs.IDDisciplina = d.id)
+            WHERE a.id = $IDAluno
+            GROUP BY d.id
+        SQL;
+
+        $Disciplinas = DB::select($SQL);
+        return view('Alunos.cclasse',[
+            'submodulos' => self::cadastroSubmodulos,
+            'IDAluno' => $IDAluno,
+            'Disciplinas' => $Disciplinas
+        ]);
+    }
+
+    public function saveCClasse(Request $request,$IDAluno){
+        $Conselho = [];
+        $Disciplinas = [];
+        $Nota = [];
+        $Situacao = [];
+
+        foreach($request->Disciplina as $d){
+            if(!is_null($d)){
+                array_push($Disciplinas,$d);
+            }
+        }
+
+        foreach($request->Nota as $n){
+            if(!is_null($n)){
+                array_push($Nota,$n);
+            }
+        }
+
+        foreach($request->Situacao as $s){
+            if(!is_null($s)){
+                array_push($Situacao,$s);
+            }
+        }
+        
+        for($i=0;$i<count($request->Disciplina);$i++){
+            $Conselho[] = [
+                "IDDisciplina" => $Disciplinas[$i],
+                "Situacao" => $Situacao[$i],
+                "Nota" => $Nota[$i],
+                "IDAluno"=> $IDAluno
+            ];
+        }
+
+        CClasse::where('IDAluno',$IDAluno)->whereYear('created_at',date('Y'))->delete();
+
+        foreach($Conselho as $c){
+            CClasse::create($c);
+        }
+
+        return redirect()->back();
     }
 
     public function saveAnexo(Request $request){

@@ -245,6 +245,9 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/NEE/Cadastro/{IDAluno}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Novo');
         Route::get('Alunos/NEE/Cadastro/{IDAluno}/{id}',[AlunosController::class,'cadastroNecessidade'])->name('Alunos/NEE/Edit');
         Route::post('Alunos/NEE/Save',[AlunosController::class,'saveNecessidade'])->name('Alunos/NEE/Save');
+        //CONSELHO DE CLASSE
+        Route::get('Alunos/CClasse/{IDAluno}',[AlunosController::class,'cclasse'])->name('Alunos/CClasse');
+        Route::patch('Alunos/CClasse/Save/{IDAluno}',[AlunosController::class,'saveCClasse'])->name('Alunos/CClasse/Save');
         //REMANEJAMENTOS MUDANÇAS
         Route::get('Alunos/Mudancas',[AlunosController::class,'mudancas'])->name('Alunos/Mudancas');
         //

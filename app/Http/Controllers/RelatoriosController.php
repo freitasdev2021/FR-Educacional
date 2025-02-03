@@ -3258,6 +3258,19 @@ class RelatoriosController extends Controller
         $pdf->Ln();
         $pdf->SetFont('Arial', '', 7);
         foreach($query as $key => $row){
+            if(is_null($row->SituacaoCClasse)){
+                if(AlunosController::getResultadoAno($row->IDAluno,date('Y')) == "Aprovado"){
+                    $Situacao = "A";
+                }else{
+                    $Situacao = "R";
+                }
+            }else{
+                if($row->SituacaoCClasse == "Aprovado"){
+                    $Situacao = "A";
+                }else{
+                    $Situacao = "R";
+                }
+            }
             $pdf->Cell(10, 4, $key+1, 1, 0, 'C');
             $pdf->Cell(10, 4, $row->IDAluno, 1, 0, 'C');
             $pdf->Cell(15, 4, date('d/m/Y',strtotime($row->DTEntrada)) , 1, 0, 'C');
@@ -3276,11 +3289,11 @@ class RelatoriosController extends Controller
             $pdf->Cell(10, 4, $row->Notas4B, 1, 0, '');
             $pdf->Cell(10, 4, $row->Recuperacao4B, 1, 0, '');
             $pdf->Cell(10, 4, ($row->Notas1B+$row->Notas2B+$row->Notas3B+$row->Notas4B)/4, 1, 0, '');
-            $pdf->Cell(10, 4, '-', 1, 0, '');
+            $pdf->Cell(10, 4, $row->NotaCClasse, 1, 0, '');
             $pdf->Cell(10, 4, $row->RecuperacaoAnual, 1, 0, '');
             $pdf->Cell(10, 4, $row->RecuperacaoAnual, 1, 0, '');
             $pdf->Cell(10, 4, ($row->Notas1B+$row->Notas2B+$row->Notas3B+$row->Notas4B)/4, 1, 0, '');
-            $pdf->Cell(10, 4, (AlunosController::getResultadoAno($row->IDAluno,date('Y')) == "Aprovado") ? 'A' : 'R', 1, 0, '');
+            $pdf->Cell(10, 4, $Situacao, 1, 0, '');
             $pdf->Ln();
         }
         $pdf->Ln(9.9);
@@ -3375,7 +3388,9 @@ class RelatoriosController extends Controller
                 (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = '4º BIM' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as Recuperacao4B,
                 (SELECT rec2.Nota FROM recuperacao rec2 WHERE rec2.Estagio = 'Anual' AND rec2.IDAluno = a.id AND rec2.IDDisciplina = $IDDisciplina AND rec2.created_at = DATE_FORMAT(NOW(),'%Y')) as RecuperacaoAnual,
                 (SELECT CONCAT('[', GROUP_CONCAT('"', ntAv.Nota, '"' SEPARATOR ','), ']') FROM aulas as av INNER JOIN atividades atv4 ON(atv4.IDAula = av.id) INNER JOIN notas ntAv ON(ntAv.IDAtividade = atv4.id) WHERE av.TPConteudo = 1 AND ntAv.IDAluno = a.id) as Avaliacoes,
-                (SELECT CONCAT('[', GROUP_CONCAT('"', au.Hash, '"' SEPARATOR ','), ']') FROM aulas as au WHERE au.TPConteudo = 0 AND au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma) as IDAulas
+                (SELECT CONCAT('[', GROUP_CONCAT('"', au.Hash, '"' SEPARATOR ','), ']') FROM aulas as au WHERE au.TPConteudo = 0 AND au.IDDisciplina = $IDDisciplina AND au.IDTurma = $IDTurma) as IDAulas,
+                (SELECT MAX(c.Nota) FROM conselho_classe c WHERE c.IDAluno = a.id AND DATE_FORMAT(c.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y')  ) as NotaCClasse,
+                (SELECT MAX(c.Situacao) FROM conselho_classe c WHERE c.IDAluno = a.id AND DATE_FORMAT(c.created_at, '%Y') = DATE_FORMAT(NOW(),'%Y') ) as SituacaoCClasse
             FROM disciplinas d
             LEFT JOIN aulas au ON(d.id = au.IDDisciplina)
             LEFT JOIN frequencia f ON(au.id = f.IDAula)
