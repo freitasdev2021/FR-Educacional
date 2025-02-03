@@ -44,6 +44,7 @@
                     <input name="IDProfessor" value="{{Auth::user()->IDProfissional}}" type="hidden">
                     @endif
                     <div class="row">
+                        @if(isset($Professores))
                         <div class="col-sm-12">
                             <label>Professor</label>
                             <select class="form-control" name="IDProfessor">
@@ -52,6 +53,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
                         <div class="col-sm-4">
                             <label>Disciplina</label>
                             <select name="IDDisciplina" class="form-control">
@@ -99,6 +101,7 @@
                     <input name="IDProfessor" value="{{Auth::user()->IDProfissional}}" type="hidden">
                     @endif
                     <div class="row">
+                        @if(isset($Professores))
                         <div class="col-sm-12">
                             <label>Professor</label>
                             <select class="form-control" name="IDProfessor">
@@ -107,6 +110,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
                         <div class="col-sm-6">
                             <label>Disciplina</label>
                             <select name="IDDisciplina" class="form-control">
