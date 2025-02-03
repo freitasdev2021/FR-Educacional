@@ -69,10 +69,15 @@ class EscolasController extends Controller
         //dd(Auth::user()->tipo);
         if(in_array(Auth::user()->tipo,[6,5,5.5])){
             $submodulos = self::professoresRelatorios;
-            $blade = "Escolas.disciplinas";
+            $blade = "Escolas.relatorioDisciplinas";
             $view["Turmas"] = ProfessoresController::getTurmasProfessor(Auth::user()->id);
             $view['submodulos'] = self::professoresRelatorios;
             $view['IDTurma'] = isset($_GET['IDTurma']) ? $_GET['IDTurma'] : '';
+            if(Auth::user()->tipo == 6){
+                $view['Disciplinas'] = ProfessoresController::getDisciplinasProfessor(Auth::user()->IDProfissional);
+            }else{
+                $view['Disciplinas'] = self::getDisciplinasEscola();
+            }
         }else{
             $view['submodulos'] = self::submodulos;
         }
@@ -312,30 +317,10 @@ class EscolasController extends Controller
         $disciplinas = DB::select($SQL);
         if(count($disciplinas) > 0){
             foreach($disciplinas as $d){
-                if(in_array(Auth::user()->tipo,[2,2.5])){
-                    $btn = "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>";
-                }elseif(in_array(Auth::user()->tipo,[5,5.5,6])){
-                    $IDProfessor = Auth::user()->IDProfissional;
-                    $btn = '
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Nota", "Periodo" => "Ano", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-success">Mapa Final</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Nota", "Periodo" => "1º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-primary">Mapa 1 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Nota", "Periodo" => "2º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-primary">Mapa 2 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Nota", "Periodo" => "3º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-primary">Mapa 3 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Nota", "Periodo" => "4º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-primary">Mapa 4 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Frequencia", "Periodo" => "1º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-warning">Frequência 1 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Frequencia", "Periodo" => "2º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-warning">Frequência 2 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Frequencia", "Periodo" => "3º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-warning">Frequência 3 BIM</a>
-                        <a href="' . route('Relatorios/Mapas', ["Tipo" => "Frequencia", "Periodo" => "4º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-warning">Frequência 4 BIM</a>
-                        <a href="' . route('Relatorios/Disciplinas/Aulas', ["Periodo" => "1º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-info">Aulas 1º BIM</a>
-                        <a href="' . route('Relatorios/Disciplinas/Aulas', ["Periodo" => "2º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-info">Aulas 2º BIM</a>
-                        <a href="' . route('Relatorios/Disciplinas/Aulas', ["Periodo" => "3º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-info">Aulas 3º BIM</a>
-                        <a href="' . route('Relatorios/Disciplinas/Aulas', ["Periodo" => "4º BIM", "IDTurma" => $IDTurma, "IDProfessor" => $IDProfessor, "IDDisciplina" => $d->id]) . '" class="btn btn-xs btn-info">Aulas 4º BIM</a>
-                    ';
-                }
                 $item = [];
                 $item[] = $d->NMDisciplina;
                 (in_array(Auth::user()->tipo,[2,2.5])) ? $item[] = implode(",",json_decode($d->Escolas)) : '';
-                $item[] = $btn;
+                $item[] = "<a href='".route('Escolas/Disciplinas/Cadastro',$d->id)."' class='btn btn-primary btn-xs'>Editar</a>";
                 $itensJSON[] = $item;
             }
         }else{
