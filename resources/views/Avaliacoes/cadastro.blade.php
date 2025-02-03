@@ -27,6 +27,15 @@
                     <input type="hidden" name="TPAula" value="Normal">
                     <input type="hidden" name="IDOrg" value="{{Auth::user()->id_org}}">
                     <div class="row">
+                        <div class="col-sm-2">
+                            <label>Etapa</label>
+                            <select name="Estagio" class="form-control">
+                                <option value="">Selecione</option>
+                                @foreach($Periodos as $p)
+                                <option value="{{$p['Periodo']}}" data-ini="{{$p['DTInicio']}}" data-ter="{{$p['DTTermino']}}">{{$p['Periodo']}} ({{date('d/m/Y',strtotime($p['DTInicio']))}} - {{date('d/m/Y',strtotime($p['DTTermino']))}})</option>
+                                @endforeach
+                            </select>                            
+                        </div>
                         <div class="col-sm-4">
                             <label>Data</label>
                             <select name="DTAula" class="form-control">
@@ -34,32 +43,6 @@
                                 <option value="{{$d}}">{{date('d/m/Y',strtotime($d))}}</option>
                                 @endforeach
                             </select>
-                        </div>
-                        <div class="col-sm-2">
-                            <label>Etapa</label>
-                            <select name="Estagio" class="form-control">
-                                <optgroup label="Bimestre">
-                                    <option value="1º BIM" {{isset($Registro) && $Registro->Estagio == "1º BIM" ? 'selected' : ''}}>1º Bimestre</option>
-                                    <option value="2º BIM" {{isset($Registro) && $Registro->Estagio == "2º BIM" ? 'selected' : ''}}>2º Bimestre</option>
-                                    <option value="3º BIM" {{isset($Registro) && $Registro->Estagio == "3º BIM" ? 'selected' : ''}}>3º Bimestre</option>
-                                    <option value="4º BIM" {{isset($Registro) && $Registro->Estagio == "4º BIM" ? 'selected' : ''}}>4º Bimestre</option>
-                                </optgroup>
-                                
-                                <optgroup label="Trimestre">
-                                    <option value="1º TRI" {{isset($Registro) && $Registro->Estagio == "1º TRI" ? 'selected' : ''}}>1º Trimestre</option>
-                                    <option value="2º TRI" {{isset($Registro) && $Registro->Estagio == "2º TRI" ? 'selected' : ''}}>2º Trimestre</option>
-                                    <option value="3º TRI" {{isset($Registro) && $Registro->Estagio == "3º TRI" ? 'selected' : ''}}>3º Trimestre</option>
-                                </optgroup>
-                                
-                                <optgroup label="Semestre">
-                                    <option value="1º SEM" {{isset($Registro) && $Registro->Estagio == "1º SEM" ? 'selected' : ''}}>1º Semestre</option>
-                                    <option value="2º SEM" {{isset($Registro) && $Registro->Estagio == "2º SEM" ? 'selected' : ''}}>2º Semestre</option>
-                                </optgroup>
-                                
-                                <optgroup label="Periodo">
-                                    <option value="1º PER" {{isset($Registro) && $Registro->Estagio == "1º PER" ? 'selected' : ''}}>1º Período</option>
-                                </optgroup>
-                            </select>                            
                         </div>
                         <div class="col-sm-{{(Auth::user()->tipo == 6) ? '3' : '3'}}">
                             <label>Turma</label>
@@ -199,6 +182,23 @@
                     })
                 </script>
                 @endif
+                <script>
+                    $("select[name=Estagio]").on("change", function() {
+                        var ini = $("option:selected", this).attr("data-ini");
+                        var ter = $("option:selected", this).attr("data-ter");
+
+                        $("select[name=DTAula] option").each(function() {
+                            var valor = $(this).attr("value");
+
+                            // Verifica se o valor está dentro do intervalo
+                            if (valor >= ini && valor <= ter) {
+                                $(this).show();  // Mostra a opção válida
+                            } else {
+                                $(this).hide();  // Oculta a opção fora do intervalo
+                            }
+                        });
+                    });
+                </script>
             </div>
             <!--//-->
         </div>

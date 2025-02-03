@@ -691,10 +691,6 @@ class EscolasController extends Controller
 
                 $opcoes = "
                 <a href='".route('Escolas/Turmas/Cadastro',$t->IDTurma)."' class='btn btn-primary btn-xs'>Abrir</a> <a href='".route('Turmas/Desempenho',$t->IDTurma)."' class='btn btn-primary btn-xs'>Desempenho</a>
-                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"1º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 1º BIM</a>
-                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"2º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 2º BIM</a>
-                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"3º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 3º BIM</a>
-                <a href='".route('Relatorios/Disciplinas/AulasData',["Periodo"=>"4º BIM","IDTurma"=>$t->IDTurma])."' class='btn btn-xs btn-info'>Aulas 4º BIM</a>
                 ";
 
                 $item = [];

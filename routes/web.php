@@ -355,7 +355,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         //RELATORIOS
         Route::post('Relatorios/Mapas',[RelatoriosController::class,'mapas'])->name('Relatorios/Mapas');
         Route::post('Relatorios/Disciplinas/Aulas',[RelatoriosController::class,'getAulasDisciplina'])->name('Relatorios/Disciplinas/Aulas');
-        Route::get('Relatorios/Disciplinas/Aulas/{Periodo}/{IDTurma}',[RelatoriosController::class,'getAulasDatas'])->name('Relatorios/Disciplinas/AulasData');
+        Route::post('Relatorios/Disciplinas/AulasData',[RelatoriosController::class,'getAulasDatas'])->name('Relatorios/Disciplinas/AulasData');
         Route::get('Relatorios/Escolas/Quadro/{IDEscola}',[RelatoriosController::class,'quadroTurmas'])->name('Relatorios/Escolas/Quadro');
         Route::get('Escolas/Relatorios',[EscolasController::class,'relatorios'])->name('Escolas/Relatorios');
         Route::get('Escolas/Relatorios/Imprimir/{Tipo}',[RelatoriosController::class,'imprimir'])->name('Escolas/Relatorios/Imprimir');

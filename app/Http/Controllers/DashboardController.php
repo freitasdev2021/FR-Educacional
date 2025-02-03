@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\PedagogosController;
+use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\AlunosController;
 use App\Http\Controllers\CalendarioController;
 use App\Models\ProcessoSeletivo;
@@ -46,9 +47,7 @@ class DashboardController extends Controller
 
     public static function alunos($WHERE){
         $IDOrg = Auth::user()->id_org;
-        if(in_array(Auth::user()->tipo,[4,4.5])){
-            $WHERE .= ' AND e.id='.self::getEscolaDiretor(Auth::user()->id);
-        }
+        $WHERE .= " AND e.id IN(".implode(",",EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional)).")";
 
         $WHERE .=" AND a.STAluno=0";
 

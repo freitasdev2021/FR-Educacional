@@ -3031,7 +3031,10 @@ class RelatoriosController extends Controller
         exit;
     }
 
-    public function getAulasDatas($Periodo,$IDTurma){
+    public function getAulasDatas(Request $request){
+        $Periodo = $request->Periodo;
+        $IDTurma = $request->IDTurma;
+        $Observacoes = $request->Observacoes;
         $SQL = <<<SQL
             SELECT 
                 au.DTAula,
@@ -3137,7 +3140,7 @@ class RelatoriosController extends Controller
         
         $pdf->Ln();
         $pdf->SetFont('Arial', 'B', 7);
-        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '), 0, 1);
+        $pdf->Cell(0, $lineHeight, self::utfConvert('OBSERVAÇÕES: '.$Observacoes), 0, 1);
         $pdf->Ln(10);
         //CAMPOS DE ASSINATURA
         $pdf->SetFont('Arial', '', 10);

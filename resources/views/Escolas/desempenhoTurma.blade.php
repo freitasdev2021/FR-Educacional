@@ -70,6 +70,30 @@
                         <button class="btn btn-default" type="submit">Gerar Ata</button>
                     </div>
                 </form>
+                <label>Aulas por Data</label>
+                <form action="{{route('Relatorios/Disciplinas/AulasData')}}" method="POST">
+                    @csrf
+                    <input type="hidden" value="{{$id}}" name="IDTurma">
+                    <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <label>Etapa</label>
+                            <select name="Periodo" class="form-control">
+                                <option value="1º BIM">1º BIM</option>
+                                <option value="2º BIM">2º BIM</option>
+                                <option value="3º BIM">3º BIM</option>
+                                <option value="4º BIM">4º BIM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <label>Observações</label>
+                        <textarea name="Observacoes" class="form-control"></textarea>
+                    </div>
+                    <br>
+                    <div class="col-auto">
+                        <button class="btn btn-default" type="submit">Gerar Ata</button>
+                    </div>
+                </form>
             </div>
             <!--//-->
         </div>

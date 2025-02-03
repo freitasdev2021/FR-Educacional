@@ -8,6 +8,7 @@ use App\Http\Controllers\AulasController;
 use App\Http\Controllers\CalendarioController;
 use App\Models\Aulas;
 use App\Models\Disciplina;
+use App\Models\Periodo;
 use App\Models\Nota;
 use App\Models\Chamada;
 use Illuminate\Http\Request;
@@ -206,14 +207,19 @@ class AvaliacoesController extends Controller
         }
 
         //
-        
+        $Periodos = array_map(function($i){
+            $arr = $i;
+            $arr['Periodo'] = substr(strtoupper($i['Periodo']),0,7);
+            return $arr;
+        },Periodo::select('DTInicio','DTTermino','Periodo')->whereIn('IDEscola',$IDEscolas)->whereYear('created_at',date('Y'))->get()->toArray());
         //
 
         $view = [
             'Turmas' => ProfessoresController::getTurmasProfessor(Auth::user()->id),
             'submodulos' => $submodulos,
             'id' => '',
-            'Datas'=> CalendarioController::diasLetivos()
+            'Datas'=> CalendarioController::diasLetivos(),
+            'Periodos' => $Periodos
         ];
 
         if(in_array(Auth::user()->tipo,[4,5,4.5,5.5])){
