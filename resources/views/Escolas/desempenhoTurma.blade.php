@@ -91,7 +91,7 @@
                     </div>
                     <br>
                     <div class="col-auto">
-                        <button class="btn btn-default" type="submit">Gerar Ata</button>
+                        <button class="btn btn-default" type="submit">Gerar</button>
                     </div>
                 </form>
             </div>

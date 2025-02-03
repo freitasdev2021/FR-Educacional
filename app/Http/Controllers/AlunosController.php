@@ -2271,7 +2271,7 @@ class AlunosController extends Controller
         //
         $pdf->Ln(5);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$Escola->OBSGeralHistorico), 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Observações: '.$request->Observacoes), 0, 0);
         $pdf->Ln(10);
         $pdf->Cell(100, $lineHeight, self::utfConvert($Escola->Cidade.'/'.$Escola->UF.', '.date('d/m/Y')), 0, 0);
         $pdf->Ln(4);

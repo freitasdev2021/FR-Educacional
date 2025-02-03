@@ -387,7 +387,7 @@ class FichaController extends Controller
         $pdf->Cell(65, $lineHeight, self::utfConvert('Turno: ' . $Aluno->Turno), 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Período Letivo: ' . $Ano), 0, 1);
 
-        $pdf->Cell(100, $lineHeight, self::utfConvert('Situação do Aluno: Aprovado'), 0, 0);
+        $pdf->Cell(100, $lineHeight, self::utfConvert('Situação do Aluno: '.$request->Situacao), 0, 0);
         $pdf->Cell(0, $lineHeight, self::utfConvert('Legenda: S: SIM, N: NÃO, AV: as Vezes'), 0, 1);
         //
         //dd($FIndividual);

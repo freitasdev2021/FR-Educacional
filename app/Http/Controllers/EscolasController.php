@@ -70,13 +70,17 @@ class EscolasController extends Controller
         if(in_array(Auth::user()->tipo,[6,5,5.5])){
             $submodulos = self::professoresRelatorios;
             $blade = "Escolas.relatorioDisciplinas";
-            $view["Turmas"] = ProfessoresController::getTurmasProfessor(Auth::user()->id);
+            
             $view['submodulos'] = self::professoresRelatorios;
             $view['IDTurma'] = isset($_GET['IDTurma']) ? $_GET['IDTurma'] : '';
             if(Auth::user()->tipo == 6){
                 $view['Disciplinas'] = ProfessoresController::getDisciplinasProfessor(Auth::user()->IDProfissional);
+                $view["Turmas"] = ProfessoresController::getTurmasProfessor(Auth::user()->id);
             }else{
+                $IDEscolas = EscolasController::getIdEscolas(Auth::user()->tipo,Auth::user()->id,Auth::user()->id_org,Auth::user()->IDProfissional);
                 $view['Disciplinas'] = self::getDisciplinasEscola();
+                $view['Turmas'] = self::getSelectTurmasEscola($IDEscolas);
+                $view['Professores'] = self::getProfessoresTurma($view['IDTurma']);
             }
         }else{
             $view['submodulos'] = self::submodulos;
@@ -436,6 +440,21 @@ class EscolasController extends Controller
         }
 
         return ob_get_clean();
+    }
+
+    public function getProfessoresTurma($IDTurma){
+        $AND = " AND tn.IDTurma = ".$IDTurma;
+
+        $SQL = "SELECT 
+            p.Nome as Professor,us.id as USProfessor,p.id as IDProfessor 
+        FROM professores p 
+        INNER JOIN users us ON(us.IDProfissional = p.id)
+        INNER JOIN turnos tn ON(p.id = tn.IDProfessor)
+        WHERE us.Tipo = 6 $AND GROUP BY p.id";
+
+        $Query = DB::select($SQL);
+
+        return $Query;
     }
 
     public static function getProfessorDisciplina($IDDisciplina,$IDTurma){

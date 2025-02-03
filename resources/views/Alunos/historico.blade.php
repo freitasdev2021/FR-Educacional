@@ -41,7 +41,7 @@
             </style>
             <div class="row">
                 <div class="col-auto">
-                    <a href="{{route('Alunos/Historico/Abrir',$id)}}" class="btn btn-danger">Gerar Histórico Padrão</a>
+                    <a href="{{route('Alunos/Historico/Abrir',$id)}}" class="btn btn-warning">Histórico Avulso</a>
                 </div>
             </div>
             <hr>
@@ -153,11 +153,16 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="col-sm-12">
+                        <label>Observações</label>
+                        <textarea name="Observacoes" class="form-control"></textarea>
+                    </div>
+                    <br>
                 </div>
                 <!--FIM HISTÓRICO-->
                 <br>
                 <input type="hidden" value="" name="Historico">
-                <button class="col-auto btn btn-danger" type="submit">Gerar</button>
+                <button class="col-auto btn btn-primary" type="submit">Gerar</button>
                 <button class="col-auto btn btn-success" type="button" id="adicionarDisciplina">Adicionar Campo Disciplinar</button>
             </form>
             <script>

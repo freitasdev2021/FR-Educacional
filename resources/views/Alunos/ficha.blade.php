@@ -57,6 +57,13 @@
                     <label>Parecer Descritivo</label>
                     <textarea name="Parecer" class="form-control"></textarea>
                 </div>
+                <div class="col-sm-12">
+                    <label>Situação</label>
+                    <select name="Situacao" class="form-control">
+                        <option value="Aprovado(A)">Aprovado(A)</option>
+                        <option value="Reprovado(A)">Reprovado(A)</option>
+                    </select>
+                </div>
                 <br>
                 <div class="col-auto">
                     <button type="submit" class="btn btn-default">Gerar</button>

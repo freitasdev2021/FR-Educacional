@@ -310,6 +310,12 @@ class educacionalLayout extends Component
 
     public const supervisor = array(
         [
+            'nome' => 'Escola',
+            'icon' => 'bx bxs-school',
+            'rota' => 'Escolas/index',
+            'endereco' => 'Escolas'
+        ],
+        [
             'nome' => 'Alunos',
             'icon' => 'bx bxs-group',
             'rota' => 'Alunos/index',
