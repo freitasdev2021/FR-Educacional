@@ -86,7 +86,7 @@ class TurmasController extends Controller
         $larguraTotalTabela = 161; 
         
         // Definir fonte e título
-        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,$Turma->Serie." - ".$Turma->Nome,[
+        self::criarCabecalho($pdf,$Escola->Nome,$Organizacao->Organizacao,'storage/organizacao_' . Auth::user()->id_org . '_escolas/escola_' . $Turma->IDEscola . '/' . $Escola->Foto,strtoupper($Turma->Serie." - ".$Turma->Nome),[
             "Rua" => $Escola->Rua,
             "Numero" => $Escola->Numero,
             "Bairro" => $Escola->Bairro,
