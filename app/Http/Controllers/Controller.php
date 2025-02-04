@@ -162,7 +162,7 @@ abstract class Controller
 
         $pdf->SetFont('Arial','B',15);
         $pdf->SetXY(25, 40); // Ajuste a posição para a próxima linha
-        $pdf->Cell(0, 10, self::utfConvert($Documento), 0, 1, 'C'); // Texto centralizado com quebra de linha
+        $pdf->Cell(0, 10, self::utfConvert(strtoupper($Documento)), 0, 1, 'C'); // Texto centralizado com quebra de linha
         // Espaçamento após o cabeçalho
         $pdf->Ln();
     }

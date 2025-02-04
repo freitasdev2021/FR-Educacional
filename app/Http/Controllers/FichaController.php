@@ -161,7 +161,7 @@ class FichaController extends Controller
             "Rua" => $Escola->Rua,
             "Numero" => $Escola->Numero,
             "Bairro" => $Escola->Bairro,
-            "Cidade" => $Escola->Bairro,
+            "Cidade" => $Escola->Cidade,
             "UF" => $Escola->UF
         ],
         $Escola->Email,
@@ -372,7 +372,7 @@ class FichaController extends Controller
             "Rua" => $Escola->Rua,
             "Numero" => $Escola->Numero,
             "Bairro" => $Escola->Bairro,
-            "Cidade" => $Escola->Bairro,
+            "Cidade" => $Escola->Cidade,
             "UF" => $Escola->UF
         ],
         $Escola->Email,

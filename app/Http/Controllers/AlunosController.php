@@ -614,7 +614,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -678,7 +678,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -747,7 +747,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1027,7 +1027,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1191,7 +1191,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1477,7 +1477,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1537,7 +1537,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1600,7 +1600,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1658,7 +1658,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1718,7 +1718,7 @@ class AlunosController extends Controller
                 "Rua" => $Escola->Rua,
                 "Numero" => $Escola->Numero,
                 "Bairro" => $Escola->Bairro,
-                "Cidade" => $Escola->Bairro,
+                "Cidade" => $Escola->Cidade,
                 "UF" => $Escola->UF
             ],
             $Escola->Email,
@@ -1965,7 +1965,7 @@ class AlunosController extends Controller
             "Rua" => $Escola->Rua,
             "Numero" => $Escola->Numero,
             "Bairro" => $Escola->Bairro,
-            "Cidade" => $Escola->Bairro,
+            "Cidade" => $Escola->Cidade,
             "UF" => $Escola->UF
         ],
         $Escola->Email,
@@ -2239,7 +2239,7 @@ class AlunosController extends Controller
             "Rua" => $Escola->Rua,
             "Numero" => $Escola->Numero,
             "Bairro" => $Escola->Bairro,
-            "Cidade" => $Escola->Bairro,
+            "Cidade" => $Escola->Cidade,
             "UF" => $Escola->UF
         ],
         $Escola->Email,
@@ -2365,7 +2365,7 @@ class AlunosController extends Controller
             "Rua" => $Escola->Rua,
             "Numero" => $Escola->Numero,
             "Bairro" => $Escola->Bairro,
-            "Cidade" => $Escola->Bairro,
+            "Cidade" => $Escola->Cidade,
             "UF" => $Escola->UF
         ],
         $Escola->Email,
