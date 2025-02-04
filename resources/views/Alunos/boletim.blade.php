@@ -47,20 +47,7 @@
                     background-color: #f2f2f2;
                 }
             </style>
-            {{-- <table>
-                <tr>
-                    <th>Nome</th>
-                    <td>João da Silva</td>
-                </tr>
-                <tr>
-                    <th>Matrícula</th>
-                    <td>2023123456</td>
-                </tr>
-                <tr>
-                    <th>Data de Nascimento</th>
-                    <td>15/03/2005</td>
-                </tr>
-            </table> --}}
+            <label>Boletim e Ficha</label>
             <table>
                 @switch($Periodo)
                     @case('Bimestral')
@@ -149,6 +136,26 @@
                     @endswitch
                 </tbody>
             </table>
+            <label>Ficha de Aproveitamento Individual</label>
+            <form action="{{route('Alunos/Aproveitamento',$id)}}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="col-sm-12">
+                    <label>Observações</label>
+                    <textarea name="Observacoes" class="form-control"></textarea>
+                </div>
+                <div class="col-sm-12">
+                    <label>Resultado</label>
+                    <select name="Resultado" class="form-control">
+                        <option value="APROVADO(A)">APROVADO(A)</option>
+                        <option value="REPROVADO(A)">REPROVADO(A)</option>
+                    </select>
+                </div>
+                <br>
+                <div class="col-auto">
+                    <button class="btn btn-success">Gerar</button>
+                </div>
+            </form>
         </div>
     </div>
 </x-educacional-layout>

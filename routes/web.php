@@ -264,6 +264,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get("Alunos/Comprovantes/Responsabilidade/{id}",[AlunosController::class,'termoResponsabilidade'])->name("Alunos/Comprovante/Responsabilidade");
         Route::get('/Alunos/Historico/{id}',[AlunosController::class,'historico'])->name('Alunos/Historico');
         Route::get('/Alunos/Boletim/{id}',[AlunosController::class,'boletim'])->name('Alunos/Boletim');
+        Route::patch('Alunos/Aproveitamento/{id}',[AlunosController::class,'fichaAproveitamento'])->name('Alunos/Aproveitamento');
         Route::patch('/Alunos/GerarHistorico/{id}',[AlunosController::class,'gerarHistoricoEscolar'])->name('Alunos/GerarHistorico');
         Route::get('/Alunos/Suspenso/{id}',[AlunosController::class,'suspenso'])->name('Alunos/Suspenso');
         Route::post('/Alunos/Transferencias/Cancela',[AlunosController::class,'cancelaTransferencia'])->name('Alunos/Transferencias/Cancela');
