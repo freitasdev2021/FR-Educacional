@@ -2357,6 +2357,25 @@ class AlunosController extends Controller
 
         $Filiacao = json_decode($Aluno->PaisJSON);
 
+        $Modalidade = $request->Modalidade;
+
+        $qtSerie = 18;
+        $qtSerieLoop = 9;
+        $cell = 6.5;
+        $cell2 = 13;
+
+        if($Modalidade == "E.INFANTIL"){
+            $qtSerie = 4;
+            $qtSerieLoop = 2;
+        }
+
+        if($Modalidade == "CRECHE"){
+            $qtSerie = 2;
+            $qtSerieLoop = 1;
+            $cell = 10;
+            $cell2 = 20;
+        }
+
         // Configura o FPDF
         $pdf = new Fpdf();
         $pdf->AddPage();
@@ -2434,12 +2453,19 @@ class AlunosController extends Controller
         $pdf->Ln();
         $pdf->SetFont('Arial', 'B', 5);
         $pdf->Cell(83, 8, 'Áreas de Estudos', 1, 0, 'C');
-        $pdf->Cell(117, 4, self::utfConvert('Série / Ano / Período'), 1, 0, 'C');
+        $pdf->Cell($cell*$qtSerie, 4, self::utfConvert('Série / Ano / Período'), 1, 0, 'C');
         $pdf->Ln();
         $pdf->Cell(83, 4, '', 0, 0, 'C');
         foreach($Historico['AnosEstudados'] as $s){
-            $pdf->Cell(6.5, 4, self::utfConvert(str_replace(' E.FUNDAMENTAL','',$s['Serie'])), 1, 0, 'C');
-            $pdf->Cell(6.5, 4, 'CH', 1, 0, 'C');
+            if($Modalidade == "E.FUNDAMENTAL"){
+                $pdf->Cell($cell, 4, self::utfConvert(str_replace(' E.FUNDAMENTAL','',$s['Serie'])), 1, 0, 'C');
+            }elseif($Modalidade == "E.INFANTIL"){
+                $pdf->Cell($cell, 4, self::utfConvert(str_replace(' Periodo E.INFANTIL','',$s['Serie']))." PER", 1, 0, 'C');
+            }else{
+                $pdf->Cell($cell, 4, "Creche ", 1, 0, 'C');
+            }
+            
+            $pdf->Cell($cell, 4, 'CH', 1, 0, 'C');
         }
         $pdf->Ln();
         // dd($Historico['QueryHistorico']);
@@ -2448,15 +2474,15 @@ class AlunosController extends Controller
             $pdf->Cell(83, 4, self::utfConvert($qH['Disciplina']), 1, 0, 'C'); // Nome da disciplina
             $corpoHistorico = $qH['Serie'];
             // dd($corpoHistorico);
-            for ($serie = 1; $serie <= 9; $serie++) { // Loop para cada série
+            for ($serie = 1; $serie <= $qtSerieLoop; $serie++) { // Loop para cada série
                 $serieMarcada = false; // Marca se a série já foi preenchida
 
                 foreach ($corpoHistorico as $np) {
                     if ($np['Disciplina'] == $qH['Disciplina']  && $np['Serie'] == "{$serie}º Ano" && $np['CHDisciplina'] !="-") {
                         // Se a disciplina e a série correspondem, preenche as células
 
-                        $pdf->Cell(6.5, 4, $np['Nota'], 1, 0, 'C');
-                        $pdf->Cell(6.5, 4, number_format($np['CHDisciplina'], 2, '.', ''), 1, 0, 'C');
+                        $pdf->Cell($cell, 4, $np['Nota'], 1, 0, 'C');
+                        $pdf->Cell($cell, 4, number_format($np['CHDisciplina'], 2, '.', ''), 1, 0, 'C');
 
                         // Soma a carga horária anual no total por série
                         $cargaHorariaTotal[$serie] += number_format($np['CHDisciplina'], 2, '.', '');
@@ -2467,8 +2493,8 @@ class AlunosController extends Controller
 
                 if (!$serieMarcada) {
                     // Preenche com "-" caso não haja correspondência
-                    $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
-                    $pdf->Cell(6.5, 4, '-', 1, 0, 'C');
+                    $pdf->Cell($cell, 4, '-', 1, 0, 'C');
+                    $pdf->Cell($cell, 4, '-', 1, 0, 'C');
                 }
             }
 
@@ -2476,13 +2502,13 @@ class AlunosController extends Controller
         }
         // Exibe a linha de carga horária total
         $pdf->Cell(83, 4, self::utfConvert("CARGA HORÁRIA TOTAL"), 1, 0, 'C');
-        for ($serie = 1; $serie <= 9; $serie++) {
+        for ($serie = 1; $serie <= $qtSerieLoop; $serie++) {
             if ($cargaHorariaTotal[$serie] > 0) {
                 // Converte o total em "H:i"
-                $pdf->Cell(13, 4, $cargaHorariaTotal[$serie], 1, 0, 'C');
+                $pdf->Cell($cell2, 4, $cargaHorariaTotal[$serie], 1, 0, 'C');
             } else {
                 // Preenche com "-" caso não haja carga horária
-                $pdf->Cell(13, 4, '-', 1, 0, 'C');
+                $pdf->Cell($cell2, 4, '-', 1, 0, 'C');
             }
         }
         $pdf->Ln();
@@ -2491,10 +2517,10 @@ class AlunosController extends Controller
         foreach($Historico['ResultadoFinal'] as $aE){
             if (!empty($aE['Resultado'])) {
                 // Converte o total em "H:i"
-                $pdf->Cell(13, 4,$aE['Resultado'], 1, 0, 'C');
+                $pdf->Cell($cell2, 4,$aE['Resultado'], 1, 0, 'C');
             } else {
                 // Preenche com "-" caso não haja carga horária
-                $pdf->Cell(13, 4, '-', 1, 0, 'C');
+                $pdf->Cell($cell2, 4, '-', 1, 0, 'C');
             }
         }
         //
@@ -2527,6 +2553,20 @@ class AlunosController extends Controller
 
         $Filiacao = json_decode($Aluno->PaisJSON);
 
+        $Modalidade = "E.FUNDAMENTAL";
+        $qtSerie = 9;
+        if(isset($_GET['Modalidade']) && $_GET['Modalidade']){
+            $Modalidade = $_GET['Modalidade'];
+        }
+
+        if($Modalidade == "E.INFANTIL"){
+            $qtSerie = 2;
+        }
+
+        if($Modalidade == "CRECHE"){
+            $qtSerie = 1;
+        }
+
         $SQLAnos = <<<SQL
         SELECT
             t.Serie,
@@ -2545,7 +2585,7 @@ class AlunosController extends Controller
         LEFT JOIN aulas au ON(au.IDTurma = t.id)
         LEFT JOIN frequencia f ON(au.Hash = f.HashAula)
         LEFT JOIN alunos al ON(al.id = f.IDAluno)
-        WHERE e.IDOrg = $IDOrg AND t.Serie LIKE '%E.FUNDAMENTAL%'
+        WHERE e.IDOrg = $IDOrg AND t.Serie LIKE '%$Modalidade%'
         GROUP BY t.Serie
         ORDER BY t.Serie
         SQL;
@@ -2617,7 +2657,7 @@ class AlunosController extends Controller
             INNER JOIN escolas e ON (alo.IDEscola = e.id)
             INNER JOIN disciplinas d ON (d.id = tn.IDDisciplina)
             WHERE e.IDOrg = $IDOrg
-            AND t.Serie LIKE '%E.FUNDAMENTAL%'
+            AND t.Serie LIKE '%$Modalidade%'
             GROUP BY d.id;
         SQL;  
         $queryHistorico = DB::select($SQLHistorico);
@@ -2697,12 +2737,14 @@ class AlunosController extends Controller
         //     'series' => $series,
         //     'corpoHistorico' => $corpoHistorico,
         //     'queryHistorico' => $queryHistorico]);
-
+        //dd($qtSerie);
         return view('Alunos.historico',[
             'submodulos' => $submodulos,
             'id' => $id,
             'AnosEstudados' => $queryAnos,
             'series' => $series,
+            'qtSerie'=> $qtSerie,
+            'Modalidade' => $Modalidade,
             'corpoHistorico' => $corpoHistorico,
             'queryHistorico' => $queryHistorico
         ]);

@@ -39,11 +39,18 @@
                 overflow:scroll;
             }
             </style>
-            <div class="row">
-                <div class="col-auto">
-                    <a href="{{route('Alunos/Historico/Abrir',$id)}}" class="btn btn-warning">Histórico Avulso</a>
+            <form class="row" action="{{route('Alunos/Historico',$id)}}" method="GET">
+                <div class="col-sm-10">
+                    <select name="Modalidade" class="form-control">
+                        <option value="E.FUNDAMENTAL" {{isset($_GET['Modalidade']) && $_GET['Modalidade'] == "E.FUNDAMENTAL" ? 'selected' : ''}}>E.FUNDAMENTAL</option>
+                        <option value="E.INFANTIL" {{isset($_GET['Modalidade']) && $_GET['Modalidade'] == "E.INFANTIL" ? 'selected' : ''}}>E.INFANTIL</option>
+                        <option value="CRECHE" {{isset($_GET['Modalidade']) && $_GET['Modalidade'] == "CRECHE" ? 'selected' : ''}}>CRECHE</option>
+                    </select>
                 </div>
-            </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-default">Gerar</button>
+                </div>
+            </form>
             <hr>
             <form action="{{route('Alunos/GerarHistorico',$id)}}" method="POST" class="col-sm-12">
                 @csrf
@@ -84,11 +91,11 @@
                     <table class="table table-striped">
                         <thead>
                             <tr align="center">
-                                <th colspan="19">NOTAS/CARGA HORÁRIA</th>
+                                <th colspan="{{($qtSerie*2)+1}}">NOTAS/CARGA HORÁRIA</th>
                             </tr>
                             <tr>
                                 <th rowspan="2">Áreas de Estudos</th>
-                                <th colspan="18">Série / Anos / Períodos</th>
+                                <th colspan="{{$qtSerie*2}}">Série / Anos / Períodos</th>
                             </tr>
                             <tr>
                                @foreach($series as $s)
@@ -101,10 +108,14 @@
                             @php
                                 $cargaHorariaTotal = array_fill(1, 9, 0);
                             @endphp
+                            
                             @foreach($queryHistorico as $qh)
                                 <tr class="trDisciplina">
-                                    <td><input type="text" name="Disciplina[]" value="{{$qh->Disciplina}}"></td>
-                                    @for($serie = 1; $serie <= 9; $serie++)
+                                    <td style="display:flex;">
+                                        <button type="button" class="btn btn-xs btn-danger btn-remove">X</button>&nbsp;
+                                        <input type="text" name="Disciplina[]" value="{{$qh->Disciplina}}">
+                                    </td>
+                                    @for($serie = 1; $serie <= $qtSerie; $serie++)
                                         <input type="hidden" name="Serie[]" value="{{$serie}}º Ano">
                                         @php
                                             $serieMarcada = false;
@@ -133,7 +144,7 @@
                             @endforeach
                             <tr>
                                 <td>Carga Horária Total</td>
-                                @for($serie = 1; $serie <= 9; $serie++)
+                                @for($serie = 1; $serie <= $qtSerie; $serie++)
                                     @if($cargaHorariaTotal[$serie] > 0)
                                     <td colspan="2"><strong>{{number_format($cargaHorariaTotal[$serie], 2, '.', '')}}</strong></td>
                                     @else
@@ -145,7 +156,7 @@
                                 <td>Resultado Final</td>
                                 @foreach($AnosEstudados as $qa)
                                     @if(is_numeric($qa->Ano))
-                                    <td colspan="2"><input type="text" data-resdisciplina="" name="ResultadoFinal[]" value="{{\App\Http\Controllers\AlunosController::getResultadoAno($id,$qa->Ano)}}"></td>
+                                    <td colspan="2"><input type="text" data-resdisciplina="" name="ResultadoFinal[]" value="-"></td>
                                     @else
                                     <td colspan="2"><input type="text" name="ResultadoFinal[]" value="" class="inputTimeFinal"></td>
                                     @endif
@@ -162,8 +173,11 @@
                 <!--FIM HISTÓRICO-->
                 <br>
                 <input type="hidden" value="" name="Historico">
+                <input type="hidden" name="Modalidade" value="{{$Modalidade}}">
                 <button class="col-auto btn btn-primary" type="submit">Gerar</button>
+                @if($Modalidade == "E.FUNDAMENTAL")
                 <button class="col-auto btn btn-success" type="button" id="adicionarDisciplina">Adicionar Campo Disciplinar</button>
+                @endif
             </form>
             <script>
                 $("form").on("submit",function(){
@@ -203,7 +217,7 @@
                         });
 
                         // Verifica se todas as séries estão representadas, e se não, adiciona com valores vazios ou os preenchidos
-                        for (let serie = 1; serie <= 9; serie++) {
+                        for (let serie = 1; serie <= {{$qtSerie}}; serie++) {
                             let serieExistente = series.find(s => s.Serie === `${serie}º Ano`);
 
                             // Se a série não existir, cria uma nova entrada com os valores preenchidos ou com o valor padrão
@@ -253,11 +267,16 @@
                     $("input[name=Historico]").val(JSON.stringify(enviarHistorico))
                 })
 
+                $("#queryHistorico").on("click",".btn-remove",function(){
+                    $(this).parents(".trDisciplina").remove()
+                })
+
+                var modalidade = $("input[name=Modalidade]").val()
                 //ADICIONAR DISCIPLINA
                 $("#adicionarDisciplina").on("click",function(){
                     //
                     $(".trDisciplina:last").after('<tr class="trDisciplina">\
-                        <td><input type="text" name="Disciplina[]" value=""></td>\
+                        <td style="display:flex;"><button type="button" class="btn btn-xs btn-danger btn-remove">X</button>&nbsp;<input type="text" name="Disciplina[]" value=""></td>\
                         <input type="hidden" name="Serie[]" value="1º Ano">\
                         <td><input type="text" data-ntdisciplina="" value="-" data-serie="1º Ano" name="Nota[]" class="inputNota"></td>\
                         <td><input type="text" data-chdisciplina="" value="-" data-serie="1º Ano" name="CHDisciplina[]" class="inputTime"></td>\

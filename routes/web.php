@@ -173,7 +173,7 @@ Route::middleware(['auth','STAcesso'])->group(function () {
         Route::get('Alunos/Faltas/Delete/{id}',[AlunosController::class,'deleteFaltas'])->name('Alunos/Faltas/Delete');
         Route::post('Alunos/Faltas/Save',[AlunosController::class,'saveFaltas'])->name('Alunos/Faltas/Save');
         //MATRICULA
-        Route::get('Alunos/Historico/Abrir/{IDAluno}',[AlunosController::class,'abrirHistoricoEscolar'])->name('Alunos/Historico/Abrir');
+        Route::get('Alunos/Historico/Abrir/{IDAluno}/{Modalidade}',[AlunosController::class,'abrirHistoricoEscolar'])->name('Alunos/Historico/Abrir');
         Route::get('/Alunos/list',[AlunosController::class,'getAlunos'])->name('Alunos/list');
         Route::get('/Alunos',[AlunosController::class,'index'])->name('Alunos/index');
         Route::get('/Alunos/Transferidos',[AlunosController::class,'transferidos'])->name('Alunos/Transferidos');
