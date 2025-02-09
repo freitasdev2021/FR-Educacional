@@ -14,7 +14,8 @@ class Organizacao extends Model
         'Email',
         'Endereco',
         'UF',
-        'Cidade'
+        'Cidade',
+        'STContrato'
     ];
 
     public function organizacao()

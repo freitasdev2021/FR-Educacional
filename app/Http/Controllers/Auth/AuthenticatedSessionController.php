@@ -25,11 +25,17 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $user = \App\Models\User::where('email', $request->email)->first();
-
+        $Org = \App\Models\Organizacao::find($user->id_org);
         // Verifica se o STAcesso é 0
         if ($user && $user->STAcesso == 0) {
             return redirect()->back()->withErrors([
                 'STAcesso' => 'Seu acesso está bloqueado. Entre em contato com o administrador.',
+            ]);
+        }
+        // Verifica se o contrato esta ativado;
+        if ($Org->STContrato == 0) {
+            return redirect()->back()->withErrors([
+                'STAcesso' => 'O Acesso do município está bloqueado',
             ]);
         }
 
