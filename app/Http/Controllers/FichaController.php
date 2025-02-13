@@ -44,7 +44,6 @@ class FichaController extends Controller
 
     public function index(){
         $AND = " ";
-
         
         if(isset($_GET['Etapa']) && !empty($_GET['Etapa'])){
             $AND .=" AND c.Etapa='".$_GET['Etapa']."'";
