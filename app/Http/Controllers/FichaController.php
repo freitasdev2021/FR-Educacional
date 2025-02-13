@@ -34,10 +34,6 @@ class FichaController extends Controller
         'nome' => 'Ficha Coletiva',
         'rota' => 'Fichas/Avaliativa',
         'endereco' => 'Avaliativa'
-    ],[
-        'nome' => 'Ficha Individual',
-        'rota' => 'Fichas/Individual',
-        'endereco' => 'Individual'
     ]);
 
     public const cadastroSubmodulos = array([
